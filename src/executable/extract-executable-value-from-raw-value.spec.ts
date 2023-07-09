@@ -18,7 +18,7 @@ describe("extractExecutableValueFromRawValue", () => {
 			"{{val0}} in between {{val1}}", [12, 24, 36]
 		)).toEqual([
 			12,
-			" in between",
+			" in between ",
 			24
 		]);
 	});
@@ -26,7 +26,7 @@ describe("extractExecutableValueFromRawValue", () => {
 	it('should collect multiple values', () => {
 		expect(extractExecutableValueFromRawValue(
 			"{{val0}} {{val1}}", [12, 24, 36]
-		)).toEqual([12, 24])
+		)).toEqual([12, " ", 24])
 	});
 	
 	it('should collect multiple values mixed with other content', () => {
@@ -35,7 +35,7 @@ describe("extractExecutableValueFromRawValue", () => {
 		)).toEqual([
 			"heading ",
 			12,
-			" middle",
+			" middle ",
 			24,
 			" tail text"
 		])

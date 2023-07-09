@@ -3,9 +3,9 @@ export const extractExecutableValueFromRawValue = (rawValue: string, values: unk
 	let match: RegExpExecArray | null = null;
 	const parts = [];
 	
-	while ((match = /{{val([0-9]+)}}/.exec(rawValue.trim())) !== null) {
+	while ((match = /{{val([0-9]+)}}/.exec(rawValue)) !== null) {
 		const [full] = match;
-		const pre = rawValue.slice(0, match.index);
+		const pre = match.input.slice(0, match.index);
 		
 		if (pre.length) {
 			parts.push(pre);
@@ -18,7 +18,7 @@ export const extractExecutableValueFromRawValue = (rawValue: string, values: unk
 			parts.push(val)
 		}
 		
-		rawValue = match.input.slice(match.index + full.length)
+		rawValue = match.input.slice(match.index + full.length);
 	}
 	
 	if (rawValue.length > 1) {
