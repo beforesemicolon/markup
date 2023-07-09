@@ -1,7 +1,7 @@
 {
   "name": "@beforesemicolon/html",
-  "version": "0.0.4",
-  "description": "HTML string renderer",
+  "version": "0.0.5",
+  "description": "Simple, Powerful, and Dynamic HTML Template System",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -13,7 +13,8 @@
     "build": "rm -rf dist && tsc && npm run build:min && npm run build:browser"
   },
   "author": "Elson Correia",
-  "license": "MIT",
+  "license": "BSD-3-Clause",
+  "keywords": ["html", "web components", "javascript", "html renderer", "web"],
   "devDependencies": {
     "@types/jest": "^29.5.1",
     "@types/jsdom": "^21.1.1",

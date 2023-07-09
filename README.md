@@ -1,29 +1,27 @@
 # HTML String Renderer
-A simple and small library that takes HTML string and parse it to DOM element while handling
-all your DOM manipulation needs behind the scenes with efficient DOM updates on changes.
+Simple, Powerful, and Dynamic HTML Template System
 
-## Motivation
-jQuery was a success when Browsers API were inconsistent and unreliable, but jQuery did not help with
-organizing logic in a protected scope. That's why libraries like React, Angular, VueJs, etc became successful. 
-They introduce the idea of components while handling all the DOM stuff behind the scenes.
+[![npm](https://img.shields.io/npm/v/%40beforesemicolon%2Fhtml)](https://www.npmjs.com/package/@beforesemicolon/html)
+![npm](https://img.shields.io/npm/l/%40beforesemicolon%2Fhtml)
 
-However, they are all complex and introduce patterns which overcomplicate stuff. They are also incompatible with
-each other which locks developers in an echo-system.
+The beforesemicolon `html` is a powerful and simple template system with the potential to empower the next UI Library
+framework or library. It handles all your DOM needs like updates and rendering.
 
-This is an extremely small library and packs a punch by solving all your DOM needs.
-It is ridiculous simple to use and depending on how you use it, it can mimic all popular libraries behavior
-and features while being small, efficient, and simple.
-
-Take a look at various examples to understand its power.
-
-We encorage you to build whatever framework on top of this one as it handles the DOM for you!
+## Install
+```
+npm i @beforesemicolon/html
+```
 
 ## Example
+
+This is a simple example of a button component, and you may also use this library to create components in whatever
+pattern you enjoy. See [some examples](#component-patterns) we prepared.
 
 ```js
 // a simple button
 let label = "click me";
 let disabled = false;
+
 const btn = html`
     <button attr.disabled="${disabled}" onclick="${handleClick}">
       ${label}
