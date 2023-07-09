@@ -25,7 +25,7 @@ describe("html", () => {
 
 		x = 5;
 
-		temp.render();
+		temp.update();
 
 		expect(document.body.innerHTML).toBe('less than 10');
 	});
@@ -41,15 +41,45 @@ describe("html", () => {
 		
 		list.push(html`<div>one</div>`)
 		
-		app.render();
+		app.update();
 		
 		expect(document.body.innerHTML).toBe("<div>one</div>");
 		
 		list.push(html`<div>two</div>`)
 		
-		app.render();
+		app.update();
 		
 		expect(document.body.innerHTML).toBe("<div>one</div><div>two</div>");
+	});
+	
+	it('should force to render in a different place', () => {
+		const page = html`
+		  <h1>Page Title</h1>
+		  <p>Page description</p>
+		  <button>Page CTA Action</button>
+		`;
+		
+		page.render(document.body);
+		
+		expect(document.body.innerHTML).toBe('<h1>Page Title</h1>\n' +
+			'\t\t  <p>Page description</p>\n' +
+			'\t\t  <button>Page CTA Action</button>')
+		
+		const wrapper = document.createElement('div');
+		wrapper.className = "wrapper"
+		document.body.appendChild(wrapper);
+		
+		page.render(wrapper);
+		
+		expect(document.body.innerHTML).toBe('<h1>Page Title</h1>\n' +
+			'\t\t  <p>Page description</p>\n' +
+			'\t\t  <button>Page CTA Action</button><div class="wrapper"></div>')
+		
+		page.render(wrapper, true);
+		
+		expect(document.body.innerHTML).toBe('<div class="wrapper"><h1>Page Title</h1>\n' +
+			'\t\t  <p>Page description</p>\n' +
+			'\t\t  <button>Page CTA Action</button></div>')
 	});
 	
 	it('should render src', () => {
@@ -70,7 +100,7 @@ describe("html", () => {
 
 		type = "submit";
 
-		button.render();
+		button.update();
 
 		expect(document.body.innerHTML).toBe('<button type="submit">click me</button>');
 	});
@@ -86,7 +116,7 @@ describe("html", () => {
 
 		edit = true;
 
-		val.render();
+		val.update();
 
 		expect(document.body.innerHTML).toBe('<input type="text" value="sample">');
 	});
@@ -119,25 +149,25 @@ describe("html", () => {
 
 		items = [1];
 
-		list.render();
+		list.update();
 
 		expect(document.body.innerHTML).toBe('<ul><li>item-1</li></ul>');
 
 		items = [1, 2];
 
-		list.render();
+		list.update();
 
 		expect(document.body.innerHTML).toBe('<ul><li>item-1</li>&nbsp;<li>item-2</li></ul>');
 
 		items = [];
 
-		list.render();
+		list.update();
 
 		expect(document.body.innerHTML).toBe('<ul></ul>');
 
 		items = [1, 2, 3];
 
-		list.render();
+		list.update();
 
 		expect(document.body.innerHTML).toBe('<ul><li>item-1</li>&nbsp;<li>item-2</li>&nbsp;<li>item-3</li></ul>');
 	});
@@ -176,8 +206,8 @@ describe("html", () => {
 	it('should handle ref directive', () => {
 		const btn = html`<button ref="btn"><span ref="span">click me</span></button>`;
 
-		const btnElement = btn.refs.get("btn");
-		const spanElement = btn.refs.get("span");
+		const btnElement = btn.refs["btn"];
+		const spanElement = btn.refs["span"];
 
 		expect(btnElement).toBeInstanceOf(HTMLButtonElement)
 		expect(spanElement).toBeInstanceOf(HTMLSpanElement)
@@ -194,7 +224,7 @@ describe("html", () => {
 			
 			loading = false;
 			
-			btn.render();
+			btn.update();
 			
 			expect(document.body.innerHTML).toBe('<button class="btn">click me</button>');
 		});
@@ -209,7 +239,7 @@ describe("html", () => {
 			
 			loading = false;
 			
-			btn.render();
+			btn.update();
 			
 			expect(document.body.innerHTML).toBe('<button>click me</button>');
 		});
@@ -224,7 +254,7 @@ describe("html", () => {
 			
 			loading = false;
 			
-			btn.render();
+			btn.update();
 			
 			expect(document.body.innerHTML).toBe('<button data-btn="true">click me</button>');
 		});
@@ -264,7 +294,7 @@ describe("html", () => {
 			
 			pointer = true;
 			
-			btn.render();
+			btn.update();
 			
 			expect(document.body.innerHTML).toBe('<button style="cursor: pointer;">click me</button>');
 		});
@@ -279,7 +309,7 @@ describe("html", () => {
 			
 			pointer = true;
 			
-			btn.render();
+			btn.update();
 			
 			expect(document.body.innerHTML).toBe('<button style="cursor: pointer;">click me</button>');
 		});
@@ -294,7 +324,7 @@ describe("html", () => {
 			
 			disabled = false;
 			
-			btn.render();
+			btn.update();
 			
 			expect(document.body.innerHTML).toBe('<button>click me</button>');
 		});
@@ -309,7 +339,7 @@ describe("html", () => {
 			
 			hidden = false;
 			
-			btn.render();
+			btn.update();
 			
 			expect(document.body.innerHTML).toBe('<button>click me</button>');
 		});
@@ -324,7 +354,7 @@ describe("html", () => {
 			
 			disabled = false;
 			
-			btn.render();
+			btn.update();
 			
 			expect(document.body.innerHTML).toBe('<button aria-disabled="false">click me</button>');
 		});
