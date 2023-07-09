@@ -7,3 +7,6 @@ jest.config.js
 .npmignore
 .gitignore
 *.tgz
+coverage
+dist/client.js
+dist/client.d.ts

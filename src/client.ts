@@ -1,4 +1,5 @@
 import {html} from "./html";
+import {HTMLRenderTemplate} from "./HTMLRenderTemplate";
 
 if (window) {
 	// @ts-ignore
@@ -9,5 +10,7 @@ if (window) {
 	
 	// @ts-ignore
 	window.BFS['html'] = html;
+	// @ts-ignore
+	window.BFS['HTMLRenderTemplate'] = HTMLRenderTemplate;
 	
 }
