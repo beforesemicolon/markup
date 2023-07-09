@@ -1,0 +1,9 @@
+.idea
+node_modules
+src
+tsconfig.json
+package-lock.json
+jest.config.js
+.npmignore
+.gitignore
+*.tgz
