@@ -41,6 +41,27 @@ This library is an utility type which purpose is to help with HTML rendering via
 DOM manipulation and update is the hardest thing to do in the browser, and it is taken care of by this library
 any additional capabilities can be added on top of this library to fit your needs.
 
+###### Table of Content
+- [html API](#html-api)
+- [HTMLRenderTemplate API](#htmlrendertemplate-api)
+- [render](#render)
+- [Injected values](#injected-values)
+- [Dynamic values](#dynamic-values)
+  - [Tip](#tip)
+- [The `ref` Attribute](#the-ref-attribute)
+- [The `attr` Attribute](#the-attr-attribute)
+  - [booleans](#booleans)
+  - [class](#class)
+  - [style](#style)
+  - [data](#data)
+  - [any other attributes](#any-other-attributes)
+  - [BOOLEAN_RENDER_FLAG](#booleanrenderflag)
+- [Memoise elements](#memoise-elements)
+- [Component Patterns](#component-patterns)
+  - [Web Component](#web-component)
+  - [Functional Component](#functional-component)
+  - [Class Component](#class-component)
+
 ### html API
 The main API you will be interacting with is the `html` tag function for 
 [Javascript Template Literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals).
