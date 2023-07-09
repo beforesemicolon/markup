@@ -1,4 +1,5 @@
 import {html} from "./html";
+import {HTMLRenderTemplate} from "./HTMLRenderTemplate";
 
 describe("html", () => {
 	beforeEach(() => {
@@ -28,7 +29,29 @@ describe("html", () => {
 
 		expect(document.body.innerHTML).toBe('less than 10');
 	});
-
+	
+	it('should render a growing list of items', () => {
+		let list: HTMLRenderTemplate[] = [];
+		
+		const app = html`${() => list}`;
+		
+		app.render(document.body);
+		
+		expect(document.body.innerHTML).toBe("");
+		
+		list.push(html`<div>one</div>`)
+		
+		app.render();
+		
+		expect(document.body.innerHTML).toBe("<div>one</div>");
+		
+		list.push(html`<div>two</div>`)
+		
+		app.render();
+		
+		expect(document.body.innerHTML).toBe("<div>one</div><div>two</div>");
+	});
+	
 	it('should render src', () => {
 		const button = html`<button>click me</button>`;
 

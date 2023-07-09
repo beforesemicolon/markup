@@ -47,7 +47,7 @@ export const changeCurrentIntoNewItems = (currentChildNodes: Node[], newChildNod
 				 * otherwise move the new node right in front and move to the next new node
 				 */
 				if(c !== n) {
-					c?.parentNode?.insertBefore(n, c);
+					(c || endNode)?.parentNode?.insertBefore(n, c);
 					insertedNodesSet.add(n);
 					ni += 1;
 				} else {

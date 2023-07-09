@@ -26,6 +26,16 @@ describe("changeCurrentIntoNewItems", () => {
 		expect(ul.children).toHaveLength(nodes.length)
 	});
 	
+	it('should add new items', () => {
+		ul.innerHTML = '';
+		ul.appendChild(nodes[0]);
+		ul.appendChild(endAnchor);
+		
+		changeCurrentIntoNewItems([nodes[0]], [nodes[0], nodes[1]], endAnchor);
+		
+		expect(ul.children).toHaveLength(2);
+	});
+	
 	it('should remove all new items', () => {
 		expect(ul.children).toHaveLength(nodes.length);
 		
