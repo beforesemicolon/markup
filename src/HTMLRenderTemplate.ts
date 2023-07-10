@@ -9,18 +9,30 @@ export class HTMLRenderTemplate {
 	#executable: Executable;
 	#refs: Record<string, Element> = {};
 	
+	/**
+	 * template string representation
+	 */
 	get htmlTemplate() {
 		return this.#htmlTemplate;
 	}
 	
+	/**
+	 * list of direct ChildNode from the template
+	 */
 	get nodes() {
 		return Object.freeze(this.#nodes);
 	}
 	
+	/**
+	 * the HTMLElement or ShadowRoot instance provided in the render method
+	 */
 	get renderTarget() {
 		return this.#renderTarget;
 	}
 	
+	/**
+	 * map of DOM element references keyed by the name provided as the ref attribute value
+	 */
 	get refs() {
 		return Object.freeze(this.#refs)
 	}
@@ -58,6 +70,11 @@ export class HTMLRenderTemplate {
 		})(frag, {node: frag, values: [], subExecutables: []});
 	}
 	
+	/**
+	 * renders the template on the provided HTMLElement or ShadowRoot instance
+	 * @param elementToAttachNodesTo
+	 * @param force
+	 */
 	render = (elementToAttachNodesTo: ShadowRoot | HTMLElement, force = false) => {
 		if (elementToAttachNodesTo && elementToAttachNodesTo !== this.renderTarget && (force || !this.renderTarget) && (
 			elementToAttachNodesTo instanceof ShadowRoot ||
@@ -74,6 +91,9 @@ export class HTMLRenderTemplate {
 		}
 	}
 	
+	/**
+	 * updates the already rendered DOM Nodes with the update values
+	 */
 	update() {
 		if (this.renderTarget) {
 			this.#executable.subExecutables.forEach(executable => {

@@ -10,3 +10,4 @@ jest.config.js
 coverage
 dist/client.js
 dist/client.d.ts
+.github
