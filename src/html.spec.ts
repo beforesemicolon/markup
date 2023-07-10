@@ -204,13 +204,15 @@ describe("html", () => {
 	});
 
 	it('should handle ref directive', () => {
-		const btn = html`<button ref="btn"><span ref="span">click me</span></button>`;
+		const btn = html`<button ref="btn">${html`<div ref="div">${html`<span ref="span">click me</span>`}</div>`}</button>`;
 
 		const btnElement = btn.refs["btn"];
 		const spanElement = btn.refs["span"];
+		const divElement = btn.refs["div"];
 
 		expect(btnElement).toBeInstanceOf(HTMLButtonElement)
 		expect(spanElement).toBeInstanceOf(HTMLSpanElement)
+		expect(divElement).toBeInstanceOf(HTMLDivElement)
 	});
 	
 	describe("should handle attr directive", () => {

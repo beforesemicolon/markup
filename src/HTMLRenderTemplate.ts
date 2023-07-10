@@ -33,11 +33,20 @@ export class HTMLRenderTemplate {
 	/**
 	 * map of DOM element references keyed by the name provided as the ref attribute value
 	 */
-	get refs() {
-		return Object.freeze(this.#refs)
+	get refs(): Record<string, Element> {
+		return Object.freeze({
+			...(this.values.reduce((acc: Record<string, Element>, v) => {
+				if(v instanceof HTMLRenderTemplate) {
+					return {...acc, ...v.refs}
+				}
+				
+				return acc;
+			}, {} as Record<string, Element>)),
+			...this.#refs
+		})
 	}
 	
-	constructor(parts: TemplateStringsArray, public values: unknown[]) {
+	constructor(parts: TemplateStringsArray, private values: unknown[]) {
 		const frag = document.createDocumentFragment();
 		const el = document.createElement("div");
 		this.#htmlTemplate= parts.map((s, i) => {
