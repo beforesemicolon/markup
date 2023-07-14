@@ -452,18 +452,151 @@ In general always be aware of this whenever the values returned by these [dynami
 primitive values.
 
 ### Render Helpers
-There are also few render helpers you can make usage of in your template to handle things rather more complex
-and maximize your rendering performance.
+A few render helpers are made available so you can use them to handle things more complex to improve your rendering performance.
 
 #### when
-The `when` helper is like a ternary. It takes a value and one or two things to render.
+`when(flag: boolean | () => boolean, ifTrue: any | () => any, ifFalse?: any | () => any)`
+
+The `when` helper is like a ternary, it takes a value and one or two things to render.
 
 ```js
+import {html, when} from "@beforesemicolon/html";
+
+let loading = false;
+
+const btn = html`
+  <button>${when(
+    () => loading, 
+        html`<span>Loading...</span>`, 
+        html`<span>Click Me</span>`
+  )}</button>
+`;
 ```
 
-The benefits of using it
+##### Why and when to use "when"?
+The above example is very simple and could be done without the `when` helper like so:
+
+```js
+let loading = false;
+
+const btn = html`
+  <button>${() => loading ? html`<span>Loading...</span>` : html`<span>Click Me</span>`}</button>
+`;
+```
+
+What is happening in this example is that whenever the [update method](#update) is called, this dynamic
+value will be called and a new instance of `span` tag will be created regardless of the `loading` value
+causing the DOM to update unnecessarily.
+
+By using `when`, this problem is eliminated by ensuring that the DOM stays the same if the value does not
+change.
+
+However, if you are just rendering primitive values like string and numbers, you may skip `when` all together.
+Bellow is just fine without `when` although using it won't hurt. See [memoise elements session](#memoise-elements) for
+more details.
+
+```js
+let loading = false;
+
+const btn = html`
+  <button>${() => loading ? "Loading..." : "Click Me"}</button>
+`;
+```
 
 #### repeat
+`repeat<T>(countOrArray: number | Array<T> | () => number | Array<T>, renderCallback: () => any)`
+
+The repeat helper will handle any template needs to repeat elements on the DOM.
+
+It can repeat elements based on given `count` and you can use callback to read the count value
+and use it in the template.
+
+```js
+import {html, repeat} from "@beforesemicolon/html";
+
+const todos = html`
+  <ul>
+    ${repeat(10, (n) => html`<li>item ${n}</li>`)}
+  </ul>
+`;
+```
+
+You may also provide an array of items to be rendered.
+
+```ts
+import {html, repeat} from "@beforesemicolon/html";
+
+interface Todo {
+  name: string;
+}
+
+const todoItems: Todo[] = Array.from({length: 10}, (_, idx) => ({name: `todo item ${idx + 1}`}))
+
+const todos = html`
+  <ul>
+    ${repeat<Todo>(() => todoItems, (item) => html`<li>${item.name}</li>`)}
+  </ul>
+`;
+```
+
+
+##### Why and when to use "repeat"?
+You should use `repeat` helper whenever there are items to repeat in the DOM following a pattern.
+The reason to use it is simply a memoization one. See [memoise elements session](#memoise-elements) for
+more details.
+
+Using array map to rende items works just fine as `html` already handles list like a champ and remembers the data
+that changes the DOM. However, when you are dynamically creating a list with map, you are providing a new
+array of items which `html` interpret as new list and re-renders the entire list.
+
+```ts
+const todoItems = Array.from({length: 10}, (_, idx) => ({name: `todo item ${idx + 1}`}))
+
+const todos = html`
+  <ul>
+    ${() => todoItems.map((item) => html`<li>${item.name}</li>`)}
+  </ul>
+`;
+
+todoItems.push({name: "new item"})
+
+todos.update()
+```
+
+The solution would be to create a list of memoise items which is what the `repeat` helper is doing. Below
+is what you would need to do if you do not want to use `repeat` helper and still want to avoid unnecessary
+DOM updates.
+
+```ts
+const todoItems = Array.from({length: 10}, (_, idx) => html`<li>item ${idx + 1}</li>`)
+
+const todos = html`
+  <ul>
+    ${() => todoItems}
+  </ul>
+`;
+
+todoItems.push(html`<li>new item</li>`)
+
+todos.update()
+```
+
+However, in a real world you are not dealing with a list of template items but data. 
+Therefore, `repeat` helper exists to do all that work for you while you can focus on the data.
+
+```ts
+const todoItems = Array.from({length: 10}, (_, idx) => ({name: `todo item ${idx + 1}`}))
+
+const todos = html`
+  <ul>
+    ${repeat<Todo>(() => todoItems, (item) => html`<li>${item.name}</li>`)}
+  </ul>
+`;
+
+todoItems.push({name: "new item"})
+
+todos.update()
+```
 
 ### Component Patterns
 This library is not a UI library but because it handles such a crucial feature of UI libraries, it can be used
