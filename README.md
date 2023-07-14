@@ -460,7 +460,7 @@ primitive values.
 A few render helpers are made available so you can use them to handle things more complex to improve your rendering performance.
 
 #### when
-`when(flag: boolean | () => boolean, ifTrue: unknown, ifFalse?: unknown)`
+`when(flag: boolean | () => boolean, ifTrue: any, ifFalse?: any)`
 
 The `when` helper is like a ternary, it takes a value and one or two things to render.
 
