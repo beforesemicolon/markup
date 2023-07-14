@@ -5,17 +5,40 @@ Simple, Powerful, and Dynamic HTML Template System
 ![npm](https://img.shields.io/npm/l/%40beforesemicolon%2Fhtml)
 
 The beforesemicolon `html` is a powerful and simple template system with the potential to empower the next UI Library
-framework or library. It handles all your DOM needs like updates and rendering.
+framework or library. It handles all your templating needs including partial rendering updates.
 
 ## Install
 ```
 npm i @beforesemicolon/html
 ```
 
+## Use directly in the Browser
+This library requires no build or parsing. The CDN package is one digit killobyte in size, tiny!
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Grab the latest version -->
+  <script src="https://unpkg.com/@beforesemicolon/html/dist/html-client.min.js"></script>
+
+  <!-- Or a specific version -->
+  <script src="https://unpkg.com/@beforesemicolon/html@1.0.0/dist/html-client.min.js"></script>
+
+</head>
+<body></body>
+</html>
+
+```
+
 ## Example
 
-This is a simple example of a button component, and you may also use this library to create components in whatever
-pattern you enjoy. See [some examples](#component-patterns) we prepared.
+This is a simple example of a button, but you can check:
+- [Some examples of how to create components](#component-patterns).
+- [A Modular Todo App](https://stackblitz.com/edit/web-platform-lvonxr?file=app.js)
+- [A Simple Counter App](https://stackblitz.com/edit/web-platform-adqrrf?file=app.js)
+- [A Simple Time App](https://stackblitz.com/edit/web-platform-bwoxex?file=button.js)
 
 ```js
 // a simple button
@@ -23,13 +46,15 @@ let label = "click me";
 let disabled = false;
 
 const btn = html`
-    <button attr.disabled="${disabled}" onclick="${handleClick}">
-      ${label}
-    </button>
+  <button attr.disabled="${disabled}" onclick="${handleClick}">
+    ${label}
+  </button>
 `;
 
 function handleClick(handleClick) {
-  // logic here
+  label = "clicked";
+  disabled = true;
+  btn.update();
 }
 
 // tell it where to render this button

@@ -117,6 +117,7 @@ class Temp implements Template {
 	update() {
 		if (this.renderTarget) {
 			this.#executable.subExecutables.forEach(executable => {
+				// todo: try using requestAnimationFrame
 				handleExecutable(executable, this.values);
 			});
 		}
