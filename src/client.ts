@@ -1,5 +1,5 @@
 import {html} from "./html";
-import {HTMLRenderTemplate} from "./HTMLRenderTemplate";
+import {repeat, only} from "./helpers";
 
 if (window) {
 	// @ts-ignore
@@ -11,6 +11,8 @@ if (window) {
 	// @ts-ignore
 	window.BFS['html'] = html;
 	// @ts-ignore
-	window.BFS['HTMLRenderTemplate'] = HTMLRenderTemplate;
+	window.BFS['repeat'] = repeat;
+	// @ts-ignore
+	window.BFS['only'] = only;
 	
 }

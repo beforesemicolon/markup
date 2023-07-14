@@ -1,5 +1,6 @@
 import {html} from "./html";
-import {HTMLRenderTemplate} from "./HTMLRenderTemplate";
+import {Template} from "./types";
+import {when, repeat} from "./helpers";
 
 describe("html", () => {
 	beforeEach(() => {
@@ -31,7 +32,7 @@ describe("html", () => {
 	});
 	
 	it('should render a growing list of items', () => {
-		let list: HTMLRenderTemplate[] = [];
+		let list: Template[] = [];
 		
 		const app = html`${() => list}`;
 		
@@ -40,13 +41,13 @@ describe("html", () => {
 		expect(document.body.innerHTML).toBe("");
 		
 		list.push(html`<div>one</div>`)
-		
+
 		app.update();
-		
+
 		expect(document.body.innerHTML).toBe("<div>one</div>");
-		
+
 		list.push(html`<div>two</div>`)
-		
+
 		app.update();
 		
 		expect(document.body.innerHTML).toBe("<div>one</div><div>two</div>");
@@ -361,4 +362,81 @@ describe("html", () => {
 			expect(document.body.innerHTML).toBe('<button aria-disabled="false">click me</button>');
 		});
 	})
+	
+	it('should work with "when" helper', () => {
+		let shouldRender = true;
+		let yes = html`<span>true</span>`;
+		let no = html`<span>false</span>`;
+		
+		const el = html`${when(() => shouldRender, yes, no)}`;
+		
+		el.render(document.body);
+		
+		expect(document.body.innerHTML).toBe('<span>true</span>')
+		let n = document.body.children[0];
+
+		shouldRender = false;
+
+		el.update();
+
+		expect(document.body.innerHTML).toBe('<span>false</span>')
+
+		shouldRender = true;
+
+		el.update();
+
+		expect(document.body.innerHTML).toBe('<span>true</span>')
+		expect(document.body.children[0]).toEqual(n) // same node should be rendered
+	});
+	
+	describe('should work with "repeat" helper', () => {
+		it('with number value and primitive return', () => {
+			const el = html`${repeat(2, (n) => n)}`;
+			
+			el.render(document.body);
+			
+			expect(document.body.innerHTML).toBe('12')
+		});
+		
+		it('with number value and node return', () => {
+			let count = 2;
+			const el = html`${repeat(() => count, (n) => html`<span>${n}</span>`)}`;
+			
+			el.render(document.body);
+			
+			expect(document.body.innerHTML).toBe('<span>1</span><span>2</span>')
+
+			count = 3;
+
+			el.update();
+
+			expect(document.body.innerHTML).toBe('<span>1</span><span>2</span><span>3</span>')
+		});
+		
+		it('with object value and node return', () => {
+			let items = [{name: "one"}, {name: "two"}];
+			const el = html`${repeat(() => items, (n) => html`<span>${n.name}</span>`)}`;
+			
+			el.render(document.body);
+			
+			expect(document.body.innerHTML).toBe('<span>one</span><span>two</span>')
+			const n1 = document.body.children[0];
+			const n2 = document.body.children[1];
+			
+			items[0] = {name: "first"};
+			
+			el.update();
+			
+			expect(document.body.innerHTML).toBe('<span>first</span><span>two</span>')
+			expect(n1).not.toEqual(document.body.children[0])
+			
+			items.push({name: "last"});
+
+			el.update();
+
+			expect(document.body.innerHTML).toBe('<span>first</span><span>two</span><span>last</span>')
+			expect(n2).toEqual(document.body.children[1])
+		});
+	})
+	
 })

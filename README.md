@@ -43,7 +43,6 @@ any additional capabilities can be added on top of this library to fit your need
 
 ###### Table of Content
 - [html API](#html-api)
-- [HTMLRenderTemplate API](#htmlrendertemplate-api)
 - [render](#render)
 - [Injected values](#injected-values)
 - [Dynamic values](#dynamic-values)
@@ -76,13 +75,7 @@ const helloWorld = html`<h1>Hello World</h1>`;
 helloWorld.render(document.body);
 ```
 
-What you get back is an instance of [HTMLRenderTemplate](#htmlrendertemplate-api). This will expose few APIs which 
-you can use to perform various things as you will learn later in this doc.
-
-### HTMLRenderTemplate API
-The `HTMLRenderTemplate` is the core logic of this library. It handles everything that makes this library powerful.
-
-When you define your `html` template, you get an instance of `HTMLRenderTemplate` which has the following properties
+What you get back is an instance of `Template` which exposes the following properties
 and methods:
 - `render` (*method*);
 - `update` (*method*);
@@ -458,6 +451,20 @@ of `HTMLRenderTemplate` because they are the value of the variables declared abo
 In general always be aware of this whenever the values returned by these [dynamic values](#dynamic-values) are not
 primitive values.
 
+### Render Helpers
+There are also few render helpers you can make usage of in your template to handle things rather more complex
+and maximize your rendering performance.
+
+#### when
+The `when` helper is like a ternary. It takes a value and one or two things to render.
+
+```js
+```
+
+The benefits of using it
+
+#### repeat
+
 ### Component Patterns
 This library is not a UI library but because it handles such a crucial feature of UI libraries, it can be used
 to create components of any type easily. For example:
@@ -476,11 +483,9 @@ Bellow is an example of a simple button which does not need to do all the tediou
 ```ts
 class BFSButton extends HTMLElement {
     static observedAttributes = ["disabled", "type"];
-
     template: HTMLRenderTemplate;
     disabled = false;
     type = "button";
-    content: Node[] = [];
 	
     constructor() {
         super();
@@ -499,25 +504,18 @@ class BFSButton extends HTMLElement {
                 type="${() => this.type}"
                 onclick="${handleClick}"
                 >
-                ${() => this.content}
+                <slot></slot>
             </button>
         `;
         
         this.template.render(shadow);
     }
-	
-    connectedCallback() {
-        this.content = Array.from(this.childNodes);
-        this.template.update();
-    }
+		
 	
     attributeChangedCallback(name, oldVal, newVal) {
         switch(name) {
             case "disabled":
                 this.disabled = this.hasAttribute("disabled");
-                break;
-            case "label":
-                this.label = newVal;
                 break;
             case "type":
                 this.type = ["submit", "button"].includes(newVal) ? newVal : this.type;
