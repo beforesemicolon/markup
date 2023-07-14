@@ -1,5 +1,4 @@
 import {Template} from "../types";
-import {jsonStringify} from "../utils/json-stringify";
 
 type DataGetter<T> = () => number | Array<T>;
 type RepeatHelperData<T> = number | Array<T> | DataGetter<T>
@@ -8,13 +7,11 @@ export const repeat = <T>(data: RepeatHelperData<T>, cb: (data: T, index: number
 	const listMap: Map<T, unknown> = new Map();
 	
 	const each = (d: T, i: number) => {
-		const dStr = jsonStringify(d);
-
-		if (!listMap.has(dStr)) {
-			listMap.set(dStr, cb(d, i));
+		if (!listMap.has(d)) {
+			listMap.set(d, cb(d, i));
 		}
 		
-		return listMap.get(dStr);
+		return listMap.get(d);
 	}
 	
 	const dataIsFn = typeof data === "function";
