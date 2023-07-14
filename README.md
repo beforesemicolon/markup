@@ -56,6 +56,11 @@ any additional capabilities can be added on top of this library to fit your need
   - [any other attributes](#any-other-attributes)
   - [BOOLEAN_RENDER_FLAG](#booleanrenderflag)
 - [Memoise elements](#memoise-elements)
+- [Render Helpers](#render-helpers)
+  - [when](#when)
+    - [why and when to use `when` helper](#why-and-when-to-use-when-helper)
+  - [repeat](#repeat)
+    - [Why and when to use `repeat` helper](#why-and-when-to-use-repeat-helper)
 - [Component Patterns](#component-patterns)
   - [Web Component](#web-component)
   - [Functional Component](#functional-component)
@@ -473,7 +478,7 @@ const btn = html`
 `;
 ```
 
-##### Why and when to use "when"?
+##### Why and when to use "when" helper?
 The above example is very simple and could be done without the `when` helper like so:
 
 ```js
@@ -540,7 +545,7 @@ const todos = html`
 ```
 
 
-##### Why and when to use "repeat"?
+##### Why and when to use "repeat" helper?
 You should use `repeat` helper whenever there are items to repeat in the DOM following a pattern.
 The reason to use it is simply a memoization one. See [memoise elements session](#memoise-elements) for
 more details.
