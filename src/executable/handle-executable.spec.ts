@@ -1,6 +1,6 @@
 import {handleExecutable} from "./handle-executable";
-import {Executable} from "./type";
-import {HTMLRenderTemplate} from "../HTMLRenderTemplate";
+import {Executable, Template} from "../types";
+import {html} from "../html";
 
 describe("handleExecutable", () => {
 	let div: HTMLDivElement;
@@ -230,7 +230,7 @@ describe("handleExecutable", () => {
 		const txt = document.createTextNode("{{val0}}");
 		div.appendChild(txt);
 		
-		const p = new HTMLRenderTemplate(["<p>sample</p>"] as any, []);
+		const p = html`<p>sample</p>`;
 		
 		const e: Executable = {
 			node: txt,

@@ -1,4 +1,4 @@
-import {Executable} from "./type";
+import {Executable} from "../types";
 
 export const collectExecutables = (node: Node, cb: (executable: Executable) => void, refCb: (refName: string) => void) => {
 	const values: Executable['values'] = [];

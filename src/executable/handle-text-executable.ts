@@ -1,4 +1,4 @@
-import {ExecutableValue} from "./type";
+import {ExecutableValue} from "../types";
 import {changeCurrentIntoNewItems} from "./change-current-into-new-items";
 
 export const handleTextExecutable = (executableValue: ExecutableValue, nodes: Node[]) => {

@@ -1,9 +1,9 @@
-import {Executable} from ".//type";
+import {Executable, Template} from "../types";
 import {jsonParse, isObjectLiteral} from "../utils";
-import {HTMLRenderTemplate} from "../HTMLRenderTemplate";
 import {handleTextExecutable} from "./handle-text-executable";
 import {handleAttrDirectiveExecutable} from "./handle-attr-directive-executable";
 import {extractExecutableValueFromRawValue} from "./extract-executable-value-from-raw-value";
+import {isTemplate} from "../utils/is-template";
 
 export const handleExecutable = (executable: Executable, values: unknown[]) => {
 	
@@ -65,24 +65,30 @@ export const handleExecutable = (executable: Executable, values: unknown[]) => {
 					val.value = value;
 					
 					const div = document.createElement("div");
-					const nodes: Node[] = [];
+					const nodes: Array<Node> = [];
 					
-					value.forEach((v: Node | HTMLRenderTemplate | string) => {
-						if (v instanceof HTMLRenderTemplate) {
-							const renderedBefore = v.renderTarget;
-							v.render(div);
-							nodes.push(...(renderedBefore ? v.nodes.filter(n => n.isConnected) : Array.from(div.childNodes)));
+					value.forEach((v: Node | Template | string) => {
+						if (isTemplate(v)) {
+							const renderedBefore = (v as Template).renderTarget !== null;
+							
+							if (renderedBefore) {
+								(v as Template).update();
+							} else {
+								(v as Template).render(div);
+							}
+							
+							nodes.push(...(v as Template).nodes);
 							div.innerHTML = "";
 						} else if (v instanceof Node) {
 							nodes.push(v)
 						} else {
-							div.insertAdjacentHTML("beforeend", v);
+							div.insertAdjacentHTML("beforeend", String(v));
 							nodes.push(...Array.from(div.childNodes))
 							div.innerHTML = ""
 						}
 					})
 					
-					handleTextExecutable(val, nodes);
+					handleTextExecutable(val, Array.from(nodes));
 				}
 				
 				break;

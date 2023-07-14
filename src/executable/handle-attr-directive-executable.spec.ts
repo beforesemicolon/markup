@@ -1,5 +1,5 @@
 import {handleAttrDirectiveExecutable} from "./handle-attr-directive-executable";
-import {ExecutableValue} from "./type";
+import {ExecutableValue} from "../types";
 
 describe("handleAttrDirectiveExecutable", () => {
 	let div: HTMLDivElement;

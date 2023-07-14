@@ -1,5 +1,5 @@
 import {handleTextExecutable} from "./handle-text-executable";
-import {ExecutableValue} from "./type";
+import {ExecutableValue} from "../types";
 
 describe("handleTextExecutable", () => {
 	it('should remove one node', () => {

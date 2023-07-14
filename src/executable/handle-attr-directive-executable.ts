@@ -1,4 +1,4 @@
-import {ExecutableValue} from "./type";
+import {ExecutableValue} from "../types";
 import {booleanAttributes, jsonParse, turnCamelToKebabCasing, turnKebabToCamelCasing} from "../utils";
 
 export const handleAttrDirectiveExecutable = (executableValue: ExecutableValue, value: string) => {
