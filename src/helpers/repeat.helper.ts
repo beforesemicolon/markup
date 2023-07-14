@@ -1,7 +1,9 @@
+import {Template} from "../types";
+
 type DataGetter<T> = () => number | Array<T>;
 type RepeatHelperData<T> = number | Array<T> | DataGetter<T>
 
-export const repeat = <T>(data: RepeatHelperData<T>, cb: (data: T, index: number) => unknown) => {
+export const repeat = <T>(data: RepeatHelperData<T>, cb: (data: T, index: number) => Template | unknown) => {
 	const listMap: Map<T, unknown> = new Map();
 	
 	const each = (d: T, i: number) => {
