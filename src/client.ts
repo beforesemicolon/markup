@@ -1,5 +1,5 @@
 import {html} from "./html";
-import {repeat, only} from "./helpers";
+import {repeat, when} from "./helpers";
 
 if (window) {
 	// @ts-ignore
@@ -13,6 +13,6 @@ if (window) {
 	// @ts-ignore
 	window.BFS['repeat'] = repeat;
 	// @ts-ignore
-	window.BFS['only'] = only;
+	window.BFS['when'] = when;
 	
 }
