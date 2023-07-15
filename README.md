@@ -105,7 +105,7 @@ const helloWorld = html`<h1>Hello World</h1>`;
 helloWorld.render(document.body);
 ```
 
-What you get back is an instance of `Template` which exposes the following properties
+What you get back is an instance of `HtmlTemplate` which exposes the following properties
 and methods:
 - `render` (*method*);
 - `update` (*method*);

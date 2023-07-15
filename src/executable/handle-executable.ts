@@ -1,9 +1,9 @@
-import {Executable, Template} from "../types";
+import {Executable} from "../types";
 import {jsonParse, isObjectLiteral} from "../utils";
 import {handleTextExecutable} from "./handle-text-executable";
 import {handleAttrDirectiveExecutable} from "./handle-attr-directive-executable";
 import {extractExecutableValueFromRawValue} from "./extract-executable-value-from-raw-value";
-import {isTemplate} from "../utils/is-template";
+import {HtmlTemplate} from "../html";
 
 export const handleExecutable = (executable: Executable, values: unknown[]) => {
 	
@@ -67,17 +67,17 @@ export const handleExecutable = (executable: Executable, values: unknown[]) => {
 					const div = document.createElement("div");
 					const nodes: Array<Node> = [];
 					
-					value.forEach((v: Node | Template | string) => {
-						if (isTemplate(v)) {
-							const renderedBefore = (v as Template).renderTarget !== null;
+					value.forEach((v: Node | HtmlTemplate | string) => {
+						if (v instanceof HtmlTemplate) {
+							const renderedBefore = v.renderTarget !== null;
 							
 							if (renderedBefore) {
-								(v as Template).update();
+								v.update();
 							} else {
-								(v as Template).render(div);
+								v.render(div);
 							}
 							
-							nodes.push(...(v as Template).nodes);
+							nodes.push(...v.nodes);
 							div.innerHTML = "";
 						} else if (v instanceof Node) {
 							nodes.push(v)

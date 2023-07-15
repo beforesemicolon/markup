@@ -3,16 +3,12 @@ import {repeat, when} from "./helpers";
 
 if (window) {
 	// @ts-ignore
-	if (!window.BFS) {
+	window.BFS = {
 		// @ts-ignore
-		window.BFS = {}
+		...(window.BFS || {}),
+		html,
+		repeat,
+		when
 	}
-	
-	// @ts-ignore
-	window.BFS['html'] = html;
-	// @ts-ignore
-	window.BFS['repeat'] = repeat;
-	// @ts-ignore
-	window.BFS['when'] = when;
 	
 }

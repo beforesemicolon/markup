@@ -1,9 +1,8 @@
-import {Executable, Template} from "./types";
+import {Executable} from "./types";
 import {collectExecutables} from "./executable/collect-executable";
 import {handleExecutable} from "./executable/handle-executable";
-import {isTemplate} from "./utils/is-template";
 
-class Temp implements Template {
+export class HtmlTemplate {
 	#htmlTemplate: string;
 	#nodes: Node[] = [];
 	#renderTarget: HTMLElement | ShadowRoot | null = null;
@@ -46,8 +45,8 @@ class Temp implements Template {
 	get refs(): Record<string, Element> {
 		return Object.freeze({
 			...(this.values.reduce((acc: Record<string, Element>, v) => {
-				if(isTemplate(v)) {
-					return {...acc, ...(v as Template).refs}
+				if(v instanceof HtmlTemplate) {
+					return {...acc, ...v.refs}
 				}
 				
 				return acc;
@@ -130,6 +129,6 @@ class Temp implements Template {
  * @param parts
  * @param values
  */
-export const html = (parts: TemplateStringsArray, ...values: unknown[]): Template => {
-	return new Temp(parts, values)
+export const html = (parts: TemplateStringsArray, ...values: unknown[]) => {
+	return new HtmlTemplate(parts, values)
 }
