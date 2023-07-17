@@ -1,5 +1,5 @@
 import {handleExecutable} from "./handle-executable";
-import {Executable, Template} from "../types";
+import {Executable} from "../types";
 import {html} from "../html";
 
 describe("handleExecutable", () => {

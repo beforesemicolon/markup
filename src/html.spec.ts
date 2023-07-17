@@ -1,5 +1,4 @@
-import {html} from "./html";
-import {Template} from "./types";
+import {html, HtmlTemplate} from "./html";
 import {when, repeat} from "./helpers";
 
 describe("html", () => {
@@ -32,7 +31,7 @@ describe("html", () => {
 	});
 	
 	it('should render a growing list of items', () => {
-		let list: Template[] = [];
+		let list: HtmlTemplate[] = [];
 		
 		const app = html`${() => list}`;
 		
@@ -387,6 +386,68 @@ describe("html", () => {
 
 		expect(document.body.innerHTML).toBe('<span>true</span>')
 		expect(document.body.children[0]).toEqual(n) // same node should be rendered
+	});
+	
+	it('should handle primitive attribute value', () => {
+		const val = 12;
+		const href = "/sample";
+		const el = html`<a href="${href}" data-test-val="${val}"></a>`;
+		
+		el.render(document.body);
+		
+		expect(document.body.innerHTML).toBe('<a href="/sample" data-test-val="12"></a>')
+	});
+	
+	it('should handle non-primitive attribute value', () => {
+		const val = {val: 12};
+		const map = new Map();
+		const el = html`<div data-test-map="${map}" data-test-val="${val}"></div>`;
+		
+		el.render(document.body);
+		
+		expect(document.body.innerHTML).toBe('<div data-test-map="{}" data-test-val="{&quot;val&quot;:12}"></div>')
+	});
+	
+	it('should handle non-primitive attribute value in WC', () => {
+		const updateMock = jest.fn();
+		const mapMock = jest.fn();
+		const valMock = jest.fn();
+		
+		class SampleComp extends HTMLElement {
+			static observedAttributes = ["map", "val"];
+			
+			set map(val: any) {
+				mapMock(val)
+			}
+			
+			set val(val: any) {
+				valMock(val)
+			}
+			
+			attributeChangedCallback(...args: any[]) {
+				updateMock(...args)
+			}
+		}
+		
+		customElements.define("sample-comp", SampleComp)
+		
+		const val = {val: 12};
+		const map = new Map();
+		const el = html`<sample-comp map="${map}" val="${val}"></sample-comp>`;
+		
+		el.render(document.body);
+		
+		expect(mapMock).toHaveBeenCalledWith(expect.any(Map))
+		expect(valMock).toHaveBeenCalledWith({"val": 12})
+		
+		const calls = updateMock.mock.calls;
+		
+		expect(calls).toHaveLength(4);
+		expect(calls[0]).toEqual(["map", null, "{{val0}}", null]);
+		expect(calls[1]).toEqual(["val", null, "{{val1}}", null]);
+		expect(calls[2]).toEqual(["map", "{{val0}}", "{}", null]);
+		expect(calls[3]).toEqual(["val", "{{val1}}", '{"val":12}', null]);
+		
 	});
 	
 	describe('should work with "repeat" helper', () => {

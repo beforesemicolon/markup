@@ -1,5 +1,5 @@
 import {Executable} from "../types";
-import {jsonParse, isObjectLiteral} from "../utils";
+import {jsonParse, isObjectLiteral, isPrimitive, jsonStringify, turnKebabToCamelCasing} from "../utils";
 import {handleTextExecutable} from "./handle-text-executable";
 import {handleAttrDirectiveExecutable} from "./handle-attr-directive-executable";
 import {extractExecutableValueFromRawValue} from "./extract-executable-value-from-raw-value";
@@ -49,11 +49,20 @@ export const handleExecutable = (executable: Executable, values: unknown[]) => {
 				}
 				break;
 			case "attr-value":
-				value = jsonParse(parts.map(p => typeof p === "function" ? p() : p).join(""));
+				const isWC = executable.node.nodeName.includes("-")
+				value = parts.length > 1
+					? jsonParse(parts.map(p => typeof p === "function" ? p() : jsonStringify(p)).join(''))
+					: jsonParse(typeof parts[0] === "function" ? parts[0]() : parts[0] as string)
 				
 				if (value !== val.value) {
 					val.value = value;
-					(executable.node as Element).setAttribute(val.name, value);
+					
+					(executable.node as Element).setAttribute(val.name, jsonStringify(value));
+					
+					if (isWC && !isPrimitive(value)) {
+						const comp = executable.node as Record<string, any>;
+						comp[turnKebabToCamelCasing(val.name)] = value;
+					}
 				}
 				
 				break;
