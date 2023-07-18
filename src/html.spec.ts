@@ -498,6 +498,40 @@ describe("html", () => {
 			expect(document.body.innerHTML).toBe('<span>first</span><span>two</span><span>last</span>')
 			expect(n2).toEqual(document.body.children[1])
 		});
+		
+		it('with object value and WC return', () => {
+			const valMock = jest.fn();
+			class TestComponent extends HTMLElement {
+				set val(newVal: any) {
+					valMock(newVal)
+				}
+			}
+			
+			customElements.define("test-component", TestComponent)
+			
+			let items = [{name: "one"}, {name: "two"}];
+			const el = html`${repeat(() => items, (n) => html`<test-component val="${n}"></test-component>`)}`;
+			
+			el.render(document.body);
+			
+			expect(document.body.innerHTML).toBe('<test-component val="{&quot;name&quot;:&quot;one&quot;}"></test-component><test-component val="{&quot;name&quot;:&quot;two&quot;}"></test-component>')
+			
+			expect(valMock).toHaveBeenCalledTimes(2)
+			expect(valMock).toHaveBeenCalledWith({name: "one"})
+			expect(valMock).toHaveBeenCalledWith({name: "two"})
+			
+			items[0] = {name: "first"};
+
+			el.update();
+			
+			expect(valMock).toHaveBeenCalledWith({name: "first"})
+
+			items.push({name: "last"});
+
+			el.update();
+
+			expect(valMock).toHaveBeenCalledWith({name: "last"})
+		});
 	})
 	
 })
