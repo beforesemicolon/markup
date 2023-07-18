@@ -21,7 +21,7 @@ export const extractExecutableValueFromRawValue = (rawValue: string, values: unk
 		rawValue = match.input.slice(match.index + full.length);
 	}
 	
-	if (rawValue.length > 1) {
+	if (rawValue.length) {
 	   parts.push(rawValue)
 	}
 	

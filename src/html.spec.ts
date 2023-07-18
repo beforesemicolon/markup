@@ -6,6 +6,15 @@ describe("html", () => {
 		document.body.innerHTML = "";
 	})
 
+	it('should parse text injected inside element', () => {
+		const count = 12;
+		const temp = html`<h1>sample (${count})</h1>`;
+
+		temp.render(document.body);
+
+		expect(document.body.innerHTML).toBe('<h1>sample (12)</h1>');
+	});
+	
 	it('should render static text', () => {
 		const temp = html`sample`;
 
@@ -141,7 +150,7 @@ describe("html", () => {
 
 	it('should render nested src 2 levels with dynamic inner level', () => {
 		let items = [1, 2, 3];
-		const list = html`<ul>${() => items.map(i => `<li>item-${i}</li>`).join('&nbsp;')}}</ul>`;
+		const list = html`<ul>${() => items.map(i => `<li>item-${i}</li>`).join('&nbsp;')}</ul>`;
 
 		list.render(document.body);
 
