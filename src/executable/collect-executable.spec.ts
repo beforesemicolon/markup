@@ -16,7 +16,7 @@ describe("collectExecutables", () => {
 		
 		expect(btn.outerHTML).toBe('<button onclick="() => null"></button>')
 		
-		collectExecutables(btn, cbMock, refCbMock);
+		collectExecutables(btn, [], cbMock, refCbMock);
 		
 		expect(cbMock).toHaveBeenCalledWith({
 			"node": btn,
@@ -27,7 +27,8 @@ describe("collectExecutables", () => {
 				"rawValue": "() => null",
 				"renderedNode": btn,
 				"type": "event",
-				"value": "() => null"
+				"value": "() => null",
+				"parts": ["() => null"]
 			}]
 		})
 		expect(refCbMock).not.toHaveBeenCalled()
@@ -42,7 +43,7 @@ describe("collectExecutables", () => {
 		
 		expect(btn.outerHTML).toBe('<button disabled="{{val0}}"></button>')
 		
-		collectExecutables(btn, cbMock, refCbMock);
+		collectExecutables(btn, [12], cbMock, refCbMock);
 		
 		expect(cbMock).toHaveBeenCalledWith({
 			"node": btn,
@@ -52,7 +53,8 @@ describe("collectExecutables", () => {
 				"rawValue": "{{val0}}",
 				"renderedNode": btn,
 				"type": "attr-value",
-				"value": "{{val0}}"
+				"value": "{{val0}}",
+				"parts": [12]
 			}]
 		})
 		expect(refCbMock).not.toHaveBeenCalled()
@@ -67,7 +69,7 @@ describe("collectExecutables", () => {
 		
 		expect(btn.outerHTML).toBe('<button attr.disabled="{{val0}}"></button>')
 		
-		collectExecutables(btn, cbMock, refCbMock);
+		collectExecutables(btn, [12], cbMock, refCbMock);
 		
 		expect(cbMock).toHaveBeenCalledWith({
 			"node": btn,
@@ -78,7 +80,8 @@ describe("collectExecutables", () => {
 				"rawValue": "{{val0}}",
 				"renderedNode": btn,
 				"type": "attr-dir",
-				"value": ""
+				"value": "",
+				"parts": [12]
 			}]
 		})
 		expect(refCbMock).not.toHaveBeenCalled()
@@ -93,7 +96,7 @@ describe("collectExecutables", () => {
 		
 		expect(btn.outerHTML).toBe('<button ref="btn"></button>')
 		
-		collectExecutables(btn, cbMock, refCbMock);
+		collectExecutables(btn, [], cbMock, refCbMock);
 		
 		expect(cbMock).not.toHaveBeenCalled()
 		expect(refCbMock).toHaveBeenCalledWith("btn")
@@ -106,7 +109,7 @@ describe("collectExecutables", () => {
 		
 		expect(txt.nodeValue).toBe('{{val19}}')
 		
-		collectExecutables(txt, cbMock, refCbMock);
+		collectExecutables(txt, [], cbMock, refCbMock);
 		
 		expect(cbMock).toHaveBeenCalledWith({
 			"node": txt,
@@ -116,7 +119,8 @@ describe("collectExecutables", () => {
 				"rawValue": "{{val19}}",
 				"renderedNode": txt,
 				"type": "text",
-				"value": "{{val19}}"
+				"value": "{{val19}}",
+				"parts": []
 			}]
 		})
 		expect(refCbMock).not.toHaveBeenCalled()

@@ -4,6 +4,7 @@ export interface ExecutableValue {
 	rawValue: string;
 	value: unknown;
 	renderedNode: Node | Node[];
+	parts: unknown[];
 	prop?: string;
 }
 

@@ -72,7 +72,7 @@ export class HtmlTemplate {
 			Array.from(n.childNodes, c => {
 				let cn: Executable | null = null;
 				
-				collectExecutables(c, executable => {
+				collectExecutables(c, values, executable => {
 					cn = executable;
 					ancestorExecutable.subExecutables.push(executable);
 					self.#nodeByExecutable.set(c, executable);
@@ -117,7 +117,7 @@ export class HtmlTemplate {
 		if (this.renderTarget) {
 			this.#executable.subExecutables.forEach(executable => {
 				// todo: try using requestAnimationFrame
-				handleExecutable(executable, this.values);
+				handleExecutable(executable);
 			});
 		}
 	}

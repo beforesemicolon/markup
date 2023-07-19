@@ -17,7 +17,8 @@ describe("handleTextExecutable", () => {
 			name: "nodeValue",
 			rawValue: "",
 			value: "",
-			renderedNode: txt
+			renderedNode: txt,
+			parts: []
 		};
 		
 		expect(execVal.renderedNode).toEqual(txt)
@@ -41,7 +42,8 @@ describe("handleTextExecutable", () => {
 			name: "nodeValue",
 			rawValue: "",
 			value: "",
-			renderedNode: Array.from(div.childNodes)
+			renderedNode: Array.from(div.childNodes),
+			parts: []
 		};
 		
 		handleTextExecutable(execVal, []);
@@ -61,7 +63,8 @@ describe("handleTextExecutable", () => {
 			name: "nodeValue",
 			rawValue: "",
 			value: "",
-			renderedNode: Array.from(div.childNodes)
+			renderedNode: Array.from(div.childNodes),
+			parts: []
 		};
 		
 		const p1 = document.createElement("p");
@@ -103,7 +106,8 @@ describe("handleTextExecutable", () => {
 			name: "nodeValue",
 			rawValue: "",
 			value: "",
-			renderedNode: Array.from(div.childNodes)
+			renderedNode: Array.from(div.childNodes),
+			parts: []
 		};
 		
 		handleTextExecutable(execVal, nodes);
@@ -132,7 +136,8 @@ describe("handleTextExecutable", () => {
 			name: "nodeValue",
 			rawValue: "",
 			value: "",
-			renderedNode: p1
+			renderedNode: p1,
+			parts: []
 		};
 		
 		handleTextExecutable(execVal, [p2, p3]);

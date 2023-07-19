@@ -15,7 +15,8 @@ describe("handleAttrDirectiveExecutable", () => {
 			rawValue: "bold",
 			value: "",
 			renderedNode: div,
-			prop: "style.font-style"
+			prop: "style.font-style",
+			parts: []
 		};
 		
 		const e2: ExecutableValue = {
@@ -24,7 +25,8 @@ describe("handleAttrDirectiveExecutable", () => {
 			rawValue: "background-color: #900, true",
 			value: "",
 			renderedNode: div,
-			prop: "style"
+			prop: "style",
+			parts: []
 		};
 		
 		handleAttrDirectiveExecutable(e1, "bold")
@@ -54,7 +56,8 @@ describe("handleAttrDirectiveExecutable", () => {
 			rawValue: "false",
 			value: "",
 			renderedNode: div,
-			prop: "class.simple-cls"
+			prop: "class.simple-cls",
+			parts: []
 		};
 		
 		const e2: ExecutableValue = {
@@ -63,7 +66,8 @@ describe("handleAttrDirectiveExecutable", () => {
 			rawValue: "sample, true",
 			value: "",
 			renderedNode: div,
-			prop: "class"
+			prop: "class",
+			parts: []
 		};
 		
 		handleAttrDirectiveExecutable(e1, "false")
@@ -93,7 +97,8 @@ describe("handleAttrDirectiveExecutable", () => {
 			rawValue: "val, true",
 			value: "",
 			renderedNode: div,
-			prop: "data.simple-val"
+			prop: "data.simple-val",
+			parts: []
 		};
 		
 		const e2: ExecutableValue = {
@@ -102,7 +107,8 @@ describe("handleAttrDirectiveExecutable", () => {
 			rawValue: "simple-val, true",
 			value: "",
 			renderedNode: div,
-			prop: "data"
+			prop: "data",
+			parts: []
 		};
 		
 		handleAttrDirectiveExecutable(e1, "val, true")
@@ -126,7 +132,8 @@ describe("handleAttrDirectiveExecutable", () => {
 			rawValue: "true",
 			value: "",
 			renderedNode: div,
-			prop: "disabled"
+			prop: "disabled",
+			parts: []
 		};
 		
 		const e2: ExecutableValue = {
@@ -135,7 +142,8 @@ describe("handleAttrDirectiveExecutable", () => {
 			rawValue: "until-found, true",
 			value: "",
 			renderedNode: div,
-			prop: "hidden"
+			prop: "hidden",
+			parts: []
 		};
 		
 		handleAttrDirectiveExecutable(e1, "true")
@@ -159,7 +167,8 @@ describe("handleAttrDirectiveExecutable", () => {
 			rawValue: "sample, true",
 			value: "",
 			renderedNode: div,
-			prop: "id"
+			prop: "id",
+			parts: []
 		};
 		
 		const e2: ExecutableValue = {
@@ -168,7 +177,8 @@ describe("handleAttrDirectiveExecutable", () => {
 			rawValue: "true",
 			value: "",
 			renderedNode: div,
-			prop: "aria-disabled"
+			prop: "aria-disabled",
+			parts: []
 		};
 		
 		handleAttrDirectiveExecutable(e1, "sample, true")

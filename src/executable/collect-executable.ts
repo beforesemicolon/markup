@@ -1,6 +1,7 @@
 import {Executable} from "../types";
+import {extractExecutableValueFromRawValue} from "./extract-executable-value-from-raw-value";
 
-export const collectExecutables = (node: Node, cb: (executable: Executable) => void, refCb: (refName: string) => void) => {
+export const collectExecutables = (node: Node, nodeValues: unknown[], cb: (executable: Executable) => void, refCb: (refName: string) => void) => {
 	const values: Executable['values'] = [];
 	
 	if (node.nodeType === 1) {
@@ -12,6 +13,7 @@ export const collectExecutables = (node: Node, cb: (executable: Executable) => v
 				rawValue: attr.value,
 				value: attr.value,
 				renderedNode: node,
+				parts: extractExecutableValueFromRawValue(attr.value || "", nodeValues)
 			};
 			
 			if (/^on[a-z]+/.test(attr.name)) {
@@ -19,7 +21,7 @@ export const collectExecutables = (node: Node, cb: (executable: Executable) => v
 				values.push({
 					...details,
 					prop: attr.name.slice(2),
-					type: "event"
+					type: "event",
 				})
 			} else if (/^(attr|ref)/.test(attr.name)) {
 				element.removeAttribute(attr.name);
@@ -52,6 +54,7 @@ export const collectExecutables = (node: Node, cb: (executable: Executable) => v
 				rawValue: node.nodeValue ?? "",
 				value: node.nodeValue,
 				renderedNode: node,
+				parts: extractExecutableValueFromRawValue(node.nodeValue ?? "", nodeValues)
 			});
 		}
 	}

@@ -2,34 +2,32 @@ import {Executable} from "../types";
 import {jsonParse, isObjectLiteral, isPrimitive, jsonStringify, turnKebabToCamelCasing} from "../utils";
 import {handleTextExecutable} from "./handle-text-executable";
 import {handleAttrDirectiveExecutable} from "./handle-attr-directive-executable";
-import {extractExecutableValueFromRawValue} from "./extract-executable-value-from-raw-value";
 import {HtmlTemplate} from "../html";
 
-export const handleExecutable = (executable: Executable, values: unknown[]) => {
+export const handleExecutable = (executable: Executable) => {
 	
 	if (executable.subExecutables.length) {
 		executable.subExecutables.forEach(executable => {
-			handleExecutable(executable, values);
+			handleExecutable(executable);
 		})
 	}
 	
 	for (let val of executable.values) {
-		const parts = extractExecutableValueFromRawValue(val.rawValue || "", values);
 		let value: any = "";
 		
 		switch (val.type) {
 			case "attr-dir":
-				value = jsonParse(parts.map(p => typeof p === "function" ? p() : p).join(""));
+				value = jsonParse(val.parts.map(p => typeof p === "function" ? p() : p).join(""));
 				handleAttrDirectiveExecutable(val, value);
 				break;
 			case "event":
 				let node = Array.isArray(val.renderedNode)
 					? (val.renderedNode as Node[])[0]
 					: val.renderedNode as Node;
-				const eventHandler = parts[0] as EventListenerOrEventListenerObject;
+				const eventHandler = val.parts[0] as EventListenerOrEventListenerObject;
 				const eventName = val.prop as string;
-				const option = parts.length > 1
-					? parts[2]
+				const option = val.parts.length > 1
+					? val.parts[2]
 					: jsonParse(val.rawValue.split(',')[1]);
 				
 				if (typeof eventHandler !== "function") {
@@ -50,9 +48,9 @@ export const handleExecutable = (executable: Executable, values: unknown[]) => {
 				break;
 			case "attr-value":
 				const isWC = executable.node.nodeName.includes("-")
-				value = parts.length > 1
-					? jsonParse(parts.map(p => typeof p === "function" ? p() : jsonStringify(p)).join(''))
-					: jsonParse(typeof parts[0] === "function" ? parts[0]() : parts[0] as string)
+				value = val.parts.length > 1
+					? jsonParse(val.parts.map(p => typeof p === "function" ? p() : jsonStringify(p)).join(''))
+					: jsonParse(typeof val.parts[0] === "function" ? val.parts[0]() : val.parts[0] as string)
 				
 				if (value !== val.value) {
 					val.value = value;
@@ -74,7 +72,7 @@ export const handleExecutable = (executable: Executable, values: unknown[]) => {
 				
 				break;
 			case "text":
-				value = parts.flatMap(p => typeof p === "function" ? p() : p);
+				value = val.parts.flatMap(p => typeof p === "function" ? p() : p);
 				const currValue = (val.value as unknown[])
 				
 				if (value.length !== currValue.length || currValue.some((v: unknown, k: number) => v !== value[k])) {

@@ -22,12 +22,13 @@ describe("handleExecutable", () => {
 					rawValue: "{{val0}}",
 					value: "{{val0}}",
 					renderedNode: div,
+					parts: [fnMock1]
 				}
 			],
 			subExecutables: []
 		}
 		
-		handleExecutable(e, [fnMock1]);
+		handleExecutable(e);
 		
 		expect(e).toEqual({
 			"node": div,
@@ -37,11 +38,13 @@ describe("handleExecutable", () => {
 				"rawValue": "{{val0}}",
 				"renderedNode": div,
 				"type": "event",
-				"value": fnMock1
+				"value": fnMock1,
+				"parts": [fnMock1]
 			}]
 		})
 		
-		handleExecutable(e, [fnMock2]);
+		e.values[0].parts = [fnMock2]
+		handleExecutable(e);
 		
 		expect(e).toEqual({
 			"node": div,
@@ -51,13 +54,15 @@ describe("handleExecutable", () => {
 				"rawValue": "{{val0}}",
 				"renderedNode": div,
 				"type": "event",
-				"value": fnMock2
+				"value": fnMock2,
+				"parts": [fnMock2]
 			}]
 		})
 		
 		expect(div.outerHTML).toBe('<div></div>')
 		
-		expect(() => handleExecutable(e, [null])).toThrowError('handler for event "click" is not a function. Found "null".')
+		e.values[0].parts = [null]
+		expect(() => handleExecutable(e)).toThrowError('handler for event "click" is not a function. Found "null".')
 	});
 	
 	it('should handle event sub-executable', () => {
@@ -78,6 +83,7 @@ describe("handleExecutable", () => {
 							rawValue: "{{val0}}",
 							value: "{{val0}}",
 							renderedNode: p,
+							parts: [fnMock1]
 						}
 					],
 					subExecutables: []
@@ -85,7 +91,7 @@ describe("handleExecutable", () => {
 			]
 		}
 		
-		handleExecutable(e, [fnMock1]);
+		handleExecutable(e);
 		
 		expect(e).toEqual({
 			"node": div,
@@ -99,7 +105,8 @@ describe("handleExecutable", () => {
 							"rawValue": "{{val0}}",
 							"renderedNode": p,
 							"type": "event",
-							"value": fnMock1
+							"value": fnMock1,
+							"parts": [fnMock1]
 						}
 					]
 				}
@@ -118,12 +125,13 @@ describe("handleExecutable", () => {
 					rawValue: "{{val0}}",
 					value: "{{val0}}",
 					renderedNode: div,
+					parts: ["sample"]
 				}
 			],
 			subExecutables: []
 		}
 		
-		handleExecutable(e, ["sample"]);
+		handleExecutable(e);
 		
 		expect(e).toEqual({
 			"node": div,
@@ -134,7 +142,8 @@ describe("handleExecutable", () => {
 					"rawValue": "{{val0}}",
 					"renderedNode": div,
 					"type": "attr-value",
-					"value": "sample"
+					"value": "sample",
+					"parts": ["sample"]
 				}
 			]
 		})
@@ -152,13 +161,14 @@ describe("handleExecutable", () => {
 					rawValue: "true",
 					value: "",
 					renderedNode: div,
-					prop: "disabled"
+					prop: "disabled",
+					parts: [true]
 				}
 			],
 			subExecutables: []
 		}
 		
-		handleExecutable(e, []);
+		handleExecutable(e);
 		
 		expect(e).toEqual({
 			"node": div,
@@ -170,7 +180,8 @@ describe("handleExecutable", () => {
 					"rawValue": "true",
 					"renderedNode": div,
 					"type": "attr-dir",
-					"value": true
+					"value": true,
+					"parts": [true]
 				}
 			]
 		})
@@ -190,13 +201,14 @@ describe("handleExecutable", () => {
 					name: "nodeValue",
 					rawValue: "{{val0}}",
 					value: "",
-					renderedNode: txt
+					renderedNode: txt,
+					parts: ["sample"]
 				}
 			],
 			subExecutables: []
 		}
 		
-		handleExecutable(e, ["sample"]);
+		handleExecutable(e);
 		
 		expect(div.outerHTML).toBe('<div>sample</div>')
 	});
@@ -215,13 +227,14 @@ describe("handleExecutable", () => {
 					name: "nodeValue",
 					rawValue: "{{val0}}",
 					value: "",
-					renderedNode: txt
+					renderedNode: txt,
+					parts: [p]
 				}
 			],
 			subExecutables: []
 		}
 		
-		handleExecutable(e, [p]);
+		handleExecutable(e);
 		
 		expect(div.outerHTML).toBe('<div><p></p></div>')
 	});
@@ -240,13 +253,14 @@ describe("handleExecutable", () => {
 					name: "nodeValue",
 					rawValue: "{{val0}}",
 					value: "",
-					renderedNode: txt
+					renderedNode: txt,
+					parts: [p]
 				}
 			],
 			subExecutables: []
 		}
 		
-		handleExecutable(e, [p]);
+		handleExecutable(e);
 		
 		expect(div.outerHTML).toBe('<div><p>sample</p></div>')
 	});
@@ -263,13 +277,14 @@ describe("handleExecutable", () => {
 					name: "nodeValue",
 					rawValue: "{{val0}}",
 					value: "",
-					renderedNode: txt
+					renderedNode: txt,
+					parts: ['<p>sample</p>']
 				}
 			],
 			subExecutables: []
 		}
 		
-		handleExecutable(e, ['<p>sample</p>']);
+		handleExecutable(e);
 		
 		expect(div.outerHTML).toBe('<div>&lt;p&gt;sample&lt;/p&gt;</div>')
 	});

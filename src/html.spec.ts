@@ -240,6 +240,21 @@ describe("html", () => {
 			expect(document.body.innerHTML).toBe('<button class="btn">click me</button>');
 		});
 		
+		it('class name as property', () => {
+			let loading = true;
+			const btn = html`<button attr.class.loading="${() => loading}" attr.class.btn="true">click me</button>`;
+			
+			btn.render(document.body);
+			
+			expect(document.body.innerHTML).toBe('<button class="loading btn">click me</button>');
+			
+			loading = false;
+			
+			btn.update();
+			
+			expect(document.body.innerHTML).toBe('<button class="btn">click me</button>');
+		});
+		
 		it('class name as value', () => {
 			let loading = true;
 			const btn = html`<button attr.class="loading, ${() => loading}">click me</button>`;
