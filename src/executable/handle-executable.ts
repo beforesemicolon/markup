@@ -61,7 +61,14 @@ export const handleExecutable = (executable: Executable, values: unknown[]) => {
 					
 					if (isWC && !isPrimitive(value)) {
 						const comp = executable.node as Record<string, any>;
-						comp[turnKebabToCamelCasing(val.name)] = value;
+						const propName = turnKebabToCamelCasing(val.name);
+						
+						const descriptors = Object.getOwnPropertyDescriptors(Object.getPrototypeOf(comp));
+						
+						// make sure the property can be set
+						if (descriptors.hasOwnProperty(propName) && typeof descriptors[propName].set === "function") {
+							comp[propName] = value;
+						}
 					}
 				}
 				
@@ -91,9 +98,7 @@ export const handleExecutable = (executable: Executable, values: unknown[]) => {
 						} else if (v instanceof Node) {
 							nodes.push(v)
 						} else {
-							div.insertAdjacentHTML("beforeend", String(v));
-							nodes.push(...Array.from(div.childNodes))
-							div.innerHTML = ""
+							nodes.push(document.createTextNode(String(v)))
 						}
 					})
 					

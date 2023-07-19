@@ -68,10 +68,16 @@ any additional capabilities can be added on top of this library to fit your need
 
 ###### Table of Content
 - [html API](#html-api)
-- [render](#render)
+  - [`render`](#render)
+  - [`update`](#update)
+  - [`refs`](#refs)
+  - [`renderTarget`](#rendertarget)
+  - [`nodes`](#nodes)
+  - [`htmlTemplate`](#htmltemplate)
 - [Injected values](#injected-values)
 - [Dynamic values](#dynamic-values)
   - [Tip](#tip)
+- [Injecting HTML](#injecting-html)
 - [The `ref` Attribute](#the-ref-attribute)
 - [The `attr` Attribute](#the-attr-attribute)
   - [booleans](#booleans)
@@ -280,6 +286,24 @@ setDescription("The description was updated")
 page.update(); // grab the changes
 ```
 
+### Injecting HTML
+Sometimes you just want to inject HTML or any type of text as is safely in the DOM.
+
+If you want to just place text as is, simply injecting it in the template.
+
+```js
+const someCode = '<p>will encode HTML characters safely into the DOM</p>';
+
+const code = html`<pre><code>${someCode}</code></pre>`;
+```
+
+If you want the text to be parsed, use the `html` tag to signal it.
+
+```js
+const someCode = '<p>will be treated as HTML DOM element</p>';
+
+const code = html`<pre><code>${html`${someCode}`}</code></pre>`;
+```
 
 ### The `ref` Attribute
 The `ref` attribute is an attribute you can use to mark the elements you want to have access to.

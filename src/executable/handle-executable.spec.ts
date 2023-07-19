@@ -250,4 +250,27 @@ describe("handleExecutable", () => {
 		
 		expect(div.outerHTML).toBe('<div><p>sample</p></div>')
 	});
+	
+	it('should handle html string executable as text and encode entities', () => {
+		const txt = document.createTextNode("{{val0}}");
+		div.appendChild(txt);
+		
+		const e: Executable = {
+			node: txt,
+			values: [
+				{
+					type: "text",
+					name: "nodeValue",
+					rawValue: "{{val0}}",
+					value: "",
+					renderedNode: txt
+				}
+			],
+			subExecutables: []
+		}
+		
+		handleExecutable(e, ['<p>sample</p>']);
+		
+		expect(div.outerHTML).toBe('<div>&lt;p&gt;sample&lt;/p&gt;</div>')
+	});
 })

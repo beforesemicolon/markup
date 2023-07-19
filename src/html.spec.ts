@@ -117,7 +117,7 @@ describe("html", () => {
 	it('should render dynamic src', () => {
 		let value = "sample";
 		let edit = false;
-		const val = html`${() => edit ? `<input type="text" value="${value}"/>` : html`<p>${value}</p>`}`;
+		const val = html`${() => edit ? html`<input type="text" value="${value}"/>` : html`<p>${value}</p>`}`;
 
 		val.render(document.body);
 
@@ -150,11 +150,11 @@ describe("html", () => {
 
 	it('should render nested src 2 levels with dynamic inner level', () => {
 		let items = [1, 2, 3];
-		const list = html`<ul>${() => items.map(i => `<li>item-${i}</li>`).join('&nbsp;')}</ul>`;
+		const list = html`<ul>${() => items.map(i => html`<li>item-${i}</li>`)}</ul>`;
 
 		list.render(document.body);
 
-		expect(document.body.innerHTML).toBe('<ul><li>item-1</li>&nbsp;<li>item-2</li>&nbsp;<li>item-3</li></ul>');
+		expect(document.body.innerHTML).toBe('<ul><li>item-1</li><li>item-2</li><li>item-3</li></ul>');
 
 		items = [1];
 
@@ -166,7 +166,7 @@ describe("html", () => {
 
 		list.update();
 
-		expect(document.body.innerHTML).toBe('<ul><li>item-1</li>&nbsp;<li>item-2</li></ul>');
+		expect(document.body.innerHTML).toBe('<ul><li>item-1</li><li>item-2</li></ul>');
 
 		items = [];
 
@@ -178,7 +178,7 @@ describe("html", () => {
 
 		list.update();
 
-		expect(document.body.innerHTML).toBe('<ul><li>item-1</li>&nbsp;<li>item-2</li>&nbsp;<li>item-3</li></ul>');
+		expect(document.body.innerHTML).toBe('<ul><li>item-1</li><li>item-2</li><li>item-3</li></ul>');
 	});
 
 	it('should render nested src 3 levels', () => {
@@ -446,6 +446,7 @@ describe("html", () => {
 		
 		el.render(document.body);
 		
+		expect(document.body.innerHTML).toBe('<sample-comp map="{}" val="{&quot;val&quot;:12}"></sample-comp>')
 		expect(mapMock).toHaveBeenCalledWith(expect.any(Map))
 		expect(valMock).toHaveBeenCalledWith({"val": 12})
 		
