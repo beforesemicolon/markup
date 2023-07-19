@@ -1,6 +1,7 @@
-export const when = (condition: boolean | (() => boolean), yes: unknown, no: unknown = "") => {
+export const when = (condition: unknown | (() => unknown), thenThis: unknown | (() => unknown), elseThat?: unknown | (() => unknown)) => {
 	return () => {
-		const render = typeof condition === "function" ? condition() : condition;
-		return render ? yes : no;
+		return Boolean(typeof condition === "function" ? condition() : condition)
+			? (typeof thenThis === "function" ? thenThis() : thenThis)
+			: (elseThat === null || elseThat === undefined ? "" : typeof elseThat === "function" ? elseThat() : elseThat);
 	}
 }
