@@ -1,12 +1,13 @@
 import {Executable} from "./types";
 import {collectExecutables} from "./executable/collect-executable";
 import {handleExecutable} from "./executable/handle-executable";
+import {parse} from "./parser/parse";
 
 export class HtmlTemplate {
 	#htmlTemplate: string;
 	#nodes: Node[] = [];
 	#renderTarget: HTMLElement | ShadowRoot | null = null;
-	#executable: Executable;
+	#executable: Executable = {node: document.createDocumentFragment(), values: [], subExecutables: []};
 	#refs: Record<string, Element> = {};
 	#nodeByExecutable: WeakMap<Node, Executable> = new WeakMap();
 	
@@ -56,37 +57,20 @@ export class HtmlTemplate {
 	}
 	
 	constructor(parts: TemplateStringsArray, private values: unknown[]) {
-		const frag = document.createDocumentFragment();
-		const el = document.createElement("div");
 		this.#htmlTemplate= parts.map((s, i) => {
 			return i == parts.length - 1 ? s : s + `{{val${i}}}`;
 		}).join("").trim();
-		el.innerHTML = this.htmlTemplate;
-		Array.from(el.childNodes).forEach(n => {
-			frag.appendChild(n);
-			this.#nodes.push(n)
-		});
-		const self = this;
 		
-		this.#executable = (function traverse(n: HTMLElement | DocumentFragment, ancestorExecutable: Executable) {
-			Array.from(n.childNodes, c => {
-				let cn: Executable | null = null;
-				
-				collectExecutables(c, values, executable => {
-					cn = executable;
-					ancestorExecutable.subExecutables.push(executable);
-					self.#nodeByExecutable.set(c, executable);
-				}, (refName: string) => {
-					self.#refs[refName] = c as HTMLElement;
-				});
-				
-				if (c.nodeType === 1) {
-					traverse(c as HTMLElement, cn ?? ancestorExecutable)
-				}
+		this.#executable.node = parse(this.#htmlTemplate, (node: Node) => {
+			collectExecutables(node, values, executable => {
+				this.#executable.subExecutables.push(executable);
+				this.#nodeByExecutable.set(node, executable);
+			}, (refName: string) => {
+				this.#refs[refName] = node as HTMLElement;
 			});
-			
-			return ancestorExecutable;
-		})(frag, {node: frag, values: [], subExecutables: []});
+		})
+		
+		this.#nodes = Array.from(this.#executable.node.childNodes);
 	}
 	
 	/**
