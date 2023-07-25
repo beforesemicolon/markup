@@ -1,6 +1,6 @@
 {
   "name": "@beforesemicolon/html",
-  "version": "0.1.10",
+  "version": "0.1.12",
   "description": "Simple, Powerful, and Dynamic HTML Template System",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,11 +10,17 @@
     "test:coverage": "jest --coverage",
     "build:min": "esbuild `find src \\( -name '*.ts' ! -name '*.spec.ts' ! -name 'client.ts' \\)` --outdir=dist --platform=node --format=cjs --keep-names --minify --target=esnext\n",
     "build:browser": "esbuild src/client.ts --bundle --minify --keep-names --sourcemap --target=esnext --outfile=dist/html-client.min.js",
-    "build": "rm -rf dist && tsc && npm run build:min && npm run build:browser"
+    "build": "npm test && rm -rf dist && tsc && npm run build:min && npm run build:browser"
   },
   "author": "Elson Correia",
   "license": "BSD-3-Clause",
-  "keywords": ["html", "web components", "javascript", "html renderer", "web"],
+  "keywords": [
+    "html",
+    "web components",
+    "javascript",
+    "html renderer",
+    "web"
+  ],
   "devDependencies": {
     "@types/jest": "^29.5.1",
     "@types/jsdom": "^21.1.1",
@@ -26,5 +32,8 @@
     "jsdom": "^22.1.0",
     "ts-jest": "^29.1.0",
     "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "@beforesemicolon/html-parser": "^0.2.0"
   }
 }

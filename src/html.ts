@@ -1,7 +1,7 @@
 import {Executable} from "./types";
 import {collectExecutables} from "./executable/collect-executable";
 import {handleExecutable} from "./executable/handle-executable";
-import {parse} from "./parser/parse";
+import {parse} from "@beforesemicolon/html-parser";
 
 export class HtmlTemplate {
 	#htmlTemplate: string;
@@ -68,7 +68,7 @@ export class HtmlTemplate {
 			}, (refName: string) => {
 				this.#refs[refName] = node as HTMLElement;
 			});
-		})
+		});
 		
 		this.#nodes = Array.from(this.#executable.node.childNodes);
 	}
