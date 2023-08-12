@@ -1,5 +1,5 @@
 import {html} from "./html";
-import {repeat, when} from "./helpers";
+import {repeat, when, element} from "./helpers";
 
 if (window) {
 	// @ts-ignore
@@ -8,7 +8,8 @@ if (window) {
 		...(window.BFS || {}),
 		html,
 		repeat,
-		when
+		when,
+		element
 	}
 	
 }

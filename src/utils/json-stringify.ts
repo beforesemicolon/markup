@@ -8,5 +8,5 @@ export function jsonStringify(value: any): any {
 		}
 	}
 
-	return value;
+	return String(value);
 }

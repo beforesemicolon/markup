@@ -73,35 +73,32 @@ export const handleExecutable = (executable: Executable) => {
 				break;
 			case "text":
 				value = val.parts.flatMap(p => typeof p === "function" ? p() : p);
-				const currValue = (val.value as unknown[])
 				
-				if (value.length !== currValue.length || currValue.some((v: unknown, k: number) => v !== value[k])) {
-					val.value = value;
-					
-					const div = document.createElement("div");
-					const nodes: Array<Node> = [];
-					
-					value.forEach((v: Node | HtmlTemplate | string) => {
-						if (v instanceof HtmlTemplate) {
-							const renderedBefore = v.renderTarget !== null;
-							
-							if (renderedBefore) {
-								v.update();
-							} else {
-								v.render(div);
-							}
-							
-							nodes.push(...v.nodes);
-							div.innerHTML = "";
-						} else if (v instanceof Node) {
-							nodes.push(v)
+				val.value = value;
+				
+				const div = document.createElement("div");
+				const nodes: Array<Node> = [];
+				
+				value.forEach((v: Node | HtmlTemplate | string) => {
+					if (v instanceof HtmlTemplate) {
+						const renderedBefore = v.renderTarget !== null;
+						
+						if (renderedBefore) {
+							v.update();
 						} else {
-							nodes.push(document.createTextNode(String(v)))
+							v.render(div);
 						}
-					})
-					
-					handleTextExecutable(val, Array.from(nodes));
-				}
+						
+						nodes.push(...v.nodes);
+						div.innerHTML = "";
+					} else if (v instanceof Node) {
+						nodes.push(v)
+					} else {
+						nodes.push(document.createTextNode(String(v)))
+					}
+				})
+				
+				handleTextExecutable(val, Array.from(nodes));
 				
 				break;
 		}

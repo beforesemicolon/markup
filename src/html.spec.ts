@@ -22,6 +22,25 @@ describe("html", () => {
 
 		expect(document.body.innerHTML).toBe('sample');
 	});
+	
+	it('should render html as text', () => {
+		const htmlString = '<p>sample</p>'
+		const temp = html`${htmlString}`;
+		
+		temp.render(document.body);
+		
+		expect(document.body.innerHTML).toBe('&lt;p&gt;sample&lt;/p&gt;');
+	});
+	
+	it('should render html as HTML', () => {
+		// @ts-ignore
+		const htmlString = html(['<p>sample</p>'])
+		const temp = html`${htmlString}`;
+		
+		temp.render(document.body);
+		
+		expect(document.body.innerHTML).toBe('<p>sample</p>');
+	});
 
 	it('should render dynamic text and update', () => {
 		let x = 15;
@@ -386,32 +405,6 @@ describe("html", () => {
 		});
 	})
 	
-	it('should work with "when" helper', () => {
-		let shouldRender = true;
-		let yes = html`<span>true</span>`;
-		let no = html`<span>false</span>`;
-		
-		const el = html`${when(() => shouldRender, yes, no)}`;
-		
-		el.render(document.body);
-		
-		expect(document.body.innerHTML).toBe('<span>true</span>')
-		let n = document.body.children[0];
-
-		shouldRender = false;
-
-		el.update();
-
-		expect(document.body.innerHTML).toBe('<span>false</span>')
-
-		shouldRender = true;
-
-		el.update();
-
-		expect(document.body.innerHTML).toBe('<span>true</span>')
-		expect(document.body.children[0]).toEqual(n) // same node should be rendered
-	});
-	
 	it('should handle primitive attribute value', () => {
 		const val = 12;
 		const href = "/sample";
@@ -556,6 +549,61 @@ describe("html", () => {
 			el.update();
 
 			expect(valMock).toHaveBeenCalledWith({name: "last"})
+		});
+	})
+	
+	describe('should work with "when" helper', () => {
+		it('when both sides provided as static', () => {
+			let shouldRender = true;
+			let yes = html`<span>true</span>`;
+			let no = html`<span>false</span>`;
+			
+			const el = html`${when(() => shouldRender, yes, no)}`;
+			
+			el.render(document.body);
+			
+			expect(document.body.innerHTML).toBe('<span>true</span>')
+			let n = document.body.children[0];
+			
+			shouldRender = false;
+			
+			el.update();
+			
+			expect(document.body.innerHTML).toBe('<span>false</span>')
+			
+			shouldRender = true;
+			
+			el.update();
+			
+			expect(document.body.innerHTML).toBe('<span>true</span>')
+			expect(document.body.children[0]).toEqual(n) // same node should be rendered
+		});
+		
+		it('when both sides provided as static with dynamic values', () => {
+			let x = 10;
+			let total = () => x;
+			let yes = html`<span>Non Zero: ${total}</span>`;
+			let no = html`<span>Zero: ${total}</span>`;
+			
+			const el = html`${when(total, yes, no)}`;
+			
+			el.render(document.body);
+			
+			expect(document.body.innerHTML).toBe('<span>Non Zero: 10</span>')
+			let n = document.body.children[0];
+			
+			x = 0;
+
+			el.update();
+
+			expect(document.body.innerHTML).toBe('<span>Zero: 0</span>')
+			
+			x = 20;
+
+			el.update();
+
+			expect(document.body.innerHTML).toBe('<span>Non Zero: 20</span>')
+			expect(document.body.children[0]).toEqual(n) // same node should be rendered
 		});
 	})
 	

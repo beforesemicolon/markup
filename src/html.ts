@@ -57,7 +57,7 @@ export class HtmlTemplate {
 	}
 	
 	constructor(parts: TemplateStringsArray, private values: unknown[]) {
-		this.#htmlTemplate= parts.map((s, i) => {
+		this.#htmlTemplate = parts.map((s, i) => {
 			return i == parts.length - 1 ? s : s + `{{val${i}}}`;
 		}).join("").trim();
 		
@@ -100,7 +100,6 @@ export class HtmlTemplate {
 	update() {
 		if (this.renderTarget) {
 			this.#executable.subExecutables.forEach(executable => {
-				// todo: try using requestAnimationFrame
 				handleExecutable(executable);
 			});
 		}
