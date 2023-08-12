@@ -1,4 +1,4 @@
-# HTML String Renderer
+# HTML Templating System
 Simple, Powerful, and Dynamic HTML Template System
 
 [![npm](https://img.shields.io/npm/v/%40beforesemicolon%2Fhtml)](https://www.npmjs.com/package/@beforesemicolon/html)
