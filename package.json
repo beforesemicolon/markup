@@ -34,6 +34,6 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@beforesemicolon/html-parser": "^0.2.0"
+    "@beforesemicolon/html-parser": "^0.2.2"
   }
 }
