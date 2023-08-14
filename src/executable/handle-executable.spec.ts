@@ -4,6 +4,7 @@ import {html} from "../html";
 
 describe("handleExecutable", () => {
 	let div: HTMLDivElement;
+	const refs = {}
 	
 	beforeEach(() => {
 		div = document.createElement("div");
@@ -28,7 +29,7 @@ describe("handleExecutable", () => {
 			subExecutables: []
 		}
 		
-		handleExecutable(e);
+		handleExecutable(e, refs);
 		
 		expect(e).toEqual({
 			"node": div,
@@ -44,7 +45,7 @@ describe("handleExecutable", () => {
 		})
 		
 		e.values[0].parts = [fnMock2]
-		handleExecutable(e);
+		handleExecutable(e, refs);
 		
 		expect(e).toEqual({
 			"node": div,
@@ -62,7 +63,7 @@ describe("handleExecutable", () => {
 		expect(div.outerHTML).toBe('<div></div>')
 		
 		e.values[0].parts = [null]
-		expect(() => handleExecutable(e)).toThrowError('handler for event "click" is not a function. Found "null".')
+		expect(() => handleExecutable(e, refs)).toThrowError('handler for event "click" is not a function. Found "null".')
 	});
 	
 	it('should handle event sub-executable', () => {
@@ -91,7 +92,7 @@ describe("handleExecutable", () => {
 			]
 		}
 		
-		handleExecutable(e);
+		handleExecutable(e, refs);
 		
 		expect(e).toEqual({
 			"node": div,
@@ -131,7 +132,7 @@ describe("handleExecutable", () => {
 			subExecutables: []
 		}
 		
-		handleExecutable(e);
+		handleExecutable(e, refs);
 		
 		expect(e).toEqual({
 			"node": div,
@@ -168,7 +169,7 @@ describe("handleExecutable", () => {
 			subExecutables: []
 		}
 		
-		handleExecutable(e);
+		handleExecutable(e, refs);
 		
 		expect(e).toEqual({
 			"node": div,
@@ -208,7 +209,7 @@ describe("handleExecutable", () => {
 			subExecutables: []
 		}
 		
-		handleExecutable(e);
+		handleExecutable(e, refs);
 		
 		expect(div.outerHTML).toBe('<div>sample</div>')
 	});
@@ -234,7 +235,7 @@ describe("handleExecutable", () => {
 			subExecutables: []
 		}
 		
-		handleExecutable(e);
+		handleExecutable(e, refs);
 		
 		expect(div.outerHTML).toBe('<div><p></p></div>')
 	});
@@ -260,7 +261,7 @@ describe("handleExecutable", () => {
 			subExecutables: []
 		}
 		
-		handleExecutable(e);
+		handleExecutable(e, refs);
 		
 		expect(div.outerHTML).toBe('<div><p>sample</p></div>')
 	});
@@ -284,7 +285,7 @@ describe("handleExecutable", () => {
 			subExecutables: []
 		}
 		
-		handleExecutable(e);
+		handleExecutable(e, refs);
 		
 		expect(div.outerHTML).toBe('<div>&lt;p&gt;sample&lt;/p&gt;</div>')
 	});
