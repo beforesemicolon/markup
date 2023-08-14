@@ -1,7 +1,8 @@
-import {Executable} from "../types";
+import {Executable, ExecutableValue} from "../types";
 import {extractExecutableValueFromRawValue} from "./extract-executable-value-from-raw-value";
+import {handleExecutable, handleTextExecutableValue} from "./handle-executable";
 
-export const collectExecutables = (node: Node, nodeValues: unknown[], cb: (executable: Executable) => void, refCb: (refName: string) => void) => {
+export const collectExecutables = (node: Node, nodeValues: unknown[], refs: Record<string, Element>, cb: (executable: Executable) => void) => {
 	const values: Executable['values'] = [];
 	
 	if (node.nodeType === 1) {
@@ -27,7 +28,8 @@ export const collectExecutables = (node: Node, nodeValues: unknown[], cb: (execu
 				element.removeAttribute(attr.name);
 				
 				if (attr.name === "ref") {
-					refCb(attr.value)
+					// @ts-ignore
+					refs[attr.value] = node
 				} else {
 					const isAttrOrBind = attr.name.match(/(attr)\.([a-z0-9-.]+)/);
 					const prop = isAttrOrBind ? isAttrOrBind[2] : "";
@@ -48,14 +50,16 @@ export const collectExecutables = (node: Node, nodeValues: unknown[], cb: (execu
 		}
 	} else if (node.nodeType === 3) {
 		if (/{{val[0-9]+}}/.test(node.nodeValue || "")) {
-			values.push({
+			const v = {
 				type: "text",
 				name: "nodeValue",
 				rawValue: node.nodeValue ?? "",
 				value: node.nodeValue,
 				renderedNode: node,
 				parts: extractExecutableValueFromRawValue(node.nodeValue ?? "", nodeValues)
-			});
+			} as ExecutableValue;
+			values.push(v);
+			handleTextExecutableValue(v, refs);
 		}
 	}
 	

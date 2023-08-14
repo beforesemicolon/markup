@@ -62,11 +62,9 @@ export class HtmlTemplate {
 		}).join("").trim();
 		
 		this.#executable.node = parse(this.#htmlTemplate, (node: Node) => {
-			collectExecutables(node, values, executable => {
+			collectExecutables(node, values, this.#refs, executable => {
 				this.#executable.subExecutables.push(executable);
 				this.#nodeByExecutable.set(node, executable);
-			}, (refName: string) => {
-				this.#refs[refName] = node as HTMLElement;
 			});
 		});
 		
@@ -100,7 +98,7 @@ export class HtmlTemplate {
 	update() {
 		if (this.renderTarget) {
 			this.#executable.subExecutables.forEach(executable => {
-				handleExecutable(executable);
+				handleExecutable(executable, this.#refs);
 			});
 		}
 	}

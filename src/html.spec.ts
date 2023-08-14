@@ -243,6 +243,26 @@ describe("html", () => {
 		expect(divElement).toBeInstanceOf(HTMLDivElement)
 	});
 	
+	it('should handle ref directive on dynamic elements', () => {
+		let x = 15;
+		const label = html`${when(() => x > 10, html`<span ref="greater">greater than 10</span>`, html`<span ref="less">less than 10</span>`)}`;
+		const btn = html`<button ref="btn">${label}</button>`;
+		
+		expect(btn.refs["btn"]).toBeInstanceOf(HTMLButtonElement)
+		expect(btn.refs["greater"]).toBeInstanceOf(HTMLSpanElement)
+		expect(btn.refs["less"]).toBeUndefined()
+		
+		btn.render(document.body);
+
+		x = 5;
+
+		btn.update()
+
+		expect(btn.refs["btn"]).toBeInstanceOf(HTMLButtonElement)
+		expect(btn.refs["greater"]).toBeInstanceOf(HTMLSpanElement)
+		expect(btn.refs["less"]).toBeInstanceOf(HTMLSpanElement)
+	});
+	
 	describe("should handle attr directive", () => {
 		it('class name as property', () => {
 			let loading = true;
