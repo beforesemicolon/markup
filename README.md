@@ -297,12 +297,12 @@ const someCode = '<p>will encode HTML characters safely into the DOM</p>';
 const code = html`<pre><code>${someCode}</code></pre>`;
 ```
 
-If you want the text to be parsed, use the `html` tag to signal it.
+If you want the text to be parsed, use the `html` as a function and pass it an array of html strings..
 
 ```js
 const someCode = '<p>will be treated as HTML DOM element</p>';
 
-const code = html`<pre><code>${html`${someCode}`}</code></pre>`;
+const code = html`<pre><code>${html[someCode]}</code></pre>`;
 ```
 
 ### The `ref` Attribute
@@ -387,7 +387,7 @@ or
 ```js
 let loading = true;
 
-const btn = html`<button attr.class="loading, ${loading}">click me</button>`
+const btn = html`<button attr.class="loading | ${loading}">click me</button>`
 ```
 
 #### style

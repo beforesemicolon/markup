@@ -22,7 +22,7 @@ describe("handleAttrDirectiveExecutable", () => {
 		const e2: ExecutableValue = {
 			type: "attr-dir",
 			name: "attr",
-			rawValue: "background-color: #900, true",
+			rawValue: "background-color: #900 | true",
 			value: "",
 			renderedNode: div,
 			prop: "style",

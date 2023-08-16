@@ -366,7 +366,7 @@ describe("html", () => {
 		
 		it('style value with flag', () => {
 			let pointer = false;
-			const btn = html`<button attr.style="cursor: pointer, ${() => pointer}">click me</button>`;
+			const btn = html`<button attr.style="cursor: pointer | ${() => pointer}">click me</button>`;
 			
 			btn.render(document.body);
 			
