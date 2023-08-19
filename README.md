@@ -323,7 +323,7 @@ The way you access these element references is by using the [refs Object](#refs)
 returned by `html`.
 
 ```js
-const pDescTag = page.refs["desc"]; // returns a HTMLParagraphElement instance
+const [pDescTag] = page.refs["desc"]; // return array of element references
 ```
 
 ### The `attr` Attribute

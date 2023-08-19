@@ -4,7 +4,7 @@ import {handleTextExecutable} from "./handle-text-executable";
 import {handleAttrDirectiveExecutable} from "./handle-attr-directive-executable";
 import {HtmlTemplate} from "../html";
 
-export const handleExecutable = (executable: Executable, refs: Record<string, Element>) => {
+export const handleExecutable = (executable: Executable, refs: Record<string, Set<Element>>) => {
 	
 	if (executable.subExecutables.length) {
 		executable.subExecutables.forEach(executable => {
@@ -87,7 +87,7 @@ export function handleAttrExecutableValue(val: ExecutableValue, node: Element) {
 	}
 }
 
-export function handleTextExecutableValue(val: ExecutableValue, refs: Record<string, Element>) {
+export function handleTextExecutableValue(val: ExecutableValue, refs: Record<string, Set<Element>>) {
 	val.value = val.parts.flatMap(p => typeof p === "function" ? p() : p);
 	
 	const div = document.createElement("div");
@@ -103,8 +103,14 @@ export function handleTextExecutableValue(val: ExecutableValue, refs: Record<str
 				v.render(div);
 			}
 			
-			Object.entries(v.refs).forEach(([name, el]) => {
-				refs[name] = el;
+			Object.entries(v.refs).forEach(([name, els]) => {
+				els.forEach(el => {
+					if (!refs[name]) {
+						refs[name] = new Set();
+					}
+					
+					refs[name].add(el)
+				});
 			})
 			
 			nodes.push(...v.nodes);

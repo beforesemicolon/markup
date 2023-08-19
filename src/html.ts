@@ -8,7 +8,7 @@ export class HtmlTemplate {
 	#nodes: Node[] = [];
 	#renderTarget: HTMLElement | ShadowRoot | null = null;
 	#executable: Executable = {node: document.createDocumentFragment(), values: [], subExecutables: []};
-	#refs: Record<string, Element> = {};
+	#refs: Record<string, Set<Element>> = {};
 	#nodeByExecutable: WeakMap<Node, Executable> = new WeakMap();
 	
 	/**
@@ -43,17 +43,22 @@ export class HtmlTemplate {
 	/**
 	 * map of DOM element references keyed by the name provided as the ref attribute value
 	 */
-	get refs(): Record<string, Element> {
+	get refs(): Record<string, Array<Element>> {
+		const valueRefs = this.values.reduce((acc: Record<string, Array<Element>>, v) => {
+			if(v instanceof HtmlTemplate) {
+				return {...acc, ...v.refs}
+			}
+			
+			return acc;
+		}, {} as Record<string, Array<Element>>)
+		
 		return Object.freeze({
-			...(this.values.reduce((acc: Record<string, Element>, v) => {
-				if(v instanceof HtmlTemplate) {
-					return {...acc, ...v.refs}
-				}
-				
-				return acc;
-			}, {} as Record<string, Element>)),
-			...this.#refs
-		})
+			...valueRefs,
+			...Object.entries(this.#refs).reduce((acc, [key, set]) => ({
+				...acc,
+				[key]: [...Array.from(set), ...(valueRefs[key] ?? [])]
+			}), {})
+		});
 	}
 	
 	constructor(parts: TemplateStringsArray, private values: unknown[]) {

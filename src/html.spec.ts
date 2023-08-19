@@ -234,9 +234,9 @@ describe("html", () => {
 	it('should handle ref directive', () => {
 		const btn = html`<button ref="btn">${html`<div ref="div">${html`<span ref="span">click me</span>`}</div>`}</button>`;
 
-		const btnElement = btn.refs["btn"];
-		const spanElement = btn.refs["span"];
-		const divElement = btn.refs["div"];
+		const btnElement = btn.refs["btn"][0];
+		const spanElement = btn.refs["span"][0];
+		const divElement = btn.refs["div"][0];
 
 		expect(btnElement).toBeInstanceOf(HTMLButtonElement)
 		expect(spanElement).toBeInstanceOf(HTMLSpanElement)
@@ -248,8 +248,8 @@ describe("html", () => {
 		const label = html`${when(() => x > 10, html`<span ref="greater">greater than 10</span>`, html`<span ref="less">less than 10</span>`)}`;
 		const btn = html`<button ref="btn">${label}</button>`;
 		
-		expect(btn.refs["btn"]).toBeInstanceOf(HTMLButtonElement)
-		expect(btn.refs["greater"]).toBeInstanceOf(HTMLSpanElement)
+		expect(btn.refs["btn"][0]).toBeInstanceOf(HTMLButtonElement)
+		expect(btn.refs["greater"][0]).toBeInstanceOf(HTMLSpanElement)
 		expect(btn.refs["less"]).toBeUndefined()
 		
 		btn.render(document.body);
@@ -258,9 +258,9 @@ describe("html", () => {
 
 		btn.update()
 
-		expect(btn.refs["btn"]).toBeInstanceOf(HTMLButtonElement)
-		expect(btn.refs["greater"]).toBeInstanceOf(HTMLSpanElement)
-		expect(btn.refs["less"]).toBeInstanceOf(HTMLSpanElement)
+		expect(btn.refs["btn"][0]).toBeInstanceOf(HTMLButtonElement)
+		expect(btn.refs["greater"][0]).toBeInstanceOf(HTMLSpanElement)
+		expect(btn.refs["less"][0]).toBeInstanceOf(HTMLSpanElement)
 	});
 	
 	describe("should handle attr directive", () => {

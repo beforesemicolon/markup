@@ -1,8 +1,8 @@
 import {Executable, ExecutableValue} from "../types";
 import {extractExecutableValueFromRawValue} from "./extract-executable-value-from-raw-value";
-import {handleExecutable, handleTextExecutableValue} from "./handle-executable";
+import {handleTextExecutableValue} from "./handle-executable";
 
-export const collectExecutables = (node: Node, nodeValues: unknown[], refs: Record<string, Element>, cb: (executable: Executable) => void) => {
+export const collectExecutables = (node: Node, nodeValues: unknown[], refs: Record<string, Set<Element>>, cb: (executable: Executable) => void) => {
 	const values: Executable['values'] = [];
 	
 	if (node.nodeType === 1) {
@@ -28,8 +28,11 @@ export const collectExecutables = (node: Node, nodeValues: unknown[], refs: Reco
 				element.removeAttribute(attr.name);
 				
 				if (attr.name === "ref") {
-					// @ts-ignore
-					refs[attr.value] = node
+					if (!refs[attr.value]) {
+						refs[attr.value] = new Set()
+					}
+					
+					refs[attr.value].add(node as Element)
 				} else {
 					const isAttrOrBind = attr.name.match(/(attr)\.([a-z0-9-.]+)/);
 					const prop = isAttrOrBind ? isAttrOrBind[2] : "";

@@ -2,7 +2,7 @@ import {collectExecutables} from "./collect-executable";
 
 describe("collectExecutables", () => {
 	const cbMock = jest.fn();
-	let refs: Record<string, Element> = {};
+	let refs: Record<string, Set<Element>> = {};
 	
 	beforeEach(() => {
 		refs = {};
