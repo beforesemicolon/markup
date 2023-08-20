@@ -137,5 +137,7 @@ export function handleTextExecutableValue(val: ExecutableValue, refs: Record<str
 	
 	val.value = value;
 	
-	handleTextExecutable(val, nodes);
+	// need to make sure nodes array does not have repeated nodes
+	// which cannot be rendered in 2 places at once
+	handleTextExecutable(val, Array.from(new Set(nodes)));
 }

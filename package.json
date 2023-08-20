@@ -1,6 +1,6 @@
 {
   "name": "@beforesemicolon/html",
-  "version": "0.1.17",
+  "version": "0.1.20",
   "description": "Simple, Powerful, and Dynamic HTML Template System",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,7 +10,7 @@
     "test:coverage": "jest --coverage",
     "local": "nodemon --watch src -e ts --exec 'npm run build:browser'",
     "build:min": "esbuild `find src \\( -name '*.ts' ! -name '*.spec.ts' ! -name 'client.ts' \\)` --outdir=dist --platform=node --format=cjs --keep-names --minify --target=esnext\n",
-    "build:browser": "esbuild src/client.ts --bundle --minify --keep-names --sourcemap --target=esnext --outfile=dist/html-client.min.js",
+    "build:browser": "esbuild src/client.ts --bundle --minify --keep-names --sourcemap --target=esnext --outfile=dist/client.js",
     "build": "npm test && rm -rf dist && tsc && npm run build:min && npm run build:browser"
   },
   "author": "Elson Correia",

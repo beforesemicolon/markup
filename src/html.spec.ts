@@ -583,6 +583,22 @@ describe("html", () => {
 
 			expect(valMock).toHaveBeenCalledWith({name: "last"})
 		});
+		
+		it('with array containing repeated values as string', () => {
+			const items = html`${repeat([1, 3, 5, 3], n => `item ${n}`)}`
+			
+			items.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('item 1item 3item 5item 3')
+		});
+		
+		it('with array containing repeated values as html instance', () => {
+			const items = html`${repeat([1, 3, 5, 3], n => html`<span>item ${n}</span>`)}`
+			
+			items.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<span>item 1</span><span>item 3</span><span>item 5</span>')
+		});
 	})
 	
 	describe('should work with "when" helper', () => {

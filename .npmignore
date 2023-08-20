@@ -8,6 +8,5 @@ jest.config.js
 .gitignore
 *.tgz
 coverage
-dist/client.js
-dist/client.d.ts
 .github
+index.html

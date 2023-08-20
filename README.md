@@ -21,10 +21,10 @@ This library requires no build or parsing. The CDN package is one digit killobyt
 <head>
 
   <!-- Grab the latest version -->
-  <script src="https://unpkg.com/@beforesemicolon/html/dist/html-client.min.js"></script>
+  <script src="https://unpkg.com/@beforesemicolon/html/dist/client.js"></script>
 
   <!-- Or a specific version -->
-  <script src="https://unpkg.com/@beforesemicolon/html@1.0.0/dist/html-client.min.js"></script>
+  <script src="https://unpkg.com/@beforesemicolon/html@1.0.0/dist/client.js"></script>
 
 </head>
 <body></body>

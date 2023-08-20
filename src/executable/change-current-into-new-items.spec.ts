@@ -12,16 +12,20 @@ describe("changeCurrentIntoNewItems", () => {
 	
 	const endAnchor = document.createComment("")
 	
+	const getAnchor = () => {
+		ul.appendChild(endAnchor)
+		return endAnchor;
+	}
+	
 	beforeEach(() => {
 		ul.innerHTML = '';
 		nodes.forEach(n => ul.appendChild(n));
-		ul.appendChild(endAnchor);
 	})
 	
 	it('should add all new items', () => {
 		ul.innerHTML = '';
-		ul.appendChild(endAnchor);
-		changeCurrentIntoNewItems([], nodes, () => endAnchor);
+		
+		changeCurrentIntoNewItems([], nodes, getAnchor);
 		
 		expect(ul.children).toHaveLength(nodes.length)
 	});
@@ -29,9 +33,8 @@ describe("changeCurrentIntoNewItems", () => {
 	it('should add new items', () => {
 		ul.innerHTML = '';
 		ul.appendChild(nodes[0]);
-		ul.appendChild(endAnchor);
 		
-		changeCurrentIntoNewItems([nodes[0]], [nodes[0], nodes[1]], () => endAnchor);
+		changeCurrentIntoNewItems([nodes[0]], [nodes[0], nodes[1]], getAnchor);
 		
 		expect(ul.children).toHaveLength(2);
 	});
@@ -39,7 +42,7 @@ describe("changeCurrentIntoNewItems", () => {
 	it('should remove all new items', () => {
 		expect(ul.children).toHaveLength(nodes.length);
 		
-		changeCurrentIntoNewItems(Array.from(ul.children), [], () => endAnchor);
+		changeCurrentIntoNewItems(Array.from(ul.children), [], getAnchor);
 		
 		expect(ul.children).toHaveLength(0);
 	});
@@ -47,7 +50,6 @@ describe("changeCurrentIntoNewItems", () => {
 	it('should remove all current and add all new items', () => {
 		ul.innerHTML = ""
 		nodes.slice(0, 4).forEach(n => ul.appendChild(n));
-		ul.appendChild(endAnchor);
 		
 		expect(Array.from(ul.children, n => n.textContent)).toEqual([
 			"item 1",
@@ -56,7 +58,7 @@ describe("changeCurrentIntoNewItems", () => {
 			"item 4",
 		]);
 		
-		changeCurrentIntoNewItems(Array.from(ul.children), nodes.slice(5), () => endAnchor);
+		changeCurrentIntoNewItems(Array.from(ul.children), nodes.slice(5), getAnchor);
 
 		expect(Array.from(ul.children, n => n.textContent)).toEqual([
 			"item 6",
@@ -70,7 +72,7 @@ describe("changeCurrentIntoNewItems", () => {
 	it('should remove items from the start', () => {
 		expect(ul.children).toHaveLength(nodes.length);
 		
-		changeCurrentIntoNewItems(Array.from(ul.children), nodes.slice(2), () => endAnchor);
+		changeCurrentIntoNewItems(Array.from(ul.children), nodes.slice(2), getAnchor);
 		
 		expect(ul.children).toHaveLength(8);
 		expect(ul.children[0].textContent).toBe("item 3");
@@ -102,7 +104,7 @@ describe("changeCurrentIntoNewItems", () => {
 			"item 10"
 		]);
 		
-		changeCurrentIntoNewItems(Array.from(ul.children), [...startNodes, ...endNodes], () => endAnchor);
+		changeCurrentIntoNewItems(Array.from(ul.children), [...startNodes, ...endNodes], getAnchor);
 		
 		expect(ul.children).toHaveLength(6);
 		expect(ul.children[0].textContent).toBe("item 1");
@@ -120,7 +122,7 @@ describe("changeCurrentIntoNewItems", () => {
 	it('should remove items from the end', () => {
 		expect(ul.children).toHaveLength(nodes.length);
 		
-		changeCurrentIntoNewItems(Array.from(ul.children), nodes.slice(0, -2), () => endAnchor);
+		changeCurrentIntoNewItems(Array.from(ul.children), nodes.slice(0, -2), getAnchor);
 		
 		expect(ul.children).toHaveLength(8);
 		expect(ul.children[0].textContent).toBe("item 1");
@@ -129,7 +131,6 @@ describe("changeCurrentIntoNewItems", () => {
 	
 	it("should reverse the items", () => {
 		nodes.forEach(n => ul.appendChild(n));
-		ul.appendChild(endAnchor);
 		
 		const reversedNodes: Node[] = [];
 		
@@ -163,7 +164,7 @@ describe("changeCurrentIntoNewItems", () => {
 			"item 1"
 		])
 		
-		changeCurrentIntoNewItems(Array.from(ul.children), reversedNodes, () => endAnchor);
+		changeCurrentIntoNewItems(Array.from(ul.children), reversedNodes, getAnchor);
 		
 		expect(Array.from(ul.children, n => n.textContent)).toEqual([
 			"item 10",
@@ -213,7 +214,7 @@ describe("changeCurrentIntoNewItems", () => {
 			"item 6"
 		])
 		
-		changeCurrentIntoNewItems(Array.from(ul.children), shuffledNodes, () => endAnchor);
+		changeCurrentIntoNewItems(Array.from(ul.children), shuffledNodes, getAnchor);
 		
 		expect(Array.from(ul.children, n => n.textContent)).toEqual([
 			"item 9",
