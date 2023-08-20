@@ -70,6 +70,7 @@ any additional capabilities can be added on top of this library to fit your need
 - [html API](#html-api)
   - [`render`](#render)
   - [`update`](#update)
+  - [`replace`](#replace)
   - [`refs`](#refs)
   - [`renderTarget`](#rendertarget)
   - [`nodes`](#nodes)
@@ -115,6 +116,7 @@ What you get back is an instance of `HtmlTemplate` which exposes the following p
 and methods:
 - `render` (*method*);
 - `update` (*method*);
+- `replace` (*method*);
 - `refs`;
 - `renderTarget`;
 - `nodes`;
@@ -175,6 +177,19 @@ page.update(); // make the page aware of the title change
 
 See [Injected values](#injected-values) and [Dynamic values](#dynamic-values) sections for more details on values
 you can inject in your templates.
+
+#### replace
+The `replace` method works like the [render](#render) method but instead of appending to the provided element
+it replaces it.
+
+```ts
+const btn = html`<button>Page CTA Action</button>`;
+
+btn.replace(document.body.querySelector('.target'))
+```
+
+One specific thing about this method is that it will not replace `HTML`, `BODY`, or `HEAD` elements. 
+Also, it will not replace `ShadowRoot` as well.
 
 #### refs
 The `refs` property is a readonly Object of elements keyed by the name of your choosing. See [ref Attribute](#refs) section.
@@ -371,7 +386,7 @@ which will result in:
 This library is aware of all valid HTML boolean attributes and will take care of them for you via the `attr` attribute.
 
 #### class
-`Pattern: attr.class.NAME_OF_THE_CLASS="BOOLEAN_RENDER_FLAG" or attr.class="NAME_OF_THE_CLASS, BOOLEAN_RENDER_FLAG"`
+`Pattern: attr.class.NAME_OF_THE_CLASS="BOOLEAN_RENDER_FLAG" or attr.class="NAME_OF_THE_CLASS | BOOLEAN_RENDER_FLAG"`
 
 The examples bellow show 2 patterns on how to use the `attr` attribute to set class names. 
 It will only add the `loading` class if the `loading` variable value is `true`.
@@ -391,7 +406,7 @@ const btn = html`<button attr.class="loading | ${loading}">click me</button>`
 ```
 
 #### style
-`Pattern: attr.style.STYLE_PROPERTY="STYLE_PROPERTY_VALUE, BOOLEAN_RENDER_FLAG" or attr.style="VALID_INLINE_CSS, BOOLEAN_RENDER_FLAG"`
+`Pattern: attr.style.STYLE_PROPERTY="STYLE_PROPERTY_VALUE | BOOLEAN_RENDER_FLAG" or attr.style="VALID_INLINE_CSS | BOOLEAN_RENDER_FLAG"`
 
 The examples bellow show 2 patterns on how to use the `attr` attribute to set inline style.
 It will only the background color if the `cta` variable value is `true`
@@ -399,7 +414,7 @@ It will only the background color if the `cta` variable value is `true`
 ```js
 let cta = true;
 
-const btn = html`<button attr.style.background-color="orange, ${cta}" >click me</button>`
+const btn = html`<button attr.style.background-color="orange | ${cta}" >click me</button>`
 ```
 
 Or
@@ -407,7 +422,7 @@ Or
 ```js
 let cta = true;
 
-const btn = html`<button attr.style="background-color: orange, ${cta}" >click me</button>`
+const btn = html`<button attr.style="background-color: orange | ${cta}" >click me</button>`
 ```
 
 #### data
@@ -418,11 +433,11 @@ The bellow example shows how to use `attr` to dynamically set a data attribute.
 ```js
 let label = true;
 
-const btn = html`<button attr.data.aria-label="${label}, ${label.trim().length > 1}" >click me</button>`
+const btn = html`<button attr.data.aria-label="${label} | ${label.trim().length > 1}" >click me</button>`
 ```
 
 #### any other attributes
-`Pattern: attr.NAME_OF_THE_ATTRIBUTE="ATTRIBUTE_VALUE, BOOLEAN_RENDER_FLAG"`
+`Pattern: attr.NAME_OF_THE_ATTRIBUTE="ATTRIBUTE_VALUE | BOOLEAN_RENDER_FLAG"`
 
 #### BOOLEAN_RENDER_FLAG
 The boolean flag is optional when using `attr` attribute and defaults to `true`. In that case you can just

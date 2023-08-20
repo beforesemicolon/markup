@@ -10,12 +10,13 @@ export const handleAttrDirectiveExecutable = (executableValue: ExecutableValue, 
 		let shouldAdd = property && typeof parsedValue === "boolean" ? parsedValue : true;
 		
 		if (typeof parsedValue !== "boolean" && typeof value === "string") {
-			const parts = value.split(/[,|]/);
+			const parts = value.split("|");
+			
 			const lastPart = jsonParse((parts.at(-1) || "").trim());
 			
 			if (parts.length > 1 && typeof lastPart === "boolean") {
 				shouldAdd = lastPart;
-				value = parts.slice(0, -1).join("");
+				value = parts.slice(0, -1).join("").trim();
 			}
 		}
 		
@@ -28,7 +29,7 @@ export const handleAttrDirectiveExecutable = (executableValue: ExecutableValue, 
 						.match(/([a-z][a-z-]+)(?=:):([^;]+)/g)
 						?.forEach((style: string) => {
 							let [name, styleValue] = style.split(':').map(s => s.trim());
-							
+
 							if (shouldAdd) {
 								element.style.setProperty(name, styleValue);
 							} else {
@@ -36,11 +37,11 @@ export const handleAttrDirectiveExecutable = (executableValue: ExecutableValue, 
 							}
 						})
 				}
-				
+
 				if (!element.style.length) {
 					element.removeAttribute("style")
 				}
-				
+
 				break;
 			case 'class':
 				if (property) {
@@ -81,7 +82,7 @@ export const handleAttrDirectiveExecutable = (executableValue: ExecutableValue, 
 					shouldAdd = boolAttr && !boolAttributeWithValidPossibleValue && typeof parsedValue === "boolean"
 						? parsedValue
 						: shouldAdd;
-					
+
 					if (shouldAdd) {
 						if (boolAttr) {
 							element.setAttribute(attrName, boolAttributeWithValidPossibleValue ? value : "");

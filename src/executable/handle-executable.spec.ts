@@ -19,8 +19,8 @@ describe("handleExecutable", () => {
 			values: [
 				{
 					type: "event",
-					name: "click",
-					rawValue: "{{val0}}",
+					name: "scroll",
+					rawValue: "{{val0}}, true",
 					value: "{{val0}}",
 					renderedNode: div,
 					parts: [fnMock1]
@@ -35,8 +35,8 @@ describe("handleExecutable", () => {
 			"node": div,
 			"subExecutables": [],
 			"values": [{
-				"name": "click",
-				"rawValue": "{{val0}}",
+				"name": "scroll",
+				"rawValue": "{{val0}}, true",
 				"renderedNode": div,
 				"type": "event",
 				"value": fnMock1,
@@ -51,8 +51,8 @@ describe("handleExecutable", () => {
 			"node": div,
 			"subExecutables": [],
 			"values": [{
-				"name": "click",
-				"rawValue": "{{val0}}",
+				"name": "scroll",
+				"rawValue": "{{val0}}, true",
 				"renderedNode": div,
 				"type": "event",
 				"value": fnMock2,
@@ -63,7 +63,7 @@ describe("handleExecutable", () => {
 		expect(div.outerHTML).toBe('<div></div>')
 		
 		e.values[0].parts = [null]
-		expect(() => handleExecutable(e, refs)).toThrowError('handler for event "click" is not a function. Found "null".')
+		expect(() => handleExecutable(e, refs)).toThrowError('handler for event "scroll" is not a function. Found "null".')
 	});
 	
 	it('should handle event sub-executable', () => {

@@ -24,6 +24,7 @@ export const handleExecutable = (executable: Executable, refs: Record<string, Se
 				handleEventExecutableValue(val);
 				break;
 			case "text":
+				// console.log('-- handleExecutable => handleTextExecutableValue');
 				handleTextExecutableValue(val, refs)
 				break;
 		}
@@ -32,18 +33,14 @@ export const handleExecutable = (executable: Executable, refs: Record<string, Se
 
 export function handleAttrDirectiveExecutableValue(val: ExecutableValue) {
 	const value = jsonParse(val.parts.map(p => typeof p === "function" ? p() : p).join(""));
-	handleAttrDirectiveExecutable(val, value);
+	
+	if (val.value !== value) {
+		handleAttrDirectiveExecutable(val, value);
+	}
 }
 
 export function handleEventExecutableValue(val: ExecutableValue) {
-	let node = Array.isArray(val.renderedNode)
-		? (val.renderedNode as Node[])[0]
-		: val.renderedNode as Node;
 	const eventHandler = val.parts[0] as EventListenerOrEventListenerObject;
-	const eventName = val.prop as string;
-	const option = val.parts.length > 1
-		? val.parts[2]
-		: jsonParse(val.rawValue.split(',')[1]);
 	
 	if (typeof eventHandler !== "function") {
 		throw new Error(`handler for event "${val.name}" is not a function. Found "${eventHandler}".`)
@@ -51,6 +48,13 @@ export function handleEventExecutableValue(val: ExecutableValue) {
 	
 	if (val.value !== eventHandler) {
 		val.value = eventHandler;
+		const node = Array.isArray(val.renderedNode)
+			? (val.renderedNode as Node[])[0]
+			: val.renderedNode as Node;
+		const eventName = val.prop as string;
+		const option = val.parts.length > 1
+			? val.parts[2]
+			: jsonParse(val.rawValue.split(',')[1]);
 		const validOption = typeof option === "boolean" || isObjectLiteral(option);
 		const eventOption = validOption ? option : undefined;
 		
@@ -63,7 +67,6 @@ export function handleEventExecutableValue(val: ExecutableValue) {
 }
 
 export function handleAttrExecutableValue(val: ExecutableValue, node: Element) {
-	const isWC = node.nodeName.includes("-")
 	const value = val.parts.length > 1
 		? jsonParse(val.parts.map(p => typeof p === "function" ? p() : jsonStringify(p)).join(''))
 		: jsonParse(typeof val.parts[0] === "function" ? val.parts[0]() : val.parts[0] as string)
@@ -71,12 +74,15 @@ export function handleAttrExecutableValue(val: ExecutableValue, node: Element) {
 	if (value !== val.value) {
 		val.value = value;
 		
+		// always update the element attribute
 		node.setAttribute(val.name, jsonStringify(value));
 		
-		if (isWC && !isPrimitive(value)) {
+		// if the node name includes a dash it is a web component
+		// and for WC we can also use the setter to set the value in case they
+		// have correspondent camel case property version of the attribute
+		if (node.nodeName.includes("-") && !isPrimitive(value)) {
 			const comp = node as Record<string, any>;
 			const propName = turnKebabToCamelCasing(val.name);
-			
 			const descriptors = Object.getOwnPropertyDescriptors(Object.getPrototypeOf(comp));
 			
 			// make sure the property can be set
@@ -88,21 +94,23 @@ export function handleAttrExecutableValue(val: ExecutableValue, node: Element) {
 }
 
 export function handleTextExecutableValue(val: ExecutableValue, refs: Record<string, Set<Element>>) {
-	val.value = val.parts.flatMap(p => typeof p === "function" ? p() : p);
 	
-	const div = document.createElement("div");
+	const value = val.parts.flatMap(p => typeof p === "function" ? p() : p);
+	
 	const nodes: Array<Node> = [];
 	
-	(val.value as Array<Node | HtmlTemplate | string>).forEach((v: Node | HtmlTemplate | string) => {
+	(value as Array<Node | HtmlTemplate | string>).forEach((v: Node | HtmlTemplate | string, idx) => {
 		if (v instanceof HtmlTemplate) {
 			const renderedBefore = v.renderTarget !== null;
 			
 			if (renderedBefore) {
 				v.update();
 			} else {
-				v.render(div);
+				v.render(document.createElement("div"));
 			}
 			
+			// collect dynamic refs that could appear
+			// after render/update
 			Object.entries(v.refs).forEach(([name, els]) => {
 				els.forEach(el => {
 					if (!refs[name]) {
@@ -114,13 +122,20 @@ export function handleTextExecutableValue(val: ExecutableValue, refs: Record<str
 			})
 			
 			nodes.push(...v.nodes);
-			div.innerHTML = "";
 		} else if (v instanceof Node) {
 			nodes.push(v)
 		} else {
-			nodes.push(document.createTextNode(String(v)))
+			// need to make sure to grab the same text node that was already rendered
+			// to avoid unnecessary DOM updates
+			if (Array.isArray(val.value) && Array.isArray(val.renderedNode) && val.value[idx] === String(v)) {
+				nodes.push(val.renderedNode[idx])
+			} else {
+				nodes.push(document.createTextNode(String(v)))
+			}
 		}
 	})
 	
-	handleTextExecutable(val, Array.from(nodes));
+	val.value = value;
+	
+	handleTextExecutable(val, nodes);
 }

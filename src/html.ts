@@ -6,7 +6,7 @@ import {parse} from "@beforesemicolon/html-parser";
 export class HtmlTemplate {
 	#htmlTemplate: string;
 	#nodes: Node[] = [];
-	#renderTarget: HTMLElement | ShadowRoot | null = null;
+	#renderTarget: HTMLElement | ShadowRoot | Element | null = null;
 	#executable: Executable = {node: document.createDocumentFragment(), values: [], subExecutables: []};
 	#refs: Record<string, Set<Element>> = {};
 	#nodeByExecutable: WeakMap<Node, Executable> = new WeakMap();
@@ -77,11 +77,11 @@ export class HtmlTemplate {
 	}
 	
 	/**
-	 * renders the template on the provided HTMLElement or ShadowRoot instance
+	 * appends the template on the provided HTMLElement or ShadowRoot instance
 	 * @param elementToAttachNodesTo
 	 * @param force
 	 */
-	render = (elementToAttachNodesTo: ShadowRoot | HTMLElement, force = false) => {
+	render = (elementToAttachNodesTo: ShadowRoot | HTMLElement | Element, force = false) => {
 		if (elementToAttachNodesTo && elementToAttachNodesTo !== this.renderTarget && (force || !this.renderTarget) && (
 			elementToAttachNodesTo instanceof ShadowRoot ||
 			elementToAttachNodesTo instanceof HTMLElement
@@ -95,6 +95,40 @@ export class HtmlTemplate {
 			
 			this.update();
 		}
+	}
+	
+	/**
+	 * replaces the target element with the template nodes. Does not replace HEAD, BODY, HTML, and ShadowRoot elements
+	 * @param target
+	 */
+	replace = (target: HTMLElement | Element) => {
+		if (target instanceof HTMLElement && !(
+			target instanceof ShadowRoot ||
+			target instanceof HTMLBodyElement ||
+			target instanceof HTMLHeadElement ||
+			target instanceof HTMLHtmlElement
+		)) {
+			const getFrag = () => {
+				const frag = document.createDocumentFragment();
+				frag.append(...this.nodes)
+				
+				return frag;
+			}
+			
+			if (typeof target.replaceWith === "function") {
+				target.replaceWith(getFrag());
+			} else if(target.parentNode) {
+				target.parentNode.replaceChild(getFrag(), target);
+			} else {
+				return;
+			}
+			
+			this.#renderTarget = target;
+			this.update();
+			return;
+		}
+		
+		throw new Error(`Invalid replace target element. Received ${target}`)
 	}
 	
 	/**

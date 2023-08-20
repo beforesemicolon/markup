@@ -110,6 +110,19 @@ describe("html", () => {
 			'\t\t  <button>Page CTA Action</button></div>')
 	});
 	
+	it('should replace dom element', () => {
+		const page = html`<button>Page CTA Action</button>`;
+		
+		const span = document.createElement('span');
+		document.body.appendChild(span);
+		
+		expect(document.body.innerHTML).toBe('<span></span>')
+		
+		page.replace(span);
+		
+		expect(document.body.innerHTML).toBe('<button>Page CTA Action</button>')
+	});
+	
 	it('should render src', () => {
 		const button = html`<button>click me</button>`;
 
@@ -296,7 +309,7 @@ describe("html", () => {
 		
 		it('class name as value', () => {
 			let loading = true;
-			const btn = html`<button attr.class="loading, ${() => loading}">click me</button>`;
+			const btn = html`<button attr.class="loading | ${() => loading}">click me</button>`;
 			
 			btn.render(document.body);
 			
@@ -351,7 +364,7 @@ describe("html", () => {
 		
 		it('style property with flag', () => {
 			let pointer = false;
-			const btn = html`<button attr.style.cursor="pointer, ${() => pointer}">click me</button>`;
+			const btn = html`<button attr.style.cursor="pointer | ${() => pointer}">click me</button>`;
 			
 			btn.render(document.body);
 			
@@ -396,7 +409,7 @@ describe("html", () => {
 		
 		it('any boolean attr with possible values', () => {
 			let hidden = true;
-			const btn = html`<button attr.hidden="until-found, ${() => hidden}">click me</button>`;
+			const btn = html`<button attr.hidden="until-found | ${() => hidden}">click me</button>`;
 			
 			btn.render(document.body);
 			
