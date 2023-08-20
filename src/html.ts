@@ -101,13 +101,41 @@ export class HtmlTemplate {
 	 * replaces the target element with the template nodes. Does not replace HEAD, BODY, HTML, and ShadowRoot elements
 	 * @param target
 	 */
-	replace = (target: HTMLElement | Element) => {
-		if (target instanceof HTMLElement && !(
-			target instanceof ShadowRoot ||
-			target instanceof HTMLBodyElement ||
-			target instanceof HTMLHeadElement ||
-			target instanceof HTMLHtmlElement
-		)) {
+	replace = (target: Node | HTMLElement | Element | HtmlTemplate) => {
+		if (target instanceof HtmlTemplate ||
+			(
+				target instanceof HTMLElement &&
+				!(
+					target instanceof ShadowRoot ||
+					target instanceof HTMLBodyElement ||
+					target instanceof HTMLHeadElement ||
+					target instanceof HTMLHtmlElement
+				)
+			)
+		) {
+			let element: HTMLElement  = target as HTMLElement;
+			
+			if (target instanceof HtmlTemplate) {
+				const renderedNode = target.nodes.find(n => n instanceof HTMLElement && n.isConnected) as HTMLElement;
+				
+				if (renderedNode) {
+					element = renderedNode;
+					
+					target.nodes.forEach(n => {
+						if (n !== renderedNode && n.isConnected) {
+							n.parentNode?.removeChild(n);
+						}
+					})
+				} else {
+					return;
+				}
+			}
+			
+			// only try to replace elements that are actually rendered anywhere
+			if (!element.isConnected) {
+			    return;
+			}
+			
 			const getFrag = () => {
 				const frag = document.createDocumentFragment();
 				frag.append(...this.nodes)
@@ -115,15 +143,15 @@ export class HtmlTemplate {
 				return frag;
 			}
 			
-			if (typeof target.replaceWith === "function") {
-				target.replaceWith(getFrag());
-			} else if(target.parentNode) {
-				target.parentNode.replaceChild(getFrag(), target);
+			if (typeof element.replaceWith === "function") {
+				element.replaceWith(getFrag());
+			} else if(element.parentNode) {
+				element.parentNode.replaceChild(getFrag(), element);
 			} else {
 				return;
 			}
 			
-			this.#renderTarget = target;
+			this.#renderTarget = element;
 			this.update();
 			return;
 		}

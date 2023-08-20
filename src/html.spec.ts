@@ -111,14 +111,27 @@ describe("html", () => {
 	});
 	
 	it('should replace dom element', () => {
-		const page = html`<button>Page CTA Action</button>`;
+		const btn = html`<button>Page CTA Action</button>`;
 		
 		const span = document.createElement('span');
 		document.body.appendChild(span);
 		
 		expect(document.body.innerHTML).toBe('<span></span>')
 		
-		page.replace(span);
+		btn.replace(span);
+		
+		expect(document.body.innerHTML).toBe('<button>Page CTA Action</button>')
+	});
+	
+	it('should replace html template', () => {
+		const btn = html`<button>Page CTA Action</button>`;
+		
+		const span = html`sample text <span></span><div>x</div>`;
+		span.render(document.body)
+		
+		expect(document.body.innerHTML).toBe('sample text <span></span><div>x</div>')
+		
+		btn.replace(span);
 		
 		expect(document.body.innerHTML).toBe('<button>Page CTA Action</button>')
 	});

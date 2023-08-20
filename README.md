@@ -180,7 +180,8 @@ you can inject in your templates.
 
 #### replace
 The `replace` method works like the [render](#render) method but instead of appending to the provided element
-it replaces it.
+it replaces it. It takes any DOM element or a [html template instance](#htmltemplate) replacing only
+if the element(s) is rendered somewhere in the document.
 
 ```ts
 const btn = html`<button>Page CTA Action</button>`;
@@ -189,7 +190,20 @@ btn.replace(document.body.querySelector('.target'))
 ```
 
 One specific thing about this method is that it will not replace `HTML`, `BODY`, or `HEAD` elements. 
-Also, it will not replace `ShadowRoot` as well.
+Also, it will not replace `ShadowRoot` as well. Providing invaliding replacing target will
+result in an error thrown.
+
+```ts
+const span = html`<span>sample</button>`;
+
+span.render(document.body)
+
+const btn = html`<button>Page CTA Action</button>`;
+
+// will remove all nodes of the span template
+// replacing them with all nodes from btn template
+btn.replace(span)
+```
 
 #### refs
 The `refs` property is a readonly Object of elements keyed by the name of your choosing. See [ref Attribute](#refs) section.
