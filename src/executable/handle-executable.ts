@@ -127,7 +127,7 @@ export function handleTextExecutableValue(val: ExecutableValue, refs: Record<str
 		} else {
 			// need to make sure to grab the same text node that was already rendered
 			// to avoid unnecessary DOM updates
-			if (Array.isArray(val.value) && Array.isArray(val.renderedNode) && val.value[idx] === String(v)) {
+			if (Array.isArray(val.value) && Array.isArray(val.renderedNode) && String(val.value[idx]) === String(v)) {
 				nodes.push(val.renderedNode[idx])
 			} else {
 				nodes.push(document.createTextNode(String(v)))
