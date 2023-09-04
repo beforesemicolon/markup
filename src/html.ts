@@ -56,7 +56,7 @@ export class HtmlTemplate {
 			...valueRefs,
 			...Object.entries(this.#refs).reduce((acc, [key, set]) => ({
 				...acc,
-				[key]: [...Array.from(set), ...(valueRefs[key] ?? [])]
+				[key]: Array.from(new Set([...Array.from(set), ...(valueRefs[key] ?? [])]))
 			}), {})
 		});
 	}
