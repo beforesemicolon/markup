@@ -5,6 +5,7 @@ describe('turnKebabToCamelCasing', () => {
 		expect(turnKebabToCamelCasing('some')).toEqual('some')
 		expect(turnKebabToCamelCasing('some-name')).toEqual('someName')
 		expect(turnKebabToCamelCasing('some-name-test')).toEqual('someNameTest')
+		expect(turnKebabToCamelCasing('some12-name-test')).toEqual('some12NameTest')
 	});
 
 	it('should turn pascal case to kebab', () => {

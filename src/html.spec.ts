@@ -249,6 +249,34 @@ describe("html", () => {
 
 		expect(clickMock).toHaveBeenCalled()
 	});
+	
+	it('should handle custom events attribute with web components', () => {
+		const clickMock = jest.fn();
+		
+		class MyButton extends HTMLElement {
+			constructor() {
+				super();
+				
+				this.addEventListener('click', () => {
+					this.dispatchEvent(new CustomEvent('active'))
+				});
+			}
+		}
+		
+		customElements.define('my-button', MyButton)
+		
+		const btn = html`<my-button onactive="${clickMock}">click me</my-button>`;
+		
+		btn.render(document.body);
+		
+		const btnElement = btn.nodes[0] as HTMLButtonElement;
+		
+		expect(document.body.innerHTML).toBe('<my-button>click me</my-button>');
+		
+		btnElement.click();
+		
+		expect(clickMock).toHaveBeenCalled()
+	});
 
 	it('should trow error if handle event attribute is not a function', () => {
 		const btn = html`<button onclick="${2}">click me</button>`;
