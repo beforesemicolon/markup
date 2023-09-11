@@ -4,6 +4,7 @@ import {handleTextExecutableValue} from "./handle-executable";
 
 export const collectExecutables = (node: Node, nodeValues: unknown[], refs: Record<string, Set<Element>>, cb: (executable: Executable) => void) => {
 	const values: Executable['values'] = [];
+	const isWC = node.nodeName.includes('-');
 	
 	if (node.nodeType === 1) {
 		const element = node as Element;
@@ -18,6 +19,20 @@ export const collectExecutables = (node: Node, nodeValues: unknown[], refs: Reco
 			};
 			
 			if (/^on[a-z]+/.test(attr.name)) {
+				// if the node happen to have
+				if (isWC) {
+					const comp = customElements.get(element.nodeName.toLowerCase());
+					
+					// @ts-ignore
+					if (comp?.observedAttributes?.includes(attr.name)) {
+						continue;
+					}
+					// @ts-ignore
+				} else if (document.head && typeof document.head[attr.name] === 'undefined') {
+					// ignore unknown events
+					continue;
+				}
+				
 				element.removeAttribute(attr.name);
 				values.push({
 					...details,

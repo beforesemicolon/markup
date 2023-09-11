@@ -284,6 +284,23 @@ describe("html", () => {
 		expect(() => btn.render(document.body))
 			.toThrowError('handler for event "onclick" is not a function. Found "2".');
 	});
+	
+	it('should ignore inline event if its one of its prop', () => {
+		class OneTestComp extends HTMLElement {
+			static observedAttributes = ["one"]
+		}
+		
+		class TwoTestComp extends HTMLElement {}
+		
+		customElements.define("one-comp", OneTestComp)
+		customElements.define("two-comp", TwoTestComp)
+		
+		const one = html`<one-comp one="${2}"></one-comp>`;
+		const two = html`<two-comp one="${2}"></two-comp>`;
+		
+		expect(() => one.render(document.body)).not.toThrowError();
+		expect(() => two.render(document.body)).toThrowError('handler for event "one" is not a function. Found "2".');
+	});
 
 	it('should handle ref directive', () => {
 		const btn = html`<button ref="btn">${html`<div ref="div">${html`<span ref="span">click me</span>`}</div>`}</button>`;
