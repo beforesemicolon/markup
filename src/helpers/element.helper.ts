@@ -12,21 +12,24 @@ export const element = <A>(tagName: string, {
 	htmlContent = '',
 	textContent = '',
 	ns = 'http://www.w3.org/1999/xhtml'
-}: ElementOptions<A> = {}) => {
+}: ElementOptions<A> = {})  => {
 	if (tagName) {
-		const el = document.createElementNS(ns, tagName);
+		const el = document.createElementNS(ns, tagName) as HTMLElement;
 		
 		Object.entries(attributes as Record<string, any>).forEach(([key, val]) => {
-			
-			el.setAttribute(turnCamelToKebabCasing(key), jsonStringify(val));
-			
-			if (tagName.includes("-") && !isPrimitive(val)) {
-				const descriptors = Object.getOwnPropertyDescriptors(Object.getPrototypeOf(el));
+			if (/^on[a-z]+/.test(key)) {
+				typeof val === 'function' && el.addEventListener(key.slice(2).toLowerCase(), val);
+			} else {
+				el.setAttribute(turnCamelToKebabCasing(key), jsonStringify(val));
 				
-				// make sure the property can be set
-				if (descriptors.hasOwnProperty(key) && typeof descriptors[key].set === "function") {
-					// @ts-ignore cant use string key for HTMLElement
-					el[key] = val;
+				if (tagName.includes("-") && !isPrimitive(val)) {
+					const descriptors = Object.getOwnPropertyDescriptors(Object.getPrototypeOf(el));
+					
+					// make sure the property can be set
+					if (descriptors.hasOwnProperty(key) && typeof descriptors[key].set === "function") {
+						// @ts-ignore cant use string key for HTMLElement
+						el[key] = val;
+					}
 				}
 			}
 		});

@@ -61,7 +61,6 @@ describe("element",  () => {
 		expect(el.outerHTML).toBe('<svg width="100" height="100" viewbox="0 0 100 100"><circle cx="50" cy="50" r="40" stroke="green" stroke-width="4" fill="yellow"></circle></svg>')
 	});
 	
-	
 	it('should create a web component element with attributes', () => {
 		class MyButton extends HTMLElement {
 			static observedAttributes = ["disabled"];
@@ -80,5 +79,20 @@ describe("element",  () => {
 		
 		expect(el).toBeInstanceOf(MyButton)
 		expect(el.outerHTML).toBe('<my-button id="btn" disabled="false"><span>click me</span></my-button>')
+	});
+	
+	it('should set event listeners', () => {
+		const clickMock = jest.fn();
+		
+		const el = element("button", {
+			attributes: {
+				onclick: clickMock
+			}
+		});
+		
+		el.click();
+		
+		expect(clickMock).toHaveBeenCalled()
+		expect(el.outerHTML).toBe('<button></button>')
 	});
 })
