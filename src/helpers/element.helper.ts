@@ -14,7 +14,8 @@ export const element = <A>(tagName: string, {
 	ns = 'http://www.w3.org/1999/xhtml'
 }: ElementOptions<A> = {})  => {
 	if (tagName) {
-		const el = document.createElementNS(ns, tagName) as HTMLElement;
+		const Comp = customElements.get(tagName);
+		const el = Comp ? new Comp() : document.createElementNS(ns, tagName) as HTMLElement;
 		
 		Object.entries(attributes as Record<string, any>).forEach(([key, val]) => {
 			if (/^on[a-z]+/.test(key)) {
@@ -22,7 +23,7 @@ export const element = <A>(tagName: string, {
 			} else {
 				el.setAttribute(turnCamelToKebabCasing(key), jsonStringify(val));
 				
-				if (tagName.includes("-") && !isPrimitive(val)) {
+				if (Comp && !isPrimitive(val)) {
 					const descriptors = Object.getOwnPropertyDescriptors(Object.getPrototypeOf(el));
 					
 					// make sure the property can be set

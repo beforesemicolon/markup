@@ -5,6 +5,12 @@ import {html} from "../html";
 describe("handleExecutable", () => {
 	let div: HTMLDivElement;
 	const refs = {}
+	const defaultExec = {
+		directives: [],
+		content: [],
+		attributes: [],
+		events: [],
+	}
 	
 	beforeEach(() => {
 		div = document.createElement("div");
@@ -15,46 +21,40 @@ describe("handleExecutable", () => {
 		const fnMock2 = jest.fn();
 		
 		const e: Executable = {
-			node: div,
-			values: [
+			...defaultExec,
+			events: [
 				{
-					type: "event",
 					name: "scroll",
 					rawValue: "{{val0}}, true",
 					value: "{{val0}}",
 					renderedNode: div,
 					parts: [fnMock1]
 				}
-			],
-			subExecutables: []
+			]
 		}
 		
-		handleExecutable(e, refs);
+		handleExecutable(div, e, refs);
 		
 		expect(e).toEqual({
-			"node": div,
-			"subExecutables": [],
-			"values": [{
+			...defaultExec,
+			"events": [{
 				"name": "scroll",
 				"rawValue": "{{val0}}, true",
 				"renderedNode": div,
-				"type": "event",
 				"value": fnMock1,
 				"parts": [fnMock1]
 			}]
 		})
 		
-		e.values[0].parts = [fnMock2]
-		handleExecutable(e, refs);
+		e.events[0].parts = [fnMock2]
+		handleExecutable(div, e, refs);
 		
 		expect(e).toEqual({
-			"node": div,
-			"subExecutables": [],
-			"values": [{
+			...defaultExec,
+			"events": [{
 				"name": "scroll",
 				"rawValue": "{{val0}}, true",
 				"renderedNode": div,
-				"type": "event",
 				"value": fnMock2,
 				"parts": [fnMock2]
 			}]
@@ -62,87 +62,33 @@ describe("handleExecutable", () => {
 		
 		expect(div.outerHTML).toBe('<div></div>')
 		
-		e.values[0].parts = [null]
-		expect(() => handleExecutable(e, refs)).toThrowError('handler for event "scroll" is not a function. Found "null".')
-	});
-	
-	it('should handle event sub-executable', () => {
-		const fnMock1 = jest.fn();
-		
-		const p = document.createElement("p")
-		
-		const e: Executable = {
-			node: div,
-			values: [],
-			subExecutables: [
-				{
-					node: p,
-					values: [
-						{
-							type: "event",
-							name: "click",
-							rawValue: "{{val0}}",
-							value: "{{val0}}",
-							renderedNode: p,
-							parts: [fnMock1]
-						}
-					],
-					subExecutables: []
-				}
-			]
-		}
-		
-		handleExecutable(e, refs);
-		
-		expect(e).toEqual({
-			"node": div,
-			"subExecutables": [
-				{
-					"node": p,
-					"subExecutables": [],
-					"values": [
-						{
-							"name": "click",
-							"rawValue": "{{val0}}",
-							"renderedNode": p,
-							"type": "event",
-							"value": fnMock1,
-							"parts": [fnMock1]
-						}
-					]
-				}
-			],
-			"values": []
-		})
+		e.events[0].parts = [null]
+		expect(() => handleExecutable(div, e, refs)).toThrowError('handler for event "scroll" is not a function. Found "null".')
 	});
 	
 	it('should handle attribute value executable', () => {
 		const e: Executable = {
-			node: div,
-			values: [
+			...defaultExec,
+			attributes: [
 				{
-					type: "attr-value",
 					name: "id",
 					rawValue: "{{val0}}",
 					value: "{{val0}}",
 					renderedNode: div,
 					parts: ["sample"]
 				}
-			],
-			subExecutables: []
+			]
 		}
 		
-		handleExecutable(e, refs);
+		handleExecutable(div, e, refs);
 		
 		expect(e).toEqual({
-			"node": div,
-			"subExecutables": [],
-			"values": [
+			...defaultExec,
+			"attributes": [
 				{
 					"name": "id",
 					"rawValue": "{{val0}}",
 					"renderedNode": div,
-					"type": "attr-value",
 					"value": "sample",
 					"parts": ["sample"]
 				}
@@ -154,10 +100,9 @@ describe("handleExecutable", () => {
 	
 	it('should handle attribute directive executable', () => {
 		const e: Executable = {
-			node: div,
-			values: [
+			...defaultExec,
+			directives: [
 				{
-					type: "attr-dir",
 					name: "attr",
 					rawValue: "true",
 					value: "",
@@ -165,22 +110,19 @@ describe("handleExecutable", () => {
 					prop: "disabled",
 					parts: [true]
 				}
-			],
-			subExecutables: []
+			]
 		}
 		
-		handleExecutable(e, refs);
+		handleExecutable(div, e, refs);
 		
 		expect(e).toEqual({
-			"node": div,
-			"subExecutables": [],
-			"values": [
+			...defaultExec,
+			"directives": [
 				{
 					"name": "attr",
 					"prop": "disabled",
 					"rawValue": "true",
 					"renderedNode": div,
-					"type": "attr-dir",
 					"value": true,
 					"parts": [true]
 				}
@@ -195,21 +137,19 @@ describe("handleExecutable", () => {
 		div.appendChild(txt);
 		
 		const e: Executable = {
-			node: txt,
-			values: [
+			...defaultExec,
+			content: [
 				{
-					type: "text",
 					name: "nodeValue",
 					rawValue: "{{val0}}",
 					value: "",
 					renderedNode: txt,
 					parts: ["sample"]
 				}
-			],
-			subExecutables: []
+			]
 		}
 		
-		handleExecutable(e, refs);
+		handleExecutable(txt, e, refs);
 		
 		expect(div.outerHTML).toBe('<div>sample</div>')
 	});
@@ -221,21 +161,19 @@ describe("handleExecutable", () => {
 		const p = document.createElement("p");
 		
 		const e: Executable = {
-			node: txt,
-			values: [
+			...defaultExec,
+			content: [
 				{
-					type: "text",
 					name: "nodeValue",
 					rawValue: "{{val0}}",
 					value: "",
 					renderedNode: txt,
 					parts: [p]
 				}
-			],
-			subExecutables: []
+			]
 		}
 		
-		handleExecutable(e, refs);
+		handleExecutable(txt, e, refs);
 		
 		expect(div.outerHTML).toBe('<div><p></p></div>')
 	});
@@ -247,21 +185,19 @@ describe("handleExecutable", () => {
 		const p = html`<p>sample</p>`;
 		
 		const e: Executable = {
-			node: txt,
-			values: [
+			...defaultExec,
+			content: [
 				{
-					type: "text",
 					name: "nodeValue",
 					rawValue: "{{val0}}",
 					value: "",
 					renderedNode: txt,
 					parts: [p]
 				}
-			],
-			subExecutables: []
+			]
 		}
 		
-		handleExecutable(e, refs);
+		handleExecutable(txt, e, refs);
 		
 		expect(div.outerHTML).toBe('<div><p>sample</p></div>')
 	});
@@ -271,21 +207,19 @@ describe("handleExecutable", () => {
 		div.appendChild(txt);
 		
 		const e: Executable = {
-			node: txt,
-			values: [
+			...defaultExec,
+			content: [
 				{
-					type: "text",
 					name: "nodeValue",
 					rawValue: "{{val0}}",
 					value: "",
 					renderedNode: txt,
 					parts: ['<p>sample</p>']
 				}
-			],
-			subExecutables: []
+			]
 		}
 		
-		handleExecutable(e, refs);
+		handleExecutable(txt, e, refs);
 		
 		expect(div.outerHTML).toBe('<div>&lt;p&gt;sample&lt;/p&gt;</div>')
 	});

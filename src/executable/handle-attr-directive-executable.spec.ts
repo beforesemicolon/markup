@@ -10,7 +10,6 @@ describe("handleAttrDirectiveExecutable", () => {
 	
 	it('should handle style attribute', () => {
 		const e1: ExecutableValue = {
-			type: "attr-dir",
 			name: "attr",
 			rawValue: "bold",
 			value: "",
@@ -20,7 +19,6 @@ describe("handleAttrDirectiveExecutable", () => {
 		};
 		
 		const e2: ExecutableValue = {
-			type: "attr-dir",
 			name: "attr",
 			rawValue: "background-color: #900 | true",
 			value: "",
@@ -51,7 +49,6 @@ describe("handleAttrDirectiveExecutable", () => {
 	
 	it('should handle class attribute', () => {
 		const e1: ExecutableValue = {
-			type: "attr-dir",
 			name: "attr",
 			rawValue: "false",
 			value: "",
@@ -61,7 +58,6 @@ describe("handleAttrDirectiveExecutable", () => {
 		};
 		
 		const e2: ExecutableValue = {
-			type: "attr-dir",
 			name: "attr",
 			rawValue: "sample | true",
 			value: "",
@@ -92,7 +88,6 @@ describe("handleAttrDirectiveExecutable", () => {
 	
 	it('should handle data attribute', () => {
 		const e1: ExecutableValue = {
-			type: "attr-dir",
 			name: "attr",
 			rawValue: "val | true",
 			value: "",
@@ -102,7 +97,6 @@ describe("handleAttrDirectiveExecutable", () => {
 		};
 		
 		const e2: ExecutableValue = {
-			type: "attr-dir",
 			name: "attr",
 			rawValue: "simple-val | true",
 			value: "",
@@ -127,7 +121,6 @@ describe("handleAttrDirectiveExecutable", () => {
 	
 	it('should handle boolean attribute', () => {
 		const e1: ExecutableValue = {
-			type: "attr-dir",
 			name: "attr",
 			rawValue: "true",
 			value: "",
@@ -137,7 +130,6 @@ describe("handleAttrDirectiveExecutable", () => {
 		};
 		
 		const e2: ExecutableValue = {
-			type: "attr-dir",
 			name: "attr",
 			rawValue: "until-found | true",
 			value: "",
@@ -162,7 +154,6 @@ describe("handleAttrDirectiveExecutable", () => {
 	
 	it('should handle all other attributes', () => {
 		const e1: ExecutableValue = {
-			type: "attr-dir",
 			name: "attr",
 			rawValue: "sample | true",
 			value: "",
@@ -172,7 +163,6 @@ describe("handleAttrDirectiveExecutable", () => {
 		};
 		
 		const e2: ExecutableValue = {
-			type: "attr-dir",
 			name: "attr",
 			rawValue: "true",
 			value: "",

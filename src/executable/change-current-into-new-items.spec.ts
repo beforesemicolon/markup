@@ -12,11 +12,6 @@ describe("changeCurrentIntoNewItems", () => {
 	
 	const endAnchor = document.createComment("")
 	
-	const getAnchor = () => {
-		ul.appendChild(endAnchor)
-		return endAnchor;
-	}
-	
 	beforeEach(() => {
 		ul.innerHTML = '';
 		nodes.forEach(n => ul.appendChild(n));
@@ -25,7 +20,7 @@ describe("changeCurrentIntoNewItems", () => {
 	it('should add all new items', () => {
 		ul.innerHTML = '';
 		
-		changeCurrentIntoNewItems([], nodes, getAnchor);
+		changeCurrentIntoNewItems([], nodes, ul);
 		
 		expect(ul.children).toHaveLength(nodes.length)
 	});
@@ -34,7 +29,7 @@ describe("changeCurrentIntoNewItems", () => {
 		ul.innerHTML = '';
 		ul.appendChild(nodes[0]);
 		
-		changeCurrentIntoNewItems([nodes[0]], [nodes[0], nodes[1]], getAnchor);
+		changeCurrentIntoNewItems([nodes[0]], [nodes[0], nodes[1]], ul);
 		
 		expect(ul.children).toHaveLength(2);
 	});
@@ -42,7 +37,7 @@ describe("changeCurrentIntoNewItems", () => {
 	it('should remove all new items', () => {
 		expect(ul.children).toHaveLength(nodes.length);
 		
-		changeCurrentIntoNewItems(Array.from(ul.children), [], getAnchor);
+		changeCurrentIntoNewItems(Array.from(ul.children), [], ul);
 		
 		expect(ul.children).toHaveLength(0);
 	});
@@ -58,7 +53,7 @@ describe("changeCurrentIntoNewItems", () => {
 			"item 4",
 		]);
 		
-		changeCurrentIntoNewItems(Array.from(ul.children), nodes.slice(5), getAnchor);
+		changeCurrentIntoNewItems(Array.from(ul.children), nodes.slice(5), ul);
 
 		expect(Array.from(ul.children, n => n.textContent)).toEqual([
 			"item 6",
@@ -72,7 +67,7 @@ describe("changeCurrentIntoNewItems", () => {
 	it('should remove items from the start', () => {
 		expect(ul.children).toHaveLength(nodes.length);
 		
-		changeCurrentIntoNewItems(Array.from(ul.children), nodes.slice(2), getAnchor);
+		changeCurrentIntoNewItems(Array.from(ul.children), nodes.slice(2), ul);
 		
 		expect(ul.children).toHaveLength(8);
 		expect(ul.children[0].textContent).toBe("item 3");
@@ -104,7 +99,7 @@ describe("changeCurrentIntoNewItems", () => {
 			"item 10"
 		]);
 		
-		changeCurrentIntoNewItems(Array.from(ul.children), [...startNodes, ...endNodes], getAnchor);
+		changeCurrentIntoNewItems(Array.from(ul.children), [...startNodes, ...endNodes], ul);
 		
 		expect(ul.children).toHaveLength(6);
 		expect(ul.children[0].textContent).toBe("item 1");
@@ -122,7 +117,7 @@ describe("changeCurrentIntoNewItems", () => {
 	it('should remove items from the end', () => {
 		expect(ul.children).toHaveLength(nodes.length);
 		
-		changeCurrentIntoNewItems(Array.from(ul.children), nodes.slice(0, -2), getAnchor);
+		changeCurrentIntoNewItems(Array.from(ul.children), nodes.slice(0, -2), ul);
 		
 		expect(ul.children).toHaveLength(8);
 		expect(ul.children[0].textContent).toBe("item 1");
@@ -164,7 +159,7 @@ describe("changeCurrentIntoNewItems", () => {
 			"item 1"
 		])
 		
-		changeCurrentIntoNewItems(Array.from(ul.children), reversedNodes, getAnchor);
+		changeCurrentIntoNewItems(Array.from(ul.children), reversedNodes, ul);
 		
 		expect(Array.from(ul.children, n => n.textContent)).toEqual([
 			"item 10",
@@ -214,7 +209,7 @@ describe("changeCurrentIntoNewItems", () => {
 			"item 6"
 		])
 		
-		changeCurrentIntoNewItems(Array.from(ul.children), shuffledNodes, getAnchor);
+		changeCurrentIntoNewItems(Array.from(ul.children), shuffledNodes, ul);
 		
 		expect(Array.from(ul.children, n => n.textContent)).toEqual([
 			"item 9",
@@ -225,5 +220,20 @@ describe("changeCurrentIntoNewItems", () => {
 			"item 1",
 			"item 6"
 		]);
+	});
+	
+	it('should handle filtering items out', () => {
+		ul.innerHTML = '';
+		const complete = document.createElement('complete');
+		const edit = document.createElement('edit');
+		const archive = document.createElement('archive');
+		
+		changeCurrentIntoNewItems([], [complete, edit, archive], ul);
+		
+		expect(ul.innerHTML).toBe('<complete></complete><edit></edit><archive></archive>')
+		
+		changeCurrentIntoNewItems([complete, edit, archive], [archive], ul);
+		
+		expect(ul.innerHTML).toBe('<archive></archive>')
 	});
 })

@@ -4,10 +4,12 @@
  * position, they should remain untouched
  * @param currentChildNodes - list of parent node child nodes
  * @param newChildNodes - list of nodes of how the parent node child nodes should become
- * @param getAnchorNode - a function that returns anchored node placed right after the last of the currentlyRendered nodes
+ * @param parent
  */
-export const changeCurrentIntoNewItems = (currentChildNodes: Node[], newChildNodes: Node[], getAnchorNode: () => Node) => {
+export const changeCurrentIntoNewItems = (currentChildNodes: Node[], newChildNodes: Node[], parent: ParentNode | null) => {
 	const currentChildNodesSet = new Set(currentChildNodes);
+	const lastNode = currentChildNodes.at(-1);
+	const endAnchor = lastNode?.nextSibling ?? null;
 	let frag: DocumentFragment = document.createDocumentFragment();
 	
 	newChildNodes.forEach((n, i) => {
@@ -29,8 +31,11 @@ export const changeCurrentIntoNewItems = (currentChildNodes: Node[], newChildNod
 	})
 	
 	if (frag.childNodes.length) {
-		const anchor= getAnchorNode();
-		anchor.parentNode?.insertBefore(frag as DocumentFragment, anchor);
+		if (endAnchor === null) {
+			parent?.appendChild(frag)
+		} else {
+			endAnchor.parentNode?.insertBefore(frag, endAnchor);
+		}
 	}
 	
 	currentChildNodesSet.forEach(c => {

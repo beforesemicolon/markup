@@ -4,31 +4,19 @@ import {handleTextExecutable} from "./handle-text-executable";
 import {handleAttrDirectiveExecutable} from "./handle-attr-directive-executable";
 import {HtmlTemplate} from "../html";
 
-export const handleExecutable = (executable: Executable, refs: Record<string, Set<Element>>) => {
-	
-	if (executable.subExecutables.length) {
-		executable.subExecutables.forEach(executable => {
-			handleExecutable(executable, refs);
-		})
-	}
-	
-	for (let val of executable.values) {
-		switch (val.type) {
-			case "attr-dir":
-				handleAttrDirectiveExecutableValue(val)
-				break;
-			case "attr-value":
-				handleAttrExecutableValue(val, executable.node as Element);
-				break;
-			case "event":
-				handleEventExecutableValue(val);
-				break;
-			case "text":
-				// console.log('-- handleExecutable => handleTextExecutableValue');
-				handleTextExecutableValue(val, refs)
-				break;
-		}
-	}
+export const handleExecutable = (node: Node, executable: Executable, refs: Record<string, Set<Element>>) => {
+	executable.events.forEach(e => {
+		handleEventExecutableValue(e);
+	})
+	executable.directives.forEach(d => {
+		handleAttrDirectiveExecutableValue(d);
+	})
+	executable.attributes.forEach(a => {
+		handleAttrExecutableValue(a, a.renderedNode as Element);
+	})
+	executable.content.forEach(t => {
+		handleTextExecutableValue(t, refs, node);
+	});
 }
 
 export function handleAttrDirectiveExecutableValue(val: ExecutableValue) {
@@ -93,21 +81,30 @@ export function handleAttrExecutableValue(val: ExecutableValue, node: Element) {
 	}
 }
 
-export function handleTextExecutableValue(val: ExecutableValue, refs: Record<string, Set<Element>>) {
+export function handleTextExecutableValue(val: ExecutableValue, refs: Record<string, Set<Element>>, el: Node) {
 	
 	const value = val.parts.flatMap(p => typeof p === "function" ? p() : p);
 	
 	const nodes: Array<Node> = [];
 	
-	(value as Array<Node | HtmlTemplate | string>).forEach((v: Node | HtmlTemplate | string, idx) => {
+	let idx = 0;
+	for (let v of (value as Array<Node | HtmlTemplate | string>)) {
 		if (v instanceof HtmlTemplate) {
 			const renderedBefore = v.renderTarget !== null;
-			
-			if (renderedBefore) {
-				v.update();
-			} else {
-				v.render(document.createElement("div"));
+
+			if (!renderedBefore) {
+				v.render(document.createElement('div'));
+				// need to disconnect these nodes because the div created above
+				// is only used ,so we can get access to the nodes but not necessarily
+				// where we want these nodes to be rendered at
+				v.nodes.forEach(node => {
+					node.parentNode?.removeChild(node);
+				})
 			}
+			
+			// could be that the component was sitting around while data changed
+			// for that we need to update it, so it has the latest data
+			v.update();
 			
 			// collect dynamic refs that could appear
 			// after render/update
@@ -127,17 +124,19 @@ export function handleTextExecutableValue(val: ExecutableValue, refs: Record<str
 		} else {
 			// need to make sure to grab the same text node that was already rendered
 			// to avoid unnecessary DOM updates
-			if (Array.isArray(val.value) && Array.isArray(val.renderedNode) && String(val.value[idx]) === String(v)) {
-				nodes.push(val.renderedNode[idx])
+			if (Array.isArray(val.value) && Array.isArray(el) && String(val.value[idx]) === String(v)) {
+				nodes.push(el[idx])
 			} else {
 				nodes.push(document.createTextNode(String(v)))
 			}
 		}
-	})
+		
+		idx += 1;
+	}
 	
 	val.value = value;
 	
 	// need to make sure nodes array does not have repeated nodes
 	// which cannot be rendered in 2 places at once
-	handleTextExecutable(val, Array.from(new Set(nodes)));
+	handleTextExecutable(val, Array.from(new Set(nodes)), el);
 }

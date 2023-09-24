@@ -1,6 +1,7 @@
-import {html} from "./html";
+import {html, useValue} from "./html";
 import {repeat, when, element} from "./helpers";
 
+// @ts-ignore
 if (window) {
 	// @ts-ignore
 	window.BFS = {
@@ -9,7 +10,7 @@ if (window) {
 		html,
 		repeat,
 		when,
-		element
+		element,
+		useValue
 	}
-	
 }

@@ -13,7 +13,6 @@ describe("handleTextExecutable", () => {
 		expect(txt.parentNode).toEqual(div);
 		
 		const execVal: ExecutableValue = {
-			type: "text",
 			name: "nodeValue",
 			rawValue: "",
 			value: "",
@@ -23,7 +22,7 @@ describe("handleTextExecutable", () => {
 		
 		expect(execVal.renderedNode).toEqual(txt)
 		
-		handleTextExecutable(execVal, []);
+		handleTextExecutable(execVal, [], txt);
 		
 		expect(div.innerHTML).toBe('');
 		expect(txt.nodeValue).toBe('{{val0}}');
@@ -38,7 +37,6 @@ describe("handleTextExecutable", () => {
 		expect(div.innerHTML).toBe('<span>sample</span><span>text</span>');
 		
 		const execVal: ExecutableValue = {
-			type: "text",
 			name: "nodeValue",
 			rawValue: "",
 			value: "",
@@ -46,7 +44,7 @@ describe("handleTextExecutable", () => {
 			parts: []
 		};
 		
-		handleTextExecutable(execVal, []);
+		handleTextExecutable(execVal, [], div);
 		
 		expect(div.innerHTML).toBe('');
 		expect(execVal.renderedNode).toBeInstanceOf(Text);
@@ -59,7 +57,6 @@ describe("handleTextExecutable", () => {
 		expect(div.innerHTML).toBe('<span>sample</span><span>text</span>');
 		
 		const execVal: ExecutableValue = {
-			type: "text",
 			name: "nodeValue",
 			rawValue: "",
 			value: "",
@@ -75,7 +72,7 @@ describe("handleTextExecutable", () => {
 		
 		const nodes = [p1, p2];
 		
-		handleTextExecutable(execVal, nodes);
+		handleTextExecutable(execVal, nodes, div);
 		
 		expect(div.innerHTML).toBe('<p>one</p><p>two</p>');
 		expect(execVal.renderedNode).toEqual(nodes);
@@ -102,7 +99,6 @@ describe("handleTextExecutable", () => {
 		expect(div.innerHTML).toBe('<p>two</p><p>four</p>');
 		
 		const execVal: ExecutableValue = {
-			type: "text",
 			name: "nodeValue",
 			rawValue: "",
 			value: "",
@@ -110,7 +106,7 @@ describe("handleTextExecutable", () => {
 			parts: []
 		};
 		
-		handleTextExecutable(execVal, nodes);
+		handleTextExecutable(execVal, nodes, div);
 		
 		expect(div.innerHTML).toBe('<p>one</p><p>three</p>');
 		expect(execVal.renderedNode).toEqual(nodes);
@@ -132,7 +128,6 @@ describe("handleTextExecutable", () => {
 		expect(div.innerHTML).toBe('<p>one</p>');
 		
 		const execVal: ExecutableValue = {
-			type: "text",
 			name: "nodeValue",
 			rawValue: "",
 			value: "",
@@ -140,7 +135,7 @@ describe("handleTextExecutable", () => {
 			parts: []
 		};
 		
-		handleTextExecutable(execVal, [p2, p3]);
+		handleTextExecutable(execVal, [p2, p3], div);
 		
 		expect(div.innerHTML).toBe('<p>two</p><p>three</p>');
 		expect(execVal.renderedNode).toEqual([p2, p3]);

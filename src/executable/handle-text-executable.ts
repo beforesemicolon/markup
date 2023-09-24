@@ -1,36 +1,25 @@
 import {ExecutableValue} from "../types";
 import {changeCurrentIntoNewItems} from "./change-current-into-new-items";
 
-export const handleTextExecutable = (executableValue: ExecutableValue, nodes: Array<Node>) => {
+export const handleTextExecutable = (executableValue: ExecutableValue, nodes: Array<Node>, el: Node) => {
 	const renderedIsAList = Array.isArray(executableValue.renderedNode);
 	
 	if (nodes.length) {
 		if (renderedIsAList) {
 			const renderedNodes = executableValue.renderedNode as Node[];
-			const lastNode = renderedNodes.at(-1);
-			const comment = document.createComment("");
-			let endAnchor: Node = lastNode?.nextSibling ?? comment;
 			
-			changeCurrentIntoNewItems(renderedNodes, nodes, () => {
-				// only render the anchor node when it is really needed
-				// otherwise it will cause unnecessary DOM update
-				if (endAnchor === comment) {
-					lastNode?.parentNode?.appendChild(endAnchor)
-				}
-				
-				return endAnchor;
-			})
+			const parent = renderedNodes[0].parentNode ?? el.parentNode;
 			
-			if (endAnchor === comment) {
-				endAnchor?.parentNode?.removeChild(endAnchor)
-			}
+			changeCurrentIntoNewItems(executableValue.renderedNode as Node[], nodes, parent)
 		} else {
 			const frag = document.createDocumentFragment()
 			const r = executableValue.renderedNode as Node;
 			
 			frag.append(...nodes);
 			
-			r.parentNode?.replaceChild(frag, r);
+			const parent = (executableValue.renderedNode as Node).parentNode ?? el.parentNode;
+			
+			parent?.replaceChild(frag, r);
 		}
 		
 		executableValue.renderedNode = nodes;

@@ -3,13 +3,59 @@ import {collectExecutables} from "./executable/collect-executable";
 import {handleExecutable} from "./executable/handle-executable";
 import {parse} from "@beforesemicolon/html-parser";
 
+// prevents others from creating functions that can be subscribed to
+// and forces them to use useValue instead
+const id = 'S' + Math.floor(Math.random() * 10000000);
+class ValueGetSet<T> extends Array {
+	// create a set of weak references instead of a weakSet
+	// because we still need to iterate the references which weakSet does not allow
+	#subs: Set<WeakRef<HtmlTemplate>> = new Set();
+	
+	constructor(val: any) {
+		super(2); // tuple
+		
+		this[0] = () => val;
+		this[1] = (newVal:  T | ((val: T) => T)) => {
+			val = typeof newVal == 'function' ? (newVal as (val: T) => T)(val) : newVal;
+			this.#subs.forEach((ref) => {
+				const h = ref.deref(); // get the real value
+				if (h) {
+					h?.update()
+				} else {
+					// get rid of the reference if the HtmlTemplate has been destroyed
+					this.#subs.delete(ref);
+				}
+			});
+		};
+		
+		Object.defineProperty(this[0], id, {
+			// ensure only HtmlTemplate can subscribe to this value
+			value: (sub: HtmlTemplate, subId: string) => {
+				if (subId === id && sub instanceof HtmlTemplate) {
+					const h = new WeakRef(sub);
+					this.#subs.add(h);
+					
+					return () => {
+						this.#subs.delete(h);
+					};
+				}
+			}
+		})
+		
+		Object.freeze(this);
+	}
+}
+
+export const useValue = <T>(val: T) => {
+	return new ValueGetSet(val);
+}
+
 export class HtmlTemplate {
 	#htmlTemplate: string;
-	#nodes: Node[] = [];
+	#nodes: WeakRef<Node>[] = [];
 	#renderTarget: HTMLElement | ShadowRoot | Element | null = null;
-	#executable: Executable = {node: document.createDocumentFragment(), values: [], subExecutables: []};
 	#refs: Record<string, Set<Element>> = {};
-	#nodeByExecutable: WeakMap<Node, Executable> = new WeakMap();
+	#executablesByNode: Map<WeakRef<Node>, Executable> = new Map();
 	
 	/**
 	 * template string representation
@@ -22,14 +68,17 @@ export class HtmlTemplate {
 	 * list of direct ChildNode from the template that got rendered
 	 */
 	get nodes() {
-		return this.#nodes.flatMap(n => {
-			const e = this.#nodeByExecutable.get(n);
+		return this.#nodes.filter(r => r.deref()).flatMap(n => {
+			const node = n.deref() as Node;
+			const e = this.#executablesByNode.get(n);
 			
-			if (e) {
-				return e.values.flatMap(v => Array.isArray(v.renderedNode) ? v.renderedNode : [v.renderedNode]);
+			if (e?.content.length) {
+				return Array.from(new Set(
+					e.content.flatMap(v => Array.isArray(v.renderedNode) ? v.renderedNode : [v.renderedNode])
+				));
 			}
 			
-			return [n];
+			return [node];
 		})
 	}
 	
@@ -45,7 +94,7 @@ export class HtmlTemplate {
 	 */
 	get refs(): Record<string, Array<Element>> {
 		const valueRefs = this.values.reduce((acc: Record<string, Array<Element>>, v) => {
-			if(v instanceof HtmlTemplate) {
+			if (v instanceof HtmlTemplate) {
 				return {...acc, ...v.refs}
 			}
 			
@@ -66,14 +115,26 @@ export class HtmlTemplate {
 			return i == parts.length - 1 ? s : s + `{{val${i}}}`;
 		}).join("").trim();
 		
-		this.#executable.node = parse(this.#htmlTemplate, (node: Node) => {
-			collectExecutables(node, values, this.#refs, executable => {
-				this.#executable.subExecutables.push(executable);
-				this.#nodeByExecutable.set(node, executable);
-			});
+		const nodeRefMap = new Map();
+		
+		const root = parse(this.#htmlTemplate, (node: Node) => {
+			const executable = collectExecutables(node, values, this.#refs);
+			if (
+				executable.content.length ||
+				executable.events.length ||
+				executable.directives.length ||
+				executable.attributes.length
+			) {
+				const nr = new WeakRef(node);
+				nodeRefMap.set(node, nr);
+				this.#executablesByNode.set(nr, executable);
+				handleExecutable(node, executable, this.#refs);
+			}
 		});
 		
-		this.#nodes = Array.from(this.#executable.node.childNodes);
+		this.#nodes = Array.from(root.childNodes, n => {
+			return nodeRefMap.get(n) ?? new WeakRef(n)
+		});
 	}
 	
 	/**
@@ -92,8 +153,13 @@ export class HtmlTemplate {
 					elementToAttachNodesTo.appendChild(node)
 				}
 			})
-			
-			this.update();
+			this.values.forEach(val => {
+				// @ts-ignore is a getter created by useValue
+				if (typeof val === 'function' && typeof val[id] === "function") {
+					// @ts-ignore subscribe to auto update on changes
+					val[id](this, id)
+				}
+			})
 		}
 	}
 	
@@ -113,7 +179,7 @@ export class HtmlTemplate {
 				)
 			)
 		) {
-			let element: HTMLElement  = target as HTMLElement;
+			let element: HTMLElement = target as HTMLElement;
 			
 			if (target instanceof HtmlTemplate) {
 				const renderedNode = target.nodes.find(n => n instanceof HTMLElement && n.isConnected) as HTMLElement;
@@ -133,7 +199,7 @@ export class HtmlTemplate {
 			
 			// only try to replace elements that are actually rendered anywhere
 			if (!element.isConnected) {
-			    return;
+				return;
 			}
 			
 			const getFrag = () => {
@@ -145,14 +211,13 @@ export class HtmlTemplate {
 			
 			if (typeof element.replaceWith === "function") {
 				element.replaceWith(getFrag());
-			} else if(element.parentNode) {
+			} else if (element.parentNode) {
 				element.parentNode.replaceChild(getFrag(), element);
 			} else {
 				return;
 			}
 			
 			this.#renderTarget = element;
-			this.update();
 			return;
 		}
 		
@@ -163,11 +228,32 @@ export class HtmlTemplate {
 	 * updates the already rendered DOM Nodes with the update values
 	 */
 	update() {
+		// only update if the nodes were already rendered and there are actual values
 		if (this.renderTarget) {
-			this.#executable.subExecutables.forEach(executable => {
-				handleExecutable(executable, this.#refs);
+			this.#executablesByNode.forEach((executable, nodeRef) => {
+				const node = nodeRef.deref();
+				if (node) {
+					handleExecutable(node, executable, this.#refs);
+				} else {
+					// get rid of the reference if the node has been destroyed
+					this.#executablesByNode.delete(nodeRef);
+				}
 			});
 		}
+	}
+	
+	unmount() {
+		this.values.forEach(val => {
+			if(val instanceof HtmlTemplate) {
+				val.unmount();
+			}
+		});
+		this.nodes.forEach(n => {
+			if (n.parentNode) {
+				n.parentNode.removeChild(n);
+			}
+		})
+		this.#renderTarget = null;
 	}
 }
 

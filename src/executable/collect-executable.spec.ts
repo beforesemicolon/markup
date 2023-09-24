@@ -1,8 +1,13 @@
 import {collectExecutables} from "./collect-executable";
 
 describe("collectExecutables", () => {
-	const cbMock = jest.fn();
 	let refs: Record<string, Set<Element>> = {};
+	const defaultExec = {
+		directives: [],
+		content: [],
+		attributes: [],
+		events: [],
+	}
 	
 	beforeEach(() => {
 		refs = {};
@@ -17,17 +22,15 @@ describe("collectExecutables", () => {
 		
 		expect(btn.outerHTML).toBe('<button onclick="() => null"></button>')
 		
-		collectExecutables(btn, [], refs, cbMock);
+		const res = collectExecutables(btn, [], refs);
 		
-		expect(cbMock).toHaveBeenCalledWith({
-			"node": btn,
-			"subExecutables": [],
-			"values": [{
+		expect(res).toEqual({
+			...defaultExec,
+			"events": [{
 				"name": "onclick",
 				"prop": "click",
 				"rawValue": "() => null",
 				"renderedNode": btn,
-				"type": "event",
 				"value": "() => null",
 				"parts": ["() => null"]
 			}]
@@ -43,16 +46,14 @@ describe("collectExecutables", () => {
 		
 		expect(btn.outerHTML).toBe('<button disabled="{{val0}}"></button>')
 		
-		collectExecutables(btn, [12], refs, cbMock);
+		const res = collectExecutables(btn, [12], refs);
 		
-		expect(cbMock).toHaveBeenCalledWith({
-			"node": btn,
-			"subExecutables": [],
-			"values": [{
+		expect(res).toEqual({
+			...defaultExec,
+			"attributes": [{
 				"name": "disabled",
 				"rawValue": "{{val0}}",
 				"renderedNode": btn,
-				"type": "attr-value",
 				"value": "{{val0}}",
 				"parts": [12]
 			}]
@@ -68,17 +69,15 @@ describe("collectExecutables", () => {
 		
 		expect(btn.outerHTML).toBe('<button attr.disabled="{{val0}}"></button>')
 		
-		collectExecutables(btn, [12], refs, cbMock);
+		const res = collectExecutables(btn, [12], refs);
 		
-		expect(cbMock).toHaveBeenCalledWith({
-			"node": btn,
-			"subExecutables": [],
-			"values": [{
+		expect(res).toEqual({
+			...defaultExec,
+			"directives": [{
 				"name": "attr",
 				"prop": "disabled",
 				"rawValue": "{{val0}}",
 				"renderedNode": btn,
-				"type": "attr-dir",
 				"value": "",
 				"parts": [12]
 			}]
@@ -94,9 +93,8 @@ describe("collectExecutables", () => {
 		
 		expect(btn.outerHTML).toBe('<button ref="btn"></button>')
 		
-		collectExecutables(btn, [], refs, cbMock);
+		const res = collectExecutables(btn, [], refs);
 		
-		expect(cbMock).not.toHaveBeenCalled()
 		expect(refs['btn']).toBeDefined()
 		
 		expect(btn.outerHTML).toBe('<button></button>')
@@ -107,17 +105,15 @@ describe("collectExecutables", () => {
 		
 		expect(txt.nodeValue).toBe('{{val0}}')
 		
-		collectExecutables(txt, [12], refs, cbMock);
+		const res = collectExecutables(txt, [12], refs);
 		
-		expect(cbMock).toHaveBeenCalledWith({
-			"node": txt,
-			"subExecutables": [],
-			"values": [{
+		expect(res).toEqual({
+			...defaultExec,
+			"content": [{
 				"name": "nodeValue",
 				"rawValue": "{{val0}}",
 				"renderedNode": expect.any(Object),
-				"type": "text",
-				"value": [12],
+				"value": "{{val0}}",
 				"parts": [12]
 			}]
 		})

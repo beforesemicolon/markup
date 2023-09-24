@@ -138,5 +138,5 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-index.html
+playground
 

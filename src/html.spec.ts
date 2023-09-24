@@ -1,4 +1,4 @@
-import {html, HtmlTemplate} from "./html";
+import {html, HtmlTemplate, useValue} from "./html";
 import {when, repeat} from "./helpers";
 
 describe("html", () => {
@@ -56,6 +56,43 @@ describe("html", () => {
 		temp.update();
 
 		expect(document.body.innerHTML).toBe('less than 10');
+	});
+	
+	it('should render dynamic HTML and update', () => {
+		let x = 15;
+		const a = html`<p>more than 10</p>`;
+		const b = html`<p>less than 10</p>`;
+
+		const temp = html`${() => x > 10 ? html`${a}` : html`${b}`}`;
+		
+		temp.render(document.body);
+
+		expect(document.body.innerHTML).toBe('<p>more than 10</p>');
+
+		x = 5;
+
+		temp.update();
+
+		expect(document.body.innerHTML).toBe('<p>less than 10</p>');
+	});
+	
+	it('should handle deeply nested HTML', () => {
+		html`${html`${html`${html`<p>sample</p>`}`}`}`.render(document.body);
+		
+		expect(document.body.innerHTML).toBe('<p>sample</p>');
+	});
+	
+	it('should handle function that returns HTML', () => {
+		html`${() => html`<p>sample</p>`}`.render(document.body);
+		
+		expect(document.body.innerHTML).toBe('<p>sample</p>');
+	});
+	
+	it('should handle deeply nested function that returns HTML', () => {
+		const x = html`<p>sample</p>`;
+		html`${() => html`${x}`}`.render(document.body);
+		
+		expect(document.body.innerHTML).toBe('<p>sample</p>');
 	});
 	
 	it('should render a growing list of items', () => {
@@ -279,9 +316,7 @@ describe("html", () => {
 	});
 
 	it('should trow error if handle event attribute is not a function', () => {
-		const btn = html`<button onclick="${2}">click me</button>`;
-
-		expect(() => btn.render(document.body))
+		expect(() => html`<button onclick="${2}">click me</button>`)
 			.toThrowError('handler for event "onclick" is not a function. Found "2".');
 	});
 	
@@ -295,11 +330,8 @@ describe("html", () => {
 		customElements.define("one-comp", OneTestComp)
 		customElements.define("two-comp", TwoTestComp)
 		
-		const one = html`<one-comp one="${2}"></one-comp>`;
-		const two = html`<two-comp one="${2}"></two-comp>`;
-		
-		expect(() => one.render(document.body)).not.toThrowError();
-		expect(() => two.render(document.body)).toThrowError('handler for event "one" is not a function. Found "2".');
+		expect(() => html`<one-comp one="${2}"></one-comp>`).not.toThrowError();
+		expect(() => html`<two-comp one="${2}"></two-comp>`).toThrowError('handler for event "one" is not a function. Found "2".');
 	});
 
 	it('should handle ref directive', () => {
@@ -657,6 +689,133 @@ describe("html", () => {
 			
 			expect(document.body.innerHTML).toBe('<span>item 1</span><span>item 3</span><span>item 5</span>')
 		});
+		
+		it('with array of values as html instance based on object', () => {
+			class TodoItem extends HTMLElement {
+				temp: any;
+				static observedAttributes = ['name', 'description', 'status'];
+				#status = "";
+				#description = "";
+				#name = "";
+				
+				constructor() {
+					super();
+					
+					this.attachShadow({mode: "open"})
+				}
+				
+				connectedCallback() {
+					const deleteBtn = html`<button>delete</button>`;
+					
+					const archiveBtn = html`<button>archive</button>`;
+					
+					const editBtn = html`<button>edit</button>`;
+					
+					const progressBtn = html`<button>move in progress</button>`;
+					
+					const completeBtn = html`<button>complete</button>`;
+					
+					this.temp = html`
+<div class="todo-item">
+	<div class="details">
+	  <h3>${this.#name}</h3>
+	  ${when(this.#description, () => html`<p>${this.#description}</p>`)}
+	</div>
+	<div class="todo-actions">
+	  ${when(() => this.#status === "pending", html`${completeBtn}${editBtn}${archiveBtn}`)}
+	  ${when(() => this.#status === "archived", html`${progressBtn}${deleteBtn}`)}
+	  ${when(() => this.#status === "completed", archiveBtn)}
+	</div>
+</div>`;
+					
+					this.temp.render(this.shadowRoot);
+				}
+				
+				attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+					switch (name) {
+						case "name":
+							this.#name = newValue;
+							break;
+						case "description":
+							this.#description = newValue;
+							break;
+						case "status":
+							this.#status = newValue;
+							break;
+					}
+					
+					if(this.isConnected) {
+						this.temp.update();
+					}
+				}
+				
+			}
+			
+			customElements.define("todo-item", TodoItem)
+			
+			const todoList = [
+				{name: "sample", description: "", status: "pending"}
+			];
+			
+			const todos = html`${
+				repeat(
+					() => todoList,
+					(item: any) => html`<todo-item name="${() => item.name}" description="${() => item.description}" status="${() => item.status}"></todo-item>`
+				)}`
+			
+			todos.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<todo-item name="sample" description="" status="pending"></todo-item>')
+			
+			const todo = document.querySelector('todo-item') as HTMLElement;
+			
+			expect(todo.shadowRoot?.innerHTML).toBe('<div class="todo-item">\n' +
+				'\t<div class="details">\n' +
+				'\t  <h3>sample</h3></div>\n' +
+				'\t<div class="todo-actions"><button>complete</button><button>edit</button><button>archive</button>\n' +
+				'\t  \n' +
+				'\t  </div>\n' +
+				'</div>')
+			
+			todoList[0].status = "completed";
+			
+			todos.update()
+			
+			expect(document.body.innerHTML).toBe('<todo-item name="sample" description="" status="completed"></todo-item>')
+			expect(todo.shadowRoot?.innerHTML).toBe('<div class="todo-item">\n' +
+				'\t<div class="details">\n' +
+				'\t  <h3>sample</h3></div>\n' +
+				'\t<div class="todo-actions">\n' +
+				'\t  \n' +
+				'\t  <button>archive</button></div>\n' +
+				'</div>')
+		});
+		
+		it('should handle nested repeat by changing data in place', () => {
+			const data: any[] = [
+				{name: "one", subs: [1, 2]},
+			]
+			const item = ({name, subs}: any) =>
+				html`<li>${name}: ${repeat(() => subs, (sub: any) => html`<span>${sub}</span>`)}</li>`;
+			const list = html`${repeat(() => data, item)}`;
+			
+			list.render(document.body);
+			
+			expect(document.body.innerHTML).toBe('<li>one: <span>1</span><span>2</span></li>')
+			
+			data[0].subs.push(3);
+			
+			list.update();
+			
+			expect(document.body.innerHTML).toBe('<li>one: <span>1</span><span>2</span><span>3</span></li>')
+			
+			data[0].subs.pop();
+			data[0].subs.pop();
+			
+			list.update();
+			
+			expect(document.body.innerHTML).toBe('<li>one: <span>1</span></li>')
+		});
 	})
 	
 	describe('should work with "when" helper', () => {
@@ -698,13 +857,13 @@ describe("html", () => {
 			
 			expect(document.body.innerHTML).toBe('<span>Non Zero: 10</span>')
 			let n = document.body.children[0];
-			
-			x = 0;
 
+			x = 0;
+			
 			el.update();
 
 			expect(document.body.innerHTML).toBe('<span>Zero: 0</span>')
-			
+
 			x = 20;
 
 			el.update();
@@ -714,4 +873,28 @@ describe("html", () => {
 		});
 	})
 	
+	it('should work with useValue helper', () => {
+		const [count, setCount] = useValue<number>(0);
+		const countUp = () => {
+			setCount((prev: number) => prev + 1);
+		};
+		
+		let counter = html`<span>${count}</span><button onclick="${countUp}">+</button>`;
+		
+		counter.render(document.body);
+		
+		expect(document.body.innerHTML).toBe('<span>0</span><button>+</button>')
+		
+		const btn = document.querySelector('button') as HTMLButtonElement;
+		
+		btn.click();
+		
+		expect(document.body.innerHTML).toBe('<span>1</span><button>+</button>')
+		
+		counter.unmount();
+		
+		btn.click();
+		
+		expect(document.body.innerHTML).toBe('')
+	});
 })

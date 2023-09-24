@@ -1,10 +1,14 @@
-import {Executable, ExecutableValue} from "../types";
+import {Executable} from "../types";
 import {extractExecutableValueFromRawValue} from "./extract-executable-value-from-raw-value";
-import {handleTextExecutableValue} from "./handle-executable";
 
-export const collectExecutables = (node: Node, nodeValues: unknown[], refs: Record<string, Set<Element>>, cb: (executable: Executable) => void) => {
-	const values: Executable['values'] = [];
-	const isWC = node.nodeName.includes('-');
+export const collectExecutables = (node: Node, nodeValues: unknown[], refs: Record<string, Set<Element>>) => {
+	const comp = customElements.get(node.nodeName.toLowerCase());
+	const executable: Executable = {
+		directives: [],
+		attributes: [],
+		events: [],
+		content: [],
+	}
 	
 	if (node.nodeType === 1) {
 		const element = node as Element;
@@ -20,9 +24,7 @@ export const collectExecutables = (node: Node, nodeValues: unknown[], refs: Reco
 			
 			if (/^on[a-z]+/.test(attr.name)) {
 				// if the node happen to have
-				if (isWC) {
-					const comp = customElements.get(element.nodeName.toLowerCase());
-					
+				if (comp) {
 					// @ts-ignore
 					if (comp?.observedAttributes?.includes(attr.name)) {
 						continue;
@@ -34,10 +36,9 @@ export const collectExecutables = (node: Node, nodeValues: unknown[], refs: Reco
 				}
 				
 				element.removeAttribute(attr.name);
-				values.push({
+				executable.events.push({
 					...details,
 					prop: attr.name.slice(2),
-					type: "event",
 				})
 			} else if (/^(attr|ref)/.test(attr.name)) {
 				element.removeAttribute(attr.name);
@@ -51,41 +52,28 @@ export const collectExecutables = (node: Node, nodeValues: unknown[], refs: Reco
 				} else {
 					const isAttrOrBind = attr.name.match(/(attr)\.([a-z0-9-.]+)/);
 					const prop = isAttrOrBind ? isAttrOrBind[2] : "";
-					values.push({
+					executable.directives.push({
 						...details,
-						type: "attr-dir",
 						name: attr.name.slice(0, attr.name.indexOf(".")),
 						value: "",
 						prop
 					})
 				}
 			} else if (/{{val[0-9]+}}/.test(attr.value)) {
-				values.push({
-					...details,
-					type: "attr-value"
-				})
+				executable.attributes.push(details)
 			}
 		}
 	} else if (node.nodeType === 3) {
 		if (/{{val[0-9]+}}/.test(node.nodeValue || "")) {
-			const v = {
-				type: "text",
+			executable.content.push({
 				name: "nodeValue",
 				rawValue: node.nodeValue ?? "",
 				value: node.nodeValue,
+				parts: extractExecutableValueFromRawValue(node.nodeValue ?? "", nodeValues),
 				renderedNode: node,
-				parts: extractExecutableValueFromRawValue(node.nodeValue ?? "", nodeValues)
-			} as ExecutableValue;
-			values.push(v);
-			handleTextExecutableValue(v, refs);
+			});
 		}
 	}
 	
-	if (values.length) {
-		cb({
-			node,
-			values,
-			subExecutables: []
-		})
-	}
+	return executable;
 }

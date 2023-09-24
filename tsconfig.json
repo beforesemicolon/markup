@@ -4,13 +4,13 @@
     "module": "es6",
     "lib": [
       "dom",
-      "es2015.proxy"
+      "es2015.proxy",
+      "es2021.weakref"
     ],
     "declaration": true,
     "declarationMap": false,
-    "sourceMap": false,
+    "sourceMap": true,
     "outDir": "./dist",
-    "rootDir": "./src",
     "removeComments": true,
     "downlevelIteration": true,
     "strict": true,
@@ -19,7 +19,7 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
+    "forceConsistentCasingInFileNames": true
   },
   "include": [
     "./src/**/*"
