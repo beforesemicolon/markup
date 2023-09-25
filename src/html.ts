@@ -4,12 +4,12 @@ import {handleExecutable} from "./executable/handle-executable";
 import {parse} from "@beforesemicolon/html-parser";
 
 // prevents others from creating functions that can be subscribed to
-// and forces them to use useValue instead
+// and forces them to use state instead
 const id = 'S' + Math.floor(Math.random() * 10000000);
 class ValueGetSet<T> extends Array {
 	// create a set of weak references instead of a weakSet
 	// because we still need to iterate the references which weakSet does not allow
-	#subs: Set<WeakRef<HtmlTemplate>> = new Set();
+	#subs: Set<HtmlTemplate> = new Set();
 	
 	constructor(val: any) {
 		super(2); // tuple
@@ -17,14 +17,8 @@ class ValueGetSet<T> extends Array {
 		this[0] = () => val;
 		this[1] = (newVal:  T | ((val: T) => T)) => {
 			val = typeof newVal == 'function' ? (newVal as (val: T) => T)(val) : newVal;
-			this.#subs.forEach((ref) => {
-				const h = ref.deref(); // get the real value
-				if (h) {
-					h?.update()
-				} else {
-					// get rid of the reference if the HtmlTemplate has been destroyed
-					this.#subs.delete(ref);
-				}
+			this.#subs.forEach((sub) => {
+				sub.update()
 			});
 		};
 		
@@ -32,11 +26,10 @@ class ValueGetSet<T> extends Array {
 			// ensure only HtmlTemplate can subscribe to this value
 			value: (sub: HtmlTemplate, subId: string) => {
 				if (subId === id && sub instanceof HtmlTemplate) {
-					const h = new WeakRef(sub);
-					this.#subs.add(h);
+					this.#subs.add(sub);
 					
 					return () => {
-						this.#subs.delete(h);
+						this.#subs.delete(sub);
 					};
 				}
 			}
@@ -46,16 +39,17 @@ class ValueGetSet<T> extends Array {
 	}
 }
 
-export const useValue = <T>(val: T) => {
+export const state = <T>(val: T) => {
 	return new ValueGetSet(val);
 }
 
 export class HtmlTemplate {
 	#htmlTemplate: string;
-	#nodes: WeakRef<Node>[] = [];
+	#nodes: Node[] = [];
 	#renderTarget: HTMLElement | ShadowRoot | Element | null = null;
 	#refs: Record<string, Set<Element>> = {};
-	#executablesByNode: Map<WeakRef<Node>, Executable> = new Map();
+	#subs: Set<() => () => void> = new Set();
+	#executablesByNode: Map<Node, Executable> = new Map();
 	
 	/**
 	 * template string representation
@@ -68,9 +62,8 @@ export class HtmlTemplate {
 	 * list of direct ChildNode from the template that got rendered
 	 */
 	get nodes() {
-		return this.#nodes.filter(r => r.deref()).flatMap(n => {
-			const node = n.deref() as Node;
-			const e = this.#executablesByNode.get(n);
+		return this.#nodes.flatMap(node => {
+			const e = this.#executablesByNode.get(node);
 			
 			if (e?.content.length) {
 				return Array.from(new Set(
@@ -115,8 +108,6 @@ export class HtmlTemplate {
 			return i == parts.length - 1 ? s : s + `{{val${i}}}`;
 		}).join("").trim();
 		
-		const nodeRefMap = new Map();
-		
 		const root = parse(this.#htmlTemplate, (node: Node) => {
 			const executable = collectExecutables(node, values, this.#refs);
 			if (
@@ -125,16 +116,12 @@ export class HtmlTemplate {
 				executable.directives.length ||
 				executable.attributes.length
 			) {
-				const nr = new WeakRef(node);
-				nodeRefMap.set(node, nr);
-				this.#executablesByNode.set(nr, executable);
+				this.#executablesByNode.set(node, executable);
 				handleExecutable(node, executable, this.#refs);
 			}
 		});
 		
-		this.#nodes = Array.from(root.childNodes, n => {
-			return nodeRefMap.get(n) ?? new WeakRef(n)
-		});
+		this.#nodes = Array.from(root.childNodes);
 	}
 	
 	/**
@@ -154,7 +141,7 @@ export class HtmlTemplate {
 				}
 			})
 			this.values.forEach(val => {
-				// @ts-ignore is a getter created by useValue
+				// @ts-ignore is a getter created by state
 				if (typeof val === 'function' && typeof val[id] === "function") {
 					// @ts-ignore subscribe to auto update on changes
 					val[id](this, id)
@@ -230,15 +217,10 @@ export class HtmlTemplate {
 	update() {
 		// only update if the nodes were already rendered and there are actual values
 		if (this.renderTarget) {
-			this.#executablesByNode.forEach((executable, nodeRef) => {
-				const node = nodeRef.deref();
-				if (node) {
-					handleExecutable(node, executable, this.#refs);
-				} else {
-					// get rid of the reference if the node has been destroyed
-					this.#executablesByNode.delete(nodeRef);
-				}
+			this.#executablesByNode.forEach((executable, node) => {
+				handleExecutable(node, executable, this.#refs);
 			});
+			this.#subs.forEach(cb => cb());
 		}
 	}
 	
@@ -254,6 +236,16 @@ export class HtmlTemplate {
 			}
 		})
 		this.#renderTarget = null;
+	}
+	
+	onUpdate(cb: () => () => void) {
+		if(typeof cb === 'function') {
+			this.#subs.add(cb);
+			
+			return () => {
+				this.#subs.delete(cb);
+			}
+		}
 	}
 }
 

@@ -1,4 +1,4 @@
-import {html, useValue} from "./html";
+import {html, state} from "./html";
 import {repeat, when, element} from "./helpers";
 
 // @ts-ignore
@@ -11,6 +11,6 @@ if (window) {
 		repeat,
 		when,
 		element,
-		useValue
+		state
 	}
 }
