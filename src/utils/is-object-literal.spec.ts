@@ -4,10 +4,10 @@ describe("isObjectLiteral", () => {
 	it('should be object', () => {
 		expect(isObjectLiteral({})).toBeTruthy()
 		expect(isObjectLiteral(new Object({}))).toBeTruthy()
+		expect(isObjectLiteral(Object.create(null))).toBeTruthy()
 	});
 	
 	it('should NOT be object', () => {
-		expect(isObjectLiteral(Object.create(null))).toBeFalsy()
 		expect(isObjectLiteral(new Map())).toBeFalsy()
 		expect(isObjectLiteral(new Set())).toBeFalsy()
 		expect(isObjectLiteral(String(""))).toBeFalsy()

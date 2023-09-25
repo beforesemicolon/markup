@@ -1,3 +1,2 @@
 export const isObjectLiteral = (val: unknown) => val
-	&& typeof val === "object"
-	&& Object.getPrototypeOf(val) === Object.prototype;
+	&& Object.prototype.toString.call(val) === '[object Object]'
