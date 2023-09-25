@@ -9,4 +9,4 @@ jest.config.js
 *.tgz
 coverage
 .github
-index.html
+playground

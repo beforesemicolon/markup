@@ -1,4 +1,4 @@
-import {html, HtmlTemplate, useValue} from "./html";
+import {html, HtmlTemplate, state} from "./html";
 import {when, repeat} from "./helpers";
 
 describe("html", () => {
@@ -873,8 +873,8 @@ describe("html", () => {
 		});
 	})
 	
-	it('should work with useValue helper', () => {
-		const [count, setCount] = useValue<number>(0);
+	it('should work with state helper', () => {
+		const [count, setCount] = state<number>(0);
 		const countUp = () => {
 			setCount((prev: number) => prev + 1);
 		};
