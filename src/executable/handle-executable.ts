@@ -64,19 +64,27 @@ export function handleAttrExecutableValue(val: ExecutableValue, node: Element) {
 		
 		// always update the element attribute
 		node.setAttribute(val.name, jsonStringify(value));
-		
-		// if the node name includes a dash it is a web component
-		// and for WC we can also use the setter to set the value in case they
+		// for WC we can also use the setter to set the value in case they
 		// have correspondent camel case property version of the attribute
-		if (node.nodeName.includes("-") && !isPrimitive(value)) {
-			const comp = node as Record<string, any>;
-			const propName = turnKebabToCamelCasing(val.name);
-			const descriptors = Object.getOwnPropertyDescriptors(Object.getPrototypeOf(comp));
-			
-			// make sure the property can be set
-			if (descriptors.hasOwnProperty(propName) && typeof descriptors[propName].set === "function") {
-				comp[propName] = value;
+		// we do this only for non-primitive value because they are not handled properly
+		// by elements and if in case they have such setters, we can use them to set it
+		if (customElements.get(node.nodeName.toLowerCase()) && !isPrimitive(value)) {
+			const propName = /-/.test(val.name) ? turnKebabToCamelCasing(val.name) : val.name;
+			// @ts-ignore check if value is different from the new value
+			if (node[propName] !== value) {
+				try {
+					// @ts-ignore in case the property is not writable and throws error
+					node[propName] = value;
+				} catch(e) {}
 			}
+		} else if(
+			// @ts-ignore handle cases like input field which changing attribute does not
+			// actually change the value of the input field, and we check this by
+			// verifying that the matching property value remained different from the new value of the attribute
+			node[val.name] !== undefined && node[val.name] !== value
+		) {
+			// @ts-ignore
+			node[val.name] = value;
 		}
 	}
 }
