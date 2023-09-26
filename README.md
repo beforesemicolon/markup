@@ -681,6 +681,40 @@ todoItems.push({name: "new item"})
 todos.update()
 ```
 
+#### element
+There is also a `element` helper which is just a simpler way to create DOM elements. What is special
+about it is that you can do one call and the entire element is put together. What is more interesting
+in it is that it handle Web Component props the way it should be.
+
+```js
+import {html, element, state} from "@beforesemicolon/html"
+
+let [count, setCount] = state(0);
+
+const incBtn = element('button', {
+  textContent: "+",
+  attributes: {
+    type: "button",
+    onclick: () => {
+      setCount(prev => prev + 1)
+    }
+  }
+});
+
+const page = html`
+  <p>${count}</p>
+  ${incBtn}
+`;
+```
+
+It takes two arguments:
+- `TagName`: the name of the element you want to create
+- `options`
+  - `textContent`: pure text
+  - `htmlContent`: html string
+  - `attributes`: any key value pair for the element, including event listeners and web component props.
+  - `ns`: the [namespaceURI](https://developer.mozilla.org/en-US/docs/Web/API/Document/createElementNS#parameters) which is useful if you are tyring to create SVG elements.
+
 ### Component Patterns
 This library is not a UI library but because it handles such a crucial feature of UI libraries, it can be used
 to create components of any type easily. For example:
