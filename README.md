@@ -77,7 +77,7 @@ any additional capabilities can be added on top of this library to fit your need
   - [`htmlTemplate`](#htmltemplate)
 - [Injected values](#injected-values)
 - [Dynamic values](#dynamic-values)
-  - [Tip](#tip)
+  - [state](#state)
 - [Injecting HTML](#injecting-html)
 - [The `ref` Attribute](#the-ref-attribute)
 - [The `attr` Attribute](#the-attr-attribute)
@@ -280,40 +280,40 @@ title = "Title changed";
 page.update();
 ```
 
-#### Tip
-Since the template expects a function for dynamic values, you may create a simple utility that will
-make things look much easier:
+#### state
+The best way to work with dynamic values is to use the built-in `state` utility.
 
 ```js
-const dynamicVal = (val) => {
-    return [
-      () => val,
-      (newVal) => {
-        val = newVal;
-      }
-    ]
-}
-```
+import {html, state} from "@beforesemicolon/html"
 
-It can be used like so:
-
-```js
-import {html} from "@beforesemicolon/html"
-
-let [title, setTitle] = dynamicVal("Page Title");
-let [description, setDescription] = dynamicVal("Page description");
+let [count, setCount] = state(0);
 
 const page = html`
-  <h1>${title}</h1> 
-  <p>${description}</p>
-  <button>Page CTA Action</button>
+  <p>${count}</p>
+  <button type="button" 
+    onclick="${() => setCount(prev => prev + 1)}">+</button>
+  <button type="button" 
+    onclick="${() => setCount(prev => prev - 1)}">-</button>
 `;
-
-setTitle("Title changed")
-setDescription("The description was updated")
-
-page.update(); // grab the changes
 ```
+
+The `state` takes any value as the initial value and returns an array where the first item
+is a getter (a function that returns the value) and the second is a setter (a function that set the value).
+
+The setter takes a new value or a function that will get call with the current value ,and you
+must return a new.
+
+```js
+setCount(count => count + 1)
+// or
+setCount(count() + 1)
+```
+
+Which one to use is up to you and makes no difference in how things get handled.
+
+The template is already subscribed to the value and will automatically update the DOM
+once the value change. This means that calling the setter with same value several time will only update
+the DOM once.
 
 ### Injecting HTML
 Sometimes you just want to inject HTML or any type of text as is safely in the DOM.
