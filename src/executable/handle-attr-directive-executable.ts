@@ -15,7 +15,7 @@ export const handleAttrDirectiveExecutable = (executableValue: ExecutableValue, 
 			const lastPart = jsonParse((parts.at(-1) || "").trim());
 			
 			if (parts.length > 1 && typeof lastPart === "boolean") {
-				shouldAdd = lastPart;
+				shouldAdd = Boolean(lastPart);
 				value = parts.slice(0, -1).join("").trim();
 			}
 		}

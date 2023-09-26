@@ -1,5 +1,5 @@
 import {Executable} from "./types";
-import {collectExecutables} from "./executable/collect-executable";
+import {Doc} from "./executable/Doc";
 import {handleExecutable} from "./executable/handle-executable";
 import {parse} from "@beforesemicolon/html-parser";
 
@@ -108,18 +108,20 @@ export class HtmlTemplate {
 			return i == parts.length - 1 ? s : s + `{{val${i}}}`;
 		}).join("").trim();
 		
-		const root = parse(this.#htmlTemplate, (node: Node) => {
-			const executable = collectExecutables(node, values, this.#refs);
-			if (
-				executable.content.length ||
-				executable.events.length ||
-				executable.directives.length ||
-				executable.attributes.length
-			) {
-				this.#executablesByNode.set(node, executable);
-				handleExecutable(node, executable, this.#refs);
+		// @ts-ignore
+		const root = parse(this.#htmlTemplate, Doc(values, this.#refs, (node, e, type) => {
+			if(!this.#executablesByNode.has(node)) {
+				this.#executablesByNode.set(node, {
+					content: [],
+					events: [],
+					directives: [],
+					attributes: [],
+				});
 			}
-		});
+			
+			// @ts-ignore
+			this.#executablesByNode.get(node)[type].push(e);
+		}));
 		
 		this.#nodes = Array.from(root.childNodes);
 	}
@@ -248,7 +250,6 @@ export class HtmlTemplate {
 		}
 	}
 }
-
 
 /**
  * html template literal tag function

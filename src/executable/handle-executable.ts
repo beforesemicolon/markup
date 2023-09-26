@@ -20,7 +20,14 @@ export const handleExecutable = (node: Node, executable: Executable, refs: Recor
 }
 
 export function handleAttrDirectiveExecutableValue(val: ExecutableValue) {
-	const value = jsonParse(val.parts.map(p => typeof p === "function" ? p() : p).join(""));
+	const value = jsonParse(val.parts.map(p => {
+		// want to remove the value-condition separator
+		if(typeof p === 'string' && /^[|,]$/.test(p.trim())) {
+			return '';
+		}
+		
+		return typeof p === "function" ? p() : p
+	}).join(""));
 	
 	if (val.value !== value) {
 		handleAttrDirectiveExecutable(val, value);
@@ -62,29 +69,31 @@ export function handleAttrExecutableValue(val: ExecutableValue, node: Element) {
 	if (value !== val.value) {
 		val.value = value;
 		
-		// always update the element attribute
-		node.setAttribute(val.name, jsonStringify(value));
-		// for WC we can also use the setter to set the value in case they
-		// have correspondent camel case property version of the attribute
-		// we do this only for non-primitive value because they are not handled properly
-		// by elements and if in case they have such setters, we can use them to set it
-		if (customElements.get(node.nodeName.toLowerCase()) && !isPrimitive(value)) {
-			const propName = /-/.test(val.name) ? turnKebabToCamelCasing(val.name) : val.name;
-			// @ts-ignore check if value is different from the new value
-			if (node[propName] !== value) {
-				try {
+		try {
+			// always update the element attribute
+			node.setAttribute(val.name, jsonStringify(value));
+			// for WC we can also use the setter to set the value in case they
+			// have correspondent camel case property version of the attribute
+			// we do this only for non-primitive value because they are not handled properly
+			// by elements and if in case they have such setters, we can use them to set it
+			if (customElements.get(node.nodeName.toLowerCase()) && !isPrimitive(value)) {
+				const propName = /-/.test(val.name) ? turnKebabToCamelCasing(val.name) : val.name;
+				// @ts-ignore check if value is different from the new value
+				if (node[propName] !== value) {
 					// @ts-ignore in case the property is not writable and throws error
 					node[propName] = value;
-				} catch(e) {}
+				}
+			} else if(
+				// @ts-ignore handle cases like input field which changing attribute does not
+				// actually change the value of the input field, and we check this by
+				// verifying that the matching property value remained different from the new value of the attribute
+				node[val.name] !== undefined && node[val.name] !== value
+			) {
+				// @ts-ignore
+				node[val.name] = value;
 			}
-		} else if(
-			// @ts-ignore handle cases like input field which changing attribute does not
-			// actually change the value of the input field, and we check this by
-			// verifying that the matching property value remained different from the new value of the attribute
-			node[val.name] !== undefined && node[val.name] !== value
-		) {
-			// @ts-ignore
-			node[val.name] = value;
+		} catch(e) {
+		
 		}
 	}
 }

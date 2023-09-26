@@ -126,25 +126,25 @@ describe("html", () => {
 		
 		page.render(document.body);
 		
-		expect(document.body.innerHTML).toBe('<h1>Page Title</h1>\n' +
-			'\t\t  <p>Page description</p>\n' +
-			'\t\t  <button>Page CTA Action</button>')
+		expect(document.body.innerHTML).toBe('<h1>Page Title</h1>' +
+			'<p>Page description</p>' +
+			'<button>Page CTA Action</button>')
 		
 		const wrapper = document.createElement('div');
 		wrapper.className = "wrapper"
 		document.body.appendChild(wrapper);
-		
+
 		page.render(wrapper);
-		
-		expect(document.body.innerHTML).toBe('<h1>Page Title</h1>\n' +
-			'\t\t  <p>Page description</p>\n' +
-			'\t\t  <button>Page CTA Action</button><div class="wrapper"></div>')
-		
+
+		expect(document.body.innerHTML).toBe('<h1>Page Title</h1>' +
+			'<p>Page description</p>' +
+			'<button>Page CTA Action</button><div class="wrapper"></div>')
+
 		page.render(wrapper, true);
-		
-		expect(document.body.innerHTML).toBe('<div class="wrapper"><h1>Page Title</h1>\n' +
-			'\t\t  <p>Page description</p>\n' +
-			'\t\t  <button>Page CTA Action</button></div>')
+
+		expect(document.body.innerHTML).toBe('<div class="wrapper"><h1>Page Title</h1>' +
+			'<p>Page description</p>' +
+			'<button>Page CTA Action</button></div>')
 	});
 	
 	it('should replace dom element', () => {
@@ -166,7 +166,7 @@ describe("html", () => {
 		const span = html`sample text <span></span><div>x</div>`;
 		span.render(document.body)
 		
-		expect(document.body.innerHTML).toBe('sample text <span></span><div>x</div>')
+		expect(document.body.innerHTML).toBe('sample text<span></span><div>x</div>')
 		
 		btn.replace(span);
 		
@@ -225,9 +225,7 @@ describe("html", () => {
 		
 		app.render(document.body);
 
-		expect(document.body.innerHTML).toBe('<h2>App</h2><button>\n' +
-			'\t      click me\n' +
-			'\t    </button>')
+		expect(document.body.innerHTML).toBe('<h2>App</h2><button>click me</button>')
 	});
 
 	it('should render nested src 2 levels with dynamic inner level', () => {
@@ -526,6 +524,21 @@ describe("html", () => {
 			
 			expect(document.body.innerHTML).toBe('<button aria-disabled="false">click me</button>');
 		});
+		
+		it('any key-value pair', () => {
+			let pattern = '';
+			const field = html`<input attr.pattern="${pattern} | ${() => pattern}"/>`;
+			
+			field.render(document.body);
+			
+			expect(document.body.innerHTML).toBe('<input>');
+			
+			pattern = '[a-z]';
+
+			field.update();
+
+			expect(document.body.innerHTML).toBe('<input pattern="[a-z]">');
+		});
 	})
 	
 	it('should handle primitive attribute value', () => {
@@ -581,14 +594,9 @@ describe("html", () => {
 		expect(mapMock).toHaveBeenCalledWith(expect.any(Map))
 		expect(valMock).toHaveBeenCalledWith({"val": 12})
 		
-		const calls = updateMock.mock.calls;
-		
-		expect(calls).toHaveLength(4);
-		expect(calls[0]).toEqual(["map", null, "{{val0}}", null]);
-		expect(calls[1]).toEqual(["val", null, "{{val1}}", null]);
-		expect(calls[2]).toEqual(["map", "{{val0}}", "{}", null]);
-		expect(calls[3]).toEqual(["val", "{{val1}}", '{"val":12}', null]);
-		
+		expect(updateMock).toHaveBeenCalledTimes(2);
+		expect(updateMock).toHaveBeenCalledWith("map", null, "{}", null);
+		expect(updateMock).toHaveBeenCalledWith("val", null, "{\"val\":12}", null);
 	});
 	
 	describe('should work with "repeat" helper', () => {
@@ -769,26 +777,18 @@ describe("html", () => {
 			
 			const todo = document.querySelector('todo-item') as HTMLElement;
 			
-			expect(todo.shadowRoot?.innerHTML).toBe('<div class="todo-item">\n' +
-				'\t<div class="details">\n' +
-				'\t  <h3>sample</h3></div>\n' +
-				'\t<div class="todo-actions"><button>complete</button><button>edit</button><button>archive</button>\n' +
+			expect(todo.shadowRoot?.innerHTML).toBe('<div class="todo-item"><div class="details"><h3>sample</h3></div><div class="todo-actions"><button>complete</button><button>edit</button><button>archive</button>\n' +
 				'\t  \n' +
-				'\t  </div>\n' +
-				'</div>')
+				'\t  </div></div>')
 			
 			todoList[0].status = "completed";
 			
 			todos.update()
 			
 			expect(document.body.innerHTML).toBe('<todo-item name="sample" description="" status="completed"></todo-item>')
-			expect(todo.shadowRoot?.innerHTML).toBe('<div class="todo-item">\n' +
-				'\t<div class="details">\n' +
-				'\t  <h3>sample</h3></div>\n' +
-				'\t<div class="todo-actions">\n' +
+			expect(todo.shadowRoot?.innerHTML).toBe('<div class="todo-item"><div class="details"><h3>sample</h3></div><div class="todo-actions">\n' +
 				'\t  \n' +
-				'\t  <button>archive</button></div>\n' +
-				'</div>')
+				'\t  <button>archive</button></div></div>')
 		});
 		
 		it('should handle nested repeat by changing data in place', () => {
@@ -897,4 +897,6 @@ describe("html", () => {
 		
 		expect(document.body.innerHTML).toBe('')
 	});
+	
+	it.todo('should handle onUpdate callback')
 })
