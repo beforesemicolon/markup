@@ -6,39 +6,47 @@
  * @param newChildNodes - list of nodes of how the parent node child nodes should become
  * @param parent
  */
-export const changeCurrentIntoNewItems = (currentChildNodes: Node[], newChildNodes: Node[], parent: ParentNode | null) => {
-	const currentChildNodesSet = new Set(currentChildNodes);
-	const lastNode = currentChildNodes.at(-1);
-	const endAnchor = lastNode?.nextSibling ?? null;
-	let frag: DocumentFragment = document.createDocumentFragment();
-	
-	newChildNodes.forEach((n, i) => {
-		const moved = currentChildNodes[i] !== n;
-		if(moved || !currentChildNodesSet.has(n)) {
-			frag.appendChild(n);
-			
-			if (moved) {
-				currentChildNodesSet.delete(n);
-			}
-		} else {
-			if (frag.childNodes.length) {
-				n.parentNode?.insertBefore(frag as DocumentFragment, n);
-				frag = document.createDocumentFragment();
-			}
-			
-			currentChildNodesSet.delete(n);
-		}
-	})
-	
-	if (frag.childNodes.length) {
-		if (endAnchor === null) {
-			parent?.appendChild(frag)
-		} else {
-			endAnchor.parentNode?.insertBefore(frag, endAnchor);
-		}
-	}
-	
-	currentChildNodesSet.forEach(c => {
-		c?.parentNode?.removeChild(c)
-	})
+export const changeCurrentIntoNewItems = (
+    currentChildNodes: Node[],
+    newChildNodes: Node[],
+    parent: ParentNode | null
+) => {
+    if (parent instanceof DocumentFragment) {
+        throw new Error('DocumentFragment as parent is not supported')
+    }
+
+    const currentChildNodesSet = new Set(currentChildNodes)
+    const lastNode = currentChildNodes.at(-1)
+    const endAnchor = lastNode?.nextSibling ?? null
+    let frag: DocumentFragment = document.createDocumentFragment()
+
+    newChildNodes.forEach((n, i) => {
+        const moved = currentChildNodes[i] !== n
+        if (moved || !currentChildNodesSet.has(n)) {
+            frag.appendChild(n)
+
+            if (moved) {
+                currentChildNodesSet.delete(n)
+            }
+        } else {
+            if (frag.childNodes.length) {
+                n.parentNode?.insertBefore(frag as DocumentFragment, n)
+                frag = document.createDocumentFragment()
+            }
+
+            currentChildNodesSet.delete(n)
+        }
+    })
+
+    if (frag.childNodes.length) {
+        if (endAnchor === null) {
+            parent?.appendChild(frag)
+        } else {
+            endAnchor.parentNode?.insertBefore(frag, endAnchor)
+        }
+    }
+
+    currentChildNodesSet.forEach((c) => {
+        c?.parentNode?.removeChild(c)
+    })
 }

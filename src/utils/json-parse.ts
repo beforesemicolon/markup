@@ -1,10 +1,11 @@
-export function jsonParse(value: string): any {
-	if (value && typeof value === 'string') {
-		try {
-			value = JSON.parse(value.replace(/['`]/g, '"'));
-		} catch (e) {
-		}
-	}
+export function jsonParse<T>(value: T): T {
+    if (value && typeof value === 'string') {
+        try {
+            value = JSON.parse(value.replace(/['`]/g, '"'))
+        } catch (e) {
+            /* empty */
+        }
+    }
 
-	return value;
+    return value
 }

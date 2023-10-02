@@ -1,15 +1,15 @@
 export interface ExecutableValue {
-	name: string;
-	rawValue: string;
-	value: unknown;
-	parts: unknown[];
-	renderedNode: Node | Node[];
-	prop?: string;
+    name: string
+    rawValue: string
+    value: unknown
+    parts: unknown[]
+    renderedNode: Node | Node[]
+    prop?: string
 }
 
 export interface Executable {
-	directives: ExecutableValue[];
-	attributes: ExecutableValue[];
-	content: ExecutableValue[];
-	events: ExecutableValue[];
+    directives: ExecutableValue[]
+    attributes: ExecutableValue[]
+    content: ExecutableValue[]
+    events: ExecutableValue[]
 }

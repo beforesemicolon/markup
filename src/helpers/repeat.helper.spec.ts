@@ -1,70 +1,78 @@
-import {repeat} from "./repeat.helper";
-import {html} from "../html";
+import { repeat } from './repeat.helper'
+import { html } from '../html'
 
-describe("repeat", () => {
-	it('should handle number', () => {
-		expect(repeat(3, n => n)()).toEqual([1, 2, 3])
+describe('repeat', () => {
+    // @ts-ignore
+    const R = repeat().handler
 
-		let count = 3;
-		const r = repeat(() => count, n => html`sample-${n}`);
+    it('should handle number', () => {
+        expect(R(3, (n: number) => n)()).toEqual([1, 2, 3])
 
-		const res = r();
+        let count = 3
+        const r = R(
+            () => count,
+            (n: number) => html`sample-${n}`
+        )
 
-		count = 4;
+        const res = r()
 
-		const res2 = r();
+        count = 4
 
-		expect(res).toHaveLength(3)
-		expect(res2).toHaveLength(4)
+        const res2 = r()
 
-		expect(res[0]).toEqual(res2[0])
-		expect(res[1]).toEqual(res2[1])
-		expect(res[2]).toEqual(res2[2])
-	});
+        expect(res).toHaveLength(3)
+        expect(res2).toHaveLength(4)
 
-	it('should handle array with unique values', () => {
-		let list = Array.from({length: 3}, (_, i) => i+1);
+        expect(res[0]).toEqual(res2[0])
+        expect(res[1]).toEqual(res2[1])
+        expect(res[2]).toEqual(res2[2])
+    })
 
-		expect(repeat(list, n => n+1)()).toEqual([2, 3, 4])
+    it('should handle array with unique values', () => {
+        const list = Array.from({ length: 3 }, (_, i) => i + 1)
 
-		const r = repeat(() => list, n => html`sample-${n}`);
+        expect(R(list, (n: number) => n + 1)()).toEqual([2, 3, 4])
 
-		const res = r();
+        const r = R(
+            () => list,
+            (n: number) => html`sample-${n}`
+        )
 
-		list.push(4);
+        const res = r()
 
-		const res2 = r();
+        list.push(4)
 
-		expect(res).toHaveLength(3)
-		expect(res2).toHaveLength(4)
+        const res2 = r()
 
-		expect(res[0]).toEqual(res2[0])
-		expect(res[1]).toEqual(res2[1])
-		expect(res[2]).toEqual(res2[2])
-	});
-	
-	it('should handle array with repeated values', () => {
-		let list = Array.from({length: 3}, () => '-');
-		
-		expect(repeat(list, n => n)()).toEqual([
-			"-",
-			"-",
-			"-"
-		])
-		
-		const r = repeat(() => list, n => html`sample-${n}`);
+        expect(res).toHaveLength(3)
+        expect(res2).toHaveLength(4)
 
-		const res = r();
+        expect(res[0]).toEqual(res2[0])
+        expect(res[1]).toEqual(res2[1])
+        expect(res[2]).toEqual(res2[2])
+    })
 
-		list.push('--');
+    it('should handle array with repeated values', () => {
+        const list = Array.from({ length: 3 }, () => '-')
 
-		const res2 = r();
+        expect(R(list, (n: number) => n)()).toEqual(['-', '-', '-'])
 
-		expect(res).toHaveLength(3)
-		expect(res2).toHaveLength(4)
+        const r = R(
+            () => list,
+            (n: number) => html`sample-${n}`
+        )
 
-		expect(res[0]).toEqual(res2[0])
-		expect(res[1]).toEqual(res2[1])
-		expect(res[2]).toEqual(res2[2])
-	});
+        const res = r()
+
+        list.push('--')
+
+        const res2 = r()
+
+        expect(res).toHaveLength(3)
+        expect(res2).toHaveLength(4)
+
+        expect(res[0]).toEqual(res2[0])
+        expect(res[1]).toEqual(res2[1])
+        expect(res[2]).toEqual(res2[2])
+    })
 })

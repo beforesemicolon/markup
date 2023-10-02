@@ -1,11 +1,76 @@
 # HTML Templating System
-Simple, Powerful, and Dynamic HTML Template System
+Simple Reactive HTML Template System (BETA)
 
 [![npm](https://img.shields.io/npm/v/%40beforesemicolon%2Fhtml)](https://www.npmjs.com/package/@beforesemicolon/html)
 ![npm](https://img.shields.io/npm/l/%40beforesemicolon%2Fhtml)
 
-The beforesemicolon `html` is a powerful and simple template system with the potential to empower the next UI Library
-framework or library. It handles all your templating needs including partial rendering updates.
+The beforesemicolon `html` is a plug-and-play template system for those who need the bare minimal yet powerful
+way to build user interface. Its small size and ready-to-go nature makes it perfect for quick prototypes, 
+UI components library, browser extensions, and side projects. But make no mistake, it has all the templating
+features for a big project and serves as a perfect start to build any UI framework or library.
+
+### Motivation
+Most UI libraries need too much setup and require build with a steep learning curve. If you find a good templating system
+its either not powerful enough or requires extra things to make it work by itself.
+
+This templating system is standalone system. You don't need anything else to start rendering and reacting to changes.
+
+It requires **no build**, **its tiny**, and the API is literally **2 main things to learn**, and you are ready to go. 
+It is pretty much HTML and Javascript so the learning curve is extremely small.
+
+### Example
+Below is a simple todo app and as you can see, its pretty much HTML and Javascript.
+
+```ts
+import {html, state, repeat} from "@beforesemicolon/html";
+
+interface TodoItem {
+  name: string;
+  description: string;
+  id: string;
+}
+
+const [todos, updateTodos] = state<Array<TodoItem>>([])
+
+const createTodo = () => {
+  const name = window.prompt("Enter todo name");
+  const description = window.prompt("Enter todo description") ?? '';
+  
+  if (name) {
+    updateTodos(prev => [...prev, {name, description, id: crypto.randomUUID()}])
+  }
+}
+
+const deleteTodo = id => {
+  updateTodos(prev => prev.filter(todo => todo.id !== id))
+}
+
+const TodoItem = ({name, description, id}: TodoItem) => html`
+  <div class="todo-item">
+    <h3>${name}</h3>
+    <p>${description}</p>
+    <button type="button" onclick="${() => deleteTodo(id)}">delete</button>
+  </div>
+`;
+
+const TodoApp = html`
+  <h2>Todo App</h2>
+  <button type="button" onclick="${createTodo}">add new</button>
+  <div class="todo-list">
+    ${repeat(todos, TodoItem)}
+  </div>
+`
+
+TodoApp.render(document.body)
+```
+
+#### More examples
+
+This is a simple example of a button, but you can check:
+- [Some examples of how to create components](#component-patterns).
+- [A Modular Todo App](https://stackblitz.com/edit/web-platform-lvonxr?file=app.js)
+- [A Simple Counter App](https://stackblitz.com/edit/web-platform-adqrrf?file=app.js)
+- [A Simple Time App](https://stackblitz.com/edit/web-platform-bwoxex?file=button.js)
 
 ## Install
 ```
@@ -32,50 +97,18 @@ This library requires no build or parsing. The CDN package is one digit killobyt
 
 ```
 
-## Example
-
-This is a simple example of a button, but you can check:
-- [Some examples of how to create components](#component-patterns).
-- [A Modular Todo App](https://stackblitz.com/edit/web-platform-lvonxr?file=app.js)
-- [A Simple Counter App](https://stackblitz.com/edit/web-platform-adqrrf?file=app.js)
-- [A Simple Time App](https://stackblitz.com/edit/web-platform-bwoxex?file=button.js)
-
-```js
-// a simple button
-let label = "click me";
-let disabled = false;
-
-const btn = html`
-  <button attr.disabled="${disabled}" onclick="${handleClick}">
-    ${label}
-  </button>
-`;
-
-function handleClick(handleClick) {
-  label = "clicked";
-  disabled = true;
-  btn.update();
-}
-
-// tell it where to render this button
-btn.render(document.body);
-```
-
 ## Documentation
-This library is an utility type which purpose is to help with HTML rendering via Javascript. However, because
-DOM manipulation and update is the hardest thing to do in the browser, and it is taken care of by this library
-any additional capabilities can be added on top of this library to fit your needs.
 
 ###### Table of Content
 - [html API](#html-api)
   - [`render`](#render)
   - [`update`](#update)
+  - [`onUpdate`](#onupdate)
   - [`replace`](#replace)
   - [`refs`](#refs)
   - [`renderTarget`](#rendertarget)
   - [`nodes`](#nodes)
-  - [`htmlTemplate`](#htmltemplate)
-- [Injected values](#injected-values)
+- [Template values](#template-values)
 - [Dynamic values](#dynamic-values)
   - [state](#state)
 - [Injecting HTML](#injecting-html)
@@ -90,9 +123,10 @@ any additional capabilities can be added on top of this library to fit your need
 - [Memoise elements](#memoise-elements)
 - [Render Helpers](#render-helpers)
   - [when](#when)
-    - [why and when to use `when` helper](#why-and-when-to-use-when-helper)
   - [repeat](#repeat)
-    - [Why and when to use `repeat` helper](#why-and-when-to-use-repeat-helper)
+  - [custom helper](#custom-helper)
+  - [reactive helper](#reactive-helper)
+- [element](#element)
 - [Component Patterns](#component-patterns)
   - [Web Component](#web-component)
   - [Functional Component](#functional-component)
@@ -108,23 +142,22 @@ All you need to do is specify the HTML string you would like to render.
 import {html} from "@beforesemicolon/html"
 
 const helloWorld = html`<h1>Hello World</h1>`;
-
-helloWorld.render(document.body);
 ```
 
 What you get back is an instance of `HtmlTemplate` which exposes the following properties
 and methods:
 - `render` (*method*);
 - `update` (*method*);
+- `onUpdate` (*method*);
 - `replace` (*method*);
 - `refs`;
 - `renderTarget`;
 - `nodes`;
-- `htmlTemplate`;
 
 #### render
-A method that takes and [HTMLElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) or a 
-[ShadowRoot](https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot) instance where the template elements must be placed.
+The `render` method simply takes and [HTMLElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) or a 
+[ShadowRoot](https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot) instance where you want the content to be placed. It does that by appending
+to the element you provided.
 
 ```js
 import {html} from "@beforesemicolon/html"
@@ -135,7 +168,7 @@ const page = html`
   <button>Page CTA Action</button>
 `;
 
-page.render(document.body); // <- render elements on the page
+page.render(document.body); // <- appends to the body
 ```
 
 The `render` method will only render at a specific place once. Calling it multiple times with same values
@@ -145,17 +178,14 @@ You may want to move all [Nodes](https://developer.mozilla.org/en-US/docs/Web/AP
 and for that you must use the `force` flag to do so.
 
 ```js
-...
-
-// force the nodes to render inside the .wrapper element instead
+// appends all already rendered nodes into the .wrapper element
 page.render(document.querySelector('.wrapper'), true);
 ```
 
-This is very useful when you want to move nodes around the DOM easily.
-
 #### update
-The `update` method updates the rendered nodes based on changes made. It only updates the elements that change
-and nothing else.
+The `update` method updates the rendered nodes based on changes made. It only updates the elements which values
+associated with have changed. The DOM is not affected if the value remains the same and the `update` is
+called repeatedly.
 
 ```js
 import {html} from "@beforesemicolon/html"
@@ -178,6 +208,25 @@ page.update(); // make the page aware of the title change
 See [Injected values](#injected-values) and [Dynamic values](#dynamic-values) sections for more details on values
 you can inject in your templates.
 
+#### onUpdate
+The `onUpdate` is a method you can use to provide a function that must be called every time the `update` was called.
+This is regardless of whether the DOM changed or not. It is a perfecrt place to react to anything that might have changed
+in the DOM.
+
+```ts
+const [count, updateCount] = state<number>(0);
+
+const counter = html`<span>${count}</span>`;
+
+const unsubscribe = counter.onUpdate(() => {
+  // logic here
+})
+
+updateCount(23); // will trigger onUpdate
+```
+
+It returns a function you can call to unsubscribe and the function you provide will not get called with anything.
+
 #### replace
 The `replace` method works like the [render](#render) method but instead of appending to the provided element
 it replaces it. It takes any DOM element or a [html template instance](#htmltemplate) replacing only
@@ -190,8 +239,11 @@ btn.replace(document.body.querySelector('.target'))
 ```
 
 One specific thing about this method is that it will not replace `HTML`, `BODY`, or `HEAD` elements. 
-Also, it will not replace `ShadowRoot` as well. Providing invaliding replacing target will
-result in an error thrown.
+Also, it will not replace `ShadowRoot` as well. Providing invalid replacing target will
+result in an error.
+
+Another cool things is that you can provide other `HTMLTemplate` instances, and it will replace it
+as well.
 
 ```ts
 const span = html`<span>sample</button>`;
@@ -214,13 +266,11 @@ The `refs` property is a readonly Object of elements keyed by the name of your c
 #### nodes
 `nodes` is a readonly property will contain all the direct child node references specified in your `html` template.
 
-#### htmlTemplate
-The `htmlTemplate` property will contain the template string representation with your values represented in a string variable
-only significant for this library.
+These nodes list may change based on rendering conditions placed inside the template.
 
-### Injected values
-Because the template is a [Javascript Template String/Literal](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals),
-you may inject values anywhere you see fit.
+### Template values
+Because the template is just a [Javascript Template String/Literal](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals),
+you may place values anywhere valid in HTML you want and will work fine.
 
 ```js
 import {html} from "@beforesemicolon/html"
@@ -235,11 +285,21 @@ const page = html`
 `;
 ```
 
-These values will be correctly added to the DOM in a way it makes sense for the render.
+You must place values inside valid places like between quotes for attributes or inside or outside a tag.
+For example, below is invalid
 
-Any value will be treated as static values but if you pass a function, these `html` assumes you want these functions
-to be called in order to retrieve the values. These are called [Dynamic values](#dynamic-values) and should be used 
-whenever you know a certain value will change.
+```js
+html`<input ${'disabled'} />`;
+// will render <input />
+```
+
+```js
+html`<input placeholder="${'Enter text'}" />`;
+// will render <input placeholder="Enter text" />
+```
+
+Any value will be treated as static values but if you pass a function, these are treated like getter functions. 
+These are called [Dynamic values](#dynamic-values) and should be used whenever you know a certain value will change.
 
 In general, keep the values that will not change as static to avoid not needed calculations.
 
@@ -277,7 +337,7 @@ const page = html`
 
 title = "Title changed";
 
-page.update();
+page.update(); // will update the title in the DOM
 ```
 
 #### state
@@ -297,11 +357,14 @@ const page = html`
 `;
 ```
 
-The `state` takes any value as the initial value and returns an array where the first item
-is a getter (a function that returns the value) and the second is a setter (a function that set the value).
+The `state` function takes two arguments:
+- `value`: the initial value
+- `subscriber` (optional): a function that gets called for every value change
 
-The setter takes a new value or a function that will get call with the current value ,and you
-must return a new.
+It returns an array with 3 functions:
+- `getter`: a function that returns the value
+- `setter` a function that set the value by taking a new one or a function that returns the new value.
+- `unsubscriber` a function that stops listening to value changes.
 
 ```js
 setCount(count => count + 1)
@@ -311,9 +374,51 @@ setCount(count() + 1)
 
 Which one to use is up to you and makes no difference in how things get handled.
 
-The template is already subscribed to the value and will automatically update the DOM
-once the value change. This means that calling the setter with same value several time will only update
-the DOM once.
+##### understanding state
+
+The `state` is not a signal and does not work like React state. State is a simple pair of getter and setter
+you can subscribe to and ONLY the template that uses it can respond to its change.
+
+```js
+// this template IS subscribed to the state and will
+// respond to any stat changes regardless of where it is been used
+const countParagraph = html`<p>${count}</p>`; 
+
+// this template is NOT subscribed to the state
+// it will not respond to changes of the state but
+const page = html`
+  ${countParagraph}
+  <button type="button" 
+    onclick="${() => setCount(prev => prev + 1)}">+</button>
+  <button type="button" 
+    onclick="${() => setCount(prev => prev - 1)}">-</button>
+`;
+```
+
+This is perfect because it guarantees that ONLY the part of the template using the state gets re-rendered
+making the template fast and efficient.
+
+It is important to understand that just because you are using state getter in the template, doest NOT mean that
+the template is subscribed to its value. The state getter needs to be used DIRECTLY in the template
+or as a DIRECT ARGUMENT of a [reactive helper](#reactive-helper).
+
+All the 2 built-in [helpers](#reactive-helper) are reactive and can take state getter as argument but if
+you pass a function, for example, that uses the state getter, the template will not rect to its changes.
+
+```js
+const [todos, updateTodos] = state([]);
+
+// the repeat is provided with the state getter directly which is shared with template
+// causing the template to react to its value changes
+html`${repeat(todos, todo => html`<li>${todo.name}</li>`)}`; // will update on todos state change
+
+// the repeat is provided a function that returns a getter value and does have acces to the state
+// causing it to NOT react to state changes
+html`${repeat(() => todos(), todo => html`<li>${todo.name}</li>`)}`; // will NOT update on todos state change
+```
+
+You will need to use the state directly in the template or with [reactive-helpers](#reactive-helper) directly
+in order for the DOM to react to changes, otherwise you must call the [update](#update) method for the template
 
 ### Injecting HTML
 Sometimes you just want to inject HTML or any type of text as is safely in the DOM.
@@ -346,9 +451,11 @@ const page = html`
   <p ref="desc">Page description</p>
   <button>Page CTA Action</button>
 `;
+
+page.render(document.body) // must render to get the DOM references
 ```
 
-The way you access these element references is by using the [refs Object](#refs) from the `HTMLRenderTemplate` instance
+The way you access these element references is by using the [refs Object](#refs) from the `HTMLTemplate` instance
 returned by `html`.
 
 ```js
@@ -472,14 +579,15 @@ like in the case of [hidden](https://developer.mozilla.org/en-US/docs/Web/HTML/G
 a boolean attribute and have possible values.
 
 ### Memoise elements
-When you use [dynamic values](#dynamic-values) you use functions which can lead to cases where values returned are 
-returned on each call which will force the DOM to update every time.
+When you use [dynamic values](#dynamic-values) the value is capture with every update which works fine for primitive
+values but not so much with new instance because `html` template with rely on data to create new DOM
+which will result in new DOM elements created on every update.
 
 In those cases you need to create static references and return them.
 
 Allow me to elaborate:
 
-Bellow is okay because the value returned is a [primitive value](https://developer.mozilla.org/en-US/docs/Glossary/Primitive).
+Bellow is okay because the value returned is a [primitive value](https://developer.mozilla.org/en-US/docs/Glossary/Primitive) (`string`).
 
 ```js
 let valid = true;
@@ -508,10 +616,10 @@ setInterval(() => {
 
 This will update the DOM every second even though visually the thing rendered will be an `"invalid"` text node.
 
-This is because every time this function is called, it will generate a new instance of `HTMLRenderTemplate` which
+This is because every time this function is called, it will generate a new instance of `HTMLTemplate` which
 for `html` is a change.
 
-The way to fix this is by create static references
+The way to fix this is by creating static references
 
 ```js
 let valid = true;
@@ -529,62 +637,46 @@ setInterval(() => {
 ```
 
 This will not waste DOM updates because no matter how many times the interval runs, `html` will always get the same instance
-of `HTMLRenderTemplate` because they are the value of the variables declared above.
+of `HTMLTemplate` because they are the value of the variables declared above.
 
 In general always be aware of this whenever the values returned by these [dynamic values](#dynamic-values) are not
 primitive values.
 
+All built-in helper already memoise data and that's why you should use them.
+
 ### Render Helpers
-A few render helpers are made available so you can use them to handle things more complex to improve your rendering performance.
+A render helper is just a function you place in the template that handles some logic related to rendering some
+HTML. They can take anything you want and return anything you want.
+
+There are two built-in render helpers:
+- [when](#when) : to conditionally render content based on some state or logic
+- [repeat](#repeat) : to repeat content on the DOM based on some number or list
+
+All these are [reactive helpers](#reactive-helper) which means that can take a [state](#state) getter and react to the changes.
+
+You can also create [custom helpers](#custom-helper) which can be static or reactive.
 
 #### when
-`when(flag: boolean | () => boolean, ifTrue: any, ifFalse?: any)`
+`when(
+  flag: boolean | () => boolean, 
+  ifTrue: any | () => any, 
+  ifFalse?: any | () => any
+)`
 
 The `when` helper is like a ternary, it takes a value and one or two things to render.
 
 ```js
-import {html, when} from "@beforesemicolon/html";
-
-let loading = false;
+const [loading, setLoading] = state(false);
 
 const btn = html`
-  <button>${when(
-    () => loading, 
-        html`<span>Loading...</span>`, 
-        html`<span>Click Me</span>`
+  <button>${when(loading,
+    html`<span>Loading...</span>`, 
+    html`<span>Click Me</span>`
   )}</button>
 `;
 ```
 
-##### Why and when to use "when" helper?
-The above example is very simple and could be done without the `when` helper like so:
-
-```js
-let loading = false;
-
-const btn = html`
-  <button>${() => loading ? html`<span>Loading...</span>` : html`<span>Click Me</span>`}</button>
-`;
-```
-
-What is happening in this example is that whenever the [update method](#update) is called, this dynamic
-value will be called and a new instance of `span` tag will be created regardless of the `loading` value
-causing the DOM to update unnecessarily.
-
-By using `when`, this problem is eliminated by ensuring that the DOM stays the same if the value does not
-change.
-
-However, if you are just rendering primitive values like string and numbers, you may skip `when` all together.
-Bellow is just fine without `when` although using it won't hurt. See [memoise elements session](#memoise-elements) for
-more details.
-
-```js
-let loading = false;
-
-const btn = html`
-  <button>${() => loading ? "Loading..." : "Click Me"}</button>
-`;
-```
+If you provide a state getter directly to the `when` helper it will react to its changes and re-run.
 
 #### repeat
 `repeat<T>(countOrArray: number | Array<T> | () => number | Array<T>, renderCallback: () => any)`
@@ -613,76 +705,121 @@ interface Todo {
   name: string;
 }
 
-const todoItems: Todo[] = Array.from({length: 10}, (_, idx) => ({name: `todo item ${idx + 1}`}))
+const [todos, updateTodos] = state<Todo>([])
 
-const todos = html`
-  <ul>
-    ${repeat<Todo>(() => todoItems, (item) => html`<li>${item.name}</li>`)}
-  </ul>
-`;
+html`<ul>
+  ${repeat<Todo>(todos, (item) => html`<li>${item.name}</li>`)}
+</ul>`;
+```
+### Custom Helper
+A custom helper is simply a function that is placed in the template and aids with some rendering logic.
+
+```js
+const draggable = (target) => {
+  const dragStart = (event) => {
+    event.dataTransfer.setData("text/plain", event.target.id);
+  }
+  
+  return html`<div draggable ondragstart="${dragStart}">${target}</div>`
+}
+
+html`${draggable(html`<div>Drag Me</div>`)}`;
 ```
 
+#### Reactive helper
+A reactive helper is just a function wrapped by `helper` util that might need to react to some state data.
 
-##### Why and when to use "repeat" helper?
-You should use `repeat` helper whenever there are items to repeat in the DOM following a pattern.
-The reason to use it is simply a memoization one. See [memoise elements session](#memoise-elements) for
-more details.
+```js
+import {helper, html, state} from "@beforesemicolon/html";
 
-Using array map to rende items works just fine as `html` already handles list like a champ and remembers the data
-that changes the DOM. However, when you are dynamically creating a list with map, you are providing a new
-array of items which `html` interpret as new list and re-renders the entire list.
+const ellipsis = helper((list, max, content) => {
+  const data = typeof list === "function" ? list() : list;
+  
+  if(data.length > max) {
+    return html`${data.map(content)}...`;
+  }
+  
+  return data.map(content);
+});
+
+const [names, setNames] = state([]);
+
+html`${ellipsis(names, 5, name => html`<div>${name}</div>`)}`;
+```
+
+Custom helpers can also return function to actually do the rendering and the outer function to cache data.
+
+```js
+const ellipsis = helper((list, max, content) => {
+  // use the outer function to create static data and cache things
+  let renderList = [];
+  
+  // return a new render function that handles the render logic
+  return () => {
+    const data = typeof list === "function" ? list() : list;
+
+    // grab previous generated item HTMLTemplate or create new one
+    renderList = data.slice(0, max).map((item, idx) => renderList[idx] || content(item))
+
+    if(renderList.length === max) {
+      return html`${renderList}...`;
+    }
+
+    return renderList;
+  }
+});
+
+const [names, setNames] = state([]);
+
+html`${ellipsis(names, 5, name => html`<div>${name}</div>`)}`;
+```
+
+It is recommended that you use the outer function to cache or do certain things only once and the inner function
+for things that need to happen on every state change.
+
+A good example is this draggable helper which does all its thing in the outer function
+and returns a function that will handle the rendering, in this case, just returns it.
+
+```js
+const draggable = (target) => {
+    const id = Math.floor(Math.random() * 1000000);
+    
+    const onDragStart = e => {
+        e.dataTransfer.setData("text/plain", String(id));
+        e.target.style.opacity = '0.2'
+    }
+    
+    const onDragEnd = e => {
+        e.target.style.opacity = '1'
+    }
+    
+    const content = html`
+      <div draggable="true" class="draggable-item" id="${id}"
+       ondragstart="${onDragStart}"
+       ondragend="${onDragEnd}"
+       >${target}</div>`;
+    
+    return () => content;
+}
+```
+
+What this means is that no matter how the state change, what will render will remain the same
+causing the DOM to never shift between changes.
+
+A helper can also be used for attribute values.
 
 ```ts
-const todoItems = Array.from({length: 10}, (_, idx) => ({name: `todo item ${idx + 1}`}))
+const is = helper(<T>(state: () => T, val: unknown) => {
+  return () => state() === val
+})
 
-const todos = html`
-  <ul>
-    ${() => todoItems.map((item) => html`<li>${item.name}</li>`)}
-  </ul>
-`;
+const [tab, setTab] = state('tab')
 
-todoItems.push({name: "new item"})
-
-todos.update()
+html`<li attr.class="active | ${is(tab, 'home')}">Home</li>`
 ```
 
-The solution would be to create a list of memoise items which is what the `repeat` helper is doing. Below
-is what you would need to do if you do not want to use `repeat` helper and still want to avoid unnecessary
-DOM updates.
-
-```ts
-const todoItems = Array.from({length: 10}, (_, idx) => html`<li>item ${idx + 1}</li>`)
-
-const todos = html`
-  <ul>
-    ${() => todoItems}
-  </ul>
-`;
-
-todoItems.push(html`<li>new item</li>`)
-
-todos.update()
-```
-
-However, in a real world you are not dealing with a list of template items but data. 
-Therefore, `repeat` helper exists to do all that work for you while you can focus on the data.
-
-```ts
-const todoItems = Array.from({length: 10}, (_, idx) => ({name: `todo item ${idx + 1}`}))
-
-const todos = html`
-  <ul>
-    ${repeat<Todo>(() => todoItems, (item) => html`<li>${item.name}</li>`)}
-  </ul>
-`;
-
-todoItems.push({name: "new item"})
-
-todos.update()
-```
-
-#### element
-There is also a `element` helper which is just a simpler way to create DOM elements. What is special
+### element
+There is also a `element` utility function which is just a simpler way to create DOM elements. What is special
 about it is that you can do one call and the entire element is put together. What is more interesting
 in it is that it handle Web Component props the way it should be.
 
@@ -715,6 +852,7 @@ It takes two arguments:
   - `attributes`: any key value pair for the element, including event listeners and web component props.
   - `ns`: the [namespaceURI](https://developer.mozilla.org/en-US/docs/Web/API/Document/createElementNS#parameters) which is useful if you are tyring to create SVG elements.
 
+
 ### Component Patterns
 This library is not a UI library but because it handles such a crucial feature of UI libraries, it can be used
 to create components of any type easily. For example:
@@ -733,7 +871,7 @@ Bellow is an example of a simple button which does not need to do all the tediou
 ```ts
 class BFSButton extends HTMLElement {
     static observedAttributes = ["disabled", "type"];
-    template: HTMLRenderTemplate;
+    template: HTMLTemplate;
     disabled = false;
     type = "button";
 	
@@ -789,15 +927,15 @@ You can now use the tag like so:
 
 #### Functional Component
 Bellow is a simple example of how you can create functional components easily by putting all the logic
-related to a `html` template in a single function and return the `HTMLRenderTemplate` instance.
+related to a `html` template in a single function and return the `HTMLTemplate` instance.
 
 ```ts
 // button.html.ts
 interface ButtonProps {
-	type?: "button" | "submit";
-	disabled?: boolean;
-	label?: string;
-	onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
+  type?: "button" | "submit";
+  disabled?: boolean;
+  label?: string;
+  onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
 }
 
 const Button = ({
@@ -805,42 +943,35 @@ const Button = ({
   disabled = false,
   label = "",
   onClick = () => {}
-}: ButtonProps) => {
-    return html`
-      <button type="${type}" attr.disabled="${disabled}" onclick="${onClick}">
-        ${label}
-      </button>
-    `;
-}
+}: ButtonProps) => html`
+  <button type="${type}" attr.disabled="${disabled}" onclick="${onClick}">
+    ${label}
+  </button>
+`
 
 // app.html.ts
 const App = () => {
-    let app: HTMLRenderTemplate;
-    let count = 0;
-    
-    const plusBtn = Button({
-        label: "+",
-        onClick: () => {
-            count += 1;
-            app.update();		
-        }
-    })
-    
-    const minusBtn = Button({
-        label: "-",
-        onClick: () => {
-            count -= 1;
-            app.update();
-        }
-    })
-    
-    app = html`
-      <h1>Cool App</h1>
-      <p>${() => count}</p>
-      ${plusBtn} ${minusBtn}
-    `;
-    
-    return app;
+  const [count, setCount] = state(0);
+  
+  const plusBtn = Button({
+    label: "+",
+    onClick: () => {
+        setCount(prev => prev + 1);
+    }
+  })
+  
+  const minusBtn = Button({
+    label: "-",
+    onClick: () => {
+        setCount(prev => prev - 1);
+    }
+  })
+  
+  return html`
+    <h1>Count App</h1>
+    <p>${count}</p>
+    ${plusBtn} ${minusBtn}
+  `;
 }
 
 App().render(document.body)
@@ -855,24 +986,23 @@ Here an example of how you can create a components using class as well.
 ```ts
 // button.html.ts
 class Button {
-    constructor({
-        type = "button",
-        disabled = false,
-        label = "",
-        onClick = () => {
-        }
-    }: ButtonProps) {
-        return html`
-          <button type="${type}" attr.disabled="${disabled}" onclick="${onClick}">
-            ${label}
-          </button>
-        `;
-    }
+  constructor({
+    type = "button",
+    disabled = false,
+    label = "",
+    onClick = () => {}
+  }: ButtonProps) {
+      return html`
+        <button type="${type}" attr.disabled="${disabled}" onclick="${onClick}">
+          ${label}
+        </button>
+      `;
+  }
 }
 
 // app.html.ts
 class App {
-	app: HTMLRenderTemplate;
+	app: HTMLTemplate;
     count = 0;
     
     plusBtn = new Button({
@@ -892,12 +1022,13 @@ class App {
     })
 	
     constructor(target: HTMLElement) {
-        this.app =  html`
-          <h1>Cool App</h1>
-          <p>${() => this.count}</p>
-          ${this.plusBtn} ${this.minusBtn}
-        `.render(target);
-	}
+      this.app =  html`
+        <h1>Cool App</h1>
+        <p>${() => this.count}</p>
+        ${this.plusBtn} ${this.minusBtn}
+      `;
+      this.app.render(target);
+    }
 }
 
 new App(document.body)
