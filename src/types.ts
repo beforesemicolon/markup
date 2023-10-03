@@ -3,7 +3,7 @@ export interface ExecutableValue {
     rawValue: string
     value: unknown
     parts: unknown[]
-    renderedNode: Node | Node[]
+    renderedNodes: Node[]
     prop?: string
 }
 

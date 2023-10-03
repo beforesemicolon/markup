@@ -94,6 +94,13 @@ describe('html', () => {
 
         expect(document.body.innerHTML).toBe('<p>sample</p>')
     })
+    
+    it('should handle deeply nested txt Template', () => {
+        const x = html`sample`
+        html`${html`${html`${x}`}`}`.render(document.body)
+        
+        expect(document.body.innerHTML).toBe('sample')
+    })
 
     it('should render a growing list of items', () => {
         const list: HtmlTemplate[] = []
@@ -118,18 +125,12 @@ describe('html', () => {
     })
 
     it('should force to render in a different place', () => {
-        const page = html`
-            <h1>Page Title</h1>
-            <p>Page description</p>
-            <button>Page CTA Action</button>
-        `
+        const page = html`<h1>Page Title</h1><p>Page description</p><button>Page CTA Action</button>`
 
         page.render(document.body)
 
         expect(document.body.innerHTML).toBe(
-            '<h1>Page Title</h1>\n' +
-          '            <p>Page description</p>\n' +
-          '            <button>Page CTA Action</button>'
+            '<h1>Page Title</h1><p>Page description</p><button>Page CTA Action</button>'
         )
 
         const wrapper = document.createElement('div')
@@ -139,17 +140,13 @@ describe('html', () => {
         page.render(wrapper)
 
         expect(document.body.innerHTML).toBe(
-            '<h1>Page Title</h1>\n' +
-          '            <p>Page description</p>\n' +
-          '            <button>Page CTA Action</button><div class="wrapper"></div>'
+            '<h1>Page Title</h1><p>Page description</p><button>Page CTA Action</button><div class="wrapper"></div>'
         )
 
         page.render(wrapper, true)
 
         expect(document.body.innerHTML).toBe(
-            '<div class="wrapper"><h1>Page Title</h1>\n' +
-          '            <p>Page description</p>\n' +
-          '            <button>Page CTA Action</button></div>'
+            '<div class="wrapper"><h1>Page Title</h1><p>Page description</p><button>Page CTA Action</button></div>'
         )
     })
 
@@ -169,13 +166,11 @@ describe('html', () => {
     it('should replace html template', () => {
         const btn = html`<button>Page CTA Action</button>`
 
-        const span = html`sample text <span></span>
-            <div>x</div>`
+        const span = html`sample text <span></span><div>x</div>`
         span.render(document.body)
 
         expect(document.body.innerHTML).toBe(
-            'sample text <span></span>\n' +
-          '            <div>x</div>'
+            'sample text <span></span><div>x</div>'
         )
 
         btn.replace(span)
@@ -887,15 +882,13 @@ describe('html', () => {
 
             const todo = document.querySelector('todo-item') as HTMLElement
 
-            expect(todo.shadowRoot?.innerHTML).toBe(
-                '<div class="todo-item">\n' +
+            expect(todo.shadowRoot?.innerHTML).toBe('<div class="todo-item">\n' +
               '                        <div class="details">\n' +
               '                            <h3>sample</h3></div>\n' +
               '                        <div class="todo-actions"><button>complete</button><button>edit</button><button>archive</button>\n' +
               '                            \n' +
               '                            </div>\n' +
-              '                    </div>'
-            )
+              '                    </div>')
 
             todoList[0].status = 'completed'
 
@@ -992,6 +985,13 @@ describe('html', () => {
             ))
             
             expect(document.body.innerHTML).toBe('<div><div id="1">action 1<span>complete</span></div></div>')
+            
+            setTodos(prev => [...prev, { name: 'action 2', status: 'pending', id: 2 }])
+            
+            expect(document.body.innerHTML).toBe('<div>' +
+              '<div id="1">action 1<span>complete</span></div>' +
+              '<div id="2">action 2<span>pending</span></div>' +
+              '</div>')
         })
 
         it.todo('when nested')

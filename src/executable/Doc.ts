@@ -56,7 +56,7 @@ const node = (
                 name,
                 value,
                 rawValue: value,
-                renderedNode: node,
+                renderedNodes: [node],
                 parts: extractExecutableValueFromRawValue(value, values),
             }
 
@@ -124,7 +124,26 @@ const node = (
                 n = n.__self__
             }
 
-            if (n instanceof DocumentFragment) {
+            if (n instanceof Text) {
+                node.appendChild(n)
+
+                if (n.nodeValue && /{{val([0-9]+)}}/.test(n.nodeValue)) {
+                    const value = String(n.nodeValue)
+                    const e: ExecutableValue = {
+                        name: 'nodeValue',
+                        rawValue: value,
+                        value,
+                        parts: extractExecutableValueFromRawValue(
+                            value,
+                            values
+                        ),
+                        renderedNodes: [n],
+                    }
+
+                    cb(n, e, 'content')
+                    handleTextExecutableValue(e, refs, n)
+                }
+            } else if (n instanceof DocumentFragment) {
                 n.childNodes.forEach((N) => {
                     node.appendChild(N)
                 })
@@ -139,49 +158,17 @@ const node = (
     }
 }
 
-const createTextNode = (
-    value: string,
-    values: Array<unknown>,
-    refs: Record<string, Set<Element>>,
-    cb: (node: Node, e: ExecutableValue, type: string) => void
-) => {
-    const txt = document.createTextNode(value)
-
-    if (/{{val([0-9]+)}}/.test(value)) {
-        const div = document.createElement('div')
-        div.appendChild(txt)
-
-        const e: ExecutableValue = {
-            name: 'nodeValue',
-            rawValue: value,
-            value,
-            parts: extractExecutableValueFromRawValue(value, values),
-            renderedNode: txt,
-        }
-
-        handleTextExecutableValue(e, refs, txt)
-
-        cb(txt, e, 'content')
-
-        if (txt === e.renderedNode) {
-            txt.nodeValue = e.parts.join('')
-            return txt
-        }
-
-        return e.renderedNode
-    }
-
-    return txt
-}
-
 export const Doc = (
     values: Array<unknown>,
     refs: Record<string, Set<Element>>,
     cb: (node: Node, e: ExecutableValue, type: string) => void
-) => ({
-    createTextNode: (value: string) => createTextNode(value, values, refs, cb),
-    createComment: document.createComment,
-    createDocumentFragment: () => node('#fragment'),
-    createElementNS: (ns: string, tagName: string) =>
-        node(tagName, ns, values, refs, cb),
-})
+) => {
+    return {
+        createTextNode: (text: string) => document.createTextNode(text),
+        createComment: (text: string) => document.createComment(text),
+        createDocumentFragment: () => node('#fragment', '', values, refs, cb),
+        createElementNS: (ns: string, tagName: string) => {
+            return node(tagName, ns, values, refs, cb)
+        },
+    }
+}

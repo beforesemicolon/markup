@@ -13,7 +13,7 @@ describe('handleAttrDirectiveExecutable', () => {
             name: 'attr',
             rawValue: 'bold',
             value: '',
-            renderedNode: div,
+            renderedNodes: [div],
             prop: 'style.font-style',
             parts: [],
         }
@@ -22,7 +22,7 @@ describe('handleAttrDirectiveExecutable', () => {
             name: 'attr',
             rawValue: 'background-color: #900 | true',
             value: '',
-            renderedNode: div,
+            renderedNodes: [div],
             prop: 'style',
             parts: [],
         }
@@ -54,7 +54,7 @@ describe('handleAttrDirectiveExecutable', () => {
             name: 'attr',
             rawValue: 'false',
             value: '',
-            renderedNode: div,
+            renderedNodes: [div],
             prop: 'class.simple-cls',
             parts: [],
         }
@@ -63,7 +63,7 @@ describe('handleAttrDirectiveExecutable', () => {
             name: 'attr',
             rawValue: 'sample | true',
             value: '',
-            renderedNode: div,
+            renderedNodes: [div],
             prop: 'class',
             parts: [],
         }
@@ -93,7 +93,7 @@ describe('handleAttrDirectiveExecutable', () => {
             name: 'attr',
             rawValue: 'val | true',
             value: '',
-            renderedNode: div,
+            renderedNodes: [div],
             prop: 'data.simple-val',
             parts: [],
         }
@@ -102,7 +102,7 @@ describe('handleAttrDirectiveExecutable', () => {
             name: 'attr',
             rawValue: 'simple-val | true',
             value: '',
-            renderedNode: div,
+            renderedNodes: [div],
             prop: 'data',
             parts: [],
         }
@@ -126,7 +126,7 @@ describe('handleAttrDirectiveExecutable', () => {
             name: 'attr',
             rawValue: 'true',
             value: '',
-            renderedNode: div,
+            renderedNodes: [div],
             prop: 'disabled',
             parts: [],
         }
@@ -135,7 +135,7 @@ describe('handleAttrDirectiveExecutable', () => {
             name: 'attr',
             rawValue: 'until-found | true',
             value: '',
-            renderedNode: div,
+            renderedNodes: [div],
             prop: 'hidden',
             parts: [],
         }
@@ -161,7 +161,7 @@ describe('handleAttrDirectiveExecutable', () => {
             name: 'attr',
             rawValue: 'sample | true',
             value: '',
-            renderedNode: div,
+            renderedNodes: [div],
             prop: 'id',
             parts: [],
         }
@@ -170,7 +170,7 @@ describe('handleAttrDirectiveExecutable', () => {
             name: 'attr',
             rawValue: 'true',
             value: '',
-            renderedNode: div,
+            renderedNodes: [div],
             prop: 'aria-disabled',
             parts: [],
         }

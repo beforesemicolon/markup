@@ -33,14 +33,12 @@ export const repeat = helper(
                 list = data as T[]
             }
 
-            // need to generate a new list if the list changed in any way, order of items or the items themselves
-            if (
-                list.some((item, i) =>
-                    prevList[i] ? item !== prevList[i] : false
-                )
-            ) {
-                listMap.clear() // will force the generation of new items
-            }
+            // clear the cache for items no longer in the list or that moved
+            list.forEach((item, i) => {
+                if (prevList[i] !== undefined && item !== prevList[i]) {
+                    listMap.delete(item)
+                }
+            })
 
             prevList = list
 

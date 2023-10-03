@@ -52,7 +52,7 @@ export const handleExecutable = (
         handleAttrDirectiveExecutableValue(d)
     })
     executable.attributes.forEach((a) => {
-        handleAttrExecutableValue(a, a.renderedNode as Element)
+        handleAttrExecutableValue(a, a.renderedNodes[0] as Element)
     })
     executable.content.forEach((t) => {
         handleTextExecutableValue(t, refs, node)
@@ -87,9 +87,9 @@ export function handleEventExecutableValue(val: ExecutableValue) {
 
     if (val.value !== eventHandler) {
         val.value = eventHandler
-        const node = Array.isArray(val.renderedNode)
-            ? (val.renderedNode as Node[])[0]
-            : (val.renderedNode as Node)
+        const node = Array.isArray(val.renderedNodes)
+            ? (val.renderedNodes as Node[])[0]
+            : (val.renderedNodes as Node)
         const eventName = val.prop as string
         const option =
             val.parts.length > 1

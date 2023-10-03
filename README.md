@@ -1,5 +1,9 @@
 # HTML Templating System
-Simple Reactive HTML Template System (BETA)
+Simple Reactive HTML Template System
+
+⚠️ This is still in Beta and contains parts which are still under development and experimentation.
+
+⚠️ Do NOT use in production!
 
 [![npm](https://img.shields.io/npm/v/%40beforesemicolon%2Fhtml)](https://www.npmjs.com/package/@beforesemicolon/html)
 ![npm](https://img.shields.io/npm/l/%40beforesemicolon%2Fhtml)

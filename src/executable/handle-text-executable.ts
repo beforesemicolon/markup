@@ -6,46 +6,25 @@ export const handleTextExecutable = (
     nodes: Array<Node>,
     el: Node
 ) => {
-    const renderedIsAList = Array.isArray(executableValue.renderedNode)
-
     if (nodes.length) {
-        if (renderedIsAList) {
-            const renderedNodes = executableValue.renderedNode as Node[]
+        const parent =
+            executableValue.renderedNodes[0]?.parentNode ?? el.parentNode
 
-            const parent = renderedNodes[0].parentNode ?? el.parentNode
+        changeCurrentIntoNewItems(executableValue.renderedNodes, nodes, parent)
 
-            changeCurrentIntoNewItems(
-                executableValue.renderedNode as Node[],
-                nodes,
-                parent
-            )
-        } else {
-            const frag = document.createDocumentFragment()
-            const r = executableValue.renderedNode as Node
-
-            frag.append(...nodes)
-
-            const parent =
-                (executableValue.renderedNode as Node).parentNode ??
-                el.parentNode
-            parent?.replaceChild(frag, r)
-        }
-
-        executableValue.renderedNode = nodes
+        executableValue.renderedNodes = nodes
     } else {
-        const n = renderedIsAList
-            ? (executableValue.renderedNode as Node[])[0]
-            : (executableValue.renderedNode as Node)
+        const n = executableValue.renderedNodes[0]
 
         const emptyNode = document.createTextNode('')
         n.parentNode?.replaceChild(emptyNode, n)
 
-        if (Array.isArray(executableValue.renderedNode)) {
-            executableValue.renderedNode.forEach((n: Node) => {
+        if (Array.isArray(executableValue.renderedNodes)) {
+            executableValue.renderedNodes.forEach((n: Node) => {
                 n.parentNode?.removeChild(n)
             })
         }
 
-        executableValue.renderedNode = emptyNode
+        executableValue.renderedNodes = [emptyNode]
     }
 }

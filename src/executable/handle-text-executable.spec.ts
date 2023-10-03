@@ -16,18 +16,18 @@ describe('handleTextExecutable', () => {
             name: 'nodeValue',
             rawValue: '',
             value: '',
-            renderedNode: txt,
+            renderedNodes: [txt],
             parts: [],
         }
 
-        expect(execVal.renderedNode).toEqual(txt)
+        expect(execVal.renderedNodes).toEqual([txt])
 
         handleTextExecutable(execVal, [], txt)
 
         expect(div.innerHTML).toBe('')
         expect(txt.nodeValue).toBe('{{val0}}')
         expect(txt.parentNode).toBeNull()
-        expect(execVal.renderedNode).not.toEqual(txt)
+        expect(execVal.renderedNodes).not.toEqual(txt)
     })
 
     it('should remove all nodes', () => {
@@ -40,14 +40,14 @@ describe('handleTextExecutable', () => {
             name: 'nodeValue',
             rawValue: '',
             value: '',
-            renderedNode: Array.from(div.childNodes),
+            renderedNodes: Array.from(div.childNodes),
             parts: [],
         }
 
         handleTextExecutable(execVal, [], div)
 
         expect(div.innerHTML).toBe('')
-        expect(execVal.renderedNode).toBeInstanceOf(Text)
+        expect(execVal.renderedNodes[0]).toBeInstanceOf(Text)
     })
 
     it('should replace all nodes with new ones', () => {
@@ -60,7 +60,7 @@ describe('handleTextExecutable', () => {
             name: 'nodeValue',
             rawValue: '',
             value: '',
-            renderedNode: Array.from(div.childNodes),
+            renderedNodes: Array.from(div.childNodes),
             parts: [],
         }
 
@@ -75,7 +75,7 @@ describe('handleTextExecutable', () => {
         handleTextExecutable(execVal, nodes, div)
 
         expect(div.innerHTML).toBe('<p>one</p><p>two</p>')
-        expect(execVal.renderedNode).toEqual(nodes)
+        expect(execVal.renderedNodes).toEqual(nodes)
     })
 
     it('should replace some nodes with new ones', () => {
@@ -102,14 +102,14 @@ describe('handleTextExecutable', () => {
             name: 'nodeValue',
             rawValue: '',
             value: '',
-            renderedNode: Array.from(div.childNodes),
+            renderedNodes: Array.from(div.childNodes),
             parts: [],
         }
 
         handleTextExecutable(execVal, nodes, div)
 
         expect(div.innerHTML).toBe('<p>one</p><p>three</p>')
-        expect(execVal.renderedNode).toEqual(nodes)
+        expect(execVal.renderedNodes).toEqual(nodes)
     })
 
     it('should replace one node with new ones', () => {
@@ -131,13 +131,13 @@ describe('handleTextExecutable', () => {
             name: 'nodeValue',
             rawValue: '',
             value: '',
-            renderedNode: p1,
+            renderedNodes: [p1],
             parts: [],
         }
 
         handleTextExecutable(execVal, [p2, p3], div)
 
         expect(div.innerHTML).toBe('<p>two</p><p>three</p>')
-        expect(execVal.renderedNode).toEqual([p2, p3])
+        expect(execVal.renderedNodes).toEqual([p2, p3])
     })
 })

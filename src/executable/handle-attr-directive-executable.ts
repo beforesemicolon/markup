@@ -13,7 +13,7 @@ export const handleAttrDirectiveExecutable = (
     if (value !== executableValue.value) {
         executableValue.value = value
         const [attrName, property] = (executableValue.prop || '').split('.')
-        const element = executableValue.renderedNode as HTMLElement
+        const element = executableValue.renderedNodes[0] as HTMLElement
         const parsedValue = jsonParse(value)
         let shouldAdd =
             property && typeof parsedValue === 'boolean' ? parsedValue : true

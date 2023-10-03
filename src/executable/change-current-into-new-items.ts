@@ -11,10 +11,6 @@ export const changeCurrentIntoNewItems = (
     newChildNodes: Node[],
     parent: ParentNode | null
 ) => {
-    if (parent instanceof DocumentFragment) {
-        throw new Error('DocumentFragment as parent is not supported')
-    }
-
     const currentChildNodesSet = new Set(currentChildNodes)
     const lastNode = currentChildNodes.at(-1)
     const endAnchor = lastNode?.nextSibling ?? null

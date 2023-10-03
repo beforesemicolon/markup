@@ -33,9 +33,9 @@ export class HtmlTemplate {
                 return Array.from(
                     new Set(
                         e.content.flatMap((v) =>
-                            Array.isArray(v.renderedNode)
-                                ? v.renderedNode
-                                : [v.renderedNode]
+                            Array.isArray(v.renderedNodes)
+                                ? v.renderedNodes
+                                : [v.renderedNodes]
                         )
                     )
                 )
