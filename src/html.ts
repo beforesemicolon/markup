@@ -264,7 +264,7 @@ export class HtmlTemplate {
                     // @ts-ignore
                     this.#executablesByNode.get(node)[type].push(e)
                 })
-            )
+            ) as DocumentFragment
 
             this.#nodes = Array.from(this.#root.childNodes)
         }

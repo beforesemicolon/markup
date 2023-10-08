@@ -1,6 +1,6 @@
 {
   "name": "@beforesemicolon/html",
-  "version": "0.1.33-beta",
+  "version": "0.1.35-beta",
   "description": "Simple Reactive HTML Template System",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -48,6 +48,6 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@beforesemicolon/html-parser": "^0.2.2"
+    "@beforesemicolon/html-parser": "^0.2.5"
   }
 }

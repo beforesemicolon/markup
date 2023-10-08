@@ -21,10 +21,17 @@ const node = (
     const comp = customElements.get(nodeName.toLowerCase())
 
     return {
+        namespaceURI: (node as Element).namespaceURI as string,
+        nodeType: node.nodeType,
+        nodeValue: node.nodeValue,
+        outerHTML: (node as Element).outerHTML,
         get __self__() {
             return node
         },
         get nodeName() {
+            return nodeName
+        },
+        get tagName() {
             return nodeName
         },
         get childNodes() {
@@ -35,9 +42,6 @@ const node = (
         },
         get attributes() {
             return node instanceof Element ? node.attributes : null
-        },
-        get lastElementChild() {
-            return node instanceof Element ? node.lastElementChild : null
         },
         get textContent(): string | null {
             return node instanceof Element ? node.textContent : null
@@ -118,6 +122,9 @@ const node = (
         appendChild: (n: DocumentFragment | Node | Array<Node> | string) => {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
+            // console.log('-- appendChild to', nodeName, n.nodeName)
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             if (n.__self__) {
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
@@ -164,9 +171,15 @@ export const Doc = (
     cb: (node: Node, e: ExecutableValue, type: string) => void
 ) => {
     return {
-        createTextNode: (text: string) => document.createTextNode(text),
-        createComment: (text: string) => document.createComment(text),
-        createDocumentFragment: () => node('#fragment', '', values, refs, cb),
+        createTextNode: (text: string) => {
+            return document.createTextNode(text)
+        },
+        createComment: (text: string) => {
+            return document.createComment(text)
+        },
+        createDocumentFragment: () => {
+            return node('#fragment', '', values, refs, cb)
+        },
         createElementNS: (ns: string, tagName: string) => {
             return node(tagName, ns, values, refs, cb)
         },
