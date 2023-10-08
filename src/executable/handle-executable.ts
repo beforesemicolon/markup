@@ -19,18 +19,7 @@ const partsToValue = (
         if (typeof p === 'function') {
             return p()
         } else if (p instanceof Helper) {
-            if (typeof p.nestedFn === 'function') {
-                return p.nestedFn()
-            }
-
-            const res = p.handler(...p.args)
-
-            if (typeof res === 'function') {
-                p.nestedFn = res
-                return res()
-            }
-
-            return res
+            return p.value
         }
 
         if (typeof handler === 'function') {
