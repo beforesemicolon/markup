@@ -1,4 +1,4 @@
-import { helper } from '../helper'
+import { Helper, helper } from '../helper'
 
 export const when = helper(
     <C, T, E>(condition: C, thenThis: T, elseThat?: E) => {
@@ -8,15 +8,22 @@ export const when = helper(
         let falseValueSet = false
 
         return () => {
-            const shouldRender = Boolean(
+            let shouldRender =
                 typeof condition === 'function' ? condition() : condition
-            )
+
+            if (shouldRender instanceof Helper) {
+                shouldRender = shouldRender.value as boolean
+            }
 
             if (shouldRender) {
                 if (!truthValueSet) {
                     truthValue =
                         typeof thenThis === 'function' ? thenThis() : thenThis
                     truthValueSet = true
+                }
+
+                if (truthValue instanceof Helper) {
+                    return truthValue.value
                 }
 
                 return truthValue
@@ -30,6 +37,10 @@ export const when = helper(
                         ? elseThat()
                         : elseThat
                 falseValueSet = true
+            }
+
+            if (falseValue instanceof Helper) {
+                return falseValue.value
             }
 
             return falseValue

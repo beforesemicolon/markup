@@ -715,6 +715,15 @@ html`<ul>
   ${repeat<Todo>(todos, (item) => html`<li>${item.name}</li>`)}
 </ul>`;
 ```
+
+In case the list is empty, you may provide a third parameter to render things when the list is empty.
+
+```ts
+html`<ul>
+  ${repeat<Todo>(todos, (item) => html`<li>${item.name}</li>`, () => html`<p>No Items</p>`)}
+</ul>`;
+```
+
 ### Custom Helper
 A custom helper is simply a function that is placed in the template and aids with some rendering logic.
 

@@ -1,46 +1,57 @@
-import { helper } from '../helper'
+import { Helper, helper } from '../helper'
 
 type DataGetter<T> = () => number | Array<T>
 
+const getList = (data: unknown) => {
+    if (typeof data === 'function') {
+        data = data()
+    } else if (data instanceof Helper) {
+        data = data.value
+    }
+
+    if (Array.isArray(data)) {
+        return data
+    }
+
+    if (typeof data === 'number') {
+        return Array.from({ length: data }, (_, i) => i + 1)
+    }
+
+    return []
+}
+
 export const repeat = helper(
-    <T, R>(
+    <T>(
         data: number | Array<T> | DataGetter<T>,
-        cb: (data: T, index: number) => R
+        cb: (data: T, index: number) => unknown,
+        whenEmpty: () => unknown = () => ''
     ) => {
-        const listMap: Map<T, R> = new Map()
-        let list: T[] = []
-        let prevList = list
+        const cache: Map<T, unknown> = new Map()
+        let prevList: unknown[] = []
 
         const each = (d: T, i: number) => {
-            if (!listMap.has(d)) {
-                listMap.set(d, cb(d, i))
+            if (!cache.has(d)) {
+                cache.set(d, cb(d, i))
             }
 
-            return listMap.get(d)
+            return cache.get(d)
         }
 
-        const dataIsFn = typeof data === 'function'
-        const fn = dataIsFn ? (data as DataGetter<T>) : () => []
-
         return () => {
-            if (dataIsFn) {
-                data = fn()
-            }
-
-            if (typeof data === 'number') {
-                list = Array.from({ length: data }, (_, i) => i + 1) as T[]
-            } else {
-                list = data as T[]
-            }
+            const list = getList(data)
 
             // clear the cache for items no longer in the list or that moved
             list.forEach((item, i) => {
                 if (prevList[i] !== undefined && item !== prevList[i]) {
-                    listMap.delete(item)
+                    cache.delete(item)
                 }
             })
 
             prevList = list
+
+            if (list.length === 0) {
+                return whenEmpty()
+            }
 
             return (list as T[]).map(each)
         }
