@@ -22,14 +22,8 @@ const node = (
 
     return {
         namespaceURI: (node as Element).namespaceURI as string,
-        nodeType: node.nodeType,
-        nodeValue: node.nodeValue,
-        outerHTML: (node as Element).outerHTML,
         get __self__() {
             return node
-        },
-        get nodeName() {
-            return nodeName
         },
         get tagName() {
             return nodeName
@@ -37,14 +31,8 @@ const node = (
         get childNodes() {
             return node.childNodes
         },
-        get children() {
-            return node.children
-        },
         get attributes() {
             return node instanceof Element ? node.attributes : null
-        },
-        get textContent(): string | null {
-            return node instanceof Element ? node.textContent : null
         },
         set textContent(value: string) {
             if (node instanceof Element) {
@@ -122,9 +110,6 @@ const node = (
         appendChild: (n: DocumentFragment | Node | Array<Node> | string) => {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            // console.log('-- appendChild to', nodeName, n.nodeName)
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
             if (n.__self__) {
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
@@ -150,14 +135,6 @@ const node = (
                     cb(n, e, 'content')
                     handleTextExecutableValue(e, refs, n)
                 }
-            } else if (n instanceof DocumentFragment) {
-                n.childNodes.forEach((N) => {
-                    node.appendChild(N)
-                })
-            } else if (Array.isArray(n)) {
-                n.forEach((N) => {
-                    node.appendChild(N)
-                })
             } else {
                 node.appendChild(n as Node)
             }

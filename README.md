@@ -128,6 +128,7 @@ This library requires no build or parsing. The CDN package is one digit killobyt
 - [Render Helpers](#render-helpers)
   - [when](#when)
   - [repeat](#repeat)
+  - [effect](#effect)
   - [custom helper](#custom-helper)
   - [reactive helper](#reactive-helper)
 - [element](#element)
@@ -723,6 +724,40 @@ html`<ul>
   ${repeat<Todo>(todos, (item) => html`<li>${item.name}</li>`, () => html`<p>No Items</p>`)}
 </ul>`;
 ```
+
+#### effect
+The `effect` helper is the simplest helper and it is mean to make different parts of the template react to other
+states. For example, below we have 2 states `status` and `todos`.
+
+```js
+const [status, setStatus] = state('pending');
+const [todos, setTodos] = state([]);
+
+const renderTodo = todo => html`<div>${todo.name}</div>`;
+const todosByStatus = () => todos().filter(todo => todo.status === status());
+
+html`
+<h2>Status: ${status}</h2>
+${repeat(todosByStatus, renderTodo)}
+`
+```
+
+There are 2 problems here:
+- the todos will only render once because the `repeat` helper does not see the `todos` state which is hidden inside the `todosByStatus` function. Will not re-render if the list changes.
+- the todos will not re-render if the `status` state changes because only the place in the DOM connected to the state that changed will get re-render and in this case the todo list depends on the status state
+
+Enters the `effect` helper which allows us to list states and then, as the last argument, the thing that needs to be updated in the DOM
+if any of the states change.
+
+```js
+html`
+  <h2>Status: ${status}</h2>
+  ${effect(status, todos, html`${repeat(todosByStatus, renderTodo)}`)}
+`
+```
+
+Now, whenever the todo or status state changes, the DOM will get updated accordingly.
+
 
 ### Custom Helper
 A custom helper is simply a function that is placed in the template and aids with some rendering logic.

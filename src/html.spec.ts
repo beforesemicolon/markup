@@ -935,9 +935,8 @@ describe('html', () => {
 				'<div class="todo-item">\n' +
 				'\t\t\t\t\t\t\t<div class="details">\n' +
 				'\t\t\t\t\t\t\t\t<h3>sample</h3></div>\n' +
-				'\t\t\t\t\t\t\t<div class="todo-actions">\n' +
-				'\t\t\t\t\t\t\t\t\n' +
-				'\t\t\t\t\t\t\t\t<button>archive</button></div>\n' +
+				'\t\t\t\t\t\t\t<div class="todo-actions"><button>edit</button><button>archive</button>\n' +
+				'\t\t\t\t\t\t\t\t</div>\n' +
 				'\t\t\t\t\t\t</div>'
 			)
 		})

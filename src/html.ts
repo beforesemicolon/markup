@@ -118,26 +118,6 @@ export class HtmlTemplate {
                     elementToAttachNodesTo.appendChild(node)
                 }
             })
-
-            // eslint-disable-next-line @typescript-eslint/no-this-alias
-            const self = this
-
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            this.#values.forEach(function sub(val: unknown) {
-                if (val instanceof Helper) {
-                    val.args.forEach(sub)
-                } else if (
-                    typeof val === 'function' &&
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    typeof val[id] === 'function'
-                ) {
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    val[id](self, id)
-                }
-            })
         }
     }
 
@@ -246,6 +226,9 @@ export class HtmlTemplate {
 
     #init(target: ShadowRoot | HTMLElement | Element) {
         if (target) {
+            // eslint-disable-next-line @typescript-eslint/no-this-alias
+            const self = this
+
             this.#root = parse(
                 this.#htmlTemplate,
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -259,6 +242,31 @@ export class HtmlTemplate {
                             attributes: [],
                         })
                     }
+
+                    // subscribe to any state value used in the node
+                    e.parts.forEach(function sub(val: unknown) {
+                        if (val instanceof Helper) {
+                            val.args.forEach(sub)
+                        } else if (
+                            typeof val === 'function' &&
+                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                            // @ts-ignore
+                            typeof val[id] === 'function'
+                        ) {
+                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                            // @ts-ignore
+                            val[id](() => {
+                                handleExecutable(
+                                    node,
+                                    self.#executablesByNode.get(
+                                        node
+                                    ) as Executable,
+                                    self.#refs
+                                )
+                                self.#subs.forEach((cb) => cb())
+                            }, id)
+                        }
+                    })
 
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
@@ -283,16 +291,13 @@ export const html = (parts: TemplateStringsArray, ...values: unknown[]) => {
 class ValueGetSet<T> extends Array {
     // create a set of weak references instead of a weakSet
     // because we still need to iterate the references which weakSet does not allow
-    #subs: Set<HtmlTemplate> = new Set()
+    #subs: Set<() => void> = new Set()
 
     constructor(val: T, sub?: StateSubscriber) {
-        super(2) // tuple
-
-        let subObj: HtmlTemplate
+        super(3) // sized array
 
         if (typeof sub === 'function') {
-            subObj = { update: sub } as HtmlTemplate
-            this.#subs.add(subObj)
+            this.#subs.add(sub)
         }
 
         this[0] = () => val
@@ -302,17 +307,17 @@ class ValueGetSet<T> extends Array {
                     ? (newVal as (val: T) => T)(val)
                     : newVal
             this.#subs.forEach((sub) => {
-                sub.update()
+                sub()
             })
         }
         this[2] = () => {
-            subObj && this.#subs.delete(subObj)
+            sub && this.#subs.delete(sub)
         }
 
         Object.defineProperty(this[0], id, {
             // ensure only HtmlTemplate can subscribe to this value
-            value: (sub: HtmlTemplate, subId: string) => {
-                if (subId === id && sub instanceof HtmlTemplate) {
+            value: (sub: () => void, subId: string) => {
+                if (subId === id && typeof sub === 'function') {
                     this.#subs.add(sub)
 
                     return () => {

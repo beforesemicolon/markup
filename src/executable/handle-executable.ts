@@ -197,10 +197,9 @@ export function handleTextExecutableValue(
             // to avoid unnecessary DOM updates
             if (
                 Array.isArray(val.value) &&
-                Array.isArray(el) &&
                 String(val.value[idx]) === String(v)
             ) {
-                nodes.push(el[idx])
+                nodes.push(val.renderedNodes[idx])
             } else {
                 nodes.push(document.createTextNode(String(v)))
             }
