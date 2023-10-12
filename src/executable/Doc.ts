@@ -57,28 +57,28 @@ const node = (
                 if (comp) {
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
-                    if (comp?.observedAttributes?.includes(name)) {
-                        return
+                    if (!comp?.observedAttributes?.includes(name)) {
+                        e.prop = name.slice(2)
                     }
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 } else if (
                     document.head &&
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
-                    typeof document.head[name] === 'undefined'
+                    typeof document.head[name] !== 'undefined'
                 ) {
                     // ignore unknown events
+                    e.prop = name.slice(2)
+                }
+
+                if (e.prop) {
+                    handleEventExecutableValue(e)
+                    cb(node, e, 'events')
                     return
                 }
+            }
 
-                e = {
-                    ...e,
-                    prop: name.slice(2),
-                }
-
-                handleEventExecutableValue(e)
-                cb(node, e, 'events')
-            } else if (/^(attr|ref)/.test(name)) {
+            if (/^(attr|ref)/.test(name)) {
                 // element.removeAttribute(name);
 
                 if (name === 'ref') {

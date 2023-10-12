@@ -349,6 +349,37 @@ describe('html', () => {
 		expect(clickMock).toHaveBeenCalled()
 	})
 	
+	it('should ignore event like prop for random tag', () => {
+		html`<intl-plural zero="people" one="person" other="people" value="1"></intl-plural>`.render(document.body)
+		
+		expect(document.body.innerHTML).toBe('<intl-plural zero="people" one="person" other="people" value="1"></intl-plural>')
+	});
+	
+	it('should handle non-primitive value for web components', () => {
+		const updateMock = jest.fn();
+		const updateValMock = jest.fn();
+		
+		class IntlList extends HTMLElement {
+			static observedAttributes = ['items'];
+			
+			set items(val: any) {
+				updateValMock(val)
+			}
+			
+			attributeChangedCallback(...res: any[]) {
+				updateMock(...res)
+			}
+		}
+		
+		customElements.define('intl-list', IntlList);
+		
+		html`<intl-list items="${["book", "car", "jet"]}"></intl-list>`.render(document.body)
+		
+		expect(document.body.innerHTML).toBe('<intl-list items="[&quot;book&quot;,&quot;car&quot;,&quot;jet&quot;]"></intl-list>')
+		expect(updateMock).toHaveBeenCalledWith("items", null, '["book","car","jet"]', null)
+		expect(updateValMock).toHaveBeenCalledWith(["book", "car", "jet"])
+	});
+	
 	it('should trow error if handle event attribute is not a function', () => {
 		expect(
 			() => html`
@@ -433,11 +464,11 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe(
 				'<button class="loading btn">click me</button>'
 			)
-			
+
 			loading = false
 			
 			btn.update()
-			
+
 			expect(document.body.innerHTML).toBe(
 				'<button class="btn">click me</button>'
 			)
@@ -585,7 +616,7 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('<button>click me</button>')
 		})
 		
-		it('any non-boolean attr', () => {
+		it('any non-primitive-boolean attr', () => {
 			let disabled = true
 			const btn = html`
 				<button attr.aria-disabled="${() => disabled}">click me</button>`
@@ -601,24 +632,45 @@ describe('html', () => {
 			btn.update()
 			
 			expect(document.body.innerHTML).toBe(
-				'<button aria-disabled="false">click me</button>'
+				'<button>click me</button>'
 			)
 		})
 		
 		it('any key-value pair', () => {
 			let pattern = ''
-			const field = html`<input attr.pattern="${pattern} | ${() => pattern}"/>`
+			const field = html`<input attr.pattern="${() => pattern} | ${() => pattern}"/>`
 			
 			field.render(document.body)
 			
 			expect(document.body.innerHTML).toBe('<input>')
-			
+
 			pattern = '[a-z]'
-			
+
 			field.update()
-			
+
 			expect(document.body.innerHTML).toBe('<input pattern="[a-z]">')
 		})
+		
+		it('should work with helper value', () => {
+			const is = helper(<T>(st: () => T, val: unknown) => st() === val);
+			const [disabled, setDisabled] = state(false);
+			
+			html`<button attr.disabled="${is(disabled, true)}" attr.class="disabled | ${is(disabled, true)}">click me</button>`.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<button>click me</button>')
+			
+			setDisabled(true);
+			
+			expect(document.body.innerHTML).toBe('<button disabled="" class="disabled">click me</button>')
+		});
+		
+		it('should handle slot name', () => {
+			const slotName = '123'
+			
+			html`<slot attr.name="${slotName} | ${false}"></slot><slot attr.name="${slotName} | ${true}"></slot>`.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<slot></slot><slot name="123"></slot>')
+		});
 	})
 	
 	it('should handle primitive attribute value', () => {

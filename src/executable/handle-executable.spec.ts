@@ -129,7 +129,7 @@ describe('handleExecutable', () => {
                     prop: 'disabled',
                     rawValue: 'true',
                     renderedNodes: [div],
-                    value: true,
+                    value: "true",
                     parts: [true],
                 },
             ],

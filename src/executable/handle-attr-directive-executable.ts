@@ -8,26 +8,16 @@ import {
 
 export const handleAttrDirectiveExecutable = (
     executableValue: ExecutableValue,
-    value: string
+    rawValue: string
 ) => {
-    if (value !== executableValue.value) {
-        executableValue.value = value
+    if (rawValue !== executableValue.value) {
+        executableValue.value = rawValue
         const [attrName, property] = (executableValue.prop || '').split('.')
         const element = executableValue.renderedNodes[0] as HTMLElement
+        // eslint-disable-next-line prefer-const
+        let [value, condition] = rawValue.split(/\||,/).map((s) => s.trim())
+        let shouldAdd = condition ? jsonParse(condition) : jsonParse(value)
         const parsedValue = jsonParse(value)
-        let shouldAdd =
-            property && typeof parsedValue === 'boolean' ? parsedValue : true
-
-        if (typeof parsedValue !== 'boolean' && typeof value === 'string') {
-            const parts = value.split('|')
-
-            const lastPart = jsonParse((parts.at(-1) || '').trim())
-
-            if (parts.length > 1 && typeof lastPart === 'boolean') {
-                shouldAdd = Boolean(lastPart)
-                value = parts.slice(0, -1).join('').trim()
-            }
-        }
 
         switch (attrName) {
             case 'style':

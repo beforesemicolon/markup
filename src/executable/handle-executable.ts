@@ -49,16 +49,7 @@ export const handleExecutable = (
 }
 
 export function handleAttrDirectiveExecutableValue(val: ExecutableValue) {
-    const value = jsonParse(
-        partsToValue(val.parts, (p) => {
-            // want to remove the value-condition separator
-            if (typeof p === 'string' && /^[|,]$/.test(p.trim())) {
-                return ''
-            }
-
-            return p
-        }).join('')
-    )
+    const value = partsToValue(val.parts, jsonStringify).join('')
 
     if (val.value !== value) {
         handleAttrDirectiveExecutable(val, value)
@@ -99,10 +90,7 @@ export function handleEventExecutableValue(val: ExecutableValue) {
 }
 
 export function handleAttrExecutableValue(val: ExecutableValue, node: Element) {
-    const value =
-        val.parts.length > 1
-            ? jsonParse(partsToValue(val.parts, jsonStringify).join(''))
-            : jsonParse(partsToValue(val.parts)[0] as string)
+    const value = jsonParse(partsToValue(val.parts, jsonStringify).join(''))
 
     if (value !== val.value) {
         val.value = value
@@ -118,15 +106,16 @@ export function handleAttrExecutableValue(val: ExecutableValue, node: Element) {
                 customElements.get(node.nodeName.toLowerCase()) &&
                 !isPrimitive(value)
             ) {
+                const propValue = val.parts[0] // grab the raw value instead but only the first one
                 const propName = /-/.test(val.name)
                     ? turnKebabToCamelCasing(val.name)
                     : val.name
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore check if value is different from the new value
-                if (node[propName] !== value) {
+                if (node[propName] !== propValue) {
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore in case the property is not writable and throws error
-                    node[propName] = value
+                    node[propName] = propValue
                 }
             } else {
                 if (
