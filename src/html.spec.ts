@@ -168,7 +168,8 @@ describe('html', () => {
 	})
 	
 	it('should replace html template', () => {
-		const btn = html`<button>Page CTA Action</button>`
+		const btn = html`
+			<button>Page CTA Action</button>`
 		
 		const span = html`sample text <span></span><div>x</div>`
 		span.render(document.body)
@@ -181,6 +182,38 @@ describe('html', () => {
 		
 		expect(document.body.innerHTML).toBe('<button>Page CTA Action</button>')
 	})
+	
+	it('should replace async html template', (done) => {
+		const suspense = (
+			asyncAction: () => Promise<HtmlTemplate>,
+			loading = html`<p>loading...</p>`,
+			failed = (msg: string) => html`<p style="color: red">${msg}</p>`
+		) => {
+			asyncAction()
+				.then((content) => {
+					content.replace(loading)
+				})
+				.catch((err) => {
+					failed(err.message).replace(loading)
+				})
+			
+			return loading
+		}
+		
+		const cont = html`${suspense(() => {
+			return new Promise((res, rej) => {
+				res(html`done`)
+				setTimeout(() => {
+					expect(document.body.innerHTML).toBe('done')
+					done();
+				}, 0)
+			})
+		}, html`...`)}`
+		
+		cont.render(document.body)
+		
+		expect(document.body.innerHTML).toBe('...')
+	});
 	
 	it('should render src', () => {
 		const button = html`
@@ -336,7 +369,8 @@ describe('html', () => {
 		
 		customElements.define('my-button', MyButton)
 		
-		const btn = html`<my-button onactive="${clickMock}">click me</my-button>`
+		const btn = html`
+			<my-button onactive="${clickMock}">click me</my-button>`
 		
 		btn.render(document.body)
 		
@@ -350,7 +384,8 @@ describe('html', () => {
 	})
 	
 	it('should ignore event like prop for random tag', () => {
-		html`<intl-plural zero="people" one="person" other="people" value="1"></intl-plural>`.render(document.body)
+		html`
+			<intl-plural zero="people" one="person" other="people" value="1"></intl-plural>`.render(document.body)
 		
 		expect(document.body.innerHTML).toBe('<intl-plural zero="people" one="person" other="people" value="1"></intl-plural>')
 	});
@@ -373,7 +408,8 @@ describe('html', () => {
 		
 		customElements.define('intl-list', IntlList);
 		
-		html`<intl-list items="${["book", "car", "jet"]}"></intl-list>`.render(document.body)
+		html`
+			<intl-list items="${["book", "car", "jet"]}"></intl-list>`.render(document.body)
 		
 		expect(document.body.innerHTML).toBe('<intl-list items="[&quot;book&quot;,&quot;car&quot;,&quot;jet&quot;]"></intl-list>')
 		expect(updateMock).toHaveBeenCalledWith("items", null, '["book","car","jet"]', null)
@@ -464,11 +500,11 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe(
 				'<button class="loading btn">click me</button>'
 			)
-
+			
 			loading = false
 			
 			btn.update()
-
+			
 			expect(document.body.innerHTML).toBe(
 				'<button class="btn">click me</button>'
 			)
@@ -643,11 +679,11 @@ describe('html', () => {
 			field.render(document.body)
 			
 			expect(document.body.innerHTML).toBe('<input>')
-
+			
 			pattern = '[a-z]'
-
+			
 			field.update()
-
+			
 			expect(document.body.innerHTML).toBe('<input pattern="[a-z]">')
 		})
 		
@@ -882,15 +918,20 @@ describe('html', () => {
 				}
 				
 				connectedCallback() {
-					const deleteBtn = html`<button>delete</button>`
+					const deleteBtn = html`
+						<button>delete</button>`
 					
-					const archiveBtn = html`<button>archive</button>`
+					const archiveBtn = html`
+						<button>archive</button>`
 					
-					const editBtn = html`<button>edit</button>`
+					const editBtn = html`
+						<button>edit</button>`
 					
-					const progressBtn = html`<button>move in progress</button>`
+					const progressBtn = html`
+						<button>move in progress</button>`
 					
-					const completeBtn = html`<button>complete</button>`
+					const completeBtn = html`
+						<button>complete</button>`
 					
 					this.temp = html`
 						<div class="todo-item">
@@ -1088,7 +1129,10 @@ describe('html', () => {
 			let count = 2
 			const el = html`${repeat<number>(
 				() => count,
-				(n) => html`<ul>${repeat(n, d => html`<li>${d}</li>`)}</ul>`
+				(n) => html`
+					<ul>${repeat(n, d => html`
+						<li>${d}</li>`)}
+					</ul>`
 			)}`
 			
 			el.render(document.body)

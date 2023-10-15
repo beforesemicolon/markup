@@ -1,4 +1,10 @@
-import { Executable } from './types'
+import {
+    Executable,
+    StateGetter,
+    StateSetter,
+    StateSubscriber,
+    StateUnSubscriber,
+} from './types'
 import { Doc } from './executable/Doc'
 import { handleExecutable } from './executable/handle-executable'
 import { parse } from '@beforesemicolon/html-parser'
@@ -7,10 +13,6 @@ import { Helper } from './helper'
 // prevents others from creating functions that can be subscribed to
 // and forces them to use state instead
 const id = 'S' + Math.floor(Math.random() * 10000000)
-type StateGetter<T> = () => T
-type StateSetter<T> = (newVal: T | ((val: T) => T)) => void
-type StateSubscriber = () => void
-type StateUnSubscriber = () => void
 
 export class HtmlTemplate {
     #htmlTemplate: string
@@ -139,25 +141,11 @@ export class HtmlTemplate {
             let element: HTMLElement = target as HTMLElement
 
             if (target instanceof HtmlTemplate) {
-                const renderedNode = target.nodes.find(
-                    (n) => n instanceof HTMLElement && n.isConnected
-                ) as HTMLElement
-
-                if (renderedNode) {
-                    element = renderedNode
-
-                    target.nodes.forEach((n) => {
-                        if (n !== renderedNode && n.isConnected) {
-                            n.parentNode?.removeChild(n)
-                        }
-                    })
-                } else {
-                    return
-                }
+                element = target.nodes.find((n) => n.isConnected) as HTMLElement
             }
 
             // only try to replace elements that are actually rendered anywhere
-            if (!element.isConnected) {
+            if (!element || !element.isConnected) {
                 return
             }
 
@@ -165,17 +153,14 @@ export class HtmlTemplate {
                 this.#init(element)
             }
 
-            const getFrag = () => {
+            if (element.parentNode) {
                 const frag = document.createDocumentFragment()
                 frag.append(...this.nodes)
+                element.parentNode.replaceChild(frag, element)
 
-                return frag
-            }
-
-            if (typeof element.replaceWith === 'function') {
-                element.replaceWith(getFrag())
-            } else if (element.parentNode) {
-                element.parentNode.replaceChild(getFrag(), element)
+                if (target instanceof HtmlTemplate) {
+                    target.unmount()
+                }
             } else {
                 return
             }
