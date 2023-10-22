@@ -90,32 +90,39 @@ export function handleEventExecutableValue(val: ExecutableValue) {
 }
 
 export function handleAttrExecutableValue(val: ExecutableValue, node: Element) {
-    const value = jsonParse(partsToValue(val.parts, jsonStringify).join(''))
+    let rawValue = val.parts[0]
 
-    if (value !== val.value) {
-        val.value = value
+    if (typeof rawValue === 'function') {
+        rawValue = rawValue()
+    } else if (rawValue instanceof Helper) {
+        rawValue = rawValue.value
+    }
+
+    const value = jsonStringify(rawValue)
+
+    if (rawValue !== val.value) {
+        val.value = rawValue
 
         try {
             // always update the element attribute
-            node.setAttribute(val.name, jsonStringify(value))
+            node.setAttribute(val.name, value)
             // for WC we can also use the setter to set the value in case they
             // have correspondent camel case property version of the attribute
             // we do this only for non-primitive value because they are not handled properly
             // by elements and if in case they have such setters, we can use them to set it
             if (
                 customElements.get(node.nodeName.toLowerCase()) &&
-                !isPrimitive(value)
+                !isPrimitive(rawValue)
             ) {
-                const propValue = val.parts[0] // grab the raw value instead but only the first one
                 const propName = /-/.test(val.name)
                     ? turnKebabToCamelCasing(val.name)
                     : val.name
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore check if value is different from the new value
-                if (node[propName] !== propValue) {
+                if (node[propName] !== rawValue) {
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore in case the property is not writable and throws error
-                    node[propName] = propValue
+                    node[propName] = rawValue
                 }
             } else {
                 if (
@@ -126,11 +133,11 @@ export function handleAttrExecutableValue(val: ExecutableValue, node: Element) {
                     node[val.name] !== undefined &&
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
-                    node[val.name] !== value
+                    node[val.name] !== rawValue
                 ) {
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
-                    node[val.name] = value
+                    node[val.name] = rawValue
                 }
             }
         } catch (e) {

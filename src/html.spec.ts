@@ -408,8 +408,8 @@ describe('html', () => {
 		
 		customElements.define('intl-list', IntlList);
 		
-		html`
-			<intl-list items="${["book", "car", "jet"]}"></intl-list>`.render(document.body)
+		html`<intl-list items="${["book", "car", "jet"]}"></intl-list>`
+			.render(document.body)
 		
 		expect(document.body.innerHTML).toBe('<intl-list items="[&quot;book&quot;,&quot;car&quot;,&quot;jet&quot;]"></intl-list>')
 		expect(updateMock).toHaveBeenCalledWith("items", null, '["book","car","jet"]', null)
@@ -777,7 +777,59 @@ describe('html', () => {
 		expect(updateMock).toHaveBeenCalledWith('map', null, '{}', null)
 		expect(updateMock).toHaveBeenCalledWith('val', null, '{"val":12}', null)
 	})
-	
+
+	it('should handle non-primitive attribute value in conditionally rendered WC', () => {
+		jest.useFakeTimers();
+		type obj = { sample: { x: 12} | null }
+
+		class ObjValue extends HTMLElement {
+			static observedAttributes = ['sample'];
+			#sample: any;
+			temp: HtmlTemplate | undefined;
+
+			get sample(): any {
+				return this.#sample;
+			}
+
+			set sample(val: any) {
+				this.#sample = val;
+				this.temp?.update()
+			}
+
+			connectedCallback() {
+				this.temp = html`${() => this.sample?.x}`;
+
+				this.temp.render(this)
+			}
+		}
+
+		class MainApp extends HTMLElement {
+			connectedCallback() {
+				const [obj, setObj] = state<obj['sample']>(null);
+
+				setTimeout(() => {
+					setObj({x: 12})
+				}, 1000)
+
+				html`${when(obj, html`<obj-value sample="${obj}"></obj-value>`)}`
+					.render(this)
+			}
+		}
+
+		customElements.define('obj-value', ObjValue)
+		customElements.define('main-app', MainApp)
+
+		const el = html`<main-app></main-app>`
+
+		el.render(document.body)
+
+		expect(document.body.innerHTML).toBe('<main-app></main-app>')
+
+		jest.advanceTimersByTime(1000)
+
+		expect(document.body.innerHTML).toBe('<main-app><obj-value sample="{&quot;x&quot;:12}">12</obj-value></main-app>')
+	})
+
 	describe('should work with "repeat" helper', () => {
 		it('with number value and primitive return', () => {
 			const el = html`${repeat(2, (n) => n)}`
