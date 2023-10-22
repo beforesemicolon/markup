@@ -98,6 +98,10 @@ export function handleAttrExecutableValue(val: ExecutableValue, node: Element) {
         rawValue = rawValue.value
     }
 
+    if (isPrimitive(rawValue)) {
+        rawValue = partsToValue(val.parts, jsonStringify).join('')
+    }
+
     const value = jsonStringify(rawValue)
 
     if (rawValue !== val.value) {

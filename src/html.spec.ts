@@ -244,6 +244,19 @@ describe('html', () => {
 		)
 	})
 	
+	it('should render handle multiple attr value parts', () => {
+		const cls1 = 'loading'
+		const cls2 = 'disabled'
+		const button = html`
+			<button type="text" class="${cls1} ${cls2}">click me</button>`
+		
+		button.render(document.body)
+		
+		expect(document.body.innerHTML).toBe(
+			'<button type="text" class="loading disabled">click me</button>'
+		)
+	})
+	
 	it('should render dynamic src', () => {
 		const value = 'sample'
 		let edit = false
