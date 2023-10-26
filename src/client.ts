@@ -9,6 +9,7 @@ import {
     or,
     and,
     pick,
+    oneOf,
     suspense,
 } from './helpers'
 import { helper, Helper } from './Helper'
@@ -31,6 +32,7 @@ if (window) {
         or,
         pick,
         effect,
+        oneOf,
         suspense,
         element,
         state,
