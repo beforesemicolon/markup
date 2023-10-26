@@ -106,4 +106,29 @@ describe('element', () => {
         expect(clickMock).toHaveBeenCalled()
         expect(el.outerHTML).toBe('<button></button>')
     })
+    
+    it('should throw in no name provided', () => {
+        expect(() => element('')).toThrowError('Invalid tagName => ')
+    })
+    
+    it('should pass data to WC', () => {
+        const valSetter = jest.fn();
+        
+        class SampleComp extends HTMLElement {
+            set val(x: any) {
+                valSetter(x)
+            }
+        }
+        
+        customElements.define('sample-comp', SampleComp)
+        
+        const el = element('sample-comp', {
+            attributes: {
+                val: {name: 'x'}
+            }
+        })
+        
+        
+        expect(valSetter).toHaveBeenCalledWith({"name": "x"})
+    })
 })

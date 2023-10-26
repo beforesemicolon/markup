@@ -1,6 +1,6 @@
 import {html, HtmlTemplate, state} from './html'
-import {when, repeat} from './helpers'
-import {helper} from "./helper";
+import {when, repeat, suspense} from './helpers'
+import {helper} from "./Helper";
 
 describe('html', () => {
 	beforeEach(() => {
@@ -184,22 +184,6 @@ describe('html', () => {
 	})
 	
 	it('should replace async html template', (done) => {
-		const suspense = (
-			asyncAction: () => Promise<HtmlTemplate>,
-			loading = html`<p>loading...</p>`,
-			failed = (msg: string) => html`<p style="color: red">${msg}</p>`
-		) => {
-			asyncAction()
-				.then((content) => {
-					content.replace(loading)
-				})
-				.catch((err) => {
-					failed(err.message).replace(loading)
-				})
-			
-			return loading
-		}
-		
 		const cont = html`${suspense(() => {
 			return new Promise((res, rej) => {
 				res(html`done`)

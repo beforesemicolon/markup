@@ -1,13 +1,10 @@
-import { Helper, helper } from '../helper'
+import { helper } from '../Helper'
+import { val } from '../utils/val'
 
 type DataGetter<T> = () => number | Array<T>
 
 const getList = (data: unknown) => {
-    if (typeof data === 'function') {
-        data = data()
-    } else if (data instanceof Helper) {
-        data = data.value
-    }
+    data = val(data)
 
     if (Array.isArray(data)) {
         return data
@@ -20,6 +17,12 @@ const getList = (data: unknown) => {
     return []
 }
 
+/**
+ * renders things repeatedly based on first argument list or number
+ * @param data
+ * @param cb
+ * @param whenEmpty
+ */
 export const repeat = helper(
     <T>(
         data: number | Array<T> | DataGetter<T>,

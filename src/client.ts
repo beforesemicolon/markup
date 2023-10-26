@@ -1,6 +1,17 @@
 import { html, state } from './html'
-import { repeat, when, element } from './helpers'
-import { helper, Helper } from './helper'
+import {
+    repeat,
+    when,
+    element,
+    effect,
+    is,
+    isNot,
+    or,
+    and,
+    pick,
+    suspense,
+} from './helpers'
+import { helper, Helper } from './Helper'
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -14,6 +25,13 @@ if (window) {
         html,
         repeat,
         when,
+        is,
+        isNot,
+        and,
+        or,
+        pick,
+        effect,
+        suspense,
         element,
         state,
         helper,

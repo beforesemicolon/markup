@@ -18,3 +18,8 @@ export type StateGetter<T> = () => T
 export type StateSetter<T> = (newVal: T | ((val: T) => T)) => void
 export type StateSubscriber = () => void
 export type StateUnSubscriber = () => void
+
+export type AnythingButAFunction<T> = T extends typeof Function
+    ? never
+    : unknown
+export type HelperValueChecker<T> = (val: T) => boolean

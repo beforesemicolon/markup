@@ -27,6 +27,12 @@ describe('repeat', () => {
         expect(res[1]).toEqual(res2[1])
         expect(res[2]).toEqual(res2[2])
     })
+    
+    it('should handle empty', () => {
+        expect(R([], (n: number) => n, () => 'no items')()).toEqual('no items')
+        expect(R(null, (n: number) => n, () => 'no items')()).toEqual('no items')
+        expect(R(null, (n: number) => n)()).toEqual('')
+    })
 
     it('should handle array with unique values', () => {
         const list = Array.from({ length: 3 }, (_, i) => i + 1)

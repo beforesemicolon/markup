@@ -7,6 +7,14 @@ export interface ElementOptions<A> {
     ns?: 'http://www.w3.org/1999/xhtml' | 'http://www.w3.org/2000/svg'
 }
 
+/**
+ * creates HTML element based of provided details
+ * @param tagName
+ * @param attributes
+ * @param htmlContent
+ * @param textContent
+ * @param ns
+ */
 export const element = <A>(
     tagName: string,
     {

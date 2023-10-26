@@ -1,19 +1,22 @@
-import { Helper, helper } from '../helper'
+import { helper } from '../Helper'
+import { val } from '../utils/val'
+import { StateGetter } from '../types'
 
+/**
+ * conditionally render second and third argument value based on the first argument condition
+ * @param condition
+ * @param thenThis
+ * @param elseThat
+ */
 export const when = helper(
-    <C, T, E>(condition: C, thenThis: T, elseThat?: E) => {
+    <C, T, E>(condition: C | StateGetter<C>, thenThis: T, elseThat?: E) => {
         let truthValue: T | null = null
         let truthValueSet = false
         let falseValue: E | null = null
         let falseValueSet = false
 
         return () => {
-            let shouldRender =
-                typeof condition === 'function' ? condition() : condition
-
-            if (shouldRender instanceof Helper) {
-                shouldRender = shouldRender.value as boolean
-            }
+            const shouldRender = val(condition)
 
             if (shouldRender) {
                 if (!truthValueSet) {
@@ -22,11 +25,7 @@ export const when = helper(
                     truthValueSet = true
                 }
 
-                if (truthValue instanceof Helper) {
-                    return truthValue.value
-                }
-
-                return truthValue
+                return val(truthValue)
             }
 
             if (!falseValueSet) {
@@ -39,11 +38,7 @@ export const when = helper(
                 falseValueSet = true
             }
 
-            if (falseValue instanceof Helper) {
-                return falseValue.value
-            }
-
-            return falseValue
+            return val(falseValue)
         }
     }
 )

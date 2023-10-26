@@ -1,4 +1,4 @@
 export * from './types'
 export * from './html'
 export * from './helpers'
-export * from './helper'
+export * from './Helper'

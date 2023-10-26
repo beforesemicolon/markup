@@ -8,7 +8,7 @@ import {
 import { Doc } from './executable/Doc'
 import { handleExecutable } from './executable/handle-executable'
 import { parse } from '@beforesemicolon/html-parser'
-import { Helper } from './helper'
+import { Helper } from './Helper'
 
 // prevents others from creating functions that can be subscribed to
 // and forces them to use state instead

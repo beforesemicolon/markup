@@ -5,28 +5,22 @@ import {
     isPrimitive,
     jsonStringify,
     turnKebabToCamelCasing,
+    val,
 } from '../utils'
 import { handleTextExecutable } from './handle-text-executable'
 import { handleAttrDirectiveExecutable } from './handle-attr-directive-executable'
 import { HtmlTemplate } from '../html'
-import { Helper } from '../helper'
 
 const partsToValue = (
     parts: unknown[],
     handler: null | ((p: unknown) => unknown) = null
 ) =>
     parts.flatMap((p) => {
-        if (typeof p === 'function') {
-            return p()
-        } else if (p instanceof Helper) {
-            return p.value
-        }
-
         if (typeof handler === 'function') {
-            return handler(p)
+            return handler(val(p))
         }
 
-        return p
+        return val(p)
     })
 
 export const handleExecutable = (
@@ -89,27 +83,24 @@ export function handleEventExecutableValue(val: ExecutableValue) {
     }
 }
 
-export function handleAttrExecutableValue(val: ExecutableValue, node: Element) {
-    let rawValue = val.parts[0]
-
-    if (typeof rawValue === 'function') {
-        rawValue = rawValue()
-    } else if (rawValue instanceof Helper) {
-        rawValue = rawValue.value
-    }
+export function handleAttrExecutableValue(
+    eVal: ExecutableValue,
+    node: Element
+) {
+    let rawValue = val(eVal.parts[0])
 
     if (isPrimitive(rawValue)) {
-        rawValue = partsToValue(val.parts, jsonStringify).join('')
+        rawValue = partsToValue(eVal.parts, jsonStringify).join('')
     }
 
     const value = jsonStringify(rawValue)
 
-    if (rawValue !== val.value) {
-        val.value = rawValue
+    if (rawValue !== eVal.value) {
+        eVal.value = rawValue
 
         try {
             // always update the element attribute
-            node.setAttribute(val.name, value)
+            node.setAttribute(eVal.name, value)
             // for WC we can also use the setter to set the value in case they
             // have correspondent camel case property version of the attribute
             // we do this only for non-primitive value because they are not handled properly
@@ -118,9 +109,9 @@ export function handleAttrExecutableValue(val: ExecutableValue, node: Element) {
                 customElements.get(node.nodeName.toLowerCase()) &&
                 !isPrimitive(rawValue)
             ) {
-                const propName = /-/.test(val.name)
-                    ? turnKebabToCamelCasing(val.name)
-                    : val.name
+                const propName = /-/.test(eVal.name)
+                    ? turnKebabToCamelCasing(eVal.name)
+                    : eVal.name
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore check if value is different from the new value
                 if (node[propName] !== rawValue) {
@@ -134,14 +125,14 @@ export function handleAttrExecutableValue(val: ExecutableValue, node: Element) {
                     // @ts-ignore handle cases like input field which changing attribute does not
                     // actually change the value of the input field, and we check this by
                     // verifying that the matching property value remained different from the new value of the attribute
-                    node[val.name] !== undefined &&
+                    node[eVal.name] !== undefined &&
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
-                    node[val.name] !== rawValue
+                    node[eVal.name] !== rawValue
                 ) {
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
-                    node[val.name] = rawValue
+                    node[eVal.name] = rawValue
                 }
             }
         } catch (e) {
