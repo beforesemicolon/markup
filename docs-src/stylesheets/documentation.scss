@@ -1,12 +1,12 @@
 .docs {
   display: flex;
-  padding-top: 20px;
-  padding-bottom: 20px;
+  padding-top: 50px;
+  padding-bottom: 80px;
   
   .docs-list {
-    background: #010b15;
     width: 250px;
-    font-size: 0.9rem;
+    font-size: 1rem;
+    font-family: "Exo 2.0", sans-serif;
     
     & > li {
       padding-bottom: 30px;
@@ -14,7 +14,7 @@
       
       span {
         font-size: 1.2rem;
-        font-weight: 100;
+        font-weight: 500;
         display: block;
         margin-bottom: 10px;
         color: #fff;
@@ -22,17 +22,17 @@
     }
     
     ul li {
-      padding: 5px 5px 5px 10px;
+      padding: 3px 5px 3px 10px;
       margin: 5px 0;
       
       a {
         color: #bbb;
-        font-weight: 100;
+        font-weight: 300;
         letter-spacing: 0.09rem;
       }
       
       &:hover, &.active {
-        background: #011c37;
+        background: #00274b;
         
         a {
           color: #fff;
@@ -43,6 +43,21 @@
   
   article {
     flex: 1;
-    padding: 0 0 50px 25px;
+    padding: 0 0 50px 45px;
+    
+    h2 {
+      font-weight: 300;
+      font-size: 2.6rem;
+    }
+    
+    h3 {
+      font-weight: 500;
+      font-size: 1.8rem;
+    }
+    
+    h4 {
+      font-weight: 300;
+      font-size: 1.6rem;
+    }
   }
 }

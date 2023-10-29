@@ -1,6 +1,11 @@
 import { html, HtmlTemplate } from '../../src'
 import { PageLayout } from '../partials/page-layout'
-import { IntroGroup, TemplatingGroup, HelpersGroup } from '../data/documents'
+import {
+    IntroGroup,
+    TemplatingGroup,
+    HelpersGroup,
+    ComponentsGroup,
+} from '../data/documents'
 
 export const DocPageLayout = (currentPage: string, content: HtmlTemplate) =>
     PageLayout({
@@ -12,7 +17,12 @@ export const DocPageLayout = (currentPage: string, content: HtmlTemplate) =>
         content: html`
             <div class="wrapper docs">
                 <ul class="docs-list">
-                    ${[IntroGroup, TemplatingGroup, HelpersGroup].map(
+                    ${[
+                        IntroGroup,
+                        TemplatingGroup,
+                        HelpersGroup,
+                        ComponentsGroup,
+                    ].map(
                         (g) => html`
                             <li>
                                 <span>${g.name}</span>

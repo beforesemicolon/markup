@@ -3,7 +3,7 @@ export const IntroGroup = {
     list: [
         {
             name: 'What is @bfs/html?',
-            path: 'documentation/index.html',
+            path: 'documentation',
         },
         {
             name: 'Installation',
@@ -82,7 +82,7 @@ export const HelpersGroup = {
             path: 'documentation/is-isnot-helpers.html',
         },
         {
-            name: 'Or, And, and OneOf helpers',
+            name: 'Or, And, & OneOf helpers',
             path: 'documentation/or-and-oneof-helpers.html',
         },
         {
@@ -96,6 +96,28 @@ export const HelpersGroup = {
         {
             name: 'Custom helper',
             path: 'documentation/custom-helper.html',
+        },
+    ],
+}
+
+export const ComponentsGroup = {
+    name: 'Capabilities',
+    list: [
+        {
+            name: 'Function Components',
+            path: 'documentation/function-components.html',
+        },
+        {
+            name: 'Web Components',
+            path: 'documentation/web-components.html',
+        },
+        {
+            name: 'Server Side Rendering',
+            path: 'documentation/server-side-rendering.html',
+        },
+        {
+            name: 'State Store',
+            path: 'documentation/state-store.html',
         },
     ],
 }

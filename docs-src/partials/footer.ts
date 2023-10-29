@@ -11,8 +11,21 @@ export const Footer = ({ basePath = './' }: FooterProps = {}) => {
             <ul class="learning-resources">
                 <h5>Learning Resources</h5>
                 <li><a href="${basePath}documentation">Documentation</a></li>
-                <li><a href="${basePath}examples">Examples</a></li>
-                <li><a href="">Videos</a></li>
+                <li>
+                    <a href="${basePath}documentation/essential-training.html"
+                        >Essential Training</a
+                    >
+                </li>
+                <li>
+                    <a href="${basePath}documentation/tutorial.html"
+                        >Tutorial</a
+                    >
+                </li>
+                <li>
+                    <a href="${basePath}documentation/examples.html"
+                        >Examples</a
+                    >
+                </li>
             </ul>
             <ul class="about-bfs">
                 <h5>About <em>Before Semicolon</em></h5>

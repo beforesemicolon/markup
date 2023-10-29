@@ -14,8 +14,12 @@ export default PageLayout({
                 <h2>HTML Templating System</h2>
                 <p>All you needed is a good templating system!</p>
                 <div class="actions">
-                    <a href="/documentation" class="btn">Documentation</a>
-                    <a href="/tutorials" class="btn outline">Tutorials</a>
+                    <a href="./documentation" class="btn">Documentation</a>
+                    <a
+                        href="./documentation/essential-training.html"
+                        class="btn outline"
+                        >Learn</a
+                    >
                 </div>
             </div>
         </div>
