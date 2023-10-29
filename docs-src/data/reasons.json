@@ -30,7 +30,7 @@
   },
   {
     "title": "Simple",
-    "description": "With just two core APIs learning it is pretty straight forward especially if you already know JavaScript and HTML. Everything else, which is not much, is to aid with templating.",
+    "description": "With just two core APIs, learning it is pretty straight forward even so if you already know JavaScript and HTML. Everything else, which is not much, is to aid with templating.",
     "img": "./assets/simple.svg",
     "imgAlt": "simple templating system"
   },

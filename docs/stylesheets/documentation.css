@@ -28,13 +28,40 @@
           color: #fff; }
   .docs article {
     flex: 1;
-    padding: 0 0 50px 45px; }
+    padding: 0 0 50px 45px;
+    font-weight: 100; }
     .docs article h2 {
       font-weight: 300;
-      font-size: 2.6rem; }
+      font-size: 2.6rem;
+      margin-bottom: 15px; }
     .docs article h3 {
       font-weight: 500;
-      font-size: 1.8rem; }
+      font-size: 1.8rem;
+      margin: 30px 0 15px; }
     .docs article h4 {
       font-weight: 300;
-      font-size: 1.6rem; }
+      font-size: 1.6rem;
+      margin: 25px 0 20px; }
+    .docs article ul {
+      margin: 20px 0;
+      list-style: circle;
+      padding-left: 15px; }
+      .docs article ul li {
+        margin: 15px 0;
+        line-height: 150%; }
+    .docs article strong {
+      font-weight: 500; }
+    .docs article details summary {
+      font-family: "Exo 2.0", sans-serif;
+      font-weight: 500;
+      font-size: 1.8rem;
+      margin: 30px 0 15px;
+      cursor: pointer; }
+    .docs article dl dt {
+      font-size: 1.2rem;
+      font-family: "Exo 2.0", sans-serif;
+      margin-bottom: 10px;
+      font-weight: 500; }
+    .docs article dl dd {
+      margin: 0 0 25px 10px;
+      line-height: 150%; }
