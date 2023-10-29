@@ -45,6 +45,28 @@
       margin: 35px 0 20px; }
     .docs article p {
       margin: 20px 0 10px; }
+    .docs article a {
+      color: #0074D9;
+      border-bottom: 1px solid #013c6f;
+      font-weight: 500; }
+      .docs article a:hover {
+        color: #078cff; }
+    .docs article .heading a {
+      text-decoration: none;
+      color: #fff;
+      border: none;
+      position: relative; }
+      .docs article .heading a::before {
+        content: '#';
+        color: #777;
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translate(calc(-100% - 5px), -50%);
+        font-size: 80%;
+        display: none; }
+      .docs article .heading a:hover::before {
+        display: inline-block; }
     .docs article ul {
       margin: 20px 0;
       list-style: circle;

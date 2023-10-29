@@ -1,13 +1,14 @@
 import { html } from '../../src'
 import { DocPageLayout } from '../partials/doc-page-layout'
 import { IntroGroup } from '../data/documents'
+import { Heading } from '../partials/heading'
 
 const page = IntroGroup.list[0]
 
 export default DocPageLayout(
     page.path,
     html`
-        <h2>${page.name}</h2>
+        ${Heading(page.name)}
         <p>
             A reactive HTML templating system that can be used in any JavaScript
             environment, client or server.
@@ -44,7 +45,7 @@ export default DocPageLayout(
                 environment without additional setup.
             </li>
         </ul>
-        <h3>Motivation</h3>
+        ${Heading('Motivation', 'h3')}
         <p>
             It is hard to find a templating system with all these traits. Most
             templating systems are reliant on the environment they are used.

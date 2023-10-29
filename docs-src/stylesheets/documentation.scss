@@ -69,6 +69,38 @@
       margin: 20px 0 10px;
     }
     
+    a {
+      color: #0074D9;
+      border-bottom: 1px solid #013c6f;
+      font-weight: 500;
+      
+      &:hover {
+        color: #078cff;
+      }
+    }
+    
+    .heading a {
+      text-decoration: none;
+      color: #fff;
+      border: none;
+      position: relative;
+      
+      &::before {
+        content: '#';
+        color: #777;
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translate(calc(-100% - 5px), -50%);
+        font-size: 80%;
+        display: none;
+      }
+      
+      &:hover::before {
+        display: inline-block;
+      }
+    }
+    
     ul {
       margin: 20px 0;
       list-style: circle;

@@ -79,7 +79,83 @@
                                                 <a href="../documentation/state-store.html">State Store</a>
                                             </li></ul>
                             </li></ul>
-                <article><h2>Creating &amp; Rendering</h2></article>
+                <article><h2 id="creating-rendering" class="heading"><a href="#creating-rendering">Creating &amp; Rendering</a></h2><p>
+            It is really simple to create a template. You will need to use the
+            <code>html</code> core API which is pretty straight forward to use.
+        </p><div class="code-snippet">
+            <pre><code class="language-typescript theme-hybrid"><span class="hljs-keyword">import</span> {html} <span class="hljs-keyword">from</span> <span class="hljs-string">"@beforesemicolon/html"</span>;
+
+
+html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Hello Worls<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>`</span>;</code></pre>
+        </div><p>
+            The <code>html</code> is a
+            <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates">tagged template</a>
+            which is a special way to create
+            <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals">template literals</a>. Inside you can place any valid HTML and it will be handled
+            accordingly.
+        </p>
+
+        <p>
+            This is nothing specific to this package. It is pure JavaScript.
+            Template literals allow to create templates in an elegant and simple
+            way, a capability that makes this library possible. If you know
+            JavaScript and HTML, you already know 85% of this system.
+        </p><h3 id="how-it-works" class="heading"><a href="#how-it-works">How it works?</a></h3><p>
+            When you create the template, nothing happens. No parsing, no
+            evaluation of any kind. This means that you can create a lot of
+            these templates and have it waiting are properties, variable, and
+            return values.
+        </p>
+        <p>
+            When you create a template you get a
+            <code>HTMLTemplate</code> instance which we will exploring
+            throughout these documents.
+        </p><h3 id="rendering" class="heading"><a href="#rendering">Rendering</a></h3><p>
+            Everything starts with the rendering and it happens via the
+            <code>render</code> method from the
+            <code>HTMLTemplate</code> instance.
+        </p><div class="code-snippet">
+            <pre><code class="language-typescript theme-hybrid"><span class="hljs-keyword">const</span> temp = html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Hello Worls<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>`</span>;
+
+temp.<span class="hljs-title function_">render</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>)</code></pre>
+        </div><p>
+            The render method accepts an element in the document where template
+            should be rendered. It is only when the render is requested that the
+            template is parsed to HTML Elements.
+        </p>
+        <p>
+            The rendering happens ONCE. If you call the
+            <code>render</code> method repeatedly only the first call will
+            render content and the rest will be ignored.
+        </p>
+        <p>
+            For whatever reason, if you really want to force a re-render, you
+            can specify the second argument value to <code>true</code> to force
+            a re-render.
+        </p><div class="code-snippet">
+            <pre><code class="language-typescript theme-hybrid">temp.<span class="hljs-title function_">render</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>)
+temp.<span class="hljs-title function_">render</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>, <span class="hljs-literal">true</span>) <span class="hljs-comment">// forces re-render</span></code></pre>
+        </div>
+        <h4 id="understanding-rendering" class="heading"><a href="#understanding-rendering">Understanding rendering</a></h4><p>
+            One thing to remember is that the <code>html</code> returns a
+            <code>HTMLTemplate</code> instance which contains unique instances
+            of every
+            <code><a href="https://developer.mozilla.org/en-US/docs/Web/API/Node">Node</a></code>. Essentially it works like a <code>Node</code> meaning, the same
+            instance cannot be in 2 places ate once.
+        </p>
+        <p>
+            If you render a template in a place in the DOM, then try to render
+            it in a different place, it will be automatically removed from the
+            previous place.
+        </p><h3 id="unmounting" class="heading"><a href="#unmounting">Unmounting</a></h3><p>
+            Another method you have available is one that gives you the ability
+            to unmount your template the right way.
+        </p><div class="code-snippet">
+            <pre><code class="language-typescript theme-hybrid">temp.<span class="hljs-title function_">unmount</span>()</code></pre>
+        </div><p>
+            After you unmount, you can render the template again or use it to
+            replace another.
+        </p></article>
             </div></main><footer class="wrapper">
             <ul class="learning-resources">
                 <h5>Learning Resources</h5>
