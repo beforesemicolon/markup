@@ -5,6 +5,7 @@
   
   .docs-list {
     width: 250px;
+    min-width: 250px;
     font-size: 1rem;
     font-family: "Exo 2.0", sans-serif;
     
@@ -60,8 +61,12 @@
     
     h4 {
       font-weight: 300;
-      font-size: 1.6rem;
-      margin: 25px 0 20px;
+      font-size: 1.2rem;
+      margin: 35px 0 20px;
+    }
+    
+    p {
+      margin: 20px 0 10px;
     }
     
     ul {
@@ -77,6 +82,14 @@
     
     strong {
       font-weight: 500;
+    }
+    
+    code {
+      background: #161a1c;
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 2px;
+      line-height: 100%;
     }
     
     details {

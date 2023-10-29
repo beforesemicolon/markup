@@ -6,7 +6,8 @@
             <title>Tutorial - HTML Templating System - Before Semicolon</title>
             <script src="https://unpkg.com/@beforesemicolon/html/dist/client.js"></script>
             <link rel="stylesheet" href="../stylesheets/normalize.css">
-            <link rel="stylesheet" href="../stylesheets/common.css"><link rel="stylesheet" href="../stylesheets/documentation.css"></head>
+            <link rel="stylesheet" href="../stylesheets/common.css"><link rel="stylesheet" href="../stylesheets/documentation.css">
+            <link rel="stylesheet" href="../stylesheets/hybrid.hightlighter.css"> undefined</head>
         <body><header class="wrapper">
         <h1>
             <a href="../"><em>@beforesemicolon</em>/<strong>HTML</strong></a>
@@ -78,7 +79,39 @@
                                                 <a href="../documentation/state-store.html">State Store</a>
                                             </li></ul>
                             </li></ul>
-                <article><h2>Installation</h2></article>
+                <article><h2>Installation</h2>
+        <p>
+            The templating system is a plug-and-play package which means you can
+            either use the CDN or npm to install it. There is no need to any
+            additional setup or requirements.
+        </p>
+        <h3>Via unpkg CDN</h3>
+        <p>
+            This method is the quickest loading option and can be placed in the
+            <code>head</code> tag of the document.
+        </p><div class="code-snippet">
+            <pre><code class="language-html theme-hybrid"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://unpkg.com/@beforesemicolon/html/dist/client.js"</span> /&gt;</span></code></pre>
+        </div><p>You may also specify a specific version you want.</p><div class="code-snippet">
+            <pre><code class="language-html theme-hybrid"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://unpkg.com/@beforesemicolon/html@1.0.0/dist/client.js"</span>/&gt;</span></code></pre>
+        </div><h4>Accessing content</h4>
+        <p>
+            The client CDN link will create a global variable you can access for
+            all the internal functions.
+        </p><div class="code-snippet">
+            <pre><code class="language-javascript theme-hybrid"><span class="hljs-keyword">const</span> {html} = <span class="hljs-variable constant_">BFS</span>;</code></pre>
+        </div><h3>Via npm</h3>
+        <p>
+            This package is also available via <code>npm</code> which will allow
+            you to use it in server JavaScript environments
+        </p><div class="code-snippet">
+            <pre><code class="language-vim theme-hybrid">npm install @beforesemicolon/html</code></pre>
+        </div><h4>Accessing content</h4><div class="code-snippet">
+            <pre><code class="language-javascript theme-hybrid"><span class="hljs-keyword">import</span> {html} <span class="hljs-keyword">from</span> <span class="hljs-string">"@beforesemicolon/html"</span>;</code></pre>
+        </div><h3>Typescript</h3>
+        <p>
+            This package was built using typescript. There is no need to install
+            a separate type package for it. All types are exported with it.
+        </p></article>
             </div></main><footer class="wrapper">
             <ul class="learning-resources">
                 <h5>Learning Resources</h5>

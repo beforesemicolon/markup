@@ -12,6 +12,10 @@ export const DocPageLayout = (currentPage: string, content: HtmlTemplate) =>
         title: 'Tutorial - HTML Templating System - Before Semicolon',
         stylesheets: html`
             <link rel="stylesheet" href="../stylesheets/documentation.css" />
+            <link
+                rel="stylesheet"
+                href="../stylesheets/hybrid.hightlighter.css"
+            />
         `,
         basePath: '../',
         content: html`

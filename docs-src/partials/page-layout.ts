@@ -6,6 +6,7 @@ interface PageProps {
     title: string
     content: HtmlTemplate
     stylesheets?: HtmlTemplate
+    scripts?: HtmlTemplate
     basePath?: string
 }
 
@@ -13,6 +14,7 @@ export const PageLayout = ({
     title,
     content,
     stylesheets,
+    scripts,
     basePath = './',
 }: PageProps) => html`
     <!doctype html>
@@ -31,7 +33,7 @@ export const PageLayout = ({
                 href="${basePath}stylesheets/normalize.css"
             />
             <link rel="stylesheet" href="${basePath}stylesheets/common.css" />
-            ${stylesheets}
+            ${stylesheets} ${scripts}
         </head>
         <body>
             ${Header({ basePath })}
