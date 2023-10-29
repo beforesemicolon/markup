@@ -1,16 +1,16 @@
 import { html, state } from './html'
 import {
-    repeat,
-    when,
+    and,
     element,
     effect,
     is,
     isNot,
-    or,
-    and,
-    pick,
     oneOf,
+    or,
+    pick,
+    repeat,
     suspense,
+    when,
 } from './helpers'
 import { helper, Helper } from './Helper'
 
@@ -24,18 +24,18 @@ if (window) {
         // @ts-ignore
         ...(window.BFS || {}),
         html,
-        repeat,
-        when,
+        state,
+        and,
+        element,
+        effect,
         is,
         isNot,
-        and,
+        oneOf,
         or,
         pick,
-        effect,
-        oneOf,
+        repeat,
         suspense,
-        element,
-        state,
+        when,
         helper,
         Helper,
     }

@@ -83,7 +83,7 @@ export class HtmlTemplate {
         })
     }
 
-    constructor(parts: TemplateStringsArray, values: unknown[]) {
+    constructor(parts: TemplateStringsArray | string[], values: unknown[]) {
         this.#values = values
         this.#htmlTemplate = parts
             .map((s, i) => {
@@ -269,7 +269,10 @@ export class HtmlTemplate {
  * @param parts
  * @param values
  */
-export const html = (parts: TemplateStringsArray, ...values: unknown[]) => {
+export const html = (
+    parts: TemplateStringsArray | string[],
+    ...values: unknown[]
+) => {
     return new HtmlTemplate(parts, values)
 }
 

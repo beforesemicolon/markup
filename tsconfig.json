@@ -1,7 +1,12 @@
 {
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs"
+    }
+  },
   "compilerOptions": {
     "target": "ESNEXT",
-    "module": "es6",
+    "module": "esnext",
     "lib": [
       "dom",
       "es2015.proxy",
@@ -16,6 +21,7 @@
     "strict": true,
     "alwaysStrict": true,
     "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
     "skipLibCheck": true,
