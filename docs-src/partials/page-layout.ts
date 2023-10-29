@@ -34,9 +34,9 @@ export const PageLayout = ({
             ${stylesheets}
         </head>
         <body>
-            ${Header()}
+            ${Header({ basePath })}
             <main>${content}</main>
-            ${Footer()}
+            ${Footer({ basePath })}
         </body>
     </html>
 `

@@ -1,0 +1,48 @@
+.docs {
+  display: flex;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  
+  .docs-list {
+    background: #010b15;
+    width: 250px;
+    font-size: 0.9rem;
+    
+    & > li {
+      padding-bottom: 30px;
+      padding-left: 5px;
+      
+      span {
+        font-size: 1.2rem;
+        font-weight: 100;
+        display: block;
+        margin-bottom: 10px;
+        color: #fff;
+      }
+    }
+    
+    ul li {
+      padding: 5px 5px 5px 10px;
+      margin: 5px 0;
+      
+      a {
+        color: #bbb;
+        font-weight: 100;
+        letter-spacing: 0.09rem;
+      }
+      
+      &:hover, &.active {
+        background: #011c37;
+        
+        a {
+          color: #fff;
+        }
+      }
+    }
+  }
+  
+  article {
+    flex: 1;
+    padding: 0 0 50px 25px;
+  }
+}

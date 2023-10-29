@@ -1,0 +1,31 @@
+.docs {
+  display: flex;
+  padding-top: 20px;
+  padding-bottom: 20px; }
+  .docs .docs-list {
+    background: #010b15;
+    width: 250px;
+    font-size: 0.9rem; }
+    .docs .docs-list > li {
+      padding-bottom: 30px;
+      padding-left: 5px; }
+      .docs .docs-list > li span {
+        font-size: 1.2rem;
+        font-weight: 100;
+        display: block;
+        margin-bottom: 10px;
+        color: #fff; }
+    .docs .docs-list ul li {
+      padding: 5px 5px 5px 10px;
+      margin: 5px 0; }
+      .docs .docs-list ul li a {
+        color: #bbb;
+        font-weight: 100;
+        letter-spacing: 0.09rem; }
+      .docs .docs-list ul li:hover, .docs .docs-list ul li.active {
+        background: #011c37; }
+        .docs .docs-list ul li:hover a, .docs .docs-list ul li.active a {
+          color: #fff; }
+  .docs article {
+    flex: 1;
+    padding: 0 0 50px 25px; }

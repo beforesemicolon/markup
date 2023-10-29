@@ -6,20 +6,33 @@ const docsSrcDir = path.resolve(process.cwd(), 'docs-src')
 const docsDir = path.resolve(process.cwd(), 'docs')
 
 fs.mkdir(docsDir, { recursive: true }).then(() =>
-    fs.readdir(docsSrcDir).then((content) => {
-        content
-            .filter((c) => c.endsWith('page.ts'))
-            .forEach((page) => {
-                const pageName = page.replace('.page.ts', '.html')
-
-                import(path.join(docsSrcDir, page)).then(
-                    ({ default: temp }) => {
-                        return fs.writeFile(
-                            path.join(docsDir, pageName),
-                            toStatic(temp)
-                        )
-                    }
-                )
-            })
-    })
+    handleDirectorySearch(docsSrcDir, docsDir)
 )
+
+function createPage(page: string, srcDir: string, targetDir: string) {
+    const pageName = page.replace('.page.ts', '.html')
+    import(path.join(srcDir, page)).then(async ({ default: temp }) => {
+        await fs.mkdir(targetDir, { recursive: true })
+        return fs.writeFile(path.join(targetDir, pageName), toStatic(temp))
+    })
+}
+
+async function handleDirectorySearch(srcDir: string, targetDir: string) {
+    const content = await fs.readdir(srcDir)
+    content.forEach((c) => {
+        if (!c.startsWith('.')) {
+            const ext = path.extname(c)
+
+            if (ext) {
+                if (c.endsWith('page.ts')) {
+                    createPage(c, srcDir, targetDir)
+                }
+            } else {
+                handleDirectorySearch(
+                    path.join(srcDir, c),
+                    path.join(docsDir, c)
+                )
+            }
+        }
+    })
+}
