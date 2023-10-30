@@ -15,7 +15,7 @@ export default DocPageLayout(
             either use the CDN or npm to install it. There is no need to any
             additional setup or requirements.
         </p>
-        ${Heading('Via unpkg CDN', 'h3')}
+        ${Heading('Via CDN', 'h3')}
         <p>
             This method is the quickest loading option and can be placed in the
             <code>head</code> tag of the document.
@@ -29,6 +29,16 @@ export default DocPageLayout(
             ' <script src="https://unpkg.com/@beforesemicolon/html@1.0.0/dist/client.js"/>',
             'html'
         )}
+        <p>
+            You can use various CDN providers like
+            <a href="https://unpkg.com/@beforesemicolon/html/dist/client.js"
+                >unpkg</a
+            >,
+            <a
+                href="https://cdn.jsdelivr.net/npm/@beforesemicolon/html/dist/client.js"
+                >jsDelivr</a
+            >, and more.
+        </p>
         ${Heading('Accessing content', 'h4')}
         <p>
             The client CDN link will create a global variable you can access for
@@ -46,6 +56,8 @@ export default DocPageLayout(
             'import {html} from "@beforesemicolon/html";',
             'javascript'
         )}
+        ${Heading('Via yarn', 'h3')}
+        ${CodeSnippet('yarn add @beforesemicolon/html', 'vim')}
         ${Heading('Typescript', 'h3')}
         <p>
             This package was built using typescript. There is no need to install

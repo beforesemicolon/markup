@@ -7,6 +7,10 @@ describe('html', () => {
 		document.body.innerHTML = ''
 	})
 	
+	it('should ignore html in comments', () => {
+		html`//`
+	});
+	
 	it('should parse text injected inside element', () => {
 		const count = 12
 		const temp = html`<h1>sample (${count})</h1>`

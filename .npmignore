@@ -10,3 +10,7 @@ jest.config.js
 coverage
 .github
 playground
+.prettierrc
+.prettierrc
+.eslintrc.js
+.eslintignore

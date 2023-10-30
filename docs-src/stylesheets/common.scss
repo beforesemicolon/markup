@@ -89,6 +89,10 @@ ul {
 		word-break: break-word;
 		font-size: 14px;
 		line-height: 135%;
+		
+		code {
+			line-height: 130%;
+		}
 	}
 }
 
@@ -99,6 +103,9 @@ header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	position: sticky;
+	top: 0;
+	z-index: 10;
 	
 	h1 {
 		margin: 0;

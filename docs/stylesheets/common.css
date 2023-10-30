@@ -123,6 +123,8 @@ ul {
     word-break: break-word;
     font-size: 14px;
     line-height: 135%; }
+    .code-snippet pre code {
+      line-height: 130%; }
 
 header {
   padding: 20px 25px 15px;
@@ -130,7 +132,10 @@ header {
   background: #050c13;
   display: flex;
   justify-content: space-between;
-  align-items: center; }
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 10; }
   header h1 {
     margin: 0;
     font-size: 16px;

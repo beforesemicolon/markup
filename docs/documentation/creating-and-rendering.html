@@ -7,7 +7,7 @@
             <script src="https://unpkg.com/@beforesemicolon/html/dist/client.js"></script>
             <link rel="stylesheet" href="../stylesheets/normalize.css">
             <link rel="stylesheet" href="../stylesheets/common.css"><link rel="stylesheet" href="../stylesheets/documentation.css">
-            <link rel="stylesheet" href="../stylesheets/hybrid.hightlighter.css"> undefined</head>
+            <link rel="stylesheet" href="../stylesheets/hybrid.hightlighter.css"></head>
         <body><header class="wrapper">
         <h1>
             <a href="../"><em>@beforesemicolon</em>/<strong>HTML</strong></a>
@@ -82,12 +82,10 @@
                 <article><h2 id="creating-rendering" class="heading"><a href="#creating-rendering">Creating &amp; Rendering</a></h2><p>
             It is really simple to create a template. You will need to use the
             <code>html</code> core API which is pretty straight forward to use.
-        </p><div class="code-snippet">
-            <pre><code class="language-typescript theme-hybrid"><span class="hljs-keyword">import</span> {html} <span class="hljs-keyword">from</span> <span class="hljs-string">"@beforesemicolon/html"</span>;
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">import</span> {html} <span class="hljs-keyword">from</span> <span class="hljs-string">"@beforesemicolon/html"</span>;
 
 
-html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Hello Worls<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>`</span>;</code></pre>
-        </div><p>
+html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Hello Worls<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>`</span>;</code></pre></div><p>
             The <code>html</code> is a
             <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates">tagged template</a>
             which is a special way to create
@@ -114,11 +112,9 @@ html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-nam
             Everything starts with the rendering and it happens via the
             <code>render</code> method from the
             <code>HTMLTemplate</code> instance.
-        </p><div class="code-snippet">
-            <pre><code class="language-typescript theme-hybrid"><span class="hljs-keyword">const</span> temp = html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Hello Worls<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>`</span>;
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> temp = html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Hello Worls<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>`</span>;
 
-temp.<span class="hljs-title function_">render</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>)</code></pre>
-        </div><p>
+temp.<span class="hljs-title function_">render</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>)</code></pre></div><p>
             The render method accepts an element in the document where template
             should be rendered. It is only when the render is requested that the
             template is parsed to HTML Elements.
@@ -132,10 +128,8 @@ temp.<span class="hljs-title function_">render</span>(<span class="hljs-variable
             For whatever reason, if you really want to force a re-render, you
             can specify the second argument value to <code>true</code> to force
             a re-render.
-        </p><div class="code-snippet">
-            <pre><code class="language-typescript theme-hybrid">temp.<span class="hljs-title function_">render</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>)
-temp.<span class="hljs-title function_">render</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>, <span class="hljs-literal">true</span>) <span class="hljs-comment">// forces re-render</span></code></pre>
-        </div>
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes">temp.<span class="hljs-title function_">render</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>)
+temp.<span class="hljs-title function_">render</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>, <span class="hljs-literal">true</span>) <span class="hljs-comment">// forces re-render</span></code></pre></div>
         <h4 id="understanding-rendering" class="heading"><a href="#understanding-rendering">Understanding rendering</a></h4><p>
             One thing to remember is that the <code>html</code> returns a
             <code>HTMLTemplate</code> instance which contains unique instances
@@ -150,9 +144,7 @@ temp.<span class="hljs-title function_">render</span>(<span class="hljs-variable
         </p><h3 id="unmounting" class="heading"><a href="#unmounting">Unmounting</a></h3><p>
             Another method you have available is one that gives you the ability
             to unmount your template the right way.
-        </p><div class="code-snippet">
-            <pre><code class="language-typescript theme-hybrid">temp.<span class="hljs-title function_">unmount</span>()</code></pre>
-        </div><p>
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes">temp.<span class="hljs-title function_">unmount</span>()</code></pre></div><p>
             After you unmount, you can render the template again or use it to
             replace another.
         </p></article>
