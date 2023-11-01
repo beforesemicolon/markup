@@ -79,7 +79,89 @@
                                                 <a href="../documentation/state-store.html">State Store</a>
                                             </li></ul>
                             </li></ul>
-                <article><h2>DOM references</h2></article>
+                <article><h2>DOM references</h2>
+        <p>
+            There could be instances where you also want to grab reference of
+            the DOM Element that was rendered. This is also an easy task that
+            will give you control over the DOM when you feel limited somehow.
+        </p>
+        <p>
+            There is a special attribute you can use to create DOM references.
+            The <code>ref</code> attribute.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> button = html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">ref</span>=<span class="hljs-string">"btn"</span>&gt;</span>click me<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>`</span>
+
+button.<span class="hljs-title function_">render</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>)
+
+button.<span class="hljs-property">refs</span>.<span class="hljs-property">btn</span>[<span class="hljs-number">0</span>].<span class="hljs-property">style</span>.<span class="hljs-title function_">setProperty</span>(<span class="hljs-string">'color'</span>, <span class="hljs-string">'red'</span>)</code></pre></div><p>
+            The example above sets a <code>ref</code> with value of
+            <code>btn</code> which is the name for your reference.
+        </p>
+        <p>
+            To access the reference it reads the <code>refs</code> property on
+            the template which is an object literal keyed by the name of
+            reference you created.
+        </p>
+        <p>
+            Each <code>ref</code> will be an array of elements, that's why it's
+            accessing the first item in that array to set the color to red.
+        </p><h3 id="grouping-references" class="heading"><a href="#grouping-references">Grouping references</a></h3><p>
+            By default, all references are grouped because every reference
+            returns an array of elements.
+        </p>
+        <p>
+            What this means is that you can use the same <code>ref</code> value
+            for multiple elements and this will include all of them.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> todos = [
+  <span class="hljs-string">'Go to gym'</span>,
+  <span class="hljs-string">'Buy groceries'</span>,
+  <span class="hljs-string">'Pick up the kids'</span>
+].<span class="hljs-title function_">map</span>(<span class="hljs-function"><span class="hljs-params">todo</span> =&gt;</span> html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"todo-item"</span> <span class="hljs-attr">ref</span>=<span class="hljs-string">"todo"</span>&gt;</span></span><span class="hljs-subst">${todo}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>`</span>)
+
+<span class="hljs-keyword">const</span> todoList = html`<span class="hljs-subst">${todos}</span><span class="language-xml">`</span>;
+
+todoList.<span class="hljs-title function_">render</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>)
+
+todoList.<span class="hljs-property">refs</span>.<span class="hljs-property">todo</span> <span class="hljs-comment">// contains 3 DIVs</span></code></pre></div><p>
+            The above example simple how this ability is a quick way to collect
+            a list of DOM elements to do whatever you want.
+        </p><h3 id="nested-references" class="heading"><a href="#nested-references">Nested references</a></h3><p>
+            In case you nest templates and a deep template contain references,
+            you may collect those reference in the parent most template.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> button = html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">ref</span>=<span class="hljs-string">"btn"</span>&gt;</span>+<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>`</span>;
+
+<span class="hljs-keyword">let</span> count = <span class="hljs-number">0</span>;
+
+<span class="hljs-keyword">const</span> countUp = html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">span</span>&gt;</span></span><span class="hljs-subst">${count}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span> </span><span class="hljs-subst">${button}</span><span class="language-xml">`</span>;
+
+countUp.<span class="hljs-title function_">render</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>);
+
+button.<span class="hljs-property">refs</span>.<span class="hljs-property">btn</span> <span class="hljs-comment">// [HTMLButtonElement]</span>
+countUp.<span class="hljs-property">refs</span>.<span class="hljs-property">btn</span> <span class="hljs-comment">// [HTMLButtonElement]</span></code></pre></div><p>
+            Feel free to collect those reference from whatever template but this
+            feature will make it convenient to consume your references in one
+            place.
+        </p><h3 id="dynamic-references" class="heading"><a href="#dynamic-references">Dynamic references</a></h3><p>
+            You can only collect references from templates that are rendered.
+            Just trying to access a reference from a template that was never
+            rendered will not work.
+        </p>
+        <p>
+            This affects references when you dynamically render templates.
+            Because template must be rendered to produce a DOM reference,
+            conditionally rendering templates will dynamically change based on
+            the condition they were rendered.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">let</span> loading = <span class="hljs-literal">false</span>;
+
+<span class="hljs-keyword">const</span> sample = html`<span class="hljs-subst">${
+  loading 
+    ? html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">ref</span>=<span class="hljs-string">"loading"</span>&gt;</span>loading<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>`</span> 
+    : html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">ref</span>=<span class="hljs-string">"loaded"</span>&gt;</span>loaded<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>`</span>}</span><span class="language-xml">`</span>
+
+sample.<span class="hljs-title function_">render</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>);
+
+<span class="hljs-comment">// refs object will not contain the "loaded" ref</span>
+<span class="hljs-comment">// because it was never rendered</span>
+sample.<span class="hljs-property">refs</span> <span class="hljs-comment">// {loading: [P]}</span></code></pre></div></article>
             </div></main><footer class="wrapper">
             <ul class="learning-resources">
                 <h5>Learning Resources</h5>
