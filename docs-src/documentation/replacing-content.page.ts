@@ -9,7 +9,7 @@ const page = TemplatingGroup.list[2]
 export default DocPageLayout(
     page.path,
     html`
-        <h2>${page.name}</h2>
+        ${Heading(page.name)}
         <p>
             One special thing about templates is that you can treat it like a
             DOM element for few things. One of these things is the ability to

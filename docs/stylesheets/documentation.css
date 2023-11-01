@@ -87,7 +87,8 @@ main {
       background: #161a1c;
       display: inline-block;
       padding: 3px 8px;
-      border-radius: 2px; }
+      border-radius: 2px;
+      line-height: 100%; }
     .docs article details summary {
       font-family: "Exo 2.0", sans-serif;
       font-weight: 500;

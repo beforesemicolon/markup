@@ -9,7 +9,7 @@ const page = TemplatingGroup.list[3]
 export default DocPageLayout(
     page.path,
     html`
-        <h2>${page.name}</h2>
+        ${Heading(page.name)}
         <p>
             There could be instances where you also want to grab reference of
             the DOM Element that was rendered. This is also an easy task that

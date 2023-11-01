@@ -20,7 +20,7 @@ export const DocPageLayout = (currentPage: string, content: HtmlTemplate) =>
         basePath: '../',
         content: html`
             <div class="wrapper docs">
-                <ul class="docs-list">
+                <ul class="docs-list" tabindex="0">
                     ${[
                         IntroGroup,
                         TemplatingGroup,
