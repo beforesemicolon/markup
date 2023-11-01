@@ -79,7 +79,57 @@
                                                 <a href="../documentation/state-store.html">State Store</a>
                                             </li></ul>
                             </li></ul>
-                <article><h2>Replacing content</h2></article>
+                <article><h2>Replacing content</h2>
+        <p>
+            One special thing about templates is that you can treat it like a
+            DOM element for few things. One of these things is the ability to
+            replace one template with the another.
+        </p>
+        <p>
+            Let's take for example an async scenario where you render a loading
+            indicator then need to replace this loading indicator with content.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> loadingIndicator = html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>loading...<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>`</span>;
+
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">fetchContent</span> = (<span class="hljs-params"></span>) =&gt; {
+  <span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =&gt;</span> {
+    <span class="hljs-keyword">const</span> content = html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>loaded content<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>`</span>;
+    
+    content.<span class="hljs-title function_">replace</span>(loadingIndicator)
+  }, <span class="hljs-number">2500</span>)
+}
+
+html`<span class="hljs-subst">${loadingIndicator}</span><span class="language-xml">`</span>
+  .<span class="hljs-title function_">render</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>);
+
+<span class="hljs-title function_">fetchContent</span>();</code></pre></div><p>
+            The above example will initially render the
+            <code>loading</code> message and after 2.5 seconds it will replace
+            it with the new template content.
+        </p>
+        <p>
+            The replace method will insert the not yet rendered template nodes
+            in the place in the DOM the target template was rendered. This means
+            that you can have multiple tags and it will just replace them all.
+        </p><h3 id="replacing-a-dom-element" class="heading"><a href="#replacing-a-dom-element">Replacing a DOM Element</a></h3><p>
+            You may also target a specific DOM Element. Here is the sample
+            example but with the loading indicator as an Element instead of a
+            template.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-comment">// using a P Element instead</span>
+<span class="hljs-keyword">const</span> loadingIndicator = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">createElement</span>(<span class="hljs-string">'p'</span>);
+loadingIndicator.<span class="hljs-property">textContent</span> = <span class="hljs-string">'Loading...'</span>
+
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">fetchContent</span> = (<span class="hljs-params"></span>) =&gt; {
+  <span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =&gt;</span> {
+    <span class="hljs-keyword">const</span> content = html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>loaded content<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>`</span>;
+    
+    content.<span class="hljs-title function_">replace</span>(loadingIndicator)
+  }, <span class="hljs-number">2500</span>)
+}
+
+html`<span class="hljs-subst">${loadingIndicator}</span><span class="language-xml">`</span>
+  .<span class="hljs-title function_">render</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>);
+
+<span class="hljs-title function_">fetchContent</span>();</code></pre></div><p>This will have the same effect as an element.</p></article>
             </div></main><footer class="wrapper">
             <ul class="learning-resources">
                 <h5>Learning Resources</h5>
