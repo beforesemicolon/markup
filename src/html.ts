@@ -20,6 +20,7 @@ export class HtmlTemplate {
     #renderTarget: HTMLElement | ShadowRoot | Element | null = null
     #refs: Record<string, Set<Element>> = {}
     #subs: Set<() => () => void> = new Set()
+    #stateUnsubs: Set<() => void> = new Set()
     #executablesByNode: Map<Node, Executable> = new Map()
     #values: Array<unknown> = []
     #root: DocumentFragment | null = null
@@ -199,6 +200,12 @@ export class HtmlTemplate {
         this.#renderTarget = null
     }
 
+    unsubscribeFromStates = () => {
+        this.#stateUnsubs.forEach((unsub) => {
+            unsub()
+        })
+    }
+
     onUpdate(cb: () => () => void) {
         if (typeof cb === 'function') {
             this.#subs.add(cb)
@@ -240,7 +247,7 @@ export class HtmlTemplate {
                         ) {
                             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                             // @ts-ignore
-                            val[id](() => {
+                            const unsub = val[id](() => {
                                 handleExecutable(
                                     node,
                                     self.#executablesByNode.get(
@@ -250,6 +257,7 @@ export class HtmlTemplate {
                                 )
                                 self.#subs.forEach((cb) => cb())
                             }, id)
+                            self.#stateUnsubs.add(unsub)
                         }
                     })
 
@@ -307,10 +315,10 @@ class ValueGetSet<T> extends Array {
             value: (sub: () => void, subId: string) => {
                 if (subId === id && typeof sub === 'function') {
                     this.#subs.add(sub)
+                }
 
-                    return () => {
-                        this.#subs.delete(sub)
-                    }
+                return () => {
+                    this.#subs.delete(sub)
                 }
             },
         })

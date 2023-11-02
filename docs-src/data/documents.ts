@@ -70,6 +70,10 @@ export const HelpersGroup = {
             path: 'documentation/what-is-a-helper.html',
         },
         {
+            name: 'Effect helper',
+            path: 'documentation/effect-helper.html',
+        },
+        {
             name: 'Conditional Rendering',
             path: 'documentation/conditional-rendering.html',
         },

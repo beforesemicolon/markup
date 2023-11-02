@@ -37,7 +37,8 @@ main {
   .docs article {
     flex: 1;
     padding-left: 45px;
-    font-weight: 100; }
+    font-weight: 100;
+    color: #ccc; }
     .docs article h2 {
       font-weight: 300;
       font-size: 2.6rem;
@@ -60,7 +61,7 @@ main {
         color: #078cff; }
     .docs article .heading a {
       text-decoration: none;
-      color: #fff;
+      color: #ccc;
       border: none;
       position: relative; }
       .docs article .heading a::before {

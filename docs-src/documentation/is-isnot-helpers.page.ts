@@ -4,6 +4,6 @@ import { HelpersGroup } from '../data/documents'
 import { Heading } from '../partials/heading'
 import { CodeSnippet } from '../partials/code-snippet'
 
-const page = HelpersGroup.list[3]
+const page = HelpersGroup.list[4]
 
 export default DocPageLayout(page.path, html`${Heading(page.name)}`)
