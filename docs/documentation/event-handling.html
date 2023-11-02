@@ -79,7 +79,51 @@
                                                 <a href="../documentation/state-store.html">State Store</a>
                                             </li></ul>
                             </li></ul>
-                <article><h2 id="event-handling" class="heading"><a href="#event-handling">Event handling</a></h2></article>
+                <article><h2 id="event-handling" class="heading"><a href="#event-handling">Event handling</a></h2><p>
+            Event handling remains close to the native way but enhanced with
+            active listeners instead. Think about it more like an inline
+            <a href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener">addEventListener</a>
+            more than anything.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> <span class="hljs-title function_">handleClick</span> = (<span class="hljs-params">evt: Event</span>) =&gt; {
+  evt.<span class="hljs-title function_">preventDefault</span>();
+  evt.<span class="hljs-title function_">stopPropagation</span>();
+}
+
+
+html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onclick</span>=<span class="hljs-string">"</span></span></span><span class="hljs-subst">${handleClick}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">"</span>&gt;</span>click me<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>`</span>
+<span class="hljs-comment">// renders: &lt;button&gt;click me&lt;/button&gt;`</span></code></pre></div><p>
+            The inline event attributes are removed during parsing before the
+            DOM element is created and will never show on the page.
+        </p>
+        <p>
+            All event attributes must start with <code>on</code> keyword
+            followed by the name of the event. This is nothing specific to this
+            library but something native to HTML.
+        </p>
+        <p>The value of this attribute must be a function of any type.</p><h3 id="custom-events" class="heading"><a href="#custom-events">Custom events</a></h3><p>
+            You may also listen to custom events just like you would with native
+            ones. The pattern remains the same and you get a
+            <code>CustomEvent</code> instead of an <code>Event</code> instance.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> <span class="hljs-title function_">handleClick</span> = (<span class="hljs-params">evt: CustomEvent</span>) =&gt; {
+  <span class="hljs-comment">// handle here</span>
+}
+
+
+html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">my-button</span> <span class="hljs-attr">onclicked</span>=<span class="hljs-string">"</span></span></span><span class="hljs-subst">${handleClick}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">"</span>&gt;</span>click me<span class="hljs-tag">&lt;/<span class="hljs-name">my-button</span>&gt;</span>`</span>
+<span class="hljs-comment">// renders: &lt;button&gt;click me&lt;/button&gt;`</span></code></pre></div>
+        <h3 id="event-options" class="heading"><a href="#event-options">Event options</a></h3><p>
+            One thing that you cannot do natively in HTML, but you can with this
+            library is providing
+            <a href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#options">event listener options</a>.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> <span class="hljs-title function_">handleClick</span> = (<span class="hljs-params">evt</span>) =&gt; {
+  <span class="hljs-comment">// will only get called once</span>
+}
+
+html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onclick</span>=<span class="hljs-string">"</span></span></span><span class="hljs-subst">${handleClick}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">, </span></span></span><span class="hljs-subst">${{once: <span class="hljs-literal">true</span>}}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">"</span>&gt;</span>click me<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>`</span>
+<span class="hljs-comment">// renders: &lt;button&gt;click me&lt;/button&gt;</span></code></pre></div><p>
+            All you need to do is add a comma followed by the option you want to
+            provide to the listener.
+        </p></article>
             </div></main><footer class="wrapper">
             <ul class="learning-resources">
                 <h5>Learning Resources</h5>
