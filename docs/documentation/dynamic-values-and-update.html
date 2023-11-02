@@ -79,7 +79,76 @@
                                                 <a href="../documentation/state-store.html">State Store</a>
                                             </li></ul>
                             </li></ul>
-                <article><h2 id="dynamic-values-update" class="heading"><a href="#dynamic-values-update">Dynamic values &amp; Update</a></h2></article>
+                <article><h2 id="dynamic-values-update" class="heading"><a href="#dynamic-values-update">Dynamic values &amp; Update</a></h2><p>
+            When working on the client, the best thing you can have is dynamic
+            values. For <em>@bfs/html</em> dynamic values are simply functions.
+        </p>
+        <p>
+            Any function added to the template, as long as it's not an
+            <a href="./event-handling.html">event handler</a>, will be called to
+            get the value to render or for an attribute.
+        </p>
+        <p>
+            The example bellow will render the count just fine but using a
+            function to return the value tells the template that the value might
+            change in the future.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">let</span> count = <span class="hljs-number">0</span>;
+
+<span class="hljs-keyword">const</span> conter = html`<span class="language-xml">
+  <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span></span><span class="hljs-subst">${() =&gt; count}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span>&gt;</span>+<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+`</span>;</code></pre></div><p>
+            You will learn a better way to have dynamic values when reading
+            about <a href="./state-values.html">states</a> in the future. For
+            now, let's focus on the function alone.
+        </p><h3 id="update-template" class="heading"><a href="#update-template">Update template</a></h3><p>
+            Just having dynamic values in the template does not do much. All it
+            does is render the value correctly.
+        </p>
+        <p>
+            The template still needs to know when to update. Enters the
+            <code>update</code> method.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">let</span> count = <span class="hljs-number">0</span>;
+
+<span class="hljs-keyword">const</span> counter = html`<span class="language-xml">
+  <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span></span><span class="hljs-subst">${() =&gt; count}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span> <span class="hljs-attr">onclick</span>=<span class="hljs-string">"</span></span></span><span class="hljs-subst">${countUp}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">"</span>&gt;</span>+<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+`</span>;
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">countUp</span>(<span class="hljs-params"></span>) {
+  count += <span class="hljs-number">1</span>;
+  counter.<span class="hljs-title function_">update</span>()
+}
+
+counter.<span class="hljs-title function_">render</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>)</code></pre></div><p>The above example introduces 2 new functions in the template:</p>
+        <ol>
+            <li>
+                <code>countUp</code>: used as <code>click</code> event listener
+                on the button.
+            </li>
+            <li>
+                <code>counter.update</code>: used to tell the template the about
+                the value change.
+            </li>
+        </ol>
+        <p>
+            The <code>update</code> is another method the template instance
+            exposes which you can use to tell it to look into all those dynamic
+            values and rerun them. The template will get a new value, do a
+            <em>shallow comparison</em> and update the DOM if such value has
+            changed.
+        </p>
+        <p>
+            <strong>Important to know</strong> that this "re-check" happens to
+            all dynamic values in the template. This means that you can update
+            multiple values at once and call the <code>update</code> after to
+            have the template update for all of them.
+        </p>
+        <p>
+            It also means that the template will also re-check dynamic values
+            that did not change. You will learn how to address this later when
+            you learn about <a href="./state-values.html">states</a>.
+        </p></article>
             </div></main><footer class="wrapper">
             <ul class="learning-resources">
                 <h5>Learning Resources</h5>

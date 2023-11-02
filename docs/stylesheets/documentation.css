@@ -74,11 +74,11 @@ main {
         display: none; }
       .docs article .heading a:hover::before {
         display: inline-block; }
-    .docs article ul {
+    .docs article ul, .docs article ol {
       margin: 20px 0;
       list-style: circle;
       padding-left: 15px; }
-      .docs article ul li {
+      .docs article ul li, .docs article ol li {
         margin: 15px 0;
         line-height: 150%; }
     .docs article strong {
@@ -88,7 +88,7 @@ main {
       display: inline-block;
       padding: 3px 8px;
       border-radius: 2px;
-      line-height: 100%; }
+      line-height: 120%; }
     .docs article details summary {
       font-family: "Exo 2.0", sans-serif;
       font-weight: 500;

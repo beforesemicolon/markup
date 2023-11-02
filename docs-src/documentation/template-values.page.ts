@@ -172,6 +172,21 @@ export default DocPageLayout(
                 'html`${undefined}` // renders "undefined"',
             'typescript'
         )}
+        ${Heading('Functions', 'h3')}
+        <p>
+            Functions in the template also receive special treatment. Basically,
+            there are two reasons to add functions to the template.
+        </p>
+        <ol>
+            <li>
+                <a href="./event-handling.html">Event handlers</a>: To listen to
+                events on tags
+            </li>
+            <li>
+                <a href="./dynamic-values-and-update">Dynamic values</a>: To
+                react to value changes anywhere in the DOM
+            </li>
+        </ol>
         ${Heading('Web Components', 'h3')}
         <p>
             Template values are handled differently when used with web component
