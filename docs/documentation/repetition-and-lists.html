@@ -81,7 +81,105 @@
                                                 <a href="../documentation/state-store.html">State Store</a>
                                             </li></ul>
                             </li></ul>
-                <article><h2 id="repetition-lists" class="heading"><a href="#repetition-lists">Repetition &amp; Lists</a></h2></article>
+                <article><h2 id="repetition-lists" class="heading"><a href="#repetition-lists">Repetition &amp; Lists</a></h2><p>
+            Pages can get super complex with a lot of repetitive markup and long
+            lists. Using a template makes the work much easier since you can use
+            data and logic to create long lists or repeat things with small
+            variations much easier.
+        </p>
+        <p>
+            By default, the template will already render array of contents for
+            you:
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> todos = [
+  <span class="hljs-string">"Go shopping"</span>,
+  <span class="hljs-string">"Call the car salesman"</span>,
+  <span class="hljs-string">"Register for next semester classes"</span>
+]
+
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">renderTodo</span> = todo =&gt; html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">li</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"todo-item"</span>&gt;</span></span><span class="hljs-subst">${todo}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>`</span>
+
+html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span></span><span class="hljs-subst">${todos.map(renderTodo)}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>`</span>
+</code></pre></div><p>
+            The above example will correctly render the list just fine and all
+            need in the template was a single line.
+        </p>
+        <p>
+            Using the natively supported array rendering of the template is
+            perfect for static lists but not so much if the list content or size
+            keeps changing. Fortunately, the system offers a helper for that.
+        </p><h3 id="repeat-helper" class="heading"><a href="#repeat-helper">repeat helper</a></h3><p>
+            The <code>repeat</code> helper is perfect for lists either static or
+            dynamic.
+        </p>
+        <p>
+            We can change the above example with the <code>repeat</code> helper
+            and all renders the same.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> todos = [
+  <span class="hljs-string">"Go shopping"</span>,
+  <span class="hljs-string">"Call the car salesman"</span>,
+  <span class="hljs-string">"Register for next semester classes"</span>
+]
+
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">renderTodo</span> = todo =&gt; html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">li</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"todo-item"</span>&gt;</span></span><span class="hljs-subst">${todo}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>`</span>
+
+html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span></span><span class="hljs-subst">${repeat(todos, renderTodo)}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>`</span></code></pre></div><p>
+            The <code>repeat</code> helper takes 3 arguments and the third one
+            is optional:
+        </p>
+        <p>
+            <code>repeat(COUNT_OR_ARRAY, ITEM_RENDERER,
+                ?WHEN_EMPTY_RENDERER)</code>:
+        </p>
+        <ul>
+            <li>
+                <strong>COUNT_OR_ARRAY</strong>: You can specify a number of
+                times you need something to repeat or an array.
+            </li>
+            <li>
+                <strong>ITEM_RENDERER</strong>: A function that will be called
+                for every item and must return what to render. If a number ws
+                specified as the first argument, this function will be get
+                called with a number value and the index, otherwise, it will get
+                called with the item in the array and its index.
+            </li>
+            <li>
+                <strong>WHEN_EMPTY_RENDERER</strong> (optional): A function that
+                will get called when the list is empty and must return something
+                to render in that case. If nothing is provided, nothing will be
+                rendered.
+            </li>
+        </ul><h4 id="why-use-the-repeat-helper" class="heading"><a href="#why-use-the-repeat-helper">Why use the repeat helper?</a></h4><p>
+            The <code>repeat</code> helper will keep an internal cache based on
+            the items in the list. This is done to only re-render the items that
+            change and not the whole list every time there is a change.
+        </p>
+        <p>
+            This also means that if you have a repeated value associated with a
+            template or DOM Node it will only appear once in the DOM.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes">html`<span class="hljs-subst">${repeat([<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">3</span>], (n) =&gt; <span class="hljs-string">`item <span class="hljs-subst">${n}</span>`</span>)}</span><span class="language-xml">`</span>
+<span class="hljs-comment">// renders: item 1 item 3 item 5 item 3</span>
+
+html`<span class="hljs-subst">${repeat([<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">3</span>], (n) =&gt; html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">span</span>&gt;</span>item </span><span class="hljs-subst">${n}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span>`</span>)}</span><span class="language-xml">`</span>
+<span class="hljs-comment">// renders: item 1 item 3 item 5</span>
+
+html`<span class="hljs-subst">${repeat([<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">3</span>], (n) =&gt; element(<span class="hljs-string">'li'</span>, {
+  textContent: <span class="hljs-string">`item <span class="hljs-subst">${n}</span>`</span>
+}))}</span><span class="language-xml">`</span>
+<span class="hljs-comment">// renders: item 1 item 3 item 5</span></code></pre></div><p>
+            This is only true when you are trying to render
+            <a href="https://developer.mozilla.org/en-US/docs/Web/API/Node">Nodes</a>
+            , and it is not specific to this library. You can't render the same
+            nodes in multiple places. Because each template or node are mapped
+            to the same value reference even when the <code>repeat</code> tries
+            to render the whole list.
+        </p><div class="code-snippet"><pre><code class="language-vim theme-hybrid hljs" data-highlighted="yes">Cache Map
+<span class="hljs-number">1</span> -&gt; DOM Node(s) <span class="hljs-number">1</span>
+<span class="hljs-number">3</span> -&gt; DOM Node(s) <span class="hljs-number">3</span>
+<span class="hljs-number">5</span> -&gt; DOM Node(s) <span class="hljs-number">5</span></code></pre></div><p>
+            The cache is updated whenever there is a change in the item
+            reference or position in the list. But only the things that change
+            will be updated in the cache map.
+        </p></article>
             </div></main><footer class="wrapper">
             <ul class="learning-resources">
                 <h5>Learning Resources</h5>
