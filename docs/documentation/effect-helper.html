@@ -81,7 +81,66 @@
                                                 <a href="../documentation/state-store.html">State Store</a>
                                             </li></ul>
                             </li></ul>
-                <article><h2 id="effect-helper" class="heading"><a href="#effect-helper">Effect helper</a></h2></article>
+                <article><h2 id="effect-helper" class="heading"><a href="#effect-helper">Effect helper</a></h2><p>
+            When using <a href="./state-values.html">state</a> you will notice
+            that only the part of the template dependent on the state will
+            update with changes.
+        </p>
+        <p>
+            For those situations you would want to perform "side effects" on the
+            template, meaning, you want other part of the template to change
+            with some state change.
+        </p>
+        <p>
+            That's when the <code>effect</code> helper comes in. To help you
+            perform these side effects.
+        </p><div class="code-snippet"><pre><code class="language-vim theme-hybrid hljs" data-highlighted="yes">const counter = html`
+  <span class="hljs-symbol">&lt;p&gt;</span>${<span class="hljs-built_in">count</span>}&lt;/<span class="hljs-keyword">p</span>&gt;
+  <span class="hljs-symbol">&lt;p&gt;</span>${effect(<span class="hljs-built_in">count</span>, () =&gt; <span class="hljs-built_in">count</span>() * <span class="hljs-number">2</span>)}&lt;/<span class="hljs-keyword">p</span>&gt;
+`;</code></pre></div><p>
+            The above example shows a simple example of performing a side
+            effect. The bellow example show using <code>effect</code> we can
+            react to the <code>activeTab</code>
+            state change to get the content and render it.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">type</span> <span class="hljs-title class_">Tab</span> = <span class="hljs-string">'home'</span> | <span class="hljs-string">'about'</span> | <span class="hljs-string">'contact'</span>;
+
+<span class="hljs-keyword">const</span> <span class="hljs-attr">tabContent</span>: <span class="hljs-title class_">Record</span>&lt;<span class="hljs-title class_">Tab</span>, <span class="hljs-title class_">HTMLTemplate</span>&gt; = {
+  <span class="hljs-attr">home</span>: html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Welcome<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>`</span>,
+  <span class="hljs-attr">contact</span>: html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>Tell us what you think<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>`</span>,
+  <span class="hljs-attr">about</span>: html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>We are here to help you<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>`</span>,
+}
+
+<span class="hljs-keyword">const</span> [activeTab, setActiveTab] = state&lt;<span class="hljs-title class_">Tab</span>&gt;(<span class="hljs-string">"home"</span>);
+
+<span class="hljs-keyword">const</span> app = html`<span class="language-xml">
+  <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Tab Example<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">li</span> 
+      <span class="hljs-attr">attr.class.active</span>=<span class="hljs-string">"</span></span></span><span class="hljs-subst">${is(activeTab, <span class="hljs-string">'home'</span>)}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">"</span> 
+      <span class="hljs-attr">onclick</span>=<span class="hljs-string">"</span></span></span><span class="hljs-subst">${() =&gt; setActiveTab(<span class="hljs-string">'home'</span>)}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">"</span>&gt;</span>
+      Home
+    <span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">li</span> 
+      <span class="hljs-attr">attr.class.active</span>=<span class="hljs-string">"</span></span></span><span class="hljs-subst">${is(activeTab, <span class="hljs-string">'about'</span>)}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">"</span>
+      <span class="hljs-attr">onclick</span>=<span class="hljs-string">"</span></span></span><span class="hljs-subst">${() =&gt; setActiveTab(<span class="hljs-string">'about'</span>)}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">"</span>&gt;</span>
+      About
+    <span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">li</span> 
+      <span class="hljs-attr">attr.class.active</span>=<span class="hljs-string">"</span></span></span><span class="hljs-subst">${is(activeTab, <span class="hljs-string">'contact'</span>)}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">"</span>
+      <span class="hljs-attr">onclick</span>=<span class="hljs-string">"</span></span></span><span class="hljs-subst">${() =&gt; setActiveTab(<span class="hljs-string">'contact'</span>)}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">"</span>&gt;</span>
+      Contact
+    <span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>
+  </span><span class="hljs-subst">${effect(activeTab, () =&gt; tabContent[activeTab()])}</span><span class="language-xml">
+`</span>;
+
+app.<span class="hljs-title function_">render</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>)</code></pre></div>
+        <h3 id="effect-format" class="heading"><a href="#effect-format">Effect format</a></h3><p>
+            The <code>effect</code> take comma-separated states and as the last
+            argument should be the action to take or the "thing" you need to be
+            returned.
+        </p>
+        <p><code>effect(STATE, ...STATE, SIDE_EFFECT_ACTION)</code></p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-title function_">effect</span>(activeTab, currentPath, contentLoader)</code></pre></div></article>
             </div></main><footer class="wrapper">
             <ul class="learning-resources">
                 <h5>Learning Resources</h5>
