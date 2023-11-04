@@ -13,6 +13,7 @@ import {
     when,
 } from './helpers'
 import { helper, Helper } from './Helper'
+import { val } from './utils'
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -38,5 +39,6 @@ if (window) {
         when,
         helper,
         Helper,
+        val,
     }
 }
