@@ -9,7 +9,7 @@ export const Header = ({ basePath = './' }: HeaderProps = {}) => html`
     <header class="wrapper">
         <h1>
             <a href="${basePath}"
-                ><em>@beforesemicolon</em>/<strong>HTML</strong></a
+                ><strong style="text-transform: uppercase">Markup</strong></a
             >
         </h1>
         <nav>
