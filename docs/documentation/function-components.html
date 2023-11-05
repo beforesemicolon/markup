@@ -81,7 +81,53 @@
                                                 <a href="../documentation/state-store.html">State Store</a>
                                             </li></ul>
                             </li></ul>
-                <article><h2 id="function-components" class="heading"><a href="#function-components">Function Components</a></h2></article>
+                <article><h2 id="function-components" class="heading"><a href="#function-components">Function Components</a></h2><p>
+            The concept of component is not native to this library. However,
+            because it is powerful, you can mimic the component pattern. This is
+            all due to how the functions are treated in the template.
+        </p>
+        <p>
+            Let's define a component as a function that returns something to be
+            rendered and might or might not take an input to help with what
+            needs to be rendered.
+        </p>
+        <p>With that definition, we can create a simple component like so:</p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> <span class="hljs-title function_">Button</span> = (<span class="hljs-params">{
+  content = <span class="hljs-string">""</span>, 
+  disabled = <span class="hljs-literal">false</span>, 
+  <span class="hljs-keyword">type</span> = <span class="hljs-string">"button"</span>
+}</span>) =&gt; {
+  <span class="hljs-keyword">return</span> html`<span class="language-xml">
+    <span class="hljs-tag">&lt;<span class="hljs-name">button</span> 
+      <span class="hljs-attr">type</span>=<span class="hljs-string">"</span></span></span><span class="hljs-subst">${<span class="hljs-keyword">type</span>}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">"</span>
+      <span class="hljs-attr">attr.disabled</span>=<span class="hljs-string">"</span></span></span><span class="hljs-subst">${disabled}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">"</span>
+      &gt;</span>
+      </span><span class="hljs-subst">${content}</span><span class="language-xml">
+    <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>`</span>;
+}</code></pre></div><p>
+            To use it, simply call it as a function. This can happen directly in
+            the template or outside in a variable:
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes">html`<span class="hljs-subst">${Button({content: <span class="hljs-string">'click me'</span>})}</span><span class="language-xml">`</span></code></pre></div><p>
+            Because you have a function, you can put all the logic related to
+            the component inside. This pattern allows you to reuse template
+            anywhere with flexibility the inputs give you.
+        </p>
+        <p>
+            In addition, you can consider passing state around as props. This
+            will allow you to affect the template directly when there is a
+            change.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> <span class="hljs-title function_">TextInput</span> = (<span class="hljs-params">{value = <span class="hljs-string">""</span>, onChange} = <span class="hljs-string">""</span></span>) =&gt; {
+  <span class="hljs-keyword">return</span> html`<span class="language-xml">
+    <span class="hljs-tag">&lt;<span class="hljs-name">input</span> 
+      <span class="hljs-attr">type</span>=<span class="hljs-string">"text"</span> 
+      <span class="hljs-attr">value</span>=<span class="hljs-string">"</span></span></span><span class="hljs-subst">${value}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">"</span> 
+      <span class="hljs-attr">onchange</span>=<span class="hljs-string">"</span></span></span><span class="hljs-subst">${e =&gt; onChange?.(e.target.value)}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">"</span>
+      /&gt;</span>
+  `</span>
+}
+
+<span class="hljs-keyword">const</span> [name, updateName] = <span class="hljs-title function_">state</span>(<span class="hljs-string">""</span>)
+
+html`<span class="hljs-subst">${TextInput({value: name, onChange: updateName})}</span><span class="language-xml">`</span></code></pre></div></article>
             </div></main><footer class="wrapper">
             <ul class="learning-resources">
                 <h5>Learning Resources</h5>
