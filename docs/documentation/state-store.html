@@ -81,7 +81,81 @@
                                                 <a href="../documentation/state-store.html">State Store</a>
                                             </li></ul>
                             </li></ul>
-                <article><h2 id="state-store" class="heading"><a href="#state-store">State Store</a></h2></article>
+                <article><h2 id="state-store" class="heading"><a href="#state-store">State Store</a></h2><p>
+            Having a global store can come in handy. There are many solutions
+            out there you can use but let's entertain the idea you can create a
+            simple store using the
+            <a href="./state-values.html#state">state</a> function.
+        </p>
+        <p>Let's create a todo store.</p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-comment">// src/stores/todo.ts</span>
+<span class="hljs-keyword">import</span> {state} <span class="hljs-keyword">from</span> <span class="hljs-string">"@beforesemicolon/html"</span>;
+
+<span class="hljs-keyword">type</span> <span class="hljs-variable constant_">UUID</span> = <span class="hljs-string">`<span class="hljs-subst">${<span class="hljs-built_in">string</span>}</span>-<span class="hljs-subst">${<span class="hljs-built_in">string</span>}</span>-<span class="hljs-subst">${<span class="hljs-built_in">string</span>}</span>-<span class="hljs-subst">${<span class="hljs-built_in">string</span>}</span>-<span class="hljs-subst">${<span class="hljs-built_in">string</span>}</span>`</span>
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">Todo</span> {
+  <span class="hljs-attr">id</span>: <span class="hljs-variable constant_">UUID</span>
+  <span class="hljs-attr">name</span>: <span class="hljs-built_in">string</span>
+  <span class="hljs-attr">description</span>: <span class="hljs-built_in">string</span>
+  <span class="hljs-attr">status</span>: <span class="hljs-string">"done"</span> | <span class="hljs-string">"pending"</span> | <span class="hljs-string">"removed"</span>
+  <span class="hljs-attr">dateCreated</span>: <span class="hljs-title class_">Date</span>
+  <span class="hljs-attr">dateLastUpdated</span>: <span class="hljs-title class_">Date</span>
+}
+
+<span class="hljs-keyword">const</span> [todos, updateTodos] = state&lt;<span class="hljs-title class_">Todo</span>[]&gt;([]);
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> todoList = todos;
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> <span class="hljs-title function_">createTodo</span> = (<span class="hljs-params">name: <span class="hljs-built_in">string</span></span>) =&gt; {
+  <span class="hljs-keyword">const</span> dateCreated = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Date</span>();
+  <span class="hljs-keyword">const</span> <span class="hljs-attr">todo</span>: <span class="hljs-title class_">Todo</span> = {
+    <span class="hljs-attr">id</span>: crypto.<span class="hljs-title function_">randomUUID</span>()
+    name,
+    <span class="hljs-attr">description</span>: <span class="hljs-string">""</span>,
+    <span class="hljs-attr">status</span>: <span class="hljs-string">"pending"</span>,
+    dateCreated,
+    <span class="hljs-attr">dateLastUpdated</span>: dateCreated 
+  }
+  
+  <span class="hljs-title function_">updateTodos</span>(<span class="hljs-function"><span class="hljs-params">prev</span> =&gt;</span> [...prev, todo])
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> <span class="hljs-title function_">updateTodo</span> = (<span class="hljs-params">id: UUID, data: Partial&lt;Todo&gt;</span>) =&gt; {
+  <span class="hljs-title function_">updateTodos</span>(<span class="hljs-function"><span class="hljs-params">prev</span> =&gt;</span> prev.<span class="hljs-title function_">map</span>(<span class="hljs-function"><span class="hljs-params">todo</span> =&gt;</span> {
+    <span class="hljs-keyword">if</span>(todo.<span class="hljs-property">id</span> === id) {
+      <span class="hljs-keyword">return</span> {
+        ...todo,
+        <span class="hljs-attr">name</span>: data.<span class="hljs-property">name</span> ?? todo.<span class="hljs-property">name</span>,
+        <span class="hljs-attr">description</span>: data.<span class="hljs-property">description</span> ?? todo.<span class="hljs-property">description</span>,
+        <span class="hljs-attr">status</span>: data.<span class="hljs-property">status</span> ?? todo.<span class="hljs-property">status</span>,
+        <span class="hljs-attr">dateLastUpdated</span>: <span class="hljs-keyword">new</span> <span class="hljs-title class_">Date</span>()
+      }
+    }
+    
+    <span class="hljs-keyword">return</span> todo;
+  }))
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> <span class="hljs-title function_">deleteTodo</span> = (<span class="hljs-params">id: UUID</span>) =&gt; {
+  <span class="hljs-title function_">updateTodos</span>(<span class="hljs-function"><span class="hljs-params">prev</span> =&gt;</span> prev.<span class="hljs-title function_">filter</span>(<span class="hljs-function"><span class="hljs-params">todo</span> =&gt;</span> {
+    <span class="hljs-keyword">return</span> todo.<span class="hljs-property">id</span> !== id;
+  }))
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> <span class="hljs-title function_">clearTodos</span> = (<span class="hljs-params"></span>) =&gt; {
+  <span class="hljs-title function_">updateTodos</span>([])
+}</code></pre></div><p>
+            This is a simple file store that handles all the CRUD operations and
+            only exposes the necessary.
+        </p>
+        <p>
+            There is no subscriptions needed, not complex setup and using the
+            <code>todoList</code> in the template with the nice cocktail of
+            helpers is all you need to create very complex applications.
+        </p>
+        <p>
+            We have prepared a full tutorial on how to create such application
+            and you can <a href="">watch it here</a> to learn more.
+        </p></article>
             </div></main><footer class="wrapper">
             <ul class="learning-resources">
                 <h5>Learning Resources</h5>
