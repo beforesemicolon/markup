@@ -81,7 +81,107 @@
                                                 <a href="../documentation/state-store.html">State Store</a>
                                             </li></ul>
                             </li></ul>
-                <article><h2 id="custom-helper" class="heading"><a href="#custom-helper">Custom helper</a></h2></article>
+                <article><h2 id="custom-helper" class="heading"><a href="#custom-helper">Custom helper</a></h2><p>
+            To create a custom helper, all you need to do is create a function.
+            If you expect to receive a state value you can wrap it in the
+            <code>helper</code> function and handle the state value. All which
+            this library can help you with.
+        </p>
+        <p>Let's look at this simple render of a todo list.</p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> [todos, updateTodos] = <span class="hljs-title function_">state</span>([
+  {<span class="hljs-attr">name</span>: <span class="hljs-string">"buy groceries"</span>, <span class="hljs-attr">status</span>: <span class="hljs-string">"pending"</span>},
+  {<span class="hljs-attr">name</span>: <span class="hljs-string">"go to gym"</span>, <span class="hljs-attr">status</span>: <span class="hljs-string">"done"</span>},
+  {<span class="hljs-attr">name</span>: <span class="hljs-string">"prepare for xmas"</span>, <span class="hljs-attr">status</span>: <span class="hljs-string">"pending"</span>},
+  {<span class="hljs-attr">name</span>: <span class="hljs-string">"start a yt channel"</span>, <span class="hljs-attr">status</span>: <span class="hljs-string">"pending"</span>},
+])
+
+html`<span class="hljs-subst">${repeat(todos, t =&gt; html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span></span><span class="hljs-subst">${t.name}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>`</span>)}</span><span class="language-xml">`</span></code></pre></div><p>Let's build a helper that can filter the todos based on status.</p>
+        <p>
+            The simplest way is to just create a function that takes a list and
+            function that returns a boolean and gets called for each item.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> <span class="hljs-title function_">filterList</span> = (<span class="hljs-params">list, filterer</span>) =&gt; {
+  <span class="hljs-keyword">return</span> list.<span class="hljs-title function_">filter</span>(filterer)
+}</code></pre></div><p>We can use such a filter function as so:</p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes">html`<span class="hljs-subst">${repeat(
+  filterList(
+    todos(), 
+    t =&gt; t.status === <span class="hljs-string">"done"</span>
+  ), 
+  t =&gt; html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span></span><span class="hljs-subst">${t.name}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>`</span>
+)}</span><span class="language-xml">`</span></code></pre></div><p>
+            This works perfectly for the first render. It fails when the todo
+            list state changes. This is because the template only performs a DOM
+            update when it sees the state.
+        </p>
+        <p>
+            The first thing we can do is wrap the function with the helper
+            function so the template knows to look for a state.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> filterList = <span class="hljs-title function_">helper</span>(<span class="hljs-function">(<span class="hljs-params">list, filterer</span>) =&gt;</span> {
+  <span class="hljs-keyword">return</span> list.<span class="hljs-title function_">filter</span>(filterer)
+})</code></pre></div><p>
+            But we are not passing the <code>todos</code> state to the helper,
+            we are just calling it to pass the value to the
+            <code>filterList</code>.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes">html`<span class="hljs-subst">${repeat(
+  filterList(
+    todos(), // &lt;- here 
+    t =&gt; t.status === <span class="hljs-string">"done"</span>
+  ), 
+  t =&gt; html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span></span><span class="hljs-subst">${t.name}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>`</span>
+)}</span><span class="language-xml">`</span></code></pre></div><p>Instead, we can call it inside the helper instead.</p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> filterList = <span class="hljs-title function_">helper</span>(<span class="hljs-function">(<span class="hljs-params">list, filterer</span>) =&gt;</span> {
+  <span class="hljs-keyword">return</span> <span class="hljs-title function_">list</span>().<span class="hljs-title function_">filter</span>(filterer)
+})</code></pre></div><p>All the issues are now fixed and the final result looks like so.</p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> filterList = <span class="hljs-title function_">helper</span>(<span class="hljs-function">(<span class="hljs-params">list, filterer</span>) =&gt;</span> {
+  <span class="hljs-keyword">return</span> <span class="hljs-title function_">list</span>().<span class="hljs-title function_">filter</span>(filterer)
+});
+
+html`<span class="hljs-subst">${repeat(
+  filterList(
+    todos,
+    t =&gt; t.status === <span class="hljs-string">"done"</span>
+  ), 
+  t =&gt; html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span></span><span class="hljs-subst">${t.name}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>`</span>
+)}</span><span class="language-xml">`</span></code></pre></div><p>
+            However, the <code>filterList</code> only works for state values.
+            Ideally, you want a helper to work if a state, raw, or helper value
+            is provided. To do that, we can use the <code>val</code> utility.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> filterList = <span class="hljs-title function_">helper</span>(<span class="hljs-function">(<span class="hljs-params">list, filterer</span>) =&gt;</span> {
+  <span class="hljs-keyword">return</span> <span class="hljs-title function_">val</span>(list).<span class="hljs-title function_">filter</span>(filterer)
+})</code></pre></div><p>
+            Now the helper is complete and would work for any type of data. Here
+            is the full example in typescript
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">import</span> {
+  html,
+  state,
+  helper,
+  val,
+  repeat,
+  <span class="hljs-title class_">StateGetter</span>
+} <span class="hljs-keyword">from</span> <span class="hljs-string">"@beforesemicolon/html"</span>;
+
+<span class="hljs-keyword">const</span> filterList = <span class="hljs-title function_">helper</span>(&lt;T&gt;<span class="hljs-function">(<span class="hljs-params">
+  list: T[] | StateGetter&lt;T[]&gt;,
+  filterer: (item: T) =&gt; <span class="hljs-built_in">boolean</span>
+</span>) =&gt;</span> {
+  <span class="hljs-keyword">return</span> val&lt;T[]&gt;(list).<span class="hljs-title function_">filter</span>(filterer)
+});
+
+<span class="hljs-keyword">interface</span> <span class="hljs-title class_">ToDo</span> {
+  <span class="hljs-attr">name</span>: <span class="hljs-built_in">string</span>;
+  <span class="hljs-attr">status</span>: <span class="hljs-string">"done"</span> | <span class="hljs-string">"pending"</span>;
+}
+
+<span class="hljs-keyword">const</span> [todos, updateTodos] = state&lt;<span class="hljs-title class_">ToDo</span>[]&gt;([
+  {<span class="hljs-attr">name</span>: <span class="hljs-string">"buy groceries"</span>, <span class="hljs-attr">status</span>: <span class="hljs-string">"pending"</span>},
+  {<span class="hljs-attr">name</span>: <span class="hljs-string">"go to gym"</span>, <span class="hljs-attr">status</span>: <span class="hljs-string">"done"</span>},
+  {<span class="hljs-attr">name</span>: <span class="hljs-string">"prepare for xmas"</span>, <span class="hljs-attr">status</span>: <span class="hljs-string">"pending"</span>},
+  {<span class="hljs-attr">name</span>: <span class="hljs-string">"start a yt channel"</span>, <span class="hljs-attr">status</span>: <span class="hljs-string">"pending"</span>},
+])
+
+html`<span class="hljs-subst">${repeat(
+  filterList(
+    todos,
+    t =&gt; t.status === <span class="hljs-string">"done"</span>
+  ), 
+  t =&gt; html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span></span><span class="hljs-subst">${t.name}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>`</span>
+)}</span><span class="language-xml">`</span>.<span class="hljs-title function_">render</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>);</code></pre></div></article>
             </div></main><footer class="wrapper">
             <ul class="learning-resources">
                 <h5>Learning Resources</h5>

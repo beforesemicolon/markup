@@ -16,7 +16,7 @@ export const when = helper(
         let falseValueSet = false
 
         return () => {
-            const shouldRender = val(condition)
+            const shouldRender = val<C>(condition)
 
             if (shouldRender) {
                 if (!truthValueSet) {

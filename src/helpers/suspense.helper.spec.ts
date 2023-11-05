@@ -36,7 +36,7 @@ describe('suspense', () => { // @ts-ignore
 			// @ts-ignore
 			res(null)
 			setTimeout(() => {
-				expect(document.body.innerHTML).toBe('<p style="color: red">async action did not return a "html`...`" instance</p>')
+				expect(document.body.innerHTML).toBe('<p style="color: red">async action did not return a HTMLTemplate instance</p>')
 				done()
 			}, 0)
 		}))}`.render(document.body)
