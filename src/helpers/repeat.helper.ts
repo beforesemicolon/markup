@@ -1,5 +1,5 @@
 import { helper } from '../Helper'
-import { val } from '../utils/val'
+import { val } from '../utils'
 
 type DataGetter<T> = () => number | Array<T>
 

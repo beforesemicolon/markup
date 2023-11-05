@@ -1,5 +1,6 @@
 import { helper } from '../Helper'
 import { StateGetter } from '../types'
+import { val } from '../utils'
 
 /**
  * given a dot separated string key it will try to get deep value from an object literal or array
@@ -13,15 +14,15 @@ export const pick = helper(
     ): R => {
         const keyParts = String(key).split('.').filter(Boolean)
 
-        const val = typeof st === 'function' ? st() : st
+        const x = val(st)
 
         return (
-            val
+            x
                 ? keyParts.reduce((acc, k) => {
                       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                       // @ts-ignore impossible to know the value
                       return acc ? acc[k] : undefined
-                  }, val)
+                  }, x)
                 : ''
         ) as R
     }

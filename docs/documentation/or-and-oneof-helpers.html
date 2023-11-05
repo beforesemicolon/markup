@@ -81,7 +81,32 @@
                                                 <a href="../documentation/state-store.html">State Store</a>
                                             </li></ul>
                             </li></ul>
-                <article><h2 id="or-and-oneof-helpers" class="heading"><a href="#or-and-oneof-helpers">Or, And, &amp; OneOf helpers</a></h2></article>
+                <article><h2 id="or-and-oneof-helpers" class="heading"><a href="#or-and-oneof-helpers">Or, And, &amp; OneOf helpers</a></h2><p>
+            In addition to
+            <a href="./is-isnot-helpers.html#is-helper">is</a> and
+            <a href="./is-isnot-helpers.html#isnot-helper">isNot</a> helpers,
+            this library offers additional boolean helpers.
+        </p>
+        <p>
+            All these helpers will return <code>true</code> or
+            <code>false</code> and can be used anywhere in the template
+        </p>
+        <p>
+            All the values for these helpers can be a raw value or any
+            <a href="./state-values.html">state</a> value.
+        </p><h3 id="or-helper" class="heading"><a href="#or-helper">or helper</a></h3><p>
+            The <code>or</code> helper will return true whether either value is
+            truthy.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes">html`<span class="hljs-subst">${or(val1, val2)}</span><span class="language-xml">`</span></code></pre></div>
+        <h3 id="and-helper" class="heading"><a href="#and-helper">and helper</a></h3><p>
+            The <code>and</code> helper will return true when both values are
+            truthy.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes">html`<span class="hljs-subst">${and(val1, val2)}</span><span class="language-xml">`</span></code></pre></div>
+        <h3 id="oneof-helper" class="heading"><a href="#oneof-helper">oneOf helper</a></h3><p>
+            The <code>oneOf</code> helper will take a value or state value and a
+            list of many possible values and return true if the value provided
+            is in that list.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes">html`<span class="hljs-subst">${oneOf(val, [<span class="hljs-string">"one"</span>, <span class="hljs-string">"two"</span>, <span class="hljs-string">"three"</span>])}</span><span class="language-xml">`</span></code></pre></div></article>
             </div></main><footer class="wrapper">
             <ul class="learning-resources">
                 <h5>Learning Resources</h5>

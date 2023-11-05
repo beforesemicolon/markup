@@ -1,5 +1,5 @@
 import { helper } from '../Helper'
-import { val } from '../utils/val'
+import { val } from '../utils'
 import { StateGetter } from '../types'
 
 /**

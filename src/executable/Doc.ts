@@ -107,7 +107,7 @@ const node = (
                 node.setAttribute(name, value)
             }
         },
-        appendChild: (n: DocumentFragment | Node | Array<Node> | string) => {
+        appendChild: (n: DocumentFragment | Node) => {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             if (n.__self__) {
@@ -116,7 +116,7 @@ const node = (
                 n = n.__self__
             }
 
-            if (n instanceof Text) {
+            if (n.nodeName === '#text') {
                 node.appendChild(n)
 
                 if (n.nodeValue && /{{val([0-9]+)}}/.test(n.nodeValue)) {

@@ -1,5 +1,6 @@
 import { helper } from '../Helper'
 import { StateGetter } from '../types'
+import { val } from '../utils'
 
 /**
  * check if the state value is inside the provided list of options
@@ -7,5 +8,5 @@ import { StateGetter } from '../types'
  * @param list
  */
 export const oneOf = helper(<T>(st: StateGetter<T>, list: unknown[]) => {
-    return list.includes(st())
+    return list.includes(val(st))
 })

@@ -1,6 +1,6 @@
 import { helper } from '../Helper'
 import { StateGetter } from '../types'
-import { val } from '../utils/val'
+import { val } from '../utils'
 
 /**
  * checks if either a AND b value is truthy
