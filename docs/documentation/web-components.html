@@ -81,7 +81,85 @@
                                                 <a href="../documentation/state-store.html">State Store</a>
                                             </li></ul>
                             </li></ul>
-                <article><h2 id="web-components" class="heading"><a href="#web-components">Web Components</a></h2></article>
+                <article><h2 id="web-components" class="heading"><a href="#web-components">Web Components</a></h2><p>
+            Native
+            <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_components">Web Components</a>
+            are powerful but the API is a bit complex to scale. The good news is
+            that this library can enhance and simplify that experience in a way
+            the API is approachable.
+        </p>
+        <p>
+            Below is an example of a simple input field web component with only
+            two props and small template.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">class</span> <span class="hljs-title class_">TextField</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_ inherited__">HTMLElement</span> {
+  <span class="hljs-keyword">static</span> observedAttributes = [<span class="hljs-string">"value"</span>, <span class="hljs-string">"disabled"</span>];
+  value = <span class="hljs-string">""</span>;
+  disabled = <span class="hljs-literal">false</span>;
+  
+  <span class="hljs-title function_">connectedCallback</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'mounted'</span>)
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">innerHTML</span> = <span class="hljs-string">`&lt;input type="text"/&gt;`</span>;
+    
+    <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">updateField</span>()
+  }
+  
+  <span class="hljs-title function_">attributeChangedCallback</span>(<span class="hljs-params">name, oldValue, newValue</span>) {
+    <span class="hljs-comment">// parse the new value</span>
+    <span class="hljs-keyword">try</span> {
+      <span class="hljs-variable language_">this</span>[name] = <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">parse</span>(newValue)
+      <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">updateField</span>();
+    } <span class="hljs-keyword">catch</span>(e) {
+      <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">warn</span>(<span class="hljs-string">`invalid "<span class="hljs-subst">${name}</span>" value`</span>, newValue)
+    }
+  }
+  
+  <span class="hljs-title function_">updateField</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-keyword">const</span> input = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">'input'</span>);
+    
+    input.<span class="hljs-property">value</span> = <span class="hljs-variable language_">this</span>.<span class="hljs-property">value</span>;
+    input.<span class="hljs-property">disabled</span> = <span class="hljs-variable language_">this</span>.<span class="hljs-property">disabled</span>;
+  }
+}
+
+customElements.<span class="hljs-title function_">define</span>(<span class="hljs-string">"text-field"</span>, <span class="hljs-title class_">TextField</span>)</code></pre></div><p>
+            You can see that it is a little complex for a simple input field
+            component. Now imagine if we had a component with more props and
+            with complex values as well as a more elaborated template.
+        </p>
+        <p>
+            We can simplify it a little by introducing this library capabilities
+            so no need for DOM manipulations and tracking is needed.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">class</span> <span class="hljs-title class_">TextField</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_ inherited__">HTMLElement</span> {
+  <span class="hljs-keyword">static</span> observedAttributes = [<span class="hljs-string">"value"</span>, <span class="hljs-string">"disabled"</span>];
+  value = <span class="hljs-string">""</span>;
+  disabled = <span class="hljs-literal">false</span>;
+  template = html`<span class="language-xml">
+    <span class="hljs-tag">&lt;<span class="hljs-name">input</span> 
+      <span class="hljs-attr">type</span>=<span class="hljs-string">"text"</span> 
+      <span class="hljs-attr">value</span>=<span class="hljs-string">"</span></span></span><span class="hljs-subst">${() =&gt; <span class="hljs-variable language_">this</span>.value}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">"</span>
+      <span class="hljs-attr">attr.disabled</span>=<span class="hljs-string">"</span></span></span><span class="hljs-subst">${() =&gt; <span class="hljs-variable language_">this</span>.disabled}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">"</span>
+      /&gt;</span>
+  `</span>
+  
+  <span class="hljs-title function_">connectedCallback</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">template</span>.<span class="hljs-title function_">render</span>(<span class="hljs-variable language_">this</span>); <span class="hljs-comment">// render template</span>
+  }
+  
+  <span class="hljs-title function_">attributeChangedCallback</span>(<span class="hljs-params">name, oldValue, newValue</span>) {
+    <span class="hljs-comment">// parse the new value</span>
+    <span class="hljs-keyword">try</span> {
+      <span class="hljs-variable language_">this</span>[name] = <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">parse</span>(newValue)
+      <span class="hljs-variable language_">this</span>.<span class="hljs-property">template</span>.<span class="hljs-title function_">update</span>(); <span class="hljs-comment">// update template</span>
+    } <span class="hljs-keyword">catch</span>(e) {
+      <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">warn</span>(<span class="hljs-string">`invalid "<span class="hljs-subst">${name}</span>" value`</span>, newValue)
+    }
+  }
+}
+
+customElements.<span class="hljs-title function_">define</span>(<span class="hljs-string">"text-field"</span>, <span class="hljs-title class_">TextField</span>)</code></pre></div><p>
+            We can further simplify this component and we have prepared a full
+            tutorial on how to do so. You can <a href="">watch it here</a>.
+        </p></article>
             </div></main><footer class="wrapper">
             <ul class="learning-resources">
                 <h5>Learning Resources</h5>
