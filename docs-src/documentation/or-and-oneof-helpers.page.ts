@@ -29,11 +29,21 @@ export default DocPageLayout(
             The <code>or</code> helper will return true whether either value is
             truthy.
         </p>
+        <p>It takes two arguments and both are required.</p>
+        <p>
+            <code>or(VAL1, VAL2)</code> where the values can be anything
+            including a state value.
+        </p>
         ${CodeSnippet('html`${or(val1, val2)}`', 'typescript')}
         ${Heading('and helper', 'h3')}
         <p>
             The <code>and</code> helper will return true when both values are
             truthy.
+        </p>
+        <p>It takes two arguments and both are required.</p>
+        <p>
+            <code>and(VALUE_OR_STATE1, VALUE_OR_STATE2)</code> where the values
+            can be anything including a state value.
         </p>
         ${CodeSnippet('html`${and(val1, val2)}`', 'typescript')}
         ${Heading('oneOf helper', 'h3')}
@@ -41,6 +51,11 @@ export default DocPageLayout(
             The <code>oneOf</code> helper will take a value or state value and a
             list of many possible values and return true if the value provided
             is in that list.
+        </p>
+        <p>It takes two arguments and both are required.</p>
+        <p>
+            <code>oneOf(VALUE_OR_STATE, ARRAY_OF_VALUE_OR_STATE)</code> where
+            the values can be anything including a state value.
         </p>
         ${CodeSnippet(
             'html`${oneOf(val, ["one", "two", "three"])}`',

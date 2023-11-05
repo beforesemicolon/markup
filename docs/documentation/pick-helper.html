@@ -81,7 +81,56 @@
                                                 <a href="../documentation/state-store.html">State Store</a>
                                             </li></ul>
                             </li></ul>
-                <article><h2 id="pick-helper" class="heading"><a href="#pick-helper">Pick helper</a></h2></article>
+                <article><h2 id="pick-helper" class="heading"><a href="#pick-helper">Pick helper</a></h2><p>The <code>pick</code> helper is a quick way to read</p><h3 id="the-problem" class="heading"><a href="#the-problem">The problem</a></h3><p>
+            If you have a state value and try to read a deep value it would look
+            like so:
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> [user, setUser] = <span class="hljs-title function_">state</span>({<span class="hljs-attr">name</span>: <span class="hljs-string">"John Doe"</span>})
+
+html`<span class="hljs-subst">${() =&gt; user().name}</span><span class="language-xml">`</span></code></pre></div><p>
+            The issue here is that when the <code>user</code> changes the DOM
+            will not update because the template only react to states that are
+            provided directly in the template. The above example a function is
+            provided and the template cannot see inside the function to see the
+            state and subscribe to changes.
+        </p>
+        <p>
+            Instead, you can use the <code>pick</code> helper which lets you
+            provide the object and the keychain to look for
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> [user, setUser] = <span class="hljs-title function_">state</span>({<span class="hljs-attr">name</span>: <span class="hljs-string">"John Doe"</span>})
+
+html`<span class="hljs-subst">${pick(user, <span class="hljs-string">'name'</span>)}</span><span class="language-xml">`</span></code></pre></div><p>
+            The template in this case sees the state because the helper will
+            tell the template about it and therefore update when the state
+            changes.
+        </p>
+        <p>It takes two arguments and both are required.</p>
+        <p><code>pick(OBJECT, KEYCHAIN_STRING)</code></p>
+        <ul>
+            <li>
+                <strong>OBJECT</strong>: Any JavaScript object which value can
+                be chained to access the value (Array, Object).
+            </li>
+            <li>
+                <strong>KEYCHAIN_STRING</strong>: A string with dot separated
+                keys.
+            </li>
+        </ul><h3 id="deep-values" class="heading"><a href="#deep-values">Deep values</a></h3><p>
+            It would not be fair if the key access was shallow. The problem
+            would persist for access of deep values.
+        </p>
+        <p>
+            The <code>pick</code> helper second argument can be a dot-notation
+            string that can go deep.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes">html`<span class="hljs-subst">${pick(user, <span class="hljs-string">'role.name'</span>)}</span><span class="language-xml">`</span>
+
+html`<span class="hljs-subst">${pick(list, <span class="hljs-string">'1.status.value'</span>)}</span><span class="language-xml">`</span>
+
+html`<span class="hljs-subst">${pick(response, <span class="hljs-string">'projects.0.name'</span>)}</span><span class="language-xml">`</span></code></pre></div><p>
+            You may also use it to access other keys from the object, for
+            example the length or size.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes">html`<span class="hljs-subst">${pick(list, <span class="hljs-string">'length'</span>)}</span><span class="language-xml">`</span>
+
+html`<span class="hljs-subst">${pick(set, <span class="hljs-string">'size'</span>)}</span><span class="language-xml">`</span></code></pre></div></article>
             </div></main><footer class="wrapper">
             <ul class="learning-resources">
                 <h5>Learning Resources</h5>
