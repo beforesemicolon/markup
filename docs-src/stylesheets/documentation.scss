@@ -80,25 +80,29 @@
       }
     }
     
-    .heading a {
-      text-decoration: none;
-      color: #ccc;
-      border: none;
-      position: relative;
+    .heading {
+      scroll-margin: 60px;
       
-      &::before {
-        content: '#';
-        color: #777;
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translate(calc(-100% - 5px), -50%);
-        font-size: 80%;
-        display: none;
-      }
-      
-      &:hover::before {
-        display: inline-block;
+      a {
+        text-decoration: none;
+        color: #ccc;
+        border: none;
+        position: relative;
+        
+        &::before {
+          content: '#';
+          color: #777;
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translate(calc(-100% - 5px), -50%);
+          font-size: 80%;
+          display: none;
+        }
+        
+        &:hover::before {
+          display: inline-block;
+        }
       }
     }
     
@@ -149,4 +153,17 @@
       }
     }
   }
+}
+
+.content-player {
+  .current-content {
+    display: none;
+    scroll-margin: 60px
+  }
+  
+  .current-content:target {
+    display: block;
+  }
+  
+  
 }

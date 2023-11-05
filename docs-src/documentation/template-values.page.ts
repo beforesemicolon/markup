@@ -15,7 +15,7 @@ export default DocPageLayout(
             any value anywhere in the template.
         </p>
         <p>
-            For the @bfs/html template depending on what and where you place any
+            For the Markup template depending on what and where you place any
             value, you get different results.
         </p>
         ${CodeSnippet(
@@ -39,8 +39,8 @@ export default DocPageLayout(
         )}
         ${Heading('Different values handling', 'h3')}
         <p>
-            The @bfs/html templates handle certain values in a unique way so
-            lets explore all possible value you might be using.
+            The Markup templates handle certain values in a unique way so lets
+            explore all possible value you might be using.
         </p>
         ${Heading('Primitive JavaScript values', 'h4')}
         <p>
@@ -198,10 +198,9 @@ export default DocPageLayout(
                 href="https://developer.mozilla.org/en-US/docs/Web/API/Web_components"
                 >Web Components</a
             >
-            tag in your template the <em>@bfs/html</em> will automatically
-            detect it and try to pass the values directly to the component as is
-            in case the component itself has a property or setter for that
-            value.
+            tag in your template the <em>Markup</em> will automatically detect
+            it and try to pass the values directly to the component as is in
+            case the component itself has a property or setter for that value.
         </p>
         <p>
             Let's take for example the following <code>TodoItem</code> web

@@ -124,7 +124,7 @@ export default DocPageLayout(
                 '  val,\n' +
                 '  repeat,\n' +
                 '  StateGetter\n' +
-                '} from "@beforesemicolon/html";\n\n' +
+                '} from "@beforesemicolon/markup";\n\n' +
                 'const filterList = helper(<T>(\n' +
                 '  list: T[] | StateGetter<T[]>,\n' +
                 '  filterer: (item: T) => boolean\n' +

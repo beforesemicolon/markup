@@ -15,7 +15,7 @@ export default DocPageLayout(
             <code>html</code> core API which is pretty straight forward to use.
         </p>
         ${CodeSnippet(
-            'import {html} from "@beforesemicolon/html";\n\n\n' +
+            'import {html} from "@beforesemicolon/markup";\n\n\n' +
                 'html`<h1>Hello Worls</h1>`;',
             'typescript'
         )}

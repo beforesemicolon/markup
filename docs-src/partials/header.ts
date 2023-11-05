@@ -13,7 +13,7 @@ export const Header = ({ basePath = './' }: HeaderProps = {}) => html`
             >
         </h1>
         <nav>
-            <a href="https://www.npmjs.com/package/@beforesemicolon/html"
+            <a href="https://www.npmjs.com/package/@beforesemicolon/markup"
                 >v<em>${pkg.version}</em></a
             >
         </nav>

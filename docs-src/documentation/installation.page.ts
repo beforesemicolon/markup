@@ -21,21 +21,21 @@ export default DocPageLayout(
             <code>head</code> tag of the document.
         </p>
         ${CodeSnippet(
-            '<script src="https://unpkg.com/@beforesemicolon/html/dist/client.js" />',
+            '<script src="https://unpkg.com/@beforesemicolon/markup/dist/client.js" />',
             'html'
         )}
         <p>You may also specify a specific version you want.</p>
         ${CodeSnippet(
-            ' <script src="https://unpkg.com/@beforesemicolon/html@1.0.0/dist/client.js"/>',
+            ' <script src="https://unpkg.com/@beforesemicolon/markup@1.0.0/dist/client.js"/>',
             'html'
         )}
         <p>
             You can use various CDN providers like
-            <a href="https://unpkg.com/@beforesemicolon/html/dist/client.js"
+            <a href="https://unpkg.com/@beforesemicolon/markup/dist/client.js"
                 >unpkg</a
             >,
             <a
-                href="https://cdn.jsdelivr.net/npm/@beforesemicolon/html/dist/client.js"
+                href="https://cdn.jsdelivr.net/npm/@beforesemicolon/markup/dist/client.js"
                 >jsDelivr</a
             >, and more.
         </p>
@@ -50,14 +50,14 @@ export default DocPageLayout(
             This package is also available via <code>npm</code> which will allow
             you to use it in server JavaScript environments
         </p>
-        ${CodeSnippet('npm install @beforesemicolon/html', 'vim')}
+        ${CodeSnippet('npm install @beforesemicolon/markup', 'vim')}
         ${Heading('Accessing content', 'h4')}
         ${CodeSnippet(
-            'import {html} from "@beforesemicolon/html";',
+            'import {html} from "@beforesemicolon/markup";',
             'javascript'
         )}
         ${Heading('Via yarn', 'h3')}
-        ${CodeSnippet('yarn add @beforesemicolon/html', 'vim')}
+        ${CodeSnippet('yarn add @beforesemicolon/markup', 'vim')}
         ${Heading('Typescript', 'h3')}
         <p>
             This package was built using typescript. There is no need to install

@@ -2,7 +2,7 @@ export const IntroGroup = {
     name: 'Introduction',
     list: [
         {
-            name: 'What is @bfs/html?',
+            name: 'What is Markup?',
             path: 'documentation',
         },
         {

@@ -19,7 +19,7 @@ export default DocPageLayout(
         <p>Let's create a todo store.</p>
         ${CodeSnippet(
             '// src/stores/todo.ts\n' +
-                'import {state} from "@beforesemicolon/html";\n\n' +
+                'import {state} from "@beforesemicolon/markup";\n\n' +
                 'type UUID = `${string}-${string}-${string}-${string}-${string}`\n\n' +
                 'export interface Todo {\n' +
                 '  id: UUID\n' +

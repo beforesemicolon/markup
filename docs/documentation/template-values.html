@@ -4,7 +4,7 @@
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta http-equiv="X-UA-Compatible" content="ie=edge">
             <title>Tutorial - HTML Templating System - Before Semicolon</title>
-            <script src="https://unpkg.com/@beforesemicolon/html/dist/client.js"></script>
+            <script src="https://unpkg.com/@beforesemicolon/markup/dist/client.js"></script>
             <link rel="stylesheet" href="../stylesheets/normalize.css">
             <link rel="stylesheet" href="../stylesheets/common.css"><link rel="stylesheet" href="../stylesheets/documentation.css">
             <link rel="stylesheet" href="../stylesheets/hybrid.hightlighter.css"></head>
@@ -13,13 +13,13 @@
             <a href="../"><strong style="text-transform: uppercase">Markup</strong></a>
         </h1>
         <nav>
-            <a href="https://www.npmjs.com/package/@beforesemicolon/html">v<em>0.2.1-beta</em></a>
+            <a href="https://www.npmjs.com/package/@beforesemicolon/markup">v<em>0.2.1-beta</em></a>
         </nav>
     </header><main><div class="wrapper docs">
                 <ul class="docs-list" tabindex="0"><li>
                                 <span>Introduction</span>
                                 <ul><li>
-                                                <a href="../documentation">What is @bfs/html?</a>
+                                                <a href="../documentation">What is Markup?</a>
                                             </li><li>
                                                 <a href="../documentation/installation.html">Installation</a>
                                             </li><li>
@@ -86,7 +86,7 @@
             any value anywhere in the template.
         </p>
         <p>
-            For the @bfs/html template depending on what and where you place any
+            For the Markup template depending on what and where you place any
             value, you get different results.
         </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> <span class="hljs-keyword">type</span> = <span class="hljs-string">"button"</span>;
 <span class="hljs-keyword">const</span> label = <span class="hljs-string">"click me"</span>;
@@ -102,8 +102,8 @@ html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-nam
 html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">button</span> </span></span><span class="hljs-subst">${<span class="hljs-keyword">type</span>}</span><span class="language-xml"><span class="hljs-tag">&gt;</span>click me<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>`</span>;
 <span class="hljs-comment">// renders &lt;button&gt;click me&lt;/button&gt;</span></code></pre></div>
         <h3 id="different-values-handling" class="heading"><a href="#different-values-handling">Different values handling</a></h3><p>
-            The @bfs/html templates handle certain values in a unique way so
-            lets explore all possible value you might be using.
+            The Markup templates handle certain values in a unique way so lets
+            explore all possible value you might be using.
         </p><h4 id="primitive-javascript-values" class="heading"><a href="#primitive-javascript-values">Primitive JavaScript values</a></h4><p>
             Any primitive value will be kept as is in it string format.
             Primitives is the simplest values you can use and have no special
@@ -208,10 +208,9 @@ html`<span class="hljs-subst">${<span class="hljs-literal">undefined</span>}</sp
         <p>
             If you use
             <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_components">Web Components</a>
-            tag in your template the <em>@bfs/html</em> will automatically
-            detect it and try to pass the values directly to the component as is
-            in case the component itself has a property or setter for that
-            value.
+            tag in your template the <em>Markup</em> will automatically detect
+            it and try to pass the values directly to the component as is in
+            case the component itself has a property or setter for that value.
         </p>
         <p>
             Let's take for example the following <code>TodoItem</code> web

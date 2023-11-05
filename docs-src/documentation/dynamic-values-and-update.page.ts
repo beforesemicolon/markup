@@ -12,7 +12,7 @@ export default DocPageLayout(
         ${Heading(page.name)}
         <p>
             When working on the client, the best thing you can have is dynamic
-            values. For <em>@bfs/html</em> dynamic values are simply functions.
+            values. For <em>Markup</em> dynamic values are simply functions.
         </p>
         <p>
             Any function added to the template, as long as it's not an
