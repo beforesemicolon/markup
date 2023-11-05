@@ -170,7 +170,21 @@ counter.<span class="hljs-title function_">render</span>(<span class="hljs-varia
             <code>Helper</code> which the template itself knows how to handle.
             All it does is call it and get the <code>value</code>.
         </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-title function_">evenOddLabel</span>(<span class="hljs-function">() =&gt;</span> <span class="hljs-number">12</span>).<span class="hljs-property">value</span></code></pre></div>
-        <h3 id="helper-scope-state" class="heading"><a href="#helper-scope-state">Helper scope state</a></h3><p>
+        <h4 id="working-with-helpers" class="heading"><a href="#working-with-helpers">Working with helpers</a></h4><p>
+            Helpers are just functions, and you can do anything you would with
+            functions including returning or passing them around.
+        </p>
+        <p>
+            Below is a simple example of nesting helpers, in this case the
+            <code>is</code>, <code>when</code>, and <code>repeat</code> helpers.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes">html`<span class="hljs-subst">${repeat(
+  when(is(userType, <span class="hljs-string">'user'</span>), [<span class="hljs-string">'name'</span>, <span class="hljs-string">'status'</span>], [<span class="hljs-string">'name'</span>, <span class="hljs-string">'role'</span>]), 
+  part =&gt; html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">strong</span>&gt;</span></span><span class="hljs-subst">${part}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">strong</span>&gt;</span>`</span>)
+}</span><span class="language-xml">`</span></code></pre></div><p>
+            Ofcourse you can simplify this by moving them into a new helper
+            altogether to make it easier to read, but it should give you enough
+            idea of what is possible.
+        </p><h3 id="helper-scope-state" class="heading"><a href="#helper-scope-state">Helper scope state</a></h3><p>
             The best way to introduce internal state to the helper functions is
             to use
             <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures">JavaScript closure</a>

@@ -119,6 +119,27 @@ export default DocPageLayout(
             All it does is call it and get the <code>value</code>.
         </p>
         ${CodeSnippet('evenOddLabel(() => 12).value', 'typescript')}
+        ${Heading('Working with helpers', 'h4')}
+        <p>
+            Helpers are just functions, and you can do anything you would with
+            functions including returning or passing them around.
+        </p>
+        <p>
+            Below is a simple example of nesting helpers, in this case the
+            <code>is</code>, <code>when</code>, and <code>repeat</code> helpers.
+        </p>
+        ${CodeSnippet(
+            'html`${repeat(\n' +
+                "  when(is(userType, 'user'), ['name', 'status'], ['name', 'role']), \n" +
+                '  part => html`<strong>${part}</strong>`)\n' +
+                '}`',
+            'typescript'
+        )}
+        <p>
+            Ofcourse you can simplify this by moving them into a new helper
+            altogether to make it easier to read, but it should give you enough
+            idea of what is possible.
+        </p>
         ${Heading('Helper scope state', 'h3')}
         <p>
             The best way to introduce internal state to the helper functions is

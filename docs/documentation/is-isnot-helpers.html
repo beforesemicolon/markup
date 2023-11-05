@@ -81,7 +81,39 @@
                                                 <a href="../documentation/state-store.html">State Store</a>
                                             </li></ul>
                             </li></ul>
-                <article><h2 id="is-isnot-helpers" class="heading"><a href="#is-isnot-helpers">Is &amp; IsNot helpers</a></h2></article>
+                <article><h2 id="is-isnot-helpers" class="heading"><a href="#is-isnot-helpers">Is &amp; IsNot helpers</a></h2><p>
+            This library is extremely function-oriented and things can get messy
+            when you try to check things in the template. However, that's not
+            the reason the most of the helpers exist.
+        </p>
+        <p>
+            All helpers are used to perform side effects, meaning, to react to
+            <a href="./state-values.html">state</a> changes. Instead of using
+            the <code>effect</code> helper for everything, you can use ones with
+            very specific capabilities and that are more readable.
+        </p><h3 id="is-helper" class="heading"><a href="#is-helper">is helper</a></h3><p>
+            The <code>is</code> helper will return a boolean whether the check
+            on a value or state matches.
+        </p>
+        <p>It takes two arguments and both are required.</p>
+        <p><code>is(VALUE_OR_STATE, CHECKER_OR_VALUE)</code></p>
+        <ul>
+            <li>
+                <strong>VALUE_OR_STATE</strong>: It can be any raw value or a
+                value defined by the state.
+            </li>
+            <li>
+                <strong>CHECKER_OR_VALUE</strong>: A value to check against or a
+                function that does the checking.
+            </li>
+        </ul><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes">html`<span class="hljs-subst">${is(val, isNumber)}</span><span class="language-xml">`</span></code></pre></div><p>
+            It can be used anywhere in the template, inside templates, as
+            attribute values and even body content.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes">html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">attr.disabled</span>=<span class="hljs-string">"is(status, 'logged')"</span>&gt;</span>login<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>`</span></code></pre></div>
+        <h3 id="isnot-helper" class="heading"><a href="#isnot-helper">isNot helper</a></h3><p>
+            The <code>isNot</code> helper works the same as the
+            <code>is</code> helper but checks the opposite.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes">html`<span class="hljs-subst">${isNot(val, isNumber)}</span><span class="language-xml">`</span></code></pre></div></article>
             </div></main><footer class="wrapper">
             <ul class="learning-resources">
                 <h5>Learning Resources</h5>
