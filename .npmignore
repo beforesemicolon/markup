@@ -11,6 +11,9 @@ coverage
 .github
 playground
 .prettierrc
-.prettierrc
+.prettierignore
 .eslintrc.js
 .eslintignore
+docs
+docs-src
+scripts
