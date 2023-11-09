@@ -1340,6 +1340,31 @@ describe('html', () => {
 		expect(document.body.innerHTML).toBe('')
 	})
 	
+	it('should unsubscribe from state', () => {
+		const [count, setCount] = state<number>(0)
+		const countUp = () => {
+			setCount((prev: number) => prev + 1)
+		}
+		
+		const counter = html`<span>${count}</span><button onclick="${countUp}">+</button>`
+		
+		counter.render(document.body)
+		
+		expect(document.body.innerHTML).toBe('<span>0</span><button>+</button>')
+		
+		const btn = document.querySelector('button') as HTMLButtonElement
+		
+		btn.click()
+		
+		expect(document.body.innerHTML).toBe('<span>1</span><button>+</button>')
+		
+		counter.unsubscribeFromStates()
+		
+		btn.click()
+		
+		expect(document.body.innerHTML).toBe('<span>1</span><button>+</button>')
+	});
+	
 	it('should handle onUpdate callback', () => {
 		const [count, setCount] = state<number>(0)
 		const updateMock = jest.fn()
