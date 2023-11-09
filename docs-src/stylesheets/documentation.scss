@@ -2,16 +2,87 @@
   display: flex;
   padding-top: 50px;
   padding-bottom: 50px;
+  position: relative;
   
-  .docs-list {
+  @media screen and (max-width: 1024px) {
+    padding: 50px 20px;
+  }
+  
+  .doc-nav {
     width: 250px;
     min-width: 250px;
+    scroll-margin: 100px;
+    
+    @media screen and (max-width: 1024px) {
+      position: absolute;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      height: 30px;
+      width: 100%;
+      padding: 5px 10px;
+      overflow: auto;
+      
+      &:target{
+        background: rgba(255, 255, 255, 0.2);
+        height: 100%;
+        padding: 0;
+        display: flex;
+        
+        .doc-nav-list {
+          display: block;
+        }
+        
+        .mobile-menu-open {
+          display: none;
+        }
+        
+        .mobile-menu-close {
+          display: block;
+          flex: 1;
+        }
+      }
+      
+      .mobile-menu-open {
+        all: unset;
+        display: inline-block;
+        padding: 5px 10px;
+        background: #081522;
+        border-radius: 2px;
+        text-transform: capitalize;
+        font-size: 0.9rem;
+        color: #fff;
+        cursor: pointer;
+      }
+    }
+  }
+  
+  .mobile-menu-open,
+  .mobile-menu-close {
+    display: none;
+  }
+  
+  .doc-nav-list {
+    width: 100%;
     font-size: 1rem;
     font-family: "Exo 2.0", sans-serif;
+    
+    @media screen and (max-width: 1024px) {
+      background: #050c13;
+      width: 350px;
+      min-width: 350px;
+      padding-top: 50px;
+      height: 100%;
+      display: none;
+    }
     
     & > li {
       padding-bottom: 30px;
       padding-left: 5px;
+      
+      @media screen and (max-width: 1024px) {
+        padding-left: 25px;
+      }
       
       span {
         font-size: 1.2rem;
@@ -47,6 +118,10 @@
     padding-left: 45px;
     font-weight: 100;
     color: #ccc;
+    
+    @media screen and (max-width: 1024px) {
+      padding: 0
+    }
     
     h2 {
       font-weight: 300;
