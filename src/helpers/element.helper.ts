@@ -1,4 +1,5 @@
 import { isPrimitive, jsonStringify, turnCamelToKebabCasing } from '../utils'
+import { doc } from '../doc'
 
 export interface ElementOptions<A> {
     attributes?: A
@@ -28,7 +29,7 @@ export const element = <A>(
         const Comp = customElements.get(tagName)
         const el = Comp
             ? new Comp()
-            : (document.createElementNS(ns, tagName) as HTMLElement)
+            : (doc.createElementNS(ns, tagName) as HTMLElement)
 
         Object.entries(attributes as Record<string, unknown>).forEach(
             ([key, val]) => {

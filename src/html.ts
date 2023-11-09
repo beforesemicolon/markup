@@ -9,6 +9,7 @@ import { Doc } from './executable/Doc'
 import { handleExecutable } from './executable/handle-executable'
 import { parse } from '@beforesemicolon/html-parser'
 import { Helper } from './Helper'
+import { doc } from './doc'
 
 // prevents others from creating functions that can be subscribed to
 // and forces them to use state instead
@@ -155,7 +156,7 @@ export class HtmlTemplate {
             }
 
             if (element.parentNode) {
-                const frag = document.createDocumentFragment()
+                const frag = doc.createDocumentFragment()
                 frag.append(...this.nodes)
                 element.parentNode.replaceChild(frag, element)
 
@@ -198,12 +199,14 @@ export class HtmlTemplate {
             }
         })
         this.#renderTarget = null
+        this.unsubscribeFromStates()
     }
 
     unsubscribeFromStates = () => {
         this.#stateUnsubs.forEach((unsub) => {
             unsub()
         })
+        this.#stateUnsubs.clear()
     }
 
     onUpdate(cb: () => () => void) {

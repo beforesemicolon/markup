@@ -10,6 +10,7 @@ import {
 import { handleTextExecutable } from './handle-text-executable'
 import { handleAttrDirectiveExecutable } from './handle-attr-directive-executable'
 import { HtmlTemplate } from '../html'
+import { doc } from '../doc'
 
 const partsToValue = (
     parts: unknown[],
@@ -155,7 +156,7 @@ export function handleTextExecutableValue(
             const renderedBefore = v.renderTarget !== null
 
             if (!renderedBefore) {
-                v.render(document.createElement('div'))
+                v.render(doc.createElement('div'))
                 // need to disconnect these nodes because the div created above
                 // is only used ,so we can get access to the nodes but not necessarily
                 // where we want these nodes to be rendered at
@@ -192,7 +193,7 @@ export function handleTextExecutableValue(
             ) {
                 nodes.push(val.renderedNodes[idx])
             } else {
-                nodes.push(document.createTextNode(String(v)))
+                nodes.push(doc.createTextNode(String(v)))
             }
         }
 
