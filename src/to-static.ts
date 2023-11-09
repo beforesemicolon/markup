@@ -1,9 +1,10 @@
 import 'global-jsdom/register'
 import { HtmlTemplate } from './html'
+import { doc } from './doc'
 
 export const toStatic = (temp: HtmlTemplate) => {
-    document.body.innerHTML = ''
-    temp.render(document.body)
+    doc.body.innerHTML = ''
+    temp.render(doc.body)
 
-    return document.body.innerHTML.trim()
+    return doc.body.innerHTML.trim()
 }
