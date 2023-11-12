@@ -7,8 +7,37 @@ describe('html', () => {
 		document.body.innerHTML = ''
 	})
 	
+	it('should render correctly', () => {
+		const app = html`<h1>Todo Manager</h1>
+			<div class="action-bar">
+				<input type="search" placeholder="Search...">
+			</div>
+			<div class="todo-container">
+				<div class="pending-todos"></div>
+				<div class="in-progress-todos"></div>
+				<div class="completed-todos"></div>
+				<div class="archived-todos"></div>
+			</div>`
+		
+		app.render(document.body)
+		
+		expect(document.body.innerHTML).toBe('<h1>Todo Manager</h1>\n' +
+			'\t\t\t<div class="action-bar">\n' +
+			'\t\t\t\t<input type="search" placeholder="Search...">\n' +
+			'\t\t\t</div>\n' +
+			'\t\t\t<div class="todo-container">\n' +
+			'\t\t\t\t<div class="pending-todos"></div>\n' +
+			'\t\t\t\t<div class="in-progress-todos"></div>\n' +
+			'\t\t\t\t<div class="completed-todos"></div>\n' +
+			'\t\t\t\t<div class="archived-todos"></div>\n' +
+			'\t\t\t</div>')
+		expect(app.nodes).toHaveLength(5)
+	});
+	
 	it('should ignore html in comments', () => {
-		html`//`
+		html`<!--<input type="search" placeholder="Search...">-->`.render(document.body)
+		
+		expect(document.body.innerHTML).toBe('<!--<input type="search" placeholder="Search...">-->')
 	});
 	
 	it('should parse text injected inside element', () => {

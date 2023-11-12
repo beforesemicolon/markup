@@ -33,6 +33,11 @@ export const repeat = helper(
         let prevList: unknown[] = []
 
         const each = (d: T, i: number) => {
+            if (prevList[i] !== undefined && d !== prevList[i]) {
+                console.log('-- clear cache')
+                cache.delete(d)
+            }
+
             if (!cache.has(d)) {
                 cache.set(d, cb(d, i))
             }
@@ -43,20 +48,16 @@ export const repeat = helper(
         return () => {
             const list = getList(data)
 
-            // clear the cache for items no longer in the list or that moved
-            list.forEach((item, i) => {
-                if (prevList[i] !== undefined && item !== prevList[i]) {
-                    cache.delete(item)
-                }
-            })
-
-            prevList = list
-
             if (list.length === 0) {
+                prevList = []
                 return whenEmpty()
             }
 
-            return (list as T[]).map(each)
+            const renderedList = (list as T[]).map(each)
+
+            prevList = list
+
+            return renderedList
         }
     }
 )

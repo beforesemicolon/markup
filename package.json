@@ -1,6 +1,6 @@
 {
   "name": "@beforesemicolon/html",
-  "version": "0.2.3-beta",
+  "version": "0.2.5-beta",
   "description": "Simple Reactive HTML Template System",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
