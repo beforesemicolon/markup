@@ -37,7 +37,7 @@ export default DocPageLayout(
                 'export const createTodo = (name: string) => {\n' +
                 '  const dateCreated = new Date();\n' +
                 '  const todo: Todo = {\n' +
-                '    id: crypto.randomUUID()\n' +
+                '    id: crypto.randomUUID(),\n' +
                 '    name,\n' +
                 '    description: "",\n' +
                 '    status: "pending",\n' +
