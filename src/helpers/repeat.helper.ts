@@ -34,7 +34,6 @@ export const repeat = helper(
 
         const each = (d: T, i: number) => {
             if (prevList[i] !== undefined && d !== prevList[i]) {
-                console.log('-- clear cache')
                 cache.delete(d)
             }
 
