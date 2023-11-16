@@ -1,4 +1,4 @@
-name: Lint, Test, & Build Docs
+name: Lint & Test
 
 on:
   push:
@@ -24,5 +24,5 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm ci
-    - run: npm run lint && npm test
-    - run: npm run build:docs
+    - run: npm run lint
+    - run: npm test
