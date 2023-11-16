@@ -1,2 +1,177 @@
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="ie=edge"><title>Tutorial - HTML Templating System - Before Semicolon</title><link rel="stylesheet" href="../stylesheets/hybrid.hightlighter.css"><link rel="stylesheet" href="../stylesheets/documentation.css"></head><body><header class="wrapper"><h1><a href="../"><strong style="text-transform: uppercase">Markup</strong></a></h1><nav><a href="https://www.npmjs.com/package/@beforesemicolon/markup">v<em>0.2.5-beta</em></a></nav></header><main><div class="wrapper docs"><div class="doc-nav" id="menu"><a class="mobile-menu-open" href="#menu"><span>menu</span></a><ul class="doc-nav-list" id="doc-nav-list" tabindex="0"><li><span>Introduction</span><ul><li><a href="../documentation">What is Markup?</a></li><li><a href="../documentation/installation">Installation</a></li><li><a href="../documentation/essential-training">Essential Training</a></li><li><a href="../documentation/tutorial">Tutorial</a></li><li><a href="../documentation/examples">Examples</a></li></ul></li><li><span>Templating</span><ul><li><a href="../documentation/creating-and-rendering">Creating &amp; Rendering</a></li><li><a href="../documentation/template-values">Template values</a></li><li><a href="../documentation/replacing-content">Replacing content</a></li><li><a href="../documentation/dom-references">DOM references</a></li><li><a href="../documentation/conditional-attributes">Conditional attributes</a></li><li><a href="../documentation/event-handling">Event handling</a></li><li><a href="../documentation/dynamic-values-and-update">Dynamic values &amp; Update</a></li><li><a href="../documentation/state-values">State values</a></li></ul></li><li><span>Helpers</span><ul><li><a href="../documentation/what-is-a-helper">What is a Helper?</a></li><li><a href="../documentation/effect-helper">Effect helper</a></li><li><a href="../documentation/conditional-rendering">Conditional Rendering</a></li><li><a href="../documentation/repetition-and-lists">Repetition &amp; Lists</a></li><li><a href="../documentation/is-isnot-helpers">Is &amp; IsNot helpers</a></li><li><a href="../documentation/or-and-oneof-helpers">Or, And, &amp; OneOf helpers</a></li><li><a href="../documentation/pick-helper">Pick helper</a></li><li class="active"><a href="../documentation/suspense-helper">Suspense helper</a></li><li><a href="../documentation/custom-helper">Custom helper</a></li></ul></li><li><span>Capabilities</span><ul><li><a href="../documentation/function-components">Function Components</a></li><li><a href="../documentation/web-components">Web Components</a></li><li><a href="../documentation/server-side-rendering">Server Side Rendering</a></li><li><a href="../documentation/state-store">State Store</a></li></ul></li></ul><a href="../documentation/suspense-helper" class="mobile-menu-close"></a></div><article><h2 id="suspense-helper" class="heading"><a href="#suspense-helper">Suspense helper</a></h2><p>The <code>suspense</code> helper exist solely to aid you with anyasynchronous rendering.</p><p>It takes three arguments and only the first one is required.</p><p><code>suspense(ASYNC_ACTION, LOADING_TEMPLATE,FAILING_FN_RENDER)</code></p><ul><li><strong>ASYNC_ACTION</strong>: Some async function or one thatreturns a promise.</li><li><strong>LOADING_TEMPLATE</strong> (optional): Anything you wantto render while the action is still pending.</li><li><strong>FAILING_FN_RENDER</strong> (optional): A function thatmust return something to render when the action fails. Thisfunction will get called with the error.</li></ul><p>By default, it will render a paragraph saying<code>loading...</code> and if it fails it will render a paragraphwith the error message.</p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes">html`<span class="hljs-subst">${suspense(fetchUser, html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>user loading...<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>`</span>)}</span><span class="language-xml">`</span></code></pre></div><p>This helper can be very powerful with API calls as well as lazyloading parts of the page.</p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> <span class="hljs-title function_">loadTodos</span> = (<span class="hljs-params"></span>) =&gt; {<span class="hljs-keyword">return</span> <span class="hljs-title function_">fetch</span>(<span class="hljs-string">'/api/todos'</span>).<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> res.<span class="hljs-title function_">json</span>()).<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> html`<span class="hljs-subst">${repeat(res, renderTodo)}</span><span class="language-xml">`</span>)
-}html`<span class="hljs-subst">${suspense(loadTodos)}</span><span class="language-xml">`</span></code></pre></div></article></div></main><footer class="wrapper"><ul class="learning-resources"><h5>Learning Resources</h5><li><a href="../documentation">Documentation</a></li><li><a href="../documentation/essential-training">Essential Training</a></li><li><a href="../documentation/tutorial">Tutorial</a></li><li><a href="../documentation/examples">Examples</a></li></ul><ul class="about-bfs"><h5>About <em>Before Semicolon</em></h5><li><a href="https://github.com/beforesemicolon" rel="noopener" target="_blank">Open Source</a></li><li><a href="https://beforesemicolon.com/" rel="noopener" target="_blank">Website</a></li><li><a href="https://medium.com/before-semicolon" rel="noopener" target="_blank">Blog</a></li><li><a href="https://www.youtube.com/channel/UCrU33aw1k9BqTIq2yKXrmBw" rel="noopener" target="_blank">YouTube Channel</a></li><li><address aria-label="social-media"><a href="https://medium.com/before-semicolon" rel="noopener" target="_blank"><img src="../assets/medium2.svg" alt="Medium blog" width="20"></a><a href="https://www.facebook.com/beforesemicolon/" rel="noopener" target="_blank"><img src="../assets/facebook.svg" alt="Facebook" width="20"></a><a href="https://www.instagram.com/before_semicolon_/" rel="noopener" target="_blank"><img src="../assets/instagram.svg" alt="Instagram" width="20"></a><a href="https://www.reddit.com/r/beforesemicolon/" rel="noopener" target="_blank"><img src="../assets/reddit.svg" alt="Reddit" width="20"></a><a href="https://twitter.com/BeforeSemicolon" rel="noopener" target="_blank"><img src="../assets/twitter.svg" alt="Twitter" width="20"></a><a href="https://www.youtube.com/channel/UCrU33aw1k9BqTIq2yKXrmBw" rel="noopener" target="_blank"><img src="../assets/youtube.svg" alt="YouTube" width="20"></a></address></li></ul><div class="copyright"><img src="../assets/before-semicolon-logo.png" alt="Before Semicolon logo"><p><small>Copyright © 2023 BeforeSemicolon. All rights reserved.</small></p></div></footer></body></html>
+<html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta http-equiv="X-UA-Compatible" content="ie=edge">
+            <title>Tutorial - HTML Templating System - Before Semicolon</title><link rel="stylesheet" href="../stylesheets/hybrid.hightlighter.css">
+            <link rel="stylesheet" href="../stylesheets/documentation.css"></head>
+        <body><header class="wrapper">
+        <h1>
+            <a href="../"><strong style="text-transform: uppercase">Markup</strong></a>
+        </h1>
+        <nav>
+            <a href="https://www.npmjs.com/package/@beforesemicolon/markup">v<em>0.2.5-beta</em></a>
+        </nav>
+    </header><main><div class="wrapper docs">
+                <div class="doc-nav" id="menu">
+                    <a class="mobile-menu-open" href="#menu">
+                        <span>menu</span>
+                    </a>
+                    <ul class="doc-nav-list" id="doc-nav-list" tabindex="0"><li>
+                                    <span>Introduction</span>
+                                    <ul><li>
+                                                    <a href="../documentation">What is Markup?</a>
+                                                </li><li>
+                                                    <a href="../documentation/installation">Installation</a>
+                                                </li><li>
+                                                    <a href="../documentation/essential-training">Essential Training</a>
+                                                </li><li>
+                                                    <a href="../documentation/tutorial">Tutorial</a>
+                                                </li><li>
+                                                    <a href="../documentation/examples">Examples</a>
+                                                </li></ul>
+                                </li><li>
+                                    <span>Templating</span>
+                                    <ul><li>
+                                                    <a href="../documentation/creating-and-rendering">Creating &amp; Rendering</a>
+                                                </li><li>
+                                                    <a href="../documentation/template-values">Template values</a>
+                                                </li><li>
+                                                    <a href="../documentation/replacing-content">Replacing content</a>
+                                                </li><li>
+                                                    <a href="../documentation/dom-references">DOM references</a>
+                                                </li><li>
+                                                    <a href="../documentation/conditional-attributes">Conditional attributes</a>
+                                                </li><li>
+                                                    <a href="../documentation/event-handling">Event handling</a>
+                                                </li><li>
+                                                    <a href="../documentation/dynamic-values-and-update">Dynamic values &amp; Update</a>
+                                                </li><li>
+                                                    <a href="../documentation/state-values">State values</a>
+                                                </li></ul>
+                                </li><li>
+                                    <span>Helpers</span>
+                                    <ul><li>
+                                                    <a href="../documentation/what-is-a-helper">What is a Helper?</a>
+                                                </li><li>
+                                                    <a href="../documentation/effect-helper">Effect helper</a>
+                                                </li><li>
+                                                    <a href="../documentation/conditional-rendering">Conditional Rendering</a>
+                                                </li><li>
+                                                    <a href="../documentation/repetition-and-lists">Repetition &amp; Lists</a>
+                                                </li><li>
+                                                    <a href="../documentation/is-isnot-helpers">Is &amp; IsNot helpers</a>
+                                                </li><li>
+                                                    <a href="../documentation/or-and-oneof-helpers">Or, And, &amp; OneOf helpers</a>
+                                                </li><li>
+                                                    <a href="../documentation/pick-helper">Pick helper</a>
+                                                </li><li class="active">
+                                                    <a href="../documentation/suspense-helper">Suspense helper</a>
+                                                </li><li>
+                                                    <a href="../documentation/custom-helper">Custom helper</a>
+                                                </li></ul>
+                                </li><li>
+                                    <span>Capabilities</span>
+                                    <ul><li>
+                                                    <a href="../documentation/function-components">Function Components</a>
+                                                </li><li>
+                                                    <a href="../documentation/web-components">Web Components</a>
+                                                </li><li>
+                                                    <a href="../documentation/server-side-rendering">Server Side Rendering</a>
+                                                </li><li>
+                                                    <a href="../documentation/state-store">State Store</a>
+                                                </li></ul>
+                                </li></ul>
+                    <a href="../documentation/suspense-helper" class="mobile-menu-close"></a>
+                </div>
+                <article><h2 id="suspense-helper" class="heading"><a href="#suspense-helper">Suspense helper</a></h2><p>
+            The <code>suspense</code> helper exist solely to aid you with any
+            asynchronous rendering.
+        </p>
+        <p>It takes three arguments and only the first one is required.</p>
+        <p>
+            <code>suspense(ASYNC_ACTION, LOADING_TEMPLATE,
+                FAILING_FN_RENDER)</code>
+        </p>
+        <ul>
+            <li>
+                <strong>ASYNC_ACTION</strong>: Some async function or one that
+                returns a promise.
+            </li>
+            <li>
+                <strong>LOADING_TEMPLATE</strong> (optional): Anything you want
+                to render while the action is still pending.
+            </li>
+            <li>
+                <strong>FAILING_FN_RENDER</strong> (optional): A function that
+                must return something to render when the action fails. This
+                function will get called with the error.
+            </li>
+        </ul>
+        <p>
+            By default, it will render a paragraph saying
+            <code>loading...</code> and if it fails it will render a paragraph
+            with the error message.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes">html`<span class="hljs-subst">${suspense(fetchUser, html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>user loading...<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>`</span>)}</span><span class="language-xml">`</span></code></pre></div><p>
+            This helper can be very powerful with API calls as well as lazy
+            loading parts of the page.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> <span class="hljs-title function_">loadTodos</span> = (<span class="hljs-params"></span>) =&gt; {
+  <span class="hljs-keyword">return</span> <span class="hljs-title function_">fetch</span>(<span class="hljs-string">'/api/todos'</span>)
+    .<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> res.<span class="hljs-title function_">json</span>())
+    .<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> html`<span class="hljs-subst">${repeat(res, renderTodo)}</span><span class="language-xml">`</span>)
+}
+
+html`<span class="hljs-subst">${suspense(loadTodos)}</span><span class="language-xml">`</span></code></pre></div></article>
+            </div></main><footer class="wrapper">
+            <ul class="learning-resources">
+                <h5>Learning Resources</h5>
+                <li><a href="../documentation">Documentation</a></li>
+                <li>
+                    <a href="../documentation/essential-training">Essential Training</a>
+                </li>
+                <li>
+                    <a href="../documentation/tutorial">Tutorial</a>
+                </li>
+                <li>
+                    <a href="../documentation/examples">Examples</a>
+                </li>
+            </ul>
+            <ul class="about-bfs">
+                <h5>About <em>Before Semicolon</em></h5>
+                <li>
+                    <a href="https://github.com/beforesemicolon" rel="noopener" target="_blank">Open Source</a>
+                </li>
+                <li>
+                    <a href="https://beforesemicolon.com/" rel="noopener" target="_blank">Website</a>
+                </li>
+                <li>
+                    <a href="https://medium.com/before-semicolon" rel="noopener" target="_blank">Blog</a>
+                </li>
+                <li>
+                    <a href="https://www.youtube.com/channel/UCrU33aw1k9BqTIq2yKXrmBw" rel="noopener" target="_blank">YouTube Channel</a>
+                </li>
+                <li>
+                    <address aria-label="social-media"><a href="https://medium.com/before-semicolon" rel="noopener" target="_blank">
+                                    <img src="../assets/medium2.svg" alt="Medium blog" width="20">
+                                </a><a href="https://www.facebook.com/beforesemicolon/" rel="noopener" target="_blank">
+                                    <img src="../assets/facebook.svg" alt="Facebook" width="20">
+                                </a><a href="https://www.instagram.com/before_semicolon_/" rel="noopener" target="_blank">
+                                    <img src="../assets/instagram.svg" alt="Instagram" width="20">
+                                </a><a href="https://www.reddit.com/r/beforesemicolon/" rel="noopener" target="_blank">
+                                    <img src="../assets/reddit.svg" alt="Reddit" width="20">
+                                </a><a href="https://twitter.com/BeforeSemicolon" rel="noopener" target="_blank">
+                                    <img src="../assets/twitter.svg" alt="Twitter" width="20">
+                                </a><a href="https://www.youtube.com/channel/UCrU33aw1k9BqTIq2yKXrmBw" rel="noopener" target="_blank">
+                                    <img src="../assets/youtube.svg" alt="YouTube" width="20">
+                                </a></address>
+                </li>
+            </ul>
+            <div class="copyright">
+                <img src="../assets/before-semicolon-logo.png" alt="Before Semicolon logo">
+                <p>
+                    <small>Copyright © 2023 Before
+                        Semicolon. All rights reserved.</small>
+                </p>
+            </div>
+        </footer></body>
+    </html>

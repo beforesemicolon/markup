@@ -1,11 +1,238 @@
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="ie=edge"><title>Tutorial - HTML Templating System - Before Semicolon</title><link rel="stylesheet" href="../stylesheets/hybrid.hightlighter.css"><link rel="stylesheet" href="../stylesheets/documentation.css"></head><body><header class="wrapper"><h1><a href="../"><strong style="text-transform: uppercase">Markup</strong></a></h1><nav><a href="https://www.npmjs.com/package/@beforesemicolon/markup">v<em>0.2.5-beta</em></a></nav></header><main><div class="wrapper docs"><div class="doc-nav" id="menu"><a class="mobile-menu-open" href="#menu"><span>menu</span></a><ul class="doc-nav-list" id="doc-nav-list" tabindex="0"><li><span>Introduction</span><ul><li><a href="../documentation">What is Markup?</a></li><li><a href="../documentation/installation">Installation</a></li><li><a href="../documentation/essential-training">Essential Training</a></li><li><a href="../documentation/tutorial">Tutorial</a></li><li><a href="../documentation/examples">Examples</a></li></ul></li><li><span>Templating</span><ul><li><a href="../documentation/creating-and-rendering">Creating &amp; Rendering</a></li><li><a href="../documentation/template-values">Template values</a></li><li><a href="../documentation/replacing-content">Replacing content</a></li><li><a href="../documentation/dom-references">DOM references</a></li><li><a href="../documentation/conditional-attributes">Conditional attributes</a></li><li><a href="../documentation/event-handling">Event handling</a></li><li><a href="../documentation/dynamic-values-and-update">Dynamic values &amp; Update</a></li><li><a href="../documentation/state-values">State values</a></li></ul></li><li><span>Helpers</span><ul><li><a href="../documentation/what-is-a-helper">What is a Helper?</a></li><li><a href="../documentation/effect-helper">Effect helper</a></li><li><a href="../documentation/conditional-rendering">Conditional Rendering</a></li><li class="active"><a href="../documentation/repetition-and-lists">Repetition &amp; Lists</a></li><li><a href="../documentation/is-isnot-helpers">Is &amp; IsNot helpers</a></li><li><a href="../documentation/or-and-oneof-helpers">Or, And, &amp; OneOf helpers</a></li><li><a href="../documentation/pick-helper">Pick helper</a></li><li><a href="../documentation/suspense-helper">Suspense helper</a></li><li><a href="../documentation/custom-helper">Custom helper</a></li></ul></li><li><span>Capabilities</span><ul><li><a href="../documentation/function-components">Function Components</a></li><li><a href="../documentation/web-components">Web Components</a></li><li><a href="../documentation/server-side-rendering">Server Side Rendering</a></li><li><a href="../documentation/state-store">State Store</a></li></ul></li></ul><a href="../documentation/repetition-and-lists" class="mobile-menu-close"></a></div><article><h2 id="repetition-lists" class="heading"><a href="#repetition-lists">Repetition &amp; Lists</a></h2><p>Pages can get super complex with a lot of repetitive markup and longlists. Using a template makes the work much easier since you can usedata and logic to create long lists or repeat things with smallvariations much easier.</p><p>By default, the template will already render array of contents foryou:</p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> todos = [<span class="hljs-string">"Go shopping"</span>,<span class="hljs-string">"Call the car salesman"</span>,<span class="hljs-string">"Register for next semester classes"</span>
-]<span class="hljs-keyword">const</span> <span class="hljs-title function_">renderTodo</span> = todo =&gt; html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">li</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"todo-item"</span>&gt;</span></span><span class="hljs-subst">${todo}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>`</span>html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span></span><span class="hljs-subst">${todos.map(renderTodo)}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>`</span>
-</code></pre></div><p>The above example will correctly render the list just fine and allneed in the template was a single line.</p><p>Using the natively supported array rendering of the template isperfect for static lists but not so much if the list content or sizekeeps changing. Fortunately, the system offers a helper for that.</p><h3 id="repeat-helper" class="heading"><a href="#repeat-helper">repeat helper</a></h3><p>The <code>repeat</code> helper is perfect for lists either static ordynamic.</p><p>We can change the above example with the <code>repeat</code> helperand all renders the same.</p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> todos = [<span class="hljs-string">"Go shopping"</span>,<span class="hljs-string">"Call the car salesman"</span>,<span class="hljs-string">"Register for next semester classes"</span>
-]<span class="hljs-keyword">const</span> <span class="hljs-title function_">renderTodo</span> = todo =&gt; html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">li</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"todo-item"</span>&gt;</span></span><span class="hljs-subst">${todo}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>`</span>html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span></span><span class="hljs-subst">${repeat(todos, renderTodo)}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>`</span></code></pre></div><p>The <code>repeat</code> helper takes 3 arguments and the third oneis optional:</p><p><code>repeat(COUNT_OR_ARRAY, ITEM_RENDERER,?WHEN_EMPTY_RENDERER)</code>:</p><ul><li><strong>COUNT_OR_ARRAY</strong>: You can specify a number oftimes you need something to repeat or an array.</li><li><strong>ITEM_RENDERER</strong>: A function that will be calledfor every item and must return what to render. If a number wsspecified as the first argument, this function will be getcalled with a number value and the index, otherwise, it will getcalled with the item in the array and its index.</li><li><strong>WHEN_EMPTY_RENDERER</strong> (optional): A function thatwill get called when the list is empty and must return somethingto render in that case. If nothing is provided, nothing will berendered.</li></ul><h4 id="why-use-the-repeat-helper" class="heading"><a href="#why-use-the-repeat-helper">Why use the repeat helper?</a></h4><p>The <code>repeat</code> helper will keep an internal cache based onthe items in the list. This is done to only re-render the items thatchange and not the whole list every time there is a change.</p><p>This also means that if you have a repeated value associated with atemplate or DOM Node it will only appear once in the DOM.</p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes">html`<span class="hljs-subst">${repeat([<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">3</span>], (n) =&gt; <span class="hljs-string">`item <span class="hljs-subst">${n}</span>`</span>)}</span><span class="language-xml">`</span>
-<span class="hljs-comment">// renders: item 1 item 3 item 5 item 3</span>html`<span class="hljs-subst">${repeat([<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">3</span>], (n) =&gt; html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">span</span>&gt;</span>item </span><span class="hljs-subst">${n}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span>`</span>)}</span><span class="language-xml">`</span>
-<span class="hljs-comment">// renders: item 1 item 3 item 5</span>html`<span class="hljs-subst">${repeat([<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">3</span>], (n) =&gt; element(<span class="hljs-string">'li'</span>, {textContent: <span class="hljs-string">`item <span class="hljs-subst">${n}</span>`</span>
+<html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta http-equiv="X-UA-Compatible" content="ie=edge">
+            <title>Tutorial - HTML Templating System - Before Semicolon</title><link rel="stylesheet" href="../stylesheets/hybrid.hightlighter.css">
+            <link rel="stylesheet" href="../stylesheets/documentation.css"></head>
+        <body><header class="wrapper">
+        <h1>
+            <a href="../"><strong style="text-transform: uppercase">Markup</strong></a>
+        </h1>
+        <nav>
+            <a href="https://www.npmjs.com/package/@beforesemicolon/markup">v<em>0.2.5-beta</em></a>
+        </nav>
+    </header><main><div class="wrapper docs">
+                <div class="doc-nav" id="menu">
+                    <a class="mobile-menu-open" href="#menu">
+                        <span>menu</span>
+                    </a>
+                    <ul class="doc-nav-list" id="doc-nav-list" tabindex="0"><li>
+                                    <span>Introduction</span>
+                                    <ul><li>
+                                                    <a href="../documentation">What is Markup?</a>
+                                                </li><li>
+                                                    <a href="../documentation/installation">Installation</a>
+                                                </li><li>
+                                                    <a href="../documentation/essential-training">Essential Training</a>
+                                                </li><li>
+                                                    <a href="../documentation/tutorial">Tutorial</a>
+                                                </li><li>
+                                                    <a href="../documentation/examples">Examples</a>
+                                                </li></ul>
+                                </li><li>
+                                    <span>Templating</span>
+                                    <ul><li>
+                                                    <a href="../documentation/creating-and-rendering">Creating &amp; Rendering</a>
+                                                </li><li>
+                                                    <a href="../documentation/template-values">Template values</a>
+                                                </li><li>
+                                                    <a href="../documentation/replacing-content">Replacing content</a>
+                                                </li><li>
+                                                    <a href="../documentation/dom-references">DOM references</a>
+                                                </li><li>
+                                                    <a href="../documentation/conditional-attributes">Conditional attributes</a>
+                                                </li><li>
+                                                    <a href="../documentation/event-handling">Event handling</a>
+                                                </li><li>
+                                                    <a href="../documentation/dynamic-values-and-update">Dynamic values &amp; Update</a>
+                                                </li><li>
+                                                    <a href="../documentation/state-values">State values</a>
+                                                </li></ul>
+                                </li><li>
+                                    <span>Helpers</span>
+                                    <ul><li>
+                                                    <a href="../documentation/what-is-a-helper">What is a Helper?</a>
+                                                </li><li>
+                                                    <a href="../documentation/effect-helper">Effect helper</a>
+                                                </li><li>
+                                                    <a href="../documentation/conditional-rendering">Conditional Rendering</a>
+                                                </li><li class="active">
+                                                    <a href="../documentation/repetition-and-lists">Repetition &amp; Lists</a>
+                                                </li><li>
+                                                    <a href="../documentation/is-isnot-helpers">Is &amp; IsNot helpers</a>
+                                                </li><li>
+                                                    <a href="../documentation/or-and-oneof-helpers">Or, And, &amp; OneOf helpers</a>
+                                                </li><li>
+                                                    <a href="../documentation/pick-helper">Pick helper</a>
+                                                </li><li>
+                                                    <a href="../documentation/suspense-helper">Suspense helper</a>
+                                                </li><li>
+                                                    <a href="../documentation/custom-helper">Custom helper</a>
+                                                </li></ul>
+                                </li><li>
+                                    <span>Capabilities</span>
+                                    <ul><li>
+                                                    <a href="../documentation/function-components">Function Components</a>
+                                                </li><li>
+                                                    <a href="../documentation/web-components">Web Components</a>
+                                                </li><li>
+                                                    <a href="../documentation/server-side-rendering">Server Side Rendering</a>
+                                                </li><li>
+                                                    <a href="../documentation/state-store">State Store</a>
+                                                </li></ul>
+                                </li></ul>
+                    <a href="../documentation/repetition-and-lists" class="mobile-menu-close"></a>
+                </div>
+                <article><h2 id="repetition-lists" class="heading"><a href="#repetition-lists">Repetition &amp; Lists</a></h2><p>
+            Pages can get super complex with a lot of repetitive markup and long
+            lists. Using a template makes the work much easier since you can use
+            data and logic to create long lists or repeat things with small
+            variations much easier.
+        </p>
+        <p>
+            By default, the template will already render array of contents for
+            you:
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> todos = [
+  <span class="hljs-string">"Go shopping"</span>,
+  <span class="hljs-string">"Call the car salesman"</span>,
+  <span class="hljs-string">"Register for next semester classes"</span>
+]
+
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">renderTodo</span> = todo =&gt; html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">li</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"todo-item"</span>&gt;</span></span><span class="hljs-subst">${todo}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>`</span>
+
+html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span></span><span class="hljs-subst">${todos.map(renderTodo)}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>`</span>
+</code></pre></div><p>
+            The above example will correctly render the list just fine and all
+            need in the template was a single line.
+        </p>
+        <p>
+            Using the natively supported array rendering of the template is
+            perfect for static lists but not so much if the list content or size
+            keeps changing. Fortunately, the system offers a helper for that.
+        </p><h3 id="repeat-helper" class="heading"><a href="#repeat-helper">repeat helper</a></h3><p>
+            The <code>repeat</code> helper is perfect for lists either static or
+            dynamic.
+        </p>
+        <p>
+            We can change the above example with the <code>repeat</code> helper
+            and all renders the same.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> todos = [
+  <span class="hljs-string">"Go shopping"</span>,
+  <span class="hljs-string">"Call the car salesman"</span>,
+  <span class="hljs-string">"Register for next semester classes"</span>
+]
+
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">renderTodo</span> = todo =&gt; html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">li</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"todo-item"</span>&gt;</span></span><span class="hljs-subst">${todo}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>`</span>
+
+html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span></span><span class="hljs-subst">${repeat(todos, renderTodo)}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>`</span></code></pre></div><p>
+            The <code>repeat</code> helper takes 3 arguments and the third one
+            is optional:
+        </p>
+        <p>
+            <code>repeat(COUNT_OR_ARRAY, ITEM_RENDERER,
+                ?WHEN_EMPTY_RENDERER)</code>:
+        </p>
+        <ul>
+            <li>
+                <strong>COUNT_OR_ARRAY</strong>: You can specify a number of
+                times you need something to repeat or an array.
+            </li>
+            <li>
+                <strong>ITEM_RENDERER</strong>: A function that will be called
+                for every item and must return what to render. If a number ws
+                specified as the first argument, this function will be get
+                called with a number value and the index, otherwise, it will get
+                called with the item in the array and its index.
+            </li>
+            <li>
+                <strong>WHEN_EMPTY_RENDERER</strong> (optional): A function that
+                will get called when the list is empty and must return something
+                to render in that case. If nothing is provided, nothing will be
+                rendered.
+            </li>
+        </ul><h4 id="why-use-the-repeat-helper" class="heading"><a href="#why-use-the-repeat-helper">Why use the repeat helper?</a></h4><p>
+            The <code>repeat</code> helper will keep an internal cache based on
+            the items in the list. This is done to only re-render the items that
+            change and not the whole list every time there is a change.
+        </p>
+        <p>
+            This also means that if you have a repeated value associated with a
+            template or DOM Node it will only appear once in the DOM.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes">html`<span class="hljs-subst">${repeat([<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">3</span>], (n) =&gt; <span class="hljs-string">`item <span class="hljs-subst">${n}</span>`</span>)}</span><span class="language-xml">`</span>
+<span class="hljs-comment">// renders: item 1 item 3 item 5 item 3</span>
+
+html`<span class="hljs-subst">${repeat([<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">3</span>], (n) =&gt; html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">span</span>&gt;</span>item </span><span class="hljs-subst">${n}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span>`</span>)}</span><span class="language-xml">`</span>
+<span class="hljs-comment">// renders: item 1 item 3 item 5</span>
+
+html`<span class="hljs-subst">${repeat([<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">3</span>], (n) =&gt; element(<span class="hljs-string">'li'</span>, {
+  textContent: <span class="hljs-string">`item <span class="hljs-subst">${n}</span>`</span>
 }))}</span><span class="language-xml">`</span>
-<span class="hljs-comment">// renders: item 1 item 3 item 5</span></code></pre></div><p>This is only true when you are trying to render<a href="https://developer.mozilla.org/en-US/docs/Web/API/Node">Nodes</a>, and it is not specific to this library. You can't render the samenodes in multiple places. Because each template or node are mappedto the same value reference even when the <code>repeat</code> triesto render the whole list.</p><div class="code-snippet"><pre><code class="language-vim theme-hybrid hljs" data-highlighted="yes">Cache Map
+<span class="hljs-comment">// renders: item 1 item 3 item 5</span></code></pre></div><p>
+            This is only true when you are trying to render
+            <a href="https://developer.mozilla.org/en-US/docs/Web/API/Node">Nodes</a>
+            , and it is not specific to this library. You can't render the same
+            nodes in multiple places. Because each template or node are mapped
+            to the same value reference even when the <code>repeat</code> tries
+            to render the whole list.
+        </p><div class="code-snippet"><pre><code class="language-vim theme-hybrid hljs" data-highlighted="yes">Cache Map
 <span class="hljs-number">1</span> -&gt; DOM Node(s) <span class="hljs-number">1</span>
 <span class="hljs-number">3</span> -&gt; DOM Node(s) <span class="hljs-number">3</span>
-<span class="hljs-number">5</span> -&gt; DOM Node(s) <span class="hljs-number">5</span></code></pre></div><p>The cache is updated whenever there is a change in the itemreference or position in the list. But only the things that changewill be updated in the cache map.</p></article></div></main><footer class="wrapper"><ul class="learning-resources"><h5>Learning Resources</h5><li><a href="../documentation">Documentation</a></li><li><a href="../documentation/essential-training">Essential Training</a></li><li><a href="../documentation/tutorial">Tutorial</a></li><li><a href="../documentation/examples">Examples</a></li></ul><ul class="about-bfs"><h5>About <em>Before Semicolon</em></h5><li><a href="https://github.com/beforesemicolon" rel="noopener" target="_blank">Open Source</a></li><li><a href="https://beforesemicolon.com/" rel="noopener" target="_blank">Website</a></li><li><a href="https://medium.com/before-semicolon" rel="noopener" target="_blank">Blog</a></li><li><a href="https://www.youtube.com/channel/UCrU33aw1k9BqTIq2yKXrmBw" rel="noopener" target="_blank">YouTube Channel</a></li><li><address aria-label="social-media"><a href="https://medium.com/before-semicolon" rel="noopener" target="_blank"><img src="../assets/medium2.svg" alt="Medium blog" width="20"></a><a href="https://www.facebook.com/beforesemicolon/" rel="noopener" target="_blank"><img src="../assets/facebook.svg" alt="Facebook" width="20"></a><a href="https://www.instagram.com/before_semicolon_/" rel="noopener" target="_blank"><img src="../assets/instagram.svg" alt="Instagram" width="20"></a><a href="https://www.reddit.com/r/beforesemicolon/" rel="noopener" target="_blank"><img src="../assets/reddit.svg" alt="Reddit" width="20"></a><a href="https://twitter.com/BeforeSemicolon" rel="noopener" target="_blank"><img src="../assets/twitter.svg" alt="Twitter" width="20"></a><a href="https://www.youtube.com/channel/UCrU33aw1k9BqTIq2yKXrmBw" rel="noopener" target="_blank"><img src="../assets/youtube.svg" alt="YouTube" width="20"></a></address></li></ul><div class="copyright"><img src="../assets/before-semicolon-logo.png" alt="Before Semicolon logo"><p><small>Copyright © 2023 BeforeSemicolon. All rights reserved.</small></p></div></footer></body></html>
+<span class="hljs-number">5</span> -&gt; DOM Node(s) <span class="hljs-number">5</span></code></pre></div><p>
+            The cache is updated whenever there is a change in the item
+            reference or position in the list. But only the things that change
+            will be updated in the cache map.
+        </p></article>
+            </div></main><footer class="wrapper">
+            <ul class="learning-resources">
+                <h5>Learning Resources</h5>
+                <li><a href="../documentation">Documentation</a></li>
+                <li>
+                    <a href="../documentation/essential-training">Essential Training</a>
+                </li>
+                <li>
+                    <a href="../documentation/tutorial">Tutorial</a>
+                </li>
+                <li>
+                    <a href="../documentation/examples">Examples</a>
+                </li>
+            </ul>
+            <ul class="about-bfs">
+                <h5>About <em>Before Semicolon</em></h5>
+                <li>
+                    <a href="https://github.com/beforesemicolon" rel="noopener" target="_blank">Open Source</a>
+                </li>
+                <li>
+                    <a href="https://beforesemicolon.com/" rel="noopener" target="_blank">Website</a>
+                </li>
+                <li>
+                    <a href="https://medium.com/before-semicolon" rel="noopener" target="_blank">Blog</a>
+                </li>
+                <li>
+                    <a href="https://www.youtube.com/channel/UCrU33aw1k9BqTIq2yKXrmBw" rel="noopener" target="_blank">YouTube Channel</a>
+                </li>
+                <li>
+                    <address aria-label="social-media"><a href="https://medium.com/before-semicolon" rel="noopener" target="_blank">
+                                    <img src="../assets/medium2.svg" alt="Medium blog" width="20">
+                                </a><a href="https://www.facebook.com/beforesemicolon/" rel="noopener" target="_blank">
+                                    <img src="../assets/facebook.svg" alt="Facebook" width="20">
+                                </a><a href="https://www.instagram.com/before_semicolon_/" rel="noopener" target="_blank">
+                                    <img src="../assets/instagram.svg" alt="Instagram" width="20">
+                                </a><a href="https://www.reddit.com/r/beforesemicolon/" rel="noopener" target="_blank">
+                                    <img src="../assets/reddit.svg" alt="Reddit" width="20">
+                                </a><a href="https://twitter.com/BeforeSemicolon" rel="noopener" target="_blank">
+                                    <img src="../assets/twitter.svg" alt="Twitter" width="20">
+                                </a><a href="https://www.youtube.com/channel/UCrU33aw1k9BqTIq2yKXrmBw" rel="noopener" target="_blank">
+                                    <img src="../assets/youtube.svg" alt="YouTube" width="20">
+                                </a></address>
+                </li>
+            </ul>
+            <div class="copyright">
+                <img src="../assets/before-semicolon-logo.png" alt="Before Semicolon logo">
+                <p>
+                    <small>Copyright © 2023 Before
+                        Semicolon. All rights reserved.</small>
+                </p>
+            </div>
+        </footer></body>
+    </html>

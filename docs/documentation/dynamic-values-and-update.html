@@ -1,4 +1,209 @@
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="ie=edge"><title>Tutorial - HTML Templating System - Before Semicolon</title><link rel="stylesheet" href="../stylesheets/hybrid.hightlighter.css"><link rel="stylesheet" href="../stylesheets/documentation.css"></head><body><header class="wrapper"><h1><a href="../"><strong style="text-transform: uppercase">Markup</strong></a></h1><nav><a href="https://www.npmjs.com/package/@beforesemicolon/markup">v<em>0.2.5-beta</em></a></nav></header><main><div class="wrapper docs"><div class="doc-nav" id="menu"><a class="mobile-menu-open" href="#menu"><span>menu</span></a><ul class="doc-nav-list" id="doc-nav-list" tabindex="0"><li><span>Introduction</span><ul><li><a href="../documentation">What is Markup?</a></li><li><a href="../documentation/installation">Installation</a></li><li><a href="../documentation/essential-training">Essential Training</a></li><li><a href="../documentation/tutorial">Tutorial</a></li><li><a href="../documentation/examples">Examples</a></li></ul></li><li><span>Templating</span><ul><li><a href="../documentation/creating-and-rendering">Creating &amp; Rendering</a></li><li><a href="../documentation/template-values">Template values</a></li><li><a href="../documentation/replacing-content">Replacing content</a></li><li><a href="../documentation/dom-references">DOM references</a></li><li><a href="../documentation/conditional-attributes">Conditional attributes</a></li><li><a href="../documentation/event-handling">Event handling</a></li><li class="active"><a href="../documentation/dynamic-values-and-update">Dynamic values &amp; Update</a></li><li><a href="../documentation/state-values">State values</a></li></ul></li><li><span>Helpers</span><ul><li><a href="../documentation/what-is-a-helper">What is a Helper?</a></li><li><a href="../documentation/effect-helper">Effect helper</a></li><li><a href="../documentation/conditional-rendering">Conditional Rendering</a></li><li><a href="../documentation/repetition-and-lists">Repetition &amp; Lists</a></li><li><a href="../documentation/is-isnot-helpers">Is &amp; IsNot helpers</a></li><li><a href="../documentation/or-and-oneof-helpers">Or, And, &amp; OneOf helpers</a></li><li><a href="../documentation/pick-helper">Pick helper</a></li><li><a href="../documentation/suspense-helper">Suspense helper</a></li><li><a href="../documentation/custom-helper">Custom helper</a></li></ul></li><li><span>Capabilities</span><ul><li><a href="../documentation/function-components">Function Components</a></li><li><a href="../documentation/web-components">Web Components</a></li><li><a href="../documentation/server-side-rendering">Server Side Rendering</a></li><li><a href="../documentation/state-store">State Store</a></li></ul></li></ul><a href="../documentation/dynamic-values-and-update" class="mobile-menu-close"></a></div><article><h2 id="dynamic-values-update" class="heading"><a href="#dynamic-values-update">Dynamic values &amp; Update</a></h2><p>When working on the client, the best thing you can have is dynamicvalues. For <em>Markup</em> dynamic values are simply functions.</p><p>Any function added to the template, as long as it's not an<a href="./event-handling">event handler</a>, will be called to getthe value to render or for an attribute.</p><p>The example bellow will render the count just fine but using afunction to return the value tells the template that the value mightchange in the future.</p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">let</span> count = <span class="hljs-number">0</span>;<span class="hljs-keyword">const</span> conter = html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span></span><span class="hljs-subst">${() =&gt; count}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span>&gt;</span>+<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
-`</span>;</code></pre></div><p>You will learn a better way to have dynamic values when readingabout <a href="./state-values">states</a> in the future. For now,let's focus on the function alone.</p><h3 id="update-template" class="heading"><a href="#update-template">Update template</a></h3><p>Just having dynamic values in the template does not do much. All itdoes is render the value correctly.</p><p>The template still needs to know when to update. Enters the<code>update</code> method.</p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">let</span> count = <span class="hljs-number">0</span>;<span class="hljs-keyword">const</span> counter = html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span></span><span class="hljs-subst">${() =&gt; count}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span> <span class="hljs-attr">onclick</span>=<span class="hljs-string">"</span></span></span><span class="hljs-subst">${countUp}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">"</span>&gt;</span>+<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
-`</span>;<span class="hljs-keyword">function</span> <span class="hljs-title function_">countUp</span>(<span class="hljs-params"></span>) {count += <span class="hljs-number">1</span>;counter.<span class="hljs-title function_">update</span>()
-}counter.<span class="hljs-title function_">render</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>)</code></pre></div><p>The above example introduces 2 new functions in the template:</p><ol><li><code>countUp</code>: used as <code>click</code> event listeneron the button.</li><li><code>counter.update</code>: used to tell the template the aboutthe value change.</li></ol><p>The <code>update</code> is another method the template instanceexposes which you can use to tell it to look into all those dynamicvalues and rerun them. The template will get a new value, do a<em>shallow comparison</em> and update the DOM if such value haschanged.</p><p><strong>Important to know</strong> that this "re-check" happens toall dynamic values in the template. This means that you can updatemultiple values at once and call the <code>update</code> after tohave the template update for all of them.</p><p>It also means that the template will also re-check dynamic valuesthat did not change. You will learn how to address this later whenyou learn about <a href="./state-values">states</a>.</p></article></div></main><footer class="wrapper"><ul class="learning-resources"><h5>Learning Resources</h5><li><a href="../documentation">Documentation</a></li><li><a href="../documentation/essential-training">Essential Training</a></li><li><a href="../documentation/tutorial">Tutorial</a></li><li><a href="../documentation/examples">Examples</a></li></ul><ul class="about-bfs"><h5>About <em>Before Semicolon</em></h5><li><a href="https://github.com/beforesemicolon" rel="noopener" target="_blank">Open Source</a></li><li><a href="https://beforesemicolon.com/" rel="noopener" target="_blank">Website</a></li><li><a href="https://medium.com/before-semicolon" rel="noopener" target="_blank">Blog</a></li><li><a href="https://www.youtube.com/channel/UCrU33aw1k9BqTIq2yKXrmBw" rel="noopener" target="_blank">YouTube Channel</a></li><li><address aria-label="social-media"><a href="https://medium.com/before-semicolon" rel="noopener" target="_blank"><img src="../assets/medium2.svg" alt="Medium blog" width="20"></a><a href="https://www.facebook.com/beforesemicolon/" rel="noopener" target="_blank"><img src="../assets/facebook.svg" alt="Facebook" width="20"></a><a href="https://www.instagram.com/before_semicolon_/" rel="noopener" target="_blank"><img src="../assets/instagram.svg" alt="Instagram" width="20"></a><a href="https://www.reddit.com/r/beforesemicolon/" rel="noopener" target="_blank"><img src="../assets/reddit.svg" alt="Reddit" width="20"></a><a href="https://twitter.com/BeforeSemicolon" rel="noopener" target="_blank"><img src="../assets/twitter.svg" alt="Twitter" width="20"></a><a href="https://www.youtube.com/channel/UCrU33aw1k9BqTIq2yKXrmBw" rel="noopener" target="_blank"><img src="../assets/youtube.svg" alt="YouTube" width="20"></a></address></li></ul><div class="copyright"><img src="../assets/before-semicolon-logo.png" alt="Before Semicolon logo"><p><small>Copyright © 2023 BeforeSemicolon. All rights reserved.</small></p></div></footer></body></html>
+<html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta http-equiv="X-UA-Compatible" content="ie=edge">
+            <title>Tutorial - HTML Templating System - Before Semicolon</title><link rel="stylesheet" href="../stylesheets/hybrid.hightlighter.css">
+            <link rel="stylesheet" href="../stylesheets/documentation.css"></head>
+        <body><header class="wrapper">
+        <h1>
+            <a href="../"><strong style="text-transform: uppercase">Markup</strong></a>
+        </h1>
+        <nav>
+            <a href="https://www.npmjs.com/package/@beforesemicolon/markup">v<em>0.2.5-beta</em></a>
+        </nav>
+    </header><main><div class="wrapper docs">
+                <div class="doc-nav" id="menu">
+                    <a class="mobile-menu-open" href="#menu">
+                        <span>menu</span>
+                    </a>
+                    <ul class="doc-nav-list" id="doc-nav-list" tabindex="0"><li>
+                                    <span>Introduction</span>
+                                    <ul><li>
+                                                    <a href="../documentation">What is Markup?</a>
+                                                </li><li>
+                                                    <a href="../documentation/installation">Installation</a>
+                                                </li><li>
+                                                    <a href="../documentation/essential-training">Essential Training</a>
+                                                </li><li>
+                                                    <a href="../documentation/tutorial">Tutorial</a>
+                                                </li><li>
+                                                    <a href="../documentation/examples">Examples</a>
+                                                </li></ul>
+                                </li><li>
+                                    <span>Templating</span>
+                                    <ul><li>
+                                                    <a href="../documentation/creating-and-rendering">Creating &amp; Rendering</a>
+                                                </li><li>
+                                                    <a href="../documentation/template-values">Template values</a>
+                                                </li><li>
+                                                    <a href="../documentation/replacing-content">Replacing content</a>
+                                                </li><li>
+                                                    <a href="../documentation/dom-references">DOM references</a>
+                                                </li><li>
+                                                    <a href="../documentation/conditional-attributes">Conditional attributes</a>
+                                                </li><li>
+                                                    <a href="../documentation/event-handling">Event handling</a>
+                                                </li><li class="active">
+                                                    <a href="../documentation/dynamic-values-and-update">Dynamic values &amp; Update</a>
+                                                </li><li>
+                                                    <a href="../documentation/state-values">State values</a>
+                                                </li></ul>
+                                </li><li>
+                                    <span>Helpers</span>
+                                    <ul><li>
+                                                    <a href="../documentation/what-is-a-helper">What is a Helper?</a>
+                                                </li><li>
+                                                    <a href="../documentation/effect-helper">Effect helper</a>
+                                                </li><li>
+                                                    <a href="../documentation/conditional-rendering">Conditional Rendering</a>
+                                                </li><li>
+                                                    <a href="../documentation/repetition-and-lists">Repetition &amp; Lists</a>
+                                                </li><li>
+                                                    <a href="../documentation/is-isnot-helpers">Is &amp; IsNot helpers</a>
+                                                </li><li>
+                                                    <a href="../documentation/or-and-oneof-helpers">Or, And, &amp; OneOf helpers</a>
+                                                </li><li>
+                                                    <a href="../documentation/pick-helper">Pick helper</a>
+                                                </li><li>
+                                                    <a href="../documentation/suspense-helper">Suspense helper</a>
+                                                </li><li>
+                                                    <a href="../documentation/custom-helper">Custom helper</a>
+                                                </li></ul>
+                                </li><li>
+                                    <span>Capabilities</span>
+                                    <ul><li>
+                                                    <a href="../documentation/function-components">Function Components</a>
+                                                </li><li>
+                                                    <a href="../documentation/web-components">Web Components</a>
+                                                </li><li>
+                                                    <a href="../documentation/server-side-rendering">Server Side Rendering</a>
+                                                </li><li>
+                                                    <a href="../documentation/state-store">State Store</a>
+                                                </li></ul>
+                                </li></ul>
+                    <a href="../documentation/dynamic-values-and-update" class="mobile-menu-close"></a>
+                </div>
+                <article><h2 id="dynamic-values-update" class="heading"><a href="#dynamic-values-update">Dynamic values &amp; Update</a></h2><p>
+            When working on the client, the best thing you can have is dynamic
+            values. For <em>Markup</em> dynamic values are simply functions.
+        </p>
+        <p>
+            Any function added to the template, as long as it's not an
+            <a href="./event-handling">event handler</a>, will be called to get
+            the value to render or for an attribute.
+        </p>
+        <p>
+            The example bellow will render the count just fine but using a
+            function to return the value tells the template that the value might
+            change in the future.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">let</span> count = <span class="hljs-number">0</span>;
+
+<span class="hljs-keyword">const</span> conter = html`<span class="language-xml">
+  <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span></span><span class="hljs-subst">${() =&gt; count}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span>&gt;</span>+<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+`</span>;</code></pre></div><p>
+            You will learn a better way to have dynamic values when reading
+            about <a href="./state-values">states</a> in the future. For now,
+            let's focus on the function alone.
+        </p><h3 id="update-template" class="heading"><a href="#update-template">Update template</a></h3><p>
+            Just having dynamic values in the template does not do much. All it
+            does is render the value correctly.
+        </p>
+        <p>
+            The template still needs to know when to update. Enters the
+            <code>update</code> method.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">let</span> count = <span class="hljs-number">0</span>;
+
+<span class="hljs-keyword">const</span> counter = html`<span class="language-xml">
+  <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span></span><span class="hljs-subst">${() =&gt; count}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span> <span class="hljs-attr">onclick</span>=<span class="hljs-string">"</span></span></span><span class="hljs-subst">${countUp}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">"</span>&gt;</span>+<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+`</span>;
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">countUp</span>(<span class="hljs-params"></span>) {
+  count += <span class="hljs-number">1</span>;
+  counter.<span class="hljs-title function_">update</span>()
+}
+
+counter.<span class="hljs-title function_">render</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>)</code></pre></div><p>The above example introduces 2 new functions in the template:</p>
+        <ol>
+            <li>
+                <code>countUp</code>: used as <code>click</code> event listener
+                on the button.
+            </li>
+            <li>
+                <code>counter.update</code>: used to tell the template the about
+                the value change.
+            </li>
+        </ol>
+        <p>
+            The <code>update</code> is another method the template instance
+            exposes which you can use to tell it to look into all those dynamic
+            values and rerun them. The template will get a new value, do a
+            <em>shallow comparison</em> and update the DOM if such value has
+            changed.
+        </p>
+        <p>
+            <strong>Important to know</strong> that this "re-check" happens to
+            all dynamic values in the template. This means that you can update
+            multiple values at once and call the <code>update</code> after to
+            have the template update for all of them.
+        </p>
+        <p>
+            It also means that the template will also re-check dynamic values
+            that did not change. You will learn how to address this later when
+            you learn about <a href="./state-values">states</a>.
+        </p></article>
+            </div></main><footer class="wrapper">
+            <ul class="learning-resources">
+                <h5>Learning Resources</h5>
+                <li><a href="../documentation">Documentation</a></li>
+                <li>
+                    <a href="../documentation/essential-training">Essential Training</a>
+                </li>
+                <li>
+                    <a href="../documentation/tutorial">Tutorial</a>
+                </li>
+                <li>
+                    <a href="../documentation/examples">Examples</a>
+                </li>
+            </ul>
+            <ul class="about-bfs">
+                <h5>About <em>Before Semicolon</em></h5>
+                <li>
+                    <a href="https://github.com/beforesemicolon" rel="noopener" target="_blank">Open Source</a>
+                </li>
+                <li>
+                    <a href="https://beforesemicolon.com/" rel="noopener" target="_blank">Website</a>
+                </li>
+                <li>
+                    <a href="https://medium.com/before-semicolon" rel="noopener" target="_blank">Blog</a>
+                </li>
+                <li>
+                    <a href="https://www.youtube.com/channel/UCrU33aw1k9BqTIq2yKXrmBw" rel="noopener" target="_blank">YouTube Channel</a>
+                </li>
+                <li>
+                    <address aria-label="social-media"><a href="https://medium.com/before-semicolon" rel="noopener" target="_blank">
+                                    <img src="../assets/medium2.svg" alt="Medium blog" width="20">
+                                </a><a href="https://www.facebook.com/beforesemicolon/" rel="noopener" target="_blank">
+                                    <img src="../assets/facebook.svg" alt="Facebook" width="20">
+                                </a><a href="https://www.instagram.com/before_semicolon_/" rel="noopener" target="_blank">
+                                    <img src="../assets/instagram.svg" alt="Instagram" width="20">
+                                </a><a href="https://www.reddit.com/r/beforesemicolon/" rel="noopener" target="_blank">
+                                    <img src="../assets/reddit.svg" alt="Reddit" width="20">
+                                </a><a href="https://twitter.com/BeforeSemicolon" rel="noopener" target="_blank">
+                                    <img src="../assets/twitter.svg" alt="Twitter" width="20">
+                                </a><a href="https://www.youtube.com/channel/UCrU33aw1k9BqTIq2yKXrmBw" rel="noopener" target="_blank">
+                                    <img src="../assets/youtube.svg" alt="YouTube" width="20">
+                                </a></address>
+                </li>
+            </ul>
+            <div class="copyright">
+                <img src="../assets/before-semicolon-logo.png" alt="Before Semicolon logo">
+                <p>
+                    <small>Copyright © 2023 Before
+                        Semicolon. All rights reserved.</small>
+                </p>
+            </div>
+        </footer></body>
+    </html>

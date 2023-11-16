@@ -1,8 +1,231 @@
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="ie=edge"><title>Tutorial - HTML Templating System - Before Semicolon</title><link rel="stylesheet" href="../stylesheets/hybrid.hightlighter.css"><link rel="stylesheet" href="../stylesheets/documentation.css"></head><body><header class="wrapper"><h1><a href="../"><strong style="text-transform: uppercase">Markup</strong></a></h1><nav><a href="https://www.npmjs.com/package/@beforesemicolon/markup">v<em>0.2.5-beta</em></a></nav></header><main><div class="wrapper docs"><div class="doc-nav" id="menu"><a class="mobile-menu-open" href="#menu"><span>menu</span></a><ul class="doc-nav-list" id="doc-nav-list" tabindex="0"><li><span>Introduction</span><ul><li><a href="../documentation">What is Markup?</a></li><li><a href="../documentation/installation">Installation</a></li><li><a href="../documentation/essential-training">Essential Training</a></li><li><a href="../documentation/tutorial">Tutorial</a></li><li><a href="../documentation/examples">Examples</a></li></ul></li><li><span>Templating</span><ul><li><a href="../documentation/creating-and-rendering">Creating &amp; Rendering</a></li><li><a href="../documentation/template-values">Template values</a></li><li><a href="../documentation/replacing-content">Replacing content</a></li><li><a href="../documentation/dom-references">DOM references</a></li><li><a href="../documentation/conditional-attributes">Conditional attributes</a></li><li><a href="../documentation/event-handling">Event handling</a></li><li><a href="../documentation/dynamic-values-and-update">Dynamic values &amp; Update</a></li><li class="active"><a href="../documentation/state-values">State values</a></li></ul></li><li><span>Helpers</span><ul><li><a href="../documentation/what-is-a-helper">What is a Helper?</a></li><li><a href="../documentation/effect-helper">Effect helper</a></li><li><a href="../documentation/conditional-rendering">Conditional Rendering</a></li><li><a href="../documentation/repetition-and-lists">Repetition &amp; Lists</a></li><li><a href="../documentation/is-isnot-helpers">Is &amp; IsNot helpers</a></li><li><a href="../documentation/or-and-oneof-helpers">Or, And, &amp; OneOf helpers</a></li><li><a href="../documentation/pick-helper">Pick helper</a></li><li><a href="../documentation/suspense-helper">Suspense helper</a></li><li><a href="../documentation/custom-helper">Custom helper</a></li></ul></li><li><span>Capabilities</span><ul><li><a href="../documentation/function-components">Function Components</a></li><li><a href="../documentation/web-components">Web Components</a></li><li><a href="../documentation/server-side-rendering">Server Side Rendering</a></li><li><a href="../documentation/state-store">State Store</a></li></ul></li></ul><a href="../documentation/state-values" class="mobile-menu-close"></a></div><article><h2 id="state-values" class="heading"><a href="#state-values">State values</a></h2><p>The concept of state is related to<a href="./dynamic-values-and-update">dynamic values</a>, and it isan optimal way to work with template values that you expect tochange and that the template should react to.</p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> [count, setCount] = <span class="hljs-title function_">state</span>(<span class="hljs-number">0</span>);<span class="hljs-keyword">const</span> counter = html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span></span><span class="hljs-subst">${count}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span> <span class="hljs-attr">onclick</span>=<span class="hljs-string">"</span></span></span><span class="hljs-subst">${countUp}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">"</span>&gt;</span>+<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
-`</span>;<span class="hljs-keyword">function</span> <span class="hljs-title function_">countUp</span>(<span class="hljs-params"></span>) {<span class="hljs-title function_">setCount</span>(<span class="hljs-function"><span class="hljs-params">prev</span> =&gt;</span> prev + <span class="hljs-number">1</span>)
-}counter.<span class="hljs-title function_">render</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>)</code></pre></div><h3 id="state" class="heading"><a href="#state">state</a></h3><p>State is a core API much like <code>html</code> and unlike any stateconcept you might have heard of. It is part of the template systemrather than some specific utility.</p><p>You create a state by calling the <code>state</code> function andproviding it with an initial value.</p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> [count, setCount] = state&lt;<span class="hljs-built_in">number</span>&gt;(<span class="hljs-number">0</span>);</code></pre></div><p>You can also provide an optional <code>StateSubscriber</code> assecond argument if you want to react to the state update to performsome side effects for example.</p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> [count, setCount] = <span class="hljs-title function_">state</span>(<span class="hljs-number">0</span>, <span class="hljs-function">() =&gt;</span> {<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'count changed'</span>)
-});</code></pre></div><p>The <code>state</code> call returns an array of 3 functions:</p><ul><li><strong>StateGetter</strong>: a function (dynamic value) thatreturns the latest value</li><li><strong>StateSetter</strong>: a function to update the value</li><li><strong>StateUnSubscriber</strong>: a function to unsubscribefrom the state in case you provided a<code>StateSubscriber</code> to the <code>state</code> call.</li></ul><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> [count, setCount, unsubscribeFromCount] = <span class="hljs-title function_">state</span>(<span class="hljs-number">0</span>, <span class="hljs-function">() =&gt;</span> {<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'count changed'</span>)
-});</code></pre></div><p>The <code>StateSetter</code> can either take a new value or acallback that gets called with current value and must return anupdated one.</p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-title function_">setCount</span>(<span class="hljs-title function_">count</span>() + <span class="hljs-number">1</span>)
-<span class="hljs-title function_">setCount</span>(<span class="hljs-function"><span class="hljs-params">prev</span> =&gt;</span> prev + <span class="hljs-number">1</span>)</code></pre></div><h3 id="how-does-state-works" class="heading"><a href="#how-does-state-works">How does state works?</a></h3><p>The state is simply an observable the <code>html</code> template cansubscribe to. This means that the template will know exactly whatstate changed and where in the template that state was used toupdate exactly the part of the DOM that depends on that data.</p><p>It provides an optimal way to react to dynamic value changes incomparison to the<a href="./dynamic-values-and-update#update-template">update</a>function.</p><p>A state must be used directly in the template to work. Using afunction that uses that state inside will not get called when thatstate changes because the template cannot see state inside yourfunction.</p><div class="code-snippet"><pre><code class="language-vim theme-hybrid hljs" data-highlighted="yes">const counter = html`<span class="hljs-symbol">&lt;p&gt;</span>${<span class="hljs-built_in">count</span>}&lt;/<span class="hljs-keyword">p</span>&gt; &lt;-- will react <span class="hljs-keyword">to</span> <span class="hljs-keyword">changes</span><span class="hljs-symbol">&lt;p&gt;</span>${() =&gt; <span class="hljs-built_in">count</span>() * <span class="hljs-number">2</span>}&lt;/<span class="hljs-keyword">p</span>&gt; &lt;-- will NOT react <span class="hljs-keyword">to</span> <span class="hljs-keyword">changes</span>
-`;</code></pre></div><h3 id="effect" class="heading"><a href="#effect">effect</a></h3><p>The <code>effect</code> helper was introduced for cases where youhave places in the template that depends on a specific state, butyou are doing some <strong>side effect</strong> calculation withthat state</p><div class="code-snippet"><pre><code class="language-vim theme-hybrid hljs" data-highlighted="yes">const counter = html`<span class="hljs-symbol">&lt;p&gt;</span>${<span class="hljs-built_in">count</span>}&lt;/<span class="hljs-keyword">p</span>&gt;<span class="hljs-symbol">&lt;p&gt;</span>${effect(<span class="hljs-built_in">count</span>, () =&gt; <span class="hljs-built_in">count</span>() * <span class="hljs-number">2</span>)}&lt;/<span class="hljs-keyword">p</span>&gt;
-`;</code></pre></div><p>Simply wrap your calculation in <code>effect</code> and commaseparate all the states it depends on before your side effect</p><p><code>effect(...STATE, SIDE_EFFECT_ACTION)</code></p><p>The <code>effect</code> is simply a type of <code>Helper</code> andyou can learn more about <a href="./what-is-a-helper">helpers</a> inthe next section of the doc.</p></article></div></main><footer class="wrapper"><ul class="learning-resources"><h5>Learning Resources</h5><li><a href="../documentation">Documentation</a></li><li><a href="../documentation/essential-training">Essential Training</a></li><li><a href="../documentation/tutorial">Tutorial</a></li><li><a href="../documentation/examples">Examples</a></li></ul><ul class="about-bfs"><h5>About <em>Before Semicolon</em></h5><li><a href="https://github.com/beforesemicolon" rel="noopener" target="_blank">Open Source</a></li><li><a href="https://beforesemicolon.com/" rel="noopener" target="_blank">Website</a></li><li><a href="https://medium.com/before-semicolon" rel="noopener" target="_blank">Blog</a></li><li><a href="https://www.youtube.com/channel/UCrU33aw1k9BqTIq2yKXrmBw" rel="noopener" target="_blank">YouTube Channel</a></li><li><address aria-label="social-media"><a href="https://medium.com/before-semicolon" rel="noopener" target="_blank"><img src="../assets/medium2.svg" alt="Medium blog" width="20"></a><a href="https://www.facebook.com/beforesemicolon/" rel="noopener" target="_blank"><img src="../assets/facebook.svg" alt="Facebook" width="20"></a><a href="https://www.instagram.com/before_semicolon_/" rel="noopener" target="_blank"><img src="../assets/instagram.svg" alt="Instagram" width="20"></a><a href="https://www.reddit.com/r/beforesemicolon/" rel="noopener" target="_blank"><img src="../assets/reddit.svg" alt="Reddit" width="20"></a><a href="https://twitter.com/BeforeSemicolon" rel="noopener" target="_blank"><img src="../assets/twitter.svg" alt="Twitter" width="20"></a><a href="https://www.youtube.com/channel/UCrU33aw1k9BqTIq2yKXrmBw" rel="noopener" target="_blank"><img src="../assets/youtube.svg" alt="YouTube" width="20"></a></address></li></ul><div class="copyright"><img src="../assets/before-semicolon-logo.png" alt="Before Semicolon logo"><p><small>Copyright © 2023 BeforeSemicolon. All rights reserved.</small></p></div></footer></body></html>
+<html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta http-equiv="X-UA-Compatible" content="ie=edge">
+            <title>Tutorial - HTML Templating System - Before Semicolon</title><link rel="stylesheet" href="../stylesheets/hybrid.hightlighter.css">
+            <link rel="stylesheet" href="../stylesheets/documentation.css"></head>
+        <body><header class="wrapper">
+        <h1>
+            <a href="../"><strong style="text-transform: uppercase">Markup</strong></a>
+        </h1>
+        <nav>
+            <a href="https://www.npmjs.com/package/@beforesemicolon/markup">v<em>0.2.5-beta</em></a>
+        </nav>
+    </header><main><div class="wrapper docs">
+                <div class="doc-nav" id="menu">
+                    <a class="mobile-menu-open" href="#menu">
+                        <span>menu</span>
+                    </a>
+                    <ul class="doc-nav-list" id="doc-nav-list" tabindex="0"><li>
+                                    <span>Introduction</span>
+                                    <ul><li>
+                                                    <a href="../documentation">What is Markup?</a>
+                                                </li><li>
+                                                    <a href="../documentation/installation">Installation</a>
+                                                </li><li>
+                                                    <a href="../documentation/essential-training">Essential Training</a>
+                                                </li><li>
+                                                    <a href="../documentation/tutorial">Tutorial</a>
+                                                </li><li>
+                                                    <a href="../documentation/examples">Examples</a>
+                                                </li></ul>
+                                </li><li>
+                                    <span>Templating</span>
+                                    <ul><li>
+                                                    <a href="../documentation/creating-and-rendering">Creating &amp; Rendering</a>
+                                                </li><li>
+                                                    <a href="../documentation/template-values">Template values</a>
+                                                </li><li>
+                                                    <a href="../documentation/replacing-content">Replacing content</a>
+                                                </li><li>
+                                                    <a href="../documentation/dom-references">DOM references</a>
+                                                </li><li>
+                                                    <a href="../documentation/conditional-attributes">Conditional attributes</a>
+                                                </li><li>
+                                                    <a href="../documentation/event-handling">Event handling</a>
+                                                </li><li>
+                                                    <a href="../documentation/dynamic-values-and-update">Dynamic values &amp; Update</a>
+                                                </li><li class="active">
+                                                    <a href="../documentation/state-values">State values</a>
+                                                </li></ul>
+                                </li><li>
+                                    <span>Helpers</span>
+                                    <ul><li>
+                                                    <a href="../documentation/what-is-a-helper">What is a Helper?</a>
+                                                </li><li>
+                                                    <a href="../documentation/effect-helper">Effect helper</a>
+                                                </li><li>
+                                                    <a href="../documentation/conditional-rendering">Conditional Rendering</a>
+                                                </li><li>
+                                                    <a href="../documentation/repetition-and-lists">Repetition &amp; Lists</a>
+                                                </li><li>
+                                                    <a href="../documentation/is-isnot-helpers">Is &amp; IsNot helpers</a>
+                                                </li><li>
+                                                    <a href="../documentation/or-and-oneof-helpers">Or, And, &amp; OneOf helpers</a>
+                                                </li><li>
+                                                    <a href="../documentation/pick-helper">Pick helper</a>
+                                                </li><li>
+                                                    <a href="../documentation/suspense-helper">Suspense helper</a>
+                                                </li><li>
+                                                    <a href="../documentation/custom-helper">Custom helper</a>
+                                                </li></ul>
+                                </li><li>
+                                    <span>Capabilities</span>
+                                    <ul><li>
+                                                    <a href="../documentation/function-components">Function Components</a>
+                                                </li><li>
+                                                    <a href="../documentation/web-components">Web Components</a>
+                                                </li><li>
+                                                    <a href="../documentation/server-side-rendering">Server Side Rendering</a>
+                                                </li><li>
+                                                    <a href="../documentation/state-store">State Store</a>
+                                                </li></ul>
+                                </li></ul>
+                    <a href="../documentation/state-values" class="mobile-menu-close"></a>
+                </div>
+                <article><h2 id="state-values" class="heading"><a href="#state-values">State values</a></h2><p>
+            The concept of state is related to
+            <a href="./dynamic-values-and-update">dynamic values</a>, and it is
+            an optimal way to work with template values that you expect to
+            change and that the template should react to.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> [count, setCount] = <span class="hljs-title function_">state</span>(<span class="hljs-number">0</span>);
+
+<span class="hljs-keyword">const</span> counter = html`<span class="language-xml">
+  <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span></span><span class="hljs-subst">${count}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span> <span class="hljs-attr">onclick</span>=<span class="hljs-string">"</span></span></span><span class="hljs-subst">${countUp}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">"</span>&gt;</span>+<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+`</span>;
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">countUp</span>(<span class="hljs-params"></span>) {
+  <span class="hljs-title function_">setCount</span>(<span class="hljs-function"><span class="hljs-params">prev</span> =&gt;</span> prev + <span class="hljs-number">1</span>)
+}
+
+counter.<span class="hljs-title function_">render</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>)</code></pre></div>
+        <h3 id="state" class="heading"><a href="#state">state</a></h3><p>
+            State is a core API much like <code>html</code> and unlike any state
+            concept you might have heard of. It is part of the template system
+            rather than some specific utility.
+        </p>
+        <p>
+            You create a state by calling the <code>state</code> function and
+            providing it with an initial value.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> [count, setCount] = state&lt;<span class="hljs-built_in">number</span>&gt;(<span class="hljs-number">0</span>);</code></pre></div><p>
+            You can also provide an optional <code>StateSubscriber</code> as
+            second argument if you want to react to the state update to perform
+            some side effects for example.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> [count, setCount] = <span class="hljs-title function_">state</span>(<span class="hljs-number">0</span>, <span class="hljs-function">() =&gt;</span> {
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'count changed'</span>)
+});</code></pre></div><p>The <code>state</code> call returns an array of 3 functions:</p>
+        <ul>
+            <li>
+                <strong>StateGetter</strong>: a function (dynamic value) that
+                returns the latest value
+            </li>
+            <li>
+                <strong>StateSetter</strong>: a function to update the value
+            </li>
+            <li>
+                <strong>StateUnSubscriber</strong>: a function to unsubscribe
+                from the state in case you provided a
+                <code>StateSubscriber</code> to the <code>state</code> call.
+            </li>
+        </ul><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> [count, setCount, unsubscribeFromCount] = <span class="hljs-title function_">state</span>(<span class="hljs-number">0</span>, <span class="hljs-function">() =&gt;</span> {
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'count changed'</span>)
+});</code></pre></div><p>
+            The <code>StateSetter</code> can either take a new value or a
+            callback that gets called with current value and must return an
+            updated one.
+        </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-title function_">setCount</span>(<span class="hljs-title function_">count</span>() + <span class="hljs-number">1</span>)
+<span class="hljs-title function_">setCount</span>(<span class="hljs-function"><span class="hljs-params">prev</span> =&gt;</span> prev + <span class="hljs-number">1</span>)</code></pre></div>
+        <h3 id="how-does-state-works" class="heading"><a href="#how-does-state-works">How does state works?</a></h3><p>
+            The state is simply an observable the <code>html</code> template can
+            subscribe to. This means that the template will know exactly what
+            state changed and where in the template that state was used to
+            update exactly the part of the DOM that depends on that data.
+        </p>
+        <p>
+            It provides an optimal way to react to dynamic value changes in
+            comparison to the
+            <a href="./dynamic-values-and-update#update-template">update</a>
+            function.
+        </p>
+        <p>
+            A state must be used directly in the template to work. Using a
+            function that uses that state inside will not get called when that
+            state changes because the template cannot see state inside your
+            function.
+        </p><div class="code-snippet"><pre><code class="language-vim theme-hybrid hljs" data-highlighted="yes">const counter = html`
+  <span class="hljs-symbol">&lt;p&gt;</span>${<span class="hljs-built_in">count</span>}&lt;/<span class="hljs-keyword">p</span>&gt; &lt;-- will react <span class="hljs-keyword">to</span> <span class="hljs-keyword">changes</span>
+  <span class="hljs-symbol">&lt;p&gt;</span>${() =&gt; <span class="hljs-built_in">count</span>() * <span class="hljs-number">2</span>}&lt;/<span class="hljs-keyword">p</span>&gt; &lt;-- will NOT react <span class="hljs-keyword">to</span> <span class="hljs-keyword">changes</span>
+`;</code></pre></div>
+        <h3 id="effect" class="heading"><a href="#effect">effect</a></h3><p>
+            The <code>effect</code> helper was introduced for cases where you
+            have places in the template that depends on a specific state, but
+            you are doing some <strong>side effect</strong> calculation with
+            that state
+        </p><div class="code-snippet"><pre><code class="language-vim theme-hybrid hljs" data-highlighted="yes">const counter = html`
+  <span class="hljs-symbol">&lt;p&gt;</span>${<span class="hljs-built_in">count</span>}&lt;/<span class="hljs-keyword">p</span>&gt;
+  <span class="hljs-symbol">&lt;p&gt;</span>${effect(<span class="hljs-built_in">count</span>, () =&gt; <span class="hljs-built_in">count</span>() * <span class="hljs-number">2</span>)}&lt;/<span class="hljs-keyword">p</span>&gt;
+`;</code></pre></div><p>
+            Simply wrap your calculation in <code>effect</code> and comma
+            separate all the states it depends on before your side effect
+        </p>
+        <p><code>effect(...STATE, SIDE_EFFECT_ACTION)</code></p>
+        <p>
+            The <code>effect</code> is simply a type of <code>Helper</code> and
+            you can learn more about <a href="./what-is-a-helper">helpers</a> in
+            the next section of the doc.
+        </p></article>
+            </div></main><footer class="wrapper">
+            <ul class="learning-resources">
+                <h5>Learning Resources</h5>
+                <li><a href="../documentation">Documentation</a></li>
+                <li>
+                    <a href="../documentation/essential-training">Essential Training</a>
+                </li>
+                <li>
+                    <a href="../documentation/tutorial">Tutorial</a>
+                </li>
+                <li>
+                    <a href="../documentation/examples">Examples</a>
+                </li>
+            </ul>
+            <ul class="about-bfs">
+                <h5>About <em>Before Semicolon</em></h5>
+                <li>
+                    <a href="https://github.com/beforesemicolon" rel="noopener" target="_blank">Open Source</a>
+                </li>
+                <li>
+                    <a href="https://beforesemicolon.com/" rel="noopener" target="_blank">Website</a>
+                </li>
+                <li>
+                    <a href="https://medium.com/before-semicolon" rel="noopener" target="_blank">Blog</a>
+                </li>
+                <li>
+                    <a href="https://www.youtube.com/channel/UCrU33aw1k9BqTIq2yKXrmBw" rel="noopener" target="_blank">YouTube Channel</a>
+                </li>
+                <li>
+                    <address aria-label="social-media"><a href="https://medium.com/before-semicolon" rel="noopener" target="_blank">
+                                    <img src="../assets/medium2.svg" alt="Medium blog" width="20">
+                                </a><a href="https://www.facebook.com/beforesemicolon/" rel="noopener" target="_blank">
+                                    <img src="../assets/facebook.svg" alt="Facebook" width="20">
+                                </a><a href="https://www.instagram.com/before_semicolon_/" rel="noopener" target="_blank">
+                                    <img src="../assets/instagram.svg" alt="Instagram" width="20">
+                                </a><a href="https://www.reddit.com/r/beforesemicolon/" rel="noopener" target="_blank">
+                                    <img src="../assets/reddit.svg" alt="Reddit" width="20">
+                                </a><a href="https://twitter.com/BeforeSemicolon" rel="noopener" target="_blank">
+                                    <img src="../assets/twitter.svg" alt="Twitter" width="20">
+                                </a><a href="https://www.youtube.com/channel/UCrU33aw1k9BqTIq2yKXrmBw" rel="noopener" target="_blank">
+                                    <img src="../assets/youtube.svg" alt="YouTube" width="20">
+                                </a></address>
+                </li>
+            </ul>
+            <div class="copyright">
+                <img src="../assets/before-semicolon-logo.png" alt="Before Semicolon logo">
+                <p>
+                    <small>Copyright © 2023 Before
+                        Semicolon. All rights reserved.</small>
+                </p>
+            </div>
+        </footer></body>
+    </html>

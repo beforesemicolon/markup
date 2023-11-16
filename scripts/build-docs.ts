@@ -13,10 +13,7 @@ function createPage(page: string, srcDir: string, targetDir: string) {
     const pageName = page.replace('.page.ts', '.html')
     import(path.join(srcDir, page)).then(async ({ default: temp }) => {
         await fs.mkdir(targetDir, { recursive: true })
-        return fs.writeFile(
-            path.join(targetDir, pageName),
-            toStatic(temp).replace(/\s{2,}/g, '')
-        )
+        return fs.writeFile(path.join(targetDir, pageName), toStatic(temp))
     })
 }
 
