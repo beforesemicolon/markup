@@ -5,7 +5,7 @@ Simple Reactive HTML Template System
 
 ⚠️ Do NOT use in production!
 
-![Static Badge](https://img.shields.io/badge/docs-markup.beforesemicolon.com-blue?link=https%3A%2F%2Fbeforesemicolon.github.io%2Fhtml%2F)
+[![Static Badge](https://img.shields.io/badge/docs-markup.beforesemicolon.com-blue)](https://beforesemicolon.github.io/html/)
 [![npm](https://img.shields.io/npm/v/%40beforesemicolon%2Fhtml)](https://www.npmjs.com/package/@beforesemicolon/html)
 ![npm](https://img.shields.io/npm/l/%40beforesemicolon%2Fhtml)
 
