@@ -26,12 +26,6 @@ export const PageLayout = ({
             />
             <meta http-equiv="X-UA-Compatible" content="ie=edge" />
             <title>${title}</title>
-            <script src="https://unpkg.com/@beforesemicolon/markup/dist/client.js"></script>
-            <link
-                rel="stylesheet"
-                href="${basePath}stylesheets/normalize.css"
-            />
-            <link rel="stylesheet" href="${basePath}stylesheets/common.css" />
             ${stylesheets}
         </head>
         <body>

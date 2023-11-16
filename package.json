@@ -11,7 +11,7 @@
     "clean": "rm -rf docs && rm -rf dist",
     "local": "nodemon --watch src -e ts --exec 'npm run build:browser'",
     "local:docs": "nodemon --watch docs-src -e ts,scss,svg,json --exec 'npm run build:docs'",
-    "build:docs": "ts-node scripts/build-docs && node-sass docs-src/stylesheets -o docs/stylesheets && cp -r docs-src/assets docs",
+    "build:docs": "ts-node scripts/build-docs && node-sass docs-src/stylesheets -o docs/stylesheets --output-style compressed && cp -r docs-src/assets docs",
     "build:min": "esbuild `find src \\( -name '*.ts' ! -name '*.spec.ts' ! -name 'client.ts' \\)` --outdir=dist --platform=node --format=cjs --keep-names --target=esnext",
     "build:browser": "esbuild src/client.ts --bundle --minify --keep-names --sourcemap --target=esnext --outfile=dist/client.js",
     "build": "npm-run-all lint test clean && tsc && npm-run-all build:min build:browser build:docs",

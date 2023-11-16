@@ -1,4 +1,5 @@
 @import "fonts";
+@import "normalize";
 
 html, body {
 	margin: 0;
@@ -83,6 +84,7 @@ ul {
 	padding: 20px 5px 20px 10px;
 	border-radius: 3px;
 	margin: 5px 0;
+	overflow: hidden;
 	
 	pre {
 		margin: 0;
