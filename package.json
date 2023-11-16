@@ -1,7 +1,7 @@
 {
   "name": "@beforesemicolon/html",
   "version": "0.2.5-beta",
-  "description": "Simple Reactive HTML Template System",
+  "description": "HTML Templating System",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -22,10 +22,7 @@
   "license": "BSD-3-Clause",
   "keywords": [
     "html",
-    "web components",
-    "javascript",
-    "html renderer",
-    "web"
+    "templating systems"
   ],
   "devDependencies": {
     "@types/highlight.js": "^10.1.0",

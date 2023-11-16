@@ -1,5 +1,5 @@
-# HTML Templating System
-Simple Reactive HTML Template System
+# Markup
+HTML Templating System
 
 ⚠️ This is still in Beta and contains parts which are still under development and experimentation.
 
