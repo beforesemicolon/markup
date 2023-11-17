@@ -85,14 +85,14 @@
                     <a href="../documentation/creating-and-rendering" class="mobile-menu-close"></a>
                 </div>
                 <article><h2 id="creating-rendering" class="heading"><a href="#creating-rendering">Creating &amp; Rendering</a></h2><p>
-            It is really simple to create a template. You will need to use the
-            <code>html</code> core API which is pretty straight forward to use.
+            It is simple to create a template. You will need to use the
+            <code>html</code> core API and it is straight forward to use.
         </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">import</span> {html} <span class="hljs-keyword">from</span> <span class="hljs-string">"@beforesemicolon/markup"</span>;
 
 
 html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Hello Worls<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>`</span>;</code></pre></div><p>
             The <code>html</code> is a
-            <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates">tagged template</a>
+            <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates">tagged template,</a>
             which is a special way to create
             <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals">template literals</a>. Inside you can place any valid HTML and it will be handled
             accordingly.
@@ -114,7 +114,7 @@ html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-nam
             <code>HTMLTemplate</code> instance which we will exploring
             throughout these documents.
         </p><h3 id="rendering" class="heading"><a href="#rendering">Rendering</a></h3><p>
-            Everything starts with the rendering and it happens via the
+            Everything starts with the rendering, and it happens via the
             <code>render</code> method from the
             <code>HTMLTemplate</code> instance.
         </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> temp = html`<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Hello Worls<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>`</span>;

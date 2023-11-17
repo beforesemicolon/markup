@@ -85,7 +85,7 @@
                     <a href="../documentation/conditional-rendering" class="mobile-menu-close"></a>
                 </div>
                 <article><h2 id="conditional-rendering" class="heading"><a href="#conditional-rendering">Conditional Rendering</a></h2><p>
-            The biggest advantage of working with template is the ability to
+            The biggest advantage of working with a template is the ability to
             conditional render things. This library makes it super easy to
             conditional render anything because of
             <a href="./dynamic-values-and-update">dynamic values</a>.
@@ -102,7 +102,7 @@ html`<span class="hljs-subst">${() =&gt; count % <span class="hljs-number">2</sp
 <span class="hljs-keyword">const</span> <span class="hljs-title function_">even</span> = x =&gt; x % <span class="hljs-number">2</span> === <span class="hljs-number">0</span>;
 
 html`<span class="hljs-subst">${when(is(count, even), <span class="hljs-string">'even'</span>, <span class="hljs-string">'odd'</span>)}</span><span class="language-xml">`</span></code></pre></div><p>
-            The <code>when</code> helper takes 3 arguments and the third one is
+            The <code>when</code> helper takes 3 arguments, and the third one is
             optional:
         </p>
         <p><code>when(CONDITION, THEN, ?ELSE)</code>:</p>

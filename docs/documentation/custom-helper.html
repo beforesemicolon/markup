@@ -87,7 +87,7 @@
                 <article><h2 id="custom-helper" class="heading"><a href="#custom-helper">Custom helper</a></h2><p>
             To create a custom helper, all you need to do is create a function.
             If you expect to receive a state value you can wrap it in the
-            <code>helper</code> function and handle the state value. All which
+            <code>helper</code> function and handle the state value. All that
             this library can help you with.
         </p>
         <p>Let's look at this simple render of a todo list.</p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">const</span> [todos, updateTodos] = <span class="hljs-title function_">state</span>([
@@ -149,7 +149,7 @@ html`<span class="hljs-subst">${repeat(
   <span class="hljs-keyword">return</span> <span class="hljs-title function_">val</span>(list).<span class="hljs-title function_">filter</span>(filterer)
 })</code></pre></div><p>
             Now the helper is complete and would work for any type of data. Here
-            is the full example in typescript
+            is the full example in typescript.
         </p><div class="code-snippet"><pre><code class="language-typescript theme-hybrid hljs" data-highlighted="yes"><span class="hljs-keyword">import</span> {
   html,
   state,
