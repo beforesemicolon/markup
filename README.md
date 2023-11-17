@@ -105,7 +105,7 @@ This library requires no build or parsing. The CDN package is one digit killobyt
 <div id="app"></div>
   
 <script>
-    const {html} = BFS;
+    const {html} = BFS.MARKUP;
     
     html`<h1>Hello World</h1>`
       .render(document.getElementById('app'))

@@ -45,7 +45,7 @@ export default DocPageLayout(
             The client CDN link will create a global variable you can access for
             all the internal functions.
         </p>
-        ${CodeSnippet('const {html} = BFS;', 'javascript')}
+        ${CodeSnippet('const {html} = BFS.MARKUP;', 'javascript')}
         ${Heading('Via npm', 'h3')}
         <p>
             This package is also available via <code>npm</code> which will allow
