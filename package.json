@@ -20,6 +20,10 @@
   },
   "author": "Elson Correia",
   "license": "BSD-3-Clause",
+  "repository": {
+    "url": "https://github.com/beforesemicolon/markup",
+    "type": "git"
+  },
   "keywords": [
     "html",
     "templating systems"
