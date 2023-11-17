@@ -4,9 +4,8 @@ HTML Templating System
 [![Static Badge](https://img.shields.io/badge/docs-markup.beforesemicolon.com-blue)](https://beforesemicolon.github.io/markup/)
 [![npm](https://img.shields.io/npm/v/%40beforesemicolon%2Fmarkup)](https://www.npmjs.com/package/@beforesemicolon/markup)
 ![npm](https://img.shields.io/npm/l/%40beforesemicolon%2Fmarkup)
-
-[![Publish Docs](https://github.com/beforesemicolon/html/actions/workflows/publish-docs.yml/badge.svg?branch=main)](https://github.com/beforesemicolon/html/actions/workflows/publish-docs.yml)
 [![Test](https://github.com/beforesemicolon/html/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/beforesemicolon/html/actions/workflows/test.yml)
+
 
 Markup is a plug-and-play template system for those who need the bare minimal yet powerful
 way to build user interface. Its small size and ready-to-go nature makes it perfect for quick prototypes, 
