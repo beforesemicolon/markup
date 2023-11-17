@@ -9,6 +9,7 @@ import { DocPrevNextNav } from '../partials/doc-prev-next-nav'
 const page = IntroGroup.list[3]
 
 export default DocPageLayout(
+    page.name,
     page.path,
     html`${Heading(page.name)} ${PlaylistContent(tutorialTraining)}
     ${DocPrevNextNav({

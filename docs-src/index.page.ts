@@ -4,7 +4,6 @@ import reasons from './data/reasons.json'
 import { CodeSnippet } from './partials/code-snippet'
 
 export default PageLayout({
-    title: 'Html Templating System - Before Semicolon',
     stylesheets: html`
         <link rel="stylesheet" href="./stylesheets/hybrid.hightlighter.css" />
         <link rel="stylesheet" href="./stylesheets/landing.css" />

@@ -8,6 +8,7 @@ import { DocPrevNextNav } from '../partials/doc-prev-next-nav'
 const page = TemplatingGroup.list[1]
 
 export default DocPageLayout(
+    page.name,
     page.path,
     html`
         ${Heading(page.name, 'h2')}

@@ -7,6 +7,7 @@ import { DocPrevNextNav } from '../partials/doc-prev-next-nav'
 const page = IntroGroup.list[0]
 
 export default DocPageLayout(
+    page.name,
     page.path,
     html`
         ${Heading(page.name)}

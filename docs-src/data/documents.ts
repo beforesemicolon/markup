@@ -1,4 +1,12 @@
-export const IntroGroup = {
+interface DocumentsGroup {
+    name: string
+    list: {
+        name: string
+        path: string
+    }[]
+}
+
+export const IntroGroup: DocumentsGroup = {
     name: 'Introduction',
     list: [
         {
@@ -24,7 +32,7 @@ export const IntroGroup = {
     ],
 }
 
-export const TemplatingGroup = {
+export const TemplatingGroup: DocumentsGroup = {
     name: 'Templating',
     list: [
         {
@@ -62,7 +70,7 @@ export const TemplatingGroup = {
     ],
 }
 
-export const HelpersGroup = {
+export const HelpersGroup: DocumentsGroup = {
     name: 'Helpers',
     list: [
         {
@@ -104,7 +112,7 @@ export const HelpersGroup = {
     ],
 }
 
-export const ComponentsGroup = {
+export const ComponentsGroup: DocumentsGroup = {
     name: 'Capabilities',
     list: [
         {

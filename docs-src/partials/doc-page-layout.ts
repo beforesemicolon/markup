@@ -7,9 +7,13 @@ import {
     ComponentsGroup,
 } from '../data/documents'
 
-export const DocPageLayout = (currentPage: string, content: HtmlTemplate) =>
+export const DocPageLayout = (
+    title: string,
+    currentPage: string,
+    content: HtmlTemplate
+) =>
     PageLayout({
-        title: 'Tutorial - HTML Templating System - Before Semicolon',
+        title: `Markup: ${title} Documentation`,
         stylesheets: html`
             <link
                 rel="stylesheet"
@@ -18,6 +22,7 @@ export const DocPageLayout = (currentPage: string, content: HtmlTemplate) =>
             <link rel="stylesheet" href="../stylesheets/documentation.css" />
         `,
         basePath: '../',
+        path: currentPage,
         content: html`
             <div class="wrapper docs">
                 <div class="doc-nav" id="menu">
