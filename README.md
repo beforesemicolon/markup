@@ -77,7 +77,11 @@ This is a simple example of a button, but you can check:
 
 ## Install
 ```
-npm i @beforesemicolon/markup
+npm install @beforesemicolon/markup
+```
+or
+```
+yarn add @beforesemicolon/markup
 ```
 
 ## Use directly in the Browser
@@ -95,7 +99,16 @@ This library requires no build or parsing. The CDN package is one digit killobyt
   <script src="https://unpkg.com/@beforesemicolon/markup@0.3.0/dist/client.js"></script>
 
 </head>
-<body></body>
 </html>
-
+```
+### Usage
+```html
+<div id="app"></div>
+  
+<script>
+    const {html} = BFS;
+    
+    html`<h1>Hello World</h1>`
+      .render(document.getElementById('app'))
+</script>
 ```
