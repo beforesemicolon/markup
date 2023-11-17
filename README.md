@@ -9,8 +9,8 @@ HTML Templating System
 [![npm](https://img.shields.io/npm/v/%40beforesemicolon%2Fhtml)](https://www.npmjs.com/package/@beforesemicolon/html)
 ![npm](https://img.shields.io/npm/l/%40beforesemicolon%2Fhtml)
 
-[![Publish Docs](https://github.com/beforesemicolon/html/actions/workflows/publish-docs.yml/badge.svg)](https://github.com/beforesemicolon/html/actions/workflows/publish-docs.yml)
-[![Publish Docs](https://github.com/beforesemicolon/html/actions/workflows/publish-docs.yml/badge.svg)](https://github.com/beforesemicolon/html/actions/workflows/publish-docs.yml)
+[![Publish Docs](https://github.com/beforesemicolon/html/actions/workflows/publish-docs.yml/badge.svg?branch=main)](https://github.com/beforesemicolon/html/actions/workflows/publish-docs.yml)
+[![Test](https://github.com/beforesemicolon/html/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/beforesemicolon/html/actions/workflows/test.yml)
 
 The beforesemicolon `html` is a plug-and-play template system for those who need the bare minimal yet powerful
 way to build user interface. Its small size and ready-to-go nature makes it perfect for quick prototypes, 
