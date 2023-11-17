@@ -71,7 +71,6 @@ TodoApp.render(document.body)
 #### More examples
 
 This is a simple example of a button, but you can check:
-- [Some examples of how to create components](#component-patterns).
 - [A Modular Todo App](https://stackblitz.com/edit/web-platform-lvonxr?file=app.js)
 - [A Simple Counter App](https://stackblitz.com/edit/web-platform-adqrrf?file=app.js)
 - [A Simple Time App](https://stackblitz.com/edit/web-platform-bwoxex?file=button.js)
