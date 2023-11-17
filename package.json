@@ -1,6 +1,6 @@
 {
   "name": "@beforesemicolon/markup",
-  "version": "0.2.5-beta",
+  "version": "0.3.0",
   "description": "HTML Templating System",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
