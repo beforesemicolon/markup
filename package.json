@@ -1,5 +1,5 @@
 {
-  "name": "@beforesemicolon/html",
+  "name": "@beforesemicolon/markup",
   "version": "0.2.5-beta",
   "description": "HTML Templating System",
   "main": "dist/index.js",
