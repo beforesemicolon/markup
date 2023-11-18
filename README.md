@@ -1,7 +1,7 @@
 # Markup
 HTML Templating System
 
-[![Static Badge](https://img.shields.io/badge/docs-markup.beforesemicolon.com-blue)](https://beforesemicolon.github.io/markup/)
+[![Static Badge](https://img.shields.io/badge/docs-markup.beforesemicolon.com-blue)](https://markup.beforesemicolon.com)
 [![npm](https://img.shields.io/npm/v/%40beforesemicolon%2Fmarkup)](https://www.npmjs.com/package/@beforesemicolon/markup)
 ![npm](https://img.shields.io/npm/l/%40beforesemicolon%2Fmarkup)
 [![Test](https://github.com/beforesemicolon/html/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/beforesemicolon/html/actions/workflows/test.yml)
