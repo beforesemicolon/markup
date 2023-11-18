@@ -7,6 +7,6 @@ import { val } from '../utils'
  * @param st
  * @param list
  */
-export const oneOf = helper(<T>(st: StateGetter<T>, list: unknown[]) => {
+export const oneOf = helper(<T>(st: T | StateGetter<T>, list: unknown[]) => {
     return list.includes(val(st))
 })

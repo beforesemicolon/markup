@@ -9,7 +9,7 @@ import { val } from '../utils'
  */
 export const isNot = helper(
     <T>(
-        st: StateGetter<T>,
+        st: T | StateGetter<T>,
         checker: HelperValueChecker<T> | AnythingButAFunction<T>
     ) => {
         return typeof checker === 'function'
