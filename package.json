@@ -37,6 +37,10 @@
     "html",
     "templating systems"
   ],
+  "funding": {
+    "url": "https://github.com/sponsors/beforesemicolon",
+    "type": "github"
+  },
   "devDependencies": {
     "@types/highlight.js": "^10.1.0",
     "@types/jest": "^29.5.1",
