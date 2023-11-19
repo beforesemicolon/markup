@@ -33,7 +33,6 @@ export default DocPageLayout(
                 '  disabled = false;\n' +
                 '  \n' +
                 '  connectedCallback() {\n' +
-                "    console.log('mounted')\n" +
                 '    this.innerHTML = `<input type="text"/>`;\n' +
                 '    \n' +
                 '    this.updateField()\n' +
