@@ -98,12 +98,13 @@
     
     ul li {
       padding: 3px 5px 5px 10px;
-      margin: 5px 0;
+      margin: 3px 0;
       
       a {
-        color: #bbb;
+        color: #9b9b9b;
         font-weight: 300;
         letter-spacing: 0.09rem;
+        font-family: "Exo 2.0", sans-serif;
       }
       
       &:hover, &.active {
