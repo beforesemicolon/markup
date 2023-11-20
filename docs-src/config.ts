@@ -55,7 +55,7 @@ const config: Page[] = [
     },
     {
         path: 'documentation/essential-training',
-        name: 'Installation',
+        name: 'Essential Training',
         title: 'Essential Training : Markup by Before Semicolon',
         component: EssentialTrainingPage,
         group: 'Introduction',
