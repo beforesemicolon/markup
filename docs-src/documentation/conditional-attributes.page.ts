@@ -1,16 +1,16 @@
 import { html } from '../../src'
 import { DocPageLayout } from '../partials/doc-page-layout'
-import { TemplatingGroup } from '../data/documents'
 import { Heading } from '../partials/heading'
 import { CodeSnippet } from '../partials/code-snippet'
 import { DocPrevNextNav } from '../partials/doc-prev-next-nav'
+import { PageComponentProps } from '../type'
 
-const page = TemplatingGroup.list[4]
-
-export default DocPageLayout(
-    page.name,
-    page.path,
-    html`
+export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
+    DocPageLayout(
+        page.title,
+        page.path,
+        docsMenu,
+        html`
         ${Heading(page.name)}
         <p>
             You cannot use template values to define attributes directly on the
@@ -130,14 +130,8 @@ export default DocPageLayout(
             'typescript'
         )}
         ${DocPrevNextNav({
-            prev: {
-                label: TemplatingGroup.list[3].name,
-                link: TemplatingGroup.list[3].path,
-            },
-            next: {
-                label: TemplatingGroup.list[5].name,
-                link: TemplatingGroup.list[5].path,
-            },
+            prev: prevPage,
+            next: nextPage,
         })}
     `
-)
+    )

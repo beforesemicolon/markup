@@ -1,43 +1,43 @@
 [
-  {
-    "title": "Reactive",
-    "description": "The template will react to data changes and only trigger the DOM update calculation for the element and element parts that depend and the data changed.",
-    "img": "./assets/reactive.svg",
-    "imgAlt": "reactive templating system"
-  },
-  {
-    "title": "Independent",
-    "description": "Most templating system are dependent on the framework or specific setup to be usable. This system standalone and can be used alongside anything.",
-    "img": "./assets/independent.svg",
-    "imgAlt": "independent templating system"
-  },
-  {
-    "title": "Fast",
-    "description": "The system uses a fast HTML parser but it also does not waste in recalculating parts of the DOM that does not depend on any changed data which makes it fast.",
-    "img": "./assets/fast.svg",
-    "imgAlt": "fast templating system"
-  },
-  {
-    "title": "Small",
-    "description": "So powerful and yet so tiny. Great things come in small packages.",
-    "img": "./assets/small.svg",
-    "imgAlt": "small templating system",
-    "breakDown": [
-      "<strong>< 1B</strong> CDN compressed",
-      "<strong>~ 17.5kb </strong>minified",
-      "<strong>~ 68kb</strong> raw"
-    ]
-  },
-  {
-    "title": "Simple",
-    "description": "With just two core APIs, learning it is pretty straight forward even so if you already know JavaScript and HTML. Everything else, which is not much, is to aid with templating.",
-    "img": "./assets/simple.svg",
-    "imgAlt": "simple templating system"
-  },
-  {
-    "title": "Client + Server",
-    "description": "You can use the same templating system on the client and server and take advantage of every features to either render things at runtime or on the server.",
-    "img": "./assets/client-server.svg",
-    "imgAlt": "client-server templating system"
-  }
+    {
+        "title": "Reactive",
+        "description": "The template will react to data changes and only trigger the DOM update calculation for the element and element parts that depend and the data changed.",
+        "img": "./assets/reactive.svg",
+        "imgAlt": "reactive templating system"
+    },
+    {
+        "title": "Independent",
+        "description": "Most templating system are dependent on the framework or specific setup to be usable. This system standalone and can be used alongside anything.",
+        "img": "./assets/independent.svg",
+        "imgAlt": "independent templating system"
+    },
+    {
+        "title": "Fast",
+        "description": "The system uses a fast HTML parser but it also does not waste in recalculating parts of the DOM that does not depend on any changed data which makes it fast.",
+        "img": "./assets/fast.svg",
+        "imgAlt": "fast templating system"
+    },
+    {
+        "title": "Small",
+        "description": "So powerful and yet so tiny. Great things come in small packages.",
+        "img": "./assets/small.svg",
+        "imgAlt": "small templating system",
+        "breakDown": [
+            "<strong>< 1B</strong> CDN compressed",
+            "<strong>~ 17.5kb </strong>minified",
+            "<strong>~ 68kb</strong> raw"
+        ]
+    },
+    {
+        "title": "Simple",
+        "description": "With just two core APIs, learning it is pretty straight forward even so if you already know JavaScript and HTML. Everything else, which is not much, is to aid with templating.",
+        "img": "./assets/simple.svg",
+        "imgAlt": "simple templating system"
+    },
+    {
+        "title": "Client + Server",
+        "description": "You can use the same templating system on the client and server and take advantage of every features to either render things at runtime or on the server.",
+        "img": "./assets/client-server.svg",
+        "imgAlt": "client-server templating system"
+    }
 ]

@@ -1,8 +1,9 @@
 import { html, when } from '../../src'
+import { Page } from '../type'
 
 interface DocPrevNextNavProps {
-    prev?: { label: string; link: string }
-    next?: { label: string; link: string }
+    prev?: Page
+    next?: Page
 }
 
 export const DocPrevNextNav = ({ prev, next }: DocPrevNextNavProps) => {
@@ -11,9 +12,9 @@ export const DocPrevNextNav = ({ prev, next }: DocPrevNextNavProps) => {
             prev,
             () =>
                 html`<a
-                    href="${prev?.link.replace(/^documentation/, '.')}"
+                    href="${prev?.path.replace(/^documentation/, '.')}"
                     class="prev-page"
-                    ><< ${prev?.label}</a
+                    ><< ${prev?.name}</a
                 >`,
             html`<span />`
         )}
@@ -21,9 +22,9 @@ export const DocPrevNextNav = ({ prev, next }: DocPrevNextNavProps) => {
             next,
             () =>
                 html`<a
-                    href="${next?.link.replace(/^documentation/, '.')}"
+                    href="${next?.path.replace(/^documentation/, '.')}"
                     class="next-page"
-                    >${next?.label} >></a
+                    >${next?.name} >></a
                 > `,
             html`<span />`
         )}

@@ -1,28 +1,22 @@
 import { html } from '../../src'
 import { DocPageLayout } from '../partials/doc-page-layout'
-import { IntroGroup } from '../data/documents'
 import { Heading } from '../partials/heading'
 import { PlaylistContent } from '../partials/playlist-content'
 import tutorialTraining from '../data/tutorial.json'
 import { DocPrevNextNav } from '../partials/doc-prev-next-nav'
+import { PageComponentProps } from '../type'
 
-const page = IntroGroup.list[3]
-
-export default DocPageLayout(
-    page.name,
-    page.path,
-    html`${Heading(page.name)} ${PlaylistContent(tutorialTraining)}
-    ${DocPrevNextNav({
-        prev: {
-            label: IntroGroup.list[2].name,
-            link: IntroGroup.list[2].path,
-        },
-        next: {
-            label: IntroGroup.list[4].name,
-            link: IntroGroup.list[4].path,
-        },
-    })}`
-)
+export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
+    DocPageLayout(
+        page.title,
+        page.path,
+        docsMenu,
+        html`${Heading(page.name)} ${PlaylistContent(tutorialTraining)}
+        ${DocPrevNextNav({
+            prev: prevPage,
+            next: nextPage,
+        })}`
+    )
 
 // const reordableList = helper(
 // 	(list, renderItem, renderContainer, withDrop) => {

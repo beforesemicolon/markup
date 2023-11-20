@@ -1,19 +1,15 @@
 import { html, HtmlTemplate } from '../../src'
 import { PageLayout } from '../partials/page-layout'
-import {
-  IntroGroup,
-  TemplatingGroup,
-  HelpersGroup,
-  ComponentsGroup, UtilitiesGroup,
-} from '../data/documents'
+import { DocumentsGroup } from '../type'
 
 export const DocPageLayout = (
     title: string,
     currentPage: string,
+    docMenu: DocumentsGroup[],
     content: HtmlTemplate
 ) =>
     PageLayout({
-        title: `Markup: ${title} Documentation`,
+        title,
         stylesheets: html`
             <link
                 rel="stylesheet"
@@ -30,13 +26,7 @@ export const DocPageLayout = (
                         <span>menu</span>
                     </a>
                     <ul class="doc-nav-list" id="doc-nav-list" tabindex="0">
-                        ${[
-                            IntroGroup,
-                            TemplatingGroup,
-                            HelpersGroup,
-                            UtilitiesGroup,
-                            ComponentsGroup,
-                        ].map(
+                        ${docMenu.map(
                             (g) => html`
                                 <li>
                                     <span>${g.name}</span>

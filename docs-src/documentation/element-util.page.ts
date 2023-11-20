@@ -1,16 +1,16 @@
 import { html } from '../../src'
 import { DocPageLayout } from '../partials/doc-page-layout'
-import {HelpersGroup, UtilitiesGroup} from '../data/documents'
 import { Heading } from '../partials/heading'
 import { CodeSnippet } from '../partials/code-snippet'
 import { DocPrevNextNav } from '../partials/doc-prev-next-nav'
+import { PageComponentProps } from '../type'
 
-const page = UtilitiesGroup.list[0]
-
-export default DocPageLayout(
-    page.name,
-    page.path,
-    html`
+export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
+    DocPageLayout(
+        page.title,
+        page.path,
+        docsMenu,
+        html`
         ${Heading(page.name)}
         <p>
             The <code>element</code> utility exists solely to help you create DOM elements easily.
@@ -38,28 +38,28 @@ export default DocPageLayout(
         <p>Creating DOM element the native way is a multiline experience, especially with events or if you
         want to handle web components.</p>
         ${CodeSnippet(
-            'const button = document.createElement(\'button\');\n' +
-          '\n' +
-          'button.type = "button";\n' +
-          'button.disabled = true;\n' +
-          'button.textContent = "click me";\n' +
-          'button.onclick = () => {\n' +
-          '  // handle click\n' +
-          '}',
+            "const button = document.createElement('button');\n" +
+                '\n' +
+                'button.type = "button";\n' +
+                'button.disabled = true;\n' +
+                'button.textContent = "click me";\n' +
+                'button.onclick = () => {\n' +
+                '  // handle click\n' +
+                '}',
             'typescript'
         )}
         <p>With <code>element</code> it looks like this:</p>
         ${CodeSnippet(
-            'const button = element(\'button\', {\n' +
-          '  textContent: \'click me\',\n' +
-          '  attributes: {\n' +
-          '    type: \'button\',\n' +
-          '    disabled: true,\n' +
-          '    onclick: () => {\n' +
-          '      // handle click\n' +
-          '    }\n' +
-          '  }\n' +
-          '})',
+            "const button = element('button', {\n" +
+                "  textContent: 'click me',\n" +
+                '  attributes: {\n' +
+                "    type: 'button',\n" +
+                '    disabled: true,\n' +
+                '    onclick: () => {\n' +
+                '      // handle click\n' +
+                '    }\n' +
+                '  }\n' +
+                '})',
             'typescript'
         )}
         <p>Doing it all in one call is not the only reason. There are other advantages:</p>
@@ -71,14 +71,8 @@ export default DocPageLayout(
           to internal setters it will automatically provide them as properties as well.</li
         </ul>
         ${DocPrevNextNav({
-            prev: {
-                label: HelpersGroup.list[7].name,
-                link: HelpersGroup.list[7].path,
-            },
-            next: {
-                label: UtilitiesGroup.list[1].name,
-                link: UtilitiesGroup.list[1].path,
-            },
+            prev: prevPage,
+            next: nextPage,
         })}
     `
-)
+    )

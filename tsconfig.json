@@ -1,38 +1,30 @@
 {
-  "ts-node": {
+    "ts-node": {
+        "compilerOptions": {
+            "module": "commonjs",
+            "esModuleInterop": true
+        }
+    },
     "compilerOptions": {
-      "module": "commonjs",
-      "esModuleInterop": true
-    }
-  },
-  "compilerOptions": {
-    "target": "ESNEXT",
-    "module": "esnext",
-    "lib": [
-      "dom",
-      "es2015.proxy",
-      "es2021.weakref"
-    ],
-    "declaration": true,
-    "declarationMap": false,
-    "sourceMap": true,
-    "outDir": "./dist",
-    "removeComments": true,
-    "downlevelIteration": true,
-    "strict": true,
-    "alwaysStrict": true,
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "allowJs": true
-  },
-  "include": [
-    "./src/**/*"
-  ],
-  "exclude": [
-    "src/**/*.spec.ts"
-  ]
+        "target": "ESNEXT",
+        "module": "esnext",
+        "lib": ["dom", "es2015.proxy", "es2021.weakref"],
+        "declaration": true,
+        "declarationMap": false,
+        "sourceMap": true,
+        "outDir": "./dist",
+        "removeComments": true,
+        "downlevelIteration": true,
+        "strict": true,
+        "alwaysStrict": true,
+        "resolveJsonModule": true,
+        "allowSyntheticDefaultImports": true,
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "allowJs": true
+    },
+    "include": ["./src/**/*"],
+    "exclude": ["src/**/*.spec.ts"]
 }

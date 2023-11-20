@@ -1,117 +1,113 @@
 import { html } from '../../src'
 import { DocPageLayout } from '../partials/doc-page-layout'
-import { ComponentsGroup } from '../data/documents'
 import { Heading } from '../partials/heading'
 import { CodeSnippet } from '../partials/code-snippet'
 import { DocPrevNextNav } from '../partials/doc-prev-next-nav'
+import { PageComponentProps } from '../type'
 
-const page = ComponentsGroup.list[1]
-
-export default DocPageLayout(
-    page.name,
-    page.path,
-    html`
-        ${Heading(page.name)}
-        <p>
-            Native
-            <a
-                href="https://developer.mozilla.org/en-US/docs/Web/API/Web_components"
-                >Web Components</a
-            >
-            are powerful but the API is a bit complex to scale. The good news is
-            that this library can enhance and simplify that experience in a way
-            the API is approachable.
-        </p>
-        <p>
-            Below is an example of a simple input field web component with only
-            two props and small template.
-        </p>
-        ${CodeSnippet(
-            'class TextField extends HTMLElement {\n' +
-                '  static observedAttributes = ["value", "disabled"];\n' +
-                '  value = "";\n' +
-                '  disabled = false;\n' +
-                '  \n' +
-                '  connectedCallback() {\n' +
-                '    this.innerHTML = `<input type="text"/>`;\n' +
-                '    \n' +
-                '    this.updateField()\n' +
-                '  }\n' +
-                '  \n' +
-                '  attributeChangedCallback(name, oldValue, newValue) {\n' +
-                '    // parse the new value\n' +
-                '    try {\n' +
-                '      this[name] = JSON.parse(newValue)\n' +
-                '      this.updateField();\n' +
-                '    } catch(e) {\n' +
-                '      console.warn(`invalid "${name}" value`, newValue)\n' +
-                '    }\n' +
-                '  }\n' +
-                '  \n' +
-                '  updateField() {\n' +
-                "    const input = this.querySelector('input');\n" +
-                '    \n' +
-                '    input.value = this.value;\n' +
-                '    input.disabled = this.disabled;\n' +
-                '  }\n' +
-                '}\n' +
-                '\n' +
-                'customElements.define("text-field", TextField)',
-            'typescript'
-        )}
-        <p>
-            You can see that it is a little complex for a simple input field
-            component. Now imagine if we had a component with more props and
-            with complex values as well as a more elaborated template.
-        </p>
-        <p>
-            We can simplify it a little by introducing this library capabilities
-            so no need for DOM manipulations and tracking is needed.
-        </p>
-        ${CodeSnippet(
-            'class TextField extends HTMLElement {\n' +
-                '  static observedAttributes = ["value", "disabled"];\n' +
-                '  value = "";\n' +
-                '  disabled = false;\n' +
-                '  template = html`\n' +
-                '    <input \n' +
-                '      type="text" \n' +
-                '      value="${() => this.value}"\n' +
-                '      attr.disabled="${() => this.disabled}"\n' +
-                '      />\n' +
-                '  `\n' +
-                '  \n' +
-                '  connectedCallback() {\n' +
-                '    this.template.render(this); // render template\n' +
-                '  }\n' +
-                '  \n' +
-                '  attributeChangedCallback(name, oldValue, newValue) {\n' +
-                '    // parse the new value\n' +
-                '    try {\n' +
-                '      this[name] = JSON.parse(newValue)\n' +
-                '      this.template.update(); // update template\n' +
-                '    } catch(e) {\n' +
-                '      console.warn(`invalid "${name}" value`, newValue)\n' +
-                '    }\n' +
-                '  }\n' +
-                '}\n' +
-                '\n' +
-                'customElements.define("text-field", TextField)',
-            'typescript'
-        )}
-        <p>
-            We can further simplify this component and we have prepared a full
-            tutorial on how to do so. You can <a href="">watch it here</a>.
-        </p>
-        ${DocPrevNextNav({
-            prev: {
-                label: ComponentsGroup.list[0].name,
-                link: ComponentsGroup.list[0].path,
-            },
-            next: {
-                label: ComponentsGroup.list[2].name,
-                link: ComponentsGroup.list[2].path,
-            },
-        })}
-    `
-)
+export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
+    DocPageLayout(
+        page.title,
+        page.path,
+        docsMenu,
+        html`
+            ${Heading(page.name)}
+            <p>
+                Native
+                <a
+                    href="https://developer.mozilla.org/en-US/docs/Web/API/Web_components"
+                    >Web Components</a
+                >
+                are powerful but the API is a bit complex to scale. The good
+                news is that this library can enhance and simplify that
+                experience in a way the API is approachable.
+            </p>
+            <p>
+                Below is an example of a simple input field web component with
+                only two props and small template.
+            </p>
+            ${CodeSnippet(
+                'class TextField extends HTMLElement {\n' +
+                    '  static observedAttributes = ["value", "disabled"];\n' +
+                    '  value = "";\n' +
+                    '  disabled = false;\n' +
+                    '  \n' +
+                    '  connectedCallback() {\n' +
+                    '    this.innerHTML = `<input type="text"/>`;\n' +
+                    '    \n' +
+                    '    this.updateField()\n' +
+                    '  }\n' +
+                    '  \n' +
+                    '  attributeChangedCallback(name, oldValue, newValue) {\n' +
+                    '    // parse the new value\n' +
+                    '    try {\n' +
+                    '      this[name] = JSON.parse(newValue)\n' +
+                    '      this.updateField();\n' +
+                    '    } catch(e) {\n' +
+                    '      console.warn(`invalid "${name}" value`, newValue)\n' +
+                    '    }\n' +
+                    '  }\n' +
+                    '  \n' +
+                    '  updateField() {\n' +
+                    "    const input = this.querySelector('input');\n" +
+                    '    \n' +
+                    '    input.value = this.value;\n' +
+                    '    input.disabled = this.disabled;\n' +
+                    '  }\n' +
+                    '}\n' +
+                    '\n' +
+                    'customElements.define("text-field", TextField)',
+                'typescript'
+            )}
+            <p>
+                You can see that it is a little complex for a simple input field
+                component. Now imagine if we had a component with more props and
+                with complex values as well as a more elaborated template.
+            </p>
+            <p>
+                We can simplify it a little by introducing this library
+                capabilities so no need for DOM manipulations and tracking is
+                needed.
+            </p>
+            ${CodeSnippet(
+                'class TextField extends HTMLElement {\n' +
+                    '  static observedAttributes = ["value", "disabled"];\n' +
+                    '  value = "";\n' +
+                    '  disabled = false;\n' +
+                    '  template = html`\n' +
+                    '    <input \n' +
+                    '      type="text" \n' +
+                    '      value="${() => this.value}"\n' +
+                    '      attr.disabled="${() => this.disabled}"\n' +
+                    '      />\n' +
+                    '  `\n' +
+                    '  \n' +
+                    '  connectedCallback() {\n' +
+                    '    this.template.render(this); // render template\n' +
+                    '  }\n' +
+                    '  \n' +
+                    '  attributeChangedCallback(name, oldValue, newValue) {\n' +
+                    '    // parse the new value\n' +
+                    '    try {\n' +
+                    '      this[name] = JSON.parse(newValue)\n' +
+                    '      this.template.update(); // update template\n' +
+                    '    } catch(e) {\n' +
+                    '      console.warn(`invalid "${name}" value`, newValue)\n' +
+                    '    }\n' +
+                    '  }\n' +
+                    '}\n' +
+                    '\n' +
+                    'customElements.define("text-field", TextField)',
+                'typescript'
+            )}
+            <p>
+                We can further simplify this component and we have prepared a
+                full tutorial on how to do so. You can
+                <a href="">watch it here</a>.
+            </p>
+            ${DocPrevNextNav({
+                prev: prevPage,
+                next: nextPage,
+            })}
+        `
+    )
