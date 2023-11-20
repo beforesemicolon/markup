@@ -1,4 +1,4 @@
-import { isPrimitive, jsonStringify, turnCamelToKebabCasing } from '../utils'
+import { isPrimitive, jsonStringify, turnCamelToKebabCasing } from '.'
 import { doc } from '../doc'
 
 export interface ElementOptions<A> {

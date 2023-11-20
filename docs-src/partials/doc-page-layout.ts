@@ -1,10 +1,10 @@
 import { html, HtmlTemplate } from '../../src'
 import { PageLayout } from '../partials/page-layout'
 import {
-    IntroGroup,
-    TemplatingGroup,
-    HelpersGroup,
-    ComponentsGroup,
+  IntroGroup,
+  TemplatingGroup,
+  HelpersGroup,
+  ComponentsGroup, UtilitiesGroup,
 } from '../data/documents'
 
 export const DocPageLayout = (
@@ -34,6 +34,7 @@ export const DocPageLayout = (
                             IntroGroup,
                             TemplatingGroup,
                             HelpersGroup,
+                            UtilitiesGroup,
                             ComponentsGroup,
                         ].map(
                             (g) => html`

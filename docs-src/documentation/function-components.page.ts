@@ -1,6 +1,6 @@
 import { html } from '../../src'
 import { DocPageLayout } from '../partials/doc-page-layout'
-import { ComponentsGroup, HelpersGroup } from '../data/documents'
+import { ComponentsGroup, UtilitiesGroup } from '../data/documents'
 import { Heading } from '../partials/heading'
 import { CodeSnippet } from '../partials/code-snippet'
 import { DocPrevNextNav } from '../partials/doc-prev-next-nav'
@@ -72,8 +72,8 @@ export default DocPageLayout(
         )}
         ${DocPrevNextNav({
             prev: {
-                label: HelpersGroup.list[8].name,
-                link: HelpersGroup.list[8].path,
+                label: UtilitiesGroup.list[1].name,
+                link: UtilitiesGroup.list[1].path,
             },
             next: {
                 label: ComponentsGroup.list[1].name,

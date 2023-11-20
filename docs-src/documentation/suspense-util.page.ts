@@ -1,11 +1,11 @@
 import { html } from '../../src'
 import { DocPageLayout } from '../partials/doc-page-layout'
-import { HelpersGroup } from '../data/documents'
+import {ComponentsGroup, HelpersGroup, UtilitiesGroup} from '../data/documents'
 import { Heading } from '../partials/heading'
 import { CodeSnippet } from '../partials/code-snippet'
 import { DocPrevNextNav } from '../partials/doc-prev-next-nav'
 
-const page = HelpersGroup.list[7]
+const page = UtilitiesGroup.list[1]
 
 export default DocPageLayout(
     page.name,
@@ -13,7 +13,7 @@ export default DocPageLayout(
     html`
         ${Heading(page.name)}
         <p>
-            The <code>suspense</code> helper exist solely to aid you with any
+            The <code>suspense</code> utility exist solely to aid you with any
             asynchronous rendering.
         </p>
         <p>It takes three arguments and only the first one is required.</p>
@@ -63,12 +63,12 @@ export default DocPageLayout(
         )}
         ${DocPrevNextNav({
             prev: {
-                label: HelpersGroup.list[6].name,
-                link: HelpersGroup.list[6].path,
+                label: UtilitiesGroup.list[0].name,
+                link: UtilitiesGroup.list[0].path,
             },
             next: {
-                label: HelpersGroup.list[8].name,
-                link: HelpersGroup.list[8].path,
+                label: ComponentsGroup.list[0].name,
+                link: ComponentsGroup.list[0].path,
             },
         })}
     `

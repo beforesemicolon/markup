@@ -6,5 +6,7 @@ export * from './turn-kebab-to-camel-casing'
 export * from './turn-camel-to-kebab-casing'
 export * from './is-primitive'
 export * from './val'
+export * from './element'
+export * from './suspense'
 
 export const booleanAttributes = bool

@@ -1,4 +1,4 @@
-import { element } from './element.helper'
+import { element } from './element'
 
 describe('element', () => {
     it('should create an element with name only', () => {

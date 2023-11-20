@@ -1,7 +1,6 @@
 import { html, state } from './html'
 import {
     and,
-    element,
     effect,
     is,
     isNot,
@@ -9,11 +8,10 @@ import {
     or,
     pick,
     repeat,
-    suspense,
     when,
 } from './helpers'
 import { helper, Helper } from './Helper'
-import { val } from './utils'
+import { val, element, suspense } from './utils'
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -27,19 +25,21 @@ if (window) {
         MARKUP: {
             html,
             state,
+            // helpers
             and,
-            element,
             effect,
+            Helper,
+            helper,
             is,
             isNot,
             oneOf,
             or,
             pick,
             repeat,
-            suspense,
             when,
-            helper,
-            Helper,
+            // utils
+            element,
+            suspense,
             val,
         },
     }

@@ -102,12 +102,22 @@ export const HelpersGroup: DocumentsGroup = {
             path: 'documentation/pick-helper',
         },
         {
-            name: 'Suspense helper',
-            path: 'documentation/suspense-helper',
-        },
-        {
             name: 'Custom helper',
             path: 'documentation/custom-helper',
+        },
+    ],
+}
+
+export const UtilitiesGroup: DocumentsGroup = {
+    name: 'Utilities',
+    list: [
+        {
+            name: 'Element',
+            path: 'documentation/element-util',
+        },
+        {
+            name: 'Suspense',
+            path: 'documentation/suspense-util',
         },
     ],
 }

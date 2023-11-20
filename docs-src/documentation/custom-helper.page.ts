@@ -1,11 +1,11 @@
 import { html } from '../../src'
 import { DocPageLayout } from '../partials/doc-page-layout'
-import { ComponentsGroup, HelpersGroup } from '../data/documents'
+import {ComponentsGroup, HelpersGroup, UtilitiesGroup} from '../data/documents'
 import { Heading } from '../partials/heading'
 import { CodeSnippet } from '../partials/code-snippet'
 import { DocPrevNextNav } from '../partials/doc-prev-next-nav'
 
-const page = HelpersGroup.list[8]
+const page = HelpersGroup.list[7]
 
 export default DocPageLayout(
     page.name,
@@ -155,12 +155,12 @@ export default DocPageLayout(
         )}
         ${DocPrevNextNav({
             prev: {
-                label: HelpersGroup.list[7].name,
-                link: HelpersGroup.list[7].path,
+                label: HelpersGroup.list[6].name,
+                link: HelpersGroup.list[6].path,
             },
             next: {
-                label: ComponentsGroup.list[0].name,
-                link: ComponentsGroup.list[0].path,
+                label: UtilitiesGroup.list[0].name,
+                link: UtilitiesGroup.list[0].path,
             },
         })}
     `

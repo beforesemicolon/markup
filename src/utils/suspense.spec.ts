@@ -1,4 +1,4 @@
-import {suspense} from "./suspense.helper";
+import {suspense} from "./suspense";
 import {html} from "../html";
 
 describe('suspense', () => { // @ts-ignore

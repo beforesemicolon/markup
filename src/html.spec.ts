@@ -1,5 +1,6 @@
 import {html, HtmlTemplate, state} from './html'
-import {when, repeat, suspense} from './helpers'
+import {when, repeat} from './helpers'
+import {suspense} from './utils'
 import {helper} from "./Helper";
 
 describe('html', () => {
