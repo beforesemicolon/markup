@@ -258,7 +258,7 @@ const config: Page[] = [
 export const DocMenu: DocumentsGroup[] = Object.values(
     config.reduce(
         (acc, page) => {
-            if (page.group && page.path.startsWith('documentation')) {
+            if (page.group && page.path.startsWith('/documentation')) {
                 if (!acc[page.group]) {
                     acc[page.group] = {
                         name: page.group,
