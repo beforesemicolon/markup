@@ -38,7 +38,7 @@ const config: Page[] = [
         root: true,
     },
     {
-        path: 'documentation/',
+        path: '/documentation/',
         name: 'What is Markup?',
         title: 'Documentation: Markup by Before Semicolon',
         component: Documentation,
@@ -46,7 +46,7 @@ const config: Page[] = [
         root: true,
     },
     {
-        path: 'documentation/installation',
+        path: '/documentation/installation',
         name: 'Installation',
         title: 'Installation Documentation: Markup by Before Semicolon',
         component: InstallationPage,
@@ -54,7 +54,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/essential-training',
+        path: '/documentation/essential-training',
         name: 'Essential Training',
         title: 'Essential Training : Markup by Before Semicolon',
         component: EssentialTrainingPage,
@@ -62,7 +62,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/tutorials',
+        path: '/documentation/tutorials',
         name: 'Tutorials',
         title: 'Tutorials : Markup by Before Semicolon',
         component: TutorialPage,
@@ -70,7 +70,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/examples',
+        path: '/documentation/examples',
         name: 'Examples',
         title: 'Examples : Markup by Before Semicolon',
         component: ExamplesPage,
@@ -78,7 +78,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/creating-and-rendering',
+        path: '/documentation/creating-and-rendering',
         name: 'Creating & Rendering',
         title: 'Creating & Rendering : Markup by Before Semicolon',
         component: CreatingAndRenderingPage,
@@ -86,7 +86,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/templating-values',
+        path: '/documentation/templating-values',
         name: 'Templating Values',
         title: 'Templating Values : Markup by Before Semicolon',
         component: TemplatingValuesPage,
@@ -94,7 +94,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/replacing-content',
+        path: '/documentation/replacing-content',
         name: 'Replacing Content',
         title: 'Replacing Content : Markup by Before Semicolon',
         component: ReplacingContentPage,
@@ -102,7 +102,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/dom-references',
+        path: '/documentation/dom-references',
         name: 'DOM References',
         title: 'DOM References : Markup by Before Semicolon',
         component: DOMReferencesPage,
@@ -110,7 +110,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/conditional-attributes',
+        path: '/documentation/conditional-attributes',
         name: 'Conditional Attributes',
         title: 'Conditional Attributes : Markup by Before Semicolon',
         component: ConditionalAttributesPage,
@@ -118,7 +118,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/event-handling',
+        path: '/documentation/event-handling',
         name: 'Event Handling',
         title: 'Event Handling : Markup by Before Semicolon',
         component: EventHandlingPage,
@@ -126,7 +126,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/dynamic-values-and-update',
+        path: '/documentation/dynamic-values-and-update',
         name: 'Dynamic Values & Update',
         title: 'Dynamic Values & Update : Markup by Before Semicolon',
         component: DynamicValuesAndUpdatePage,
@@ -134,7 +134,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/state-values',
+        path: '/documentation/state-values',
         name: 'State Values',
         title: 'State Values : Markup by Before Semicolon',
         component: StatValuesPage,
@@ -142,7 +142,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/what-is-a-helper',
+        path: '/documentation/what-is-a-helper',
         name: 'What is a Helper?',
         title: 'What is a Helper? : Markup by Before Semicolon',
         component: WhatIsAHelperPage,
@@ -150,7 +150,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/effect-helper',
+        path: '/documentation/effect-helper',
         name: 'Effect Helper',
         title: 'Effect Helper : Markup by Before Semicolon',
         component: EffectHelperPage,
@@ -158,7 +158,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/conditional-rendering',
+        path: '/documentation/conditional-rendering',
         name: 'Conditional Rendering',
         title: 'Conditional Rendering : Markup by Before Semicolon',
         component: ConditionalRenderingPage,
@@ -166,7 +166,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/repetition-and-lists',
+        path: '/documentation/repetition-and-lists',
         name: 'Repetition & Lists',
         title: 'Repetition & Lists : Markup by Before Semicolon',
         component: RepetitionAndListsPage,
@@ -174,7 +174,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/is-isnot-helpers',
+        path: '/documentation/is-isnot-helpers',
         name: 'Is & IsNot Helpers',
         title: 'Is & IsNot Helpers : Markup by Before Semicolon',
         component: IsIsNotHelpersPage,
@@ -182,7 +182,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/or-and-oneof-helpers',
+        path: '/documentation/or-and-oneof-helpers',
         name: 'Or, And, & OneOf Helpers',
         title: 'Or, And, & OneOf Helpers : Markup by Before Semicolon',
         component: OrAndOneOfHelpersPage,
@@ -190,7 +190,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/pick-helper',
+        path: '/documentation/pick-helper',
         name: 'Pick Helper',
         title: 'Pick Helper : Markup by Before Semicolon',
         component: PickHelperPage,
@@ -198,7 +198,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/custom-helper',
+        path: '/documentation/custom-helper',
         name: 'Custom Helper',
         title: 'Custom Helper : Markup by Before Semicolon',
         component: CustomHelperPage,
@@ -206,7 +206,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/element-util',
+        path: '/documentation/element-util',
         name: 'Element',
         title: 'Element : Markup by Before Semicolon',
         component: ElementUtilPage,
@@ -214,7 +214,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/suspense-util',
+        path: '/documentation/suspense-util',
         name: 'Suspense',
         title: 'Suspense : Markup by Before Semicolon',
         component: SuspenseUtilPage,
@@ -222,7 +222,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/function-components',
+        path: '/documentation/function-components',
         name: 'Function Components',
         title: 'Function Components : Markup by Before Semicolon',
         component: FunctionComponentsPage,
@@ -230,7 +230,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/web-components',
+        path: '/documentation/web-components',
         name: 'Web Components',
         title: 'Web Components : Markup by Before Semicolon',
         component: WebComponentsPage,
@@ -238,7 +238,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/state-store',
+        path: '/documentation/state-store',
         name: 'State Store',
         title: 'State Store : Markup by Before Semicolon',
         component: StateStorePage,
@@ -246,7 +246,7 @@ const config: Page[] = [
         root: false,
     },
     {
-        path: 'documentation/server-side-rendering',
+        path: '/documentation/server-side-rendering',
         name: 'Server Side Rendering',
         title: 'Server Side Rendering : Markup by Before Semicolon',
         component: ServerSideRenderingPage,
