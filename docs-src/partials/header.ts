@@ -1,5 +1,6 @@
 import { html } from '../../src'
 import pkg from '../../package.json'
+import { MarkupLogo } from './markup-logo'
 
 interface HeaderProps {
     basePath?: string
@@ -8,8 +9,8 @@ interface HeaderProps {
 export const Header = ({ basePath = './' }: HeaderProps = {}) => html`
     <header class="wrapper">
         <h1>
-            <a href="${basePath}"
-                ><strong style="text-transform: uppercase">Markup</strong></a
+            <a href="${basePath}" aria-label="markup logo home link"
+                >${MarkupLogo()}</a
             >
         </h1>
         <nav>

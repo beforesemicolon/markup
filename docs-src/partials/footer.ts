@@ -5,11 +5,18 @@ interface FooterProps {
     basePath?: string
 }
 
-export const Footer = ({ basePath = './' }: FooterProps = {}) => {
+export const Footer = ({ basePath = '.' }: FooterProps = {}) => {
     return html`
         <footer class="wrapper">
+            <img
+                id="footer-markup-logo"
+                src="${basePath}assets/markup-logo-name.svg"
+                alt="Markup logo"
+                width="auto"
+                height="30"
+            />
             <ul class="learning-resources">
-                <h5>Learning Resources</h5>
+                <li><h4>Learning Resources</h4></li>
                 <li><a href="${basePath}documentation">Documentation</a></li>
                 <li>
                     <a href="${basePath}documentation/essential-training"
@@ -24,7 +31,9 @@ export const Footer = ({ basePath = './' }: FooterProps = {}) => {
                 </li>
             </ul>
             <ul class="about-bfs">
-                <h5>About <em>Before Semicolon</em></h5>
+                <li>
+                    <h4>About <em>Before Semicolon</em></h4>
+                </li>
                 <li>
                     <a
                         href="https://github.com/beforesemicolon"
@@ -79,6 +88,8 @@ export const Footer = ({ basePath = './' }: FooterProps = {}) => {
             </ul>
             <div class="copyright">
                 <img
+                    width="20"
+                    height="20"
                     src="${basePath}assets/before-semicolon-logo.png"
                     alt="Before Semicolon logo"
                 />

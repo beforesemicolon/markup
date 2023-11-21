@@ -19,7 +19,7 @@ export default ({ page }: PageComponentProps) =>
             <div class="wrapper">
                 <div class="banner">
                     <h2>HTML Templating System</h2>
-                    <p>All you needed is a good templating system!</p>
+                    <p>All you needed was a good templating system!</p>
                     <div class="actions">
                         <a href="./documentation" class="btn">Documentation</a>
                         <a
@@ -33,18 +33,18 @@ export default ({ page }: PageComponentProps) =>
             <!-- Why -->
             <div class="wrapper">
                 <section class="why">
-                    <h2>Why This Templating System?</h2>
+                    <h2>Why Markup?</h2>
                     <p>
-                        Every great UI library or framework is nothing without
-                        its templating system. What if you had a great
-                        standalone templating system of your own? This is just
-                        that, and it is amazing what you can do with just a good
-                        template. But it does not stop there...
+                        The best UI frameworks and libraries out there rely
+                        heavily on a good templating system. Nobody uses React
+                        without JSX or Angular without its HTML templates. Now,
+                        what if you had a standalone good templating system?
+                        Something that is:
                     </p>
-                    <div class="reason-list">
+                    <ul class="reason-list">
                         ${reasons.map(
                             (reason) => html`
-                                <div class="reason-border">
+                                <li class="reason-border">
                                     <div class="reason">
                                         <img
                                             src="${reason.img}"
@@ -65,10 +65,10 @@ export default ({ page }: PageComponentProps) =>
                                               `
                                             : ''}
                                     </div>
-                                </div>
+                                </li>
                             `
                         )}
-                    </div>
+                    </ul>
                 </section>
             </div>
             <div class="get-started wrapper">

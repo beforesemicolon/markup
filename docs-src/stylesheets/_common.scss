@@ -160,17 +160,24 @@ header {
 footer {
     background: #fff;
     color: #333;
-    padding-top: 70px;
+    padding-top: 100px;
     padding-bottom: 70px;
     display: flex;
     gap: 25px;
     flex-wrap: wrap;
+    position: relative;
+    
+    #footer-markup-logo {
+        position: absolute;
+        top: 60px;
+        opacity: 0.4;
+    }
 
     a {
         color: #555;
     }
 
-    h5 {
+    h4 {
         color: #222;
         font-size: 1.2rem;
         font-weight: 500;

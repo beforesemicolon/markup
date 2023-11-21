@@ -1,19 +1,19 @@
 [
     {
         "title": "Reactive",
-        "description": "The template will react to data changes and only trigger the DOM update calculation for the element and element parts that depend and the data changed.",
+        "description": "The template reacts to data changes by performing calculations and changing only the DOM part associated with the data changed.",
         "img": "./assets/reactive.svg",
         "imgAlt": "reactive templating system"
     },
     {
         "title": "Independent",
-        "description": "Most templating system are dependent on the framework or specific setup to be usable. This system standalone and can be used alongside anything.",
+        "description": "This templating system requires nothing else in order for you to build anything. It has all you need to start building and UI view quickly.",
         "img": "./assets/independent.svg",
         "imgAlt": "independent templating system"
     },
     {
         "title": "Fast",
-        "description": "The system uses a fast HTML parser but it also does not waste in recalculating parts of the DOM that does not depend on any changed data which makes it fast.",
+        "description": "This library uses one of the fastest HTML parsers out there and combined with targeted reactiveness, it responds to changes only when and where needed.",
         "img": "./assets/fast.svg",
         "imgAlt": "fast templating system"
     },
@@ -23,9 +23,9 @@
         "img": "./assets/small.svg",
         "imgAlt": "small templating system",
         "breakDown": [
-            "<strong>< 1B</strong> CDN compressed",
-            "<strong>~ 17.5kb </strong>minified",
-            "<strong>~ 68kb</strong> raw"
+            "<strong>< 8kb </strong> CDN compressed",
+            "<strong>< 18kb </strong>minified",
+            "<strong>< 250kb </strong> raw"
         ]
     },
     {

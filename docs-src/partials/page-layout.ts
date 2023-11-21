@@ -34,7 +34,7 @@ export const PageLayout = ({
             <meta property="og:description" content="${title}" />
             <meta
                 property="og:image"
-                content="https://markup.beforesemicolon.com/assets/before-semicolon-logo.png"
+                content="https://markup.beforesemicolon.com/assets/markup-banner.jpg"
             />
             <meta
                 property="og:url"
@@ -46,13 +46,45 @@ export const PageLayout = ({
             <meta name="twitter:title" content="${title}" />
             <meta
                 name="twitter:image"
-                content="https://markup.beforesemicolon.com/assets/before-semicolon-logo.png"
+                content="https://markup.beforesemicolon.com/assets/markup-banner.jpg"
             />
             <meta name="twitter:description" content="${title}" />
             <meta name="twitter:image:alt" content="${title}" />
+            <link
+                rel="apple-touch-icon"
+                sizes="180x180"
+                href="${basePath}assets/favicon/apple-touch-icon.png"
+            />
+            <link
+                rel="icon"
+                type="image/png"
+                sizes="32x32"
+                href="${basePath}assets/favicon/favicon-32x32.png"
+            />
+            <link
+                rel="icon"
+                type="image/png"
+                sizes="16x16"
+                href="${basePath}assets/favicon/favicon-16x16.png"
+            />
+            <link
+                rel="manifest"
+                href="${basePath}assets/favicon/site.webmanifest"
+            />
+            <link
+                rel="icon"
+                type="image/x-icon"
+                href="${basePath}assets/favicon/favicon.ico"
+            />
             ${stylesheets}
         </head>
         <body>
+            <img
+                hidden
+                loading="lazy"
+                src="${basePath}assets/markup-banner.jpg"
+                alt="Markup by Before Semicolon"
+            />
             ${Header({ basePath })}
             <main>${content}</main>
             ${Footer({ basePath })}
