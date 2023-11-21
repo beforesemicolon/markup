@@ -11,9 +11,7 @@ export const DocPrevNextNav = ({ prev, next }: DocPrevNextNavProps) => {
         ${when(
             prev,
             () =>
-                html`<a
-                    href="${prev?.path.replace(/^documentation/, '.')}"
-                    class="prev-page"
+                html`<a href="..${prev?.path}" class="prev-page"
                     ><< ${prev?.name}</a
                 >`,
             html`<span />`
@@ -21,9 +19,7 @@ export const DocPrevNextNav = ({ prev, next }: DocPrevNextNavProps) => {
         ${when(
             next,
             () =>
-                html`<a
-                    href="${next?.path.replace(/^documentation/, '.')}"
-                    class="next-page"
+                html`<a href="..${next?.path}" class="next-page"
                     >${next?.name} >></a
                 > `,
             html`<span />`

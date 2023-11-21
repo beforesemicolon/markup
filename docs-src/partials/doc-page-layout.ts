@@ -37,7 +37,7 @@ export const DocPageLayout = (
                                                     attr.class.active="${l.path ===
                                                     currentPage}"
                                                 >
-                                                    <a href="../${l.path}"
+                                                    <a href="..${l.path}"
                                                         >${l.name}</a
                                                     >
                                                 </li>

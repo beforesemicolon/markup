@@ -13,9 +13,9 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
         html`
             ${Heading(page.name)}
             <p>
-                The templating system is a plug-and-play package which means you
-                can either use the CDN or npm to install it. There is no need to
-                any additional setup or requirements.
+                Markup is a plug-and-play package that does not need to be
+                built. There is no need to any additional setup or requirements
+                to get started. Simply add it to your project and proceed.
             </p>
             ${Heading('Via CDN', 'h3')}
             <p>
@@ -29,30 +29,29 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
             )}
             <p>You may also specify a specific version you want.</p>
             ${CodeSnippet(
-                ' <script src="https://unpkg.com/@beforesemicolon/markup@1.0.0/dist/client.js"/>',
+                '<script src="https://unpkg.com/@beforesemicolon/markup@1.0.0/dist/client.js"/>',
                 'html'
             )}
             <p>
                 You can use various CDN providers like
-                <a
-                    href="https://unpkg.com/@beforesemicolon/markup/dist/client.js"
-                    >unpkg</a
-                >,
-                <a
-                    href="https://cdn.jsdelivr.net/npm/@beforesemicolon/markup/dist/client.js"
-                    >jsDelivr</a
-                >, and more.
+                <strong>unpkg</strong>, <strong>jsDelivr</strong>.
             </p>
+            ${CodeSnippet(
+                '<script src="https://unpkg.com/@beforesemicolon/markup/dist/client.js"/>\n' +
+                    '<script src="https://cdn.jsdelivr.net/npm/@beforesemicolon/markup/dist/client.js"/>',
+                'html'
+            )}
             ${Heading('Accessing content', 'h4')}
             <p>
-                The client CDN link will create a global variable you can access
-                for all the internal functions.
+                The client CDN link will create a global
+                <code>BFS.MARKUP</code> variable you can access for all the
+                internal functions.
             </p>
             ${CodeSnippet('const {html} = BFS.MARKUP;', 'javascript')}
             ${Heading('Via npm', 'h3')}
             <p>
                 This package is also available via <code>npm</code> which will
-                allow you to use it in server JavaScript environments
+                allow you to use it in server-side JavaScript environments.
             </p>
             ${CodeSnippet('npm install @beforesemicolon/markup', 'vim')}
             ${Heading('Accessing content', 'h4')}
@@ -64,8 +63,8 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
             ${CodeSnippet('yarn add @beforesemicolon/markup', 'vim')}
             ${Heading('Typescript', 'h3')}
             <p>
-                This package was built using typescript. There is no need to
-                install a separate type package for it. All types are exported
+                This package was built using typescript. You don't need to
+                install a separate types package for it. All types are exported
                 with it.
             </p>
             ${DocPrevNextNav({

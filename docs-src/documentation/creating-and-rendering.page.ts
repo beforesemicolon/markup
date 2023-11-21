@@ -13,46 +13,43 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
         html`
             ${Heading(page.name)}
             <p>
-                It is simple to create a template. You will need to use the
+                To create a template you will need to use the
                 <code>html</code> core API and it is straight forward to use.
             </p>
             ${CodeSnippet(
-                'import {html} from "@beforesemicolon/markup";\n\n\n' +
+                'import {html} from "@beforesemicolon/markup";\n\n' +
                     'html`<h1>Hello Worls</h1>`;',
                 'typescript'
             )}
-
             <p>
                 The <code>html</code> is a
                 <a
                     href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates"
                     >tagged template,</a
                 >
-                which is a special way to create
+                function which is a special way to create
                 <a
                     href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals"
                     >template literals</a
                 >. Inside you can place any valid HTML and it will be handled
                 accordingly.
             </p>
-
             <p>
-                This is nothing specific to this package. It is pure JavaScript.
-                Template literals allow to create templates in an elegant and
-                simple way, a capability that makes this library possible. If
-                you know JavaScript and HTML, you already know 85% of this
-                system.
+                This is not a pattern specific to Markup. It is pure JavaScript.
+                Template literals allow you to create templates in an elegant
+                and simple way, and it is a capability that makes this library
+                possible.
             </p>
             ${Heading('How it works?', 'h3')}
             <p>
-                When you create the template, nothing happens. No parsing, no
+                When you define a template, nothing happens. No parsing, no
                 evaluation of any kind. This means that you can create a lot of
-                these templates and have it waiting are properties, variable,
-                and return values.
+                these templates and have it waiting as properties, variable, and
+                return values. Like a true first class citizen.
             </p>
             <p>
                 When you create a template you get a
-                <code>HTMLTemplate</code> instance which we will exploring
+                <code>HTMLTemplate</code> instance which we will explore
                 throughout these documents.
             </p>
             ${Heading('Rendering', 'h3')}
@@ -67,18 +64,18 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                 'typescript'
             )}
             <p>
-                The render method accepts an element in the document where
-                template should be rendered. It is only when the render is
-                requested that the template is parsed to HTML Elements.
+                The render method accepts a DOM element where the template
+                should be rendered. It is only when the render is call that the
+                template is parsed to HTML Elements.
             </p>
             <p>
-                The rendering happens ONCE. If you call the
+                The rendering happens only ONCE. If you call the
                 <code>render</code> method repeatedly only the first call will
-                render content and the rest will be ignored.
+                actually render content.
             </p>
             <p>
                 For whatever reason, if you really want to force a re-render,
-                you can specify the second argument value to
+                you can specify the second argument value of
                 <code>true</code> to force a re-render.
             </p>
             ${CodeSnippet(
@@ -97,7 +94,7 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                         >Node</a
                     ></code
                 >. Essentially it works like a <code>Node</code> meaning, the
-                same instance cannot be in 2 places ate once.
+                same instance cannot be in 2 places on the document at once.
             </p>
             <p>
                 If you render a template in a place in the DOM, then try to
@@ -106,13 +103,16 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
             </p>
             ${Heading('Unmounting', 'h3')}
             <p>
-                Another method you have available is one that gives you the
-                ability to unmount your template the right way.
+                Another method you have available is the
+                <code>unmount</code> which gives you the ability to unmount your
+                template the right way.
             </p>
             ${CodeSnippet('temp.unmount()', 'typescript')}
             <p>
-                After you unmount, you can render the template again or use it
-                to replace another.
+                The unmount method will unsubscribe from any
+                <a href="./state-values">state</a> and reset the template
+                instance to its original state ready to be re-rendered by
+                calling the <code>render</code> method.
             </p>
             ${DocPrevNextNav({
                 prev: prevPage,
