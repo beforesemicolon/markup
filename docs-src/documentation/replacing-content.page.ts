@@ -20,7 +20,7 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
             <p>
                 Let's take for example an async scenario where you render a
                 loading indicator then need to replace this loading indicator
-                with content.
+                with the loaded content.
             </p>
             ${CodeSnippet(
                 'const loadingIndicator = html`<p>loading...</p>`;\n' +
@@ -41,13 +41,13 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
             )}
             <p>
                 The above example will initially render the
-                <code>loading</code> message and after 2.5 seconds it will
-                replace it with the new template content.
+                <code>loading...</code> text and after 2.5 seconds it will
+                replace it with the content template.
             </p>
             <p>
-                The replace method will insert the not yet rendered template
+                The replace method will insert the not-yet-rendered template
                 nodes in the place in the DOM the target template was rendered.
-                This means that you can have multiple tags and it will just
+                This means that you can have multiple tags, and it will just
                 replace them all.
             </p>
             ${Heading('Replacing a DOM Element', 'h3')}
@@ -75,7 +75,7 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                     'fetchContent();',
                 'typescript'
             )}
-            <p>This will have the same effect as an element.</p>
+            <p>This will have the same effect.</p>
             ${DocPrevNextNav({
                 prev: prevPage,
                 next: nextPage,
