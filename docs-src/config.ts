@@ -32,7 +32,7 @@ const config: Page[] = [
     {
         path: '/',
         name: 'Markup',
-        title: 'Markup',
+        title: 'Markup - HTML Templating System by Before Semicolon',
         description: 'HTML Templating System by Before Semicolon',
         component: Home,
         group: '',
