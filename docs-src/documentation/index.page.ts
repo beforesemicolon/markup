@@ -8,6 +8,7 @@ import reasons from '../data/reasons.json'
 export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
     DocPageLayout(
         page.title,
+        page.description,
         page.path,
         docsMenu,
         html`

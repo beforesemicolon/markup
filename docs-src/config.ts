@@ -32,7 +32,8 @@ const config: Page[] = [
     {
         path: '/',
         name: 'Markup',
-        title: 'Markup: HTML Templating System by Before Semicolon',
+        title: 'Markup',
+        description: 'HTML Templating System by Before Semicolon',
         component: Home,
         group: '',
         root: true,
@@ -40,7 +41,8 @@ const config: Page[] = [
     {
         path: '/documentation/',
         name: 'What is Markup?',
-        title: 'Documentation: Markup by Before Semicolon',
+        title: 'Documentation: What is Markup?',
+        description: 'Markup: HTML Templating System by Before Semicolon',
         component: Documentation,
         group: 'Introduction',
         root: true,
@@ -48,7 +50,8 @@ const config: Page[] = [
     {
         path: '/documentation/installation',
         name: 'Installation',
-        title: 'Installation Documentation: Markup by Before Semicolon',
+        title: 'Documentation: Installation',
+        description: 'Markup: HTML Templating System by Before Semicolon',
         component: InstallationPage,
         group: 'Introduction',
         root: false,
@@ -56,7 +59,8 @@ const config: Page[] = [
     // {
     //     path: '/documentation/essential-training',
     //     name: 'Essential Training',
-    //     title: 'Essential Training : Markup by Before Semicolon',
+    //     title: 'Markup Essential Training',
+    //     description: 'Markup: HTML Templating System by Before Semicolon',
     //     component: EssentialTrainingPage,
     //     group: 'Introduction',
     //     root: false,
@@ -64,7 +68,8 @@ const config: Page[] = [
     // {
     //     path: '/documentation/tutorials',
     //     name: 'Tutorials',
-    //     title: 'Tutorials : Markup by Before Semicolon',
+    //     title: 'Markup Tutorials',
+    //     description: 'Markup: HTML Templating System by Before Semicolon',
     //     component: TutorialPage,
     //     group: 'Introduction',
     //     root: false,
@@ -72,7 +77,8 @@ const config: Page[] = [
     // {
     //     path: '/documentation/examples',
     //     name: 'Examples',
-    //     title: 'Examples : Markup by Before Semicolon',
+    //     title: 'Markup Code Examples',
+    //     description: 'Markup: HTML Templating System by Before Semicolon',
     //     component: ExamplesPage,
     //     group: 'Introduction',
     //     root: false,
@@ -80,7 +86,8 @@ const config: Page[] = [
     {
         path: '/documentation/creating-and-rendering',
         name: 'Creating & Rendering',
-        title: 'Creating & Rendering : Markup by Before Semicolon',
+        title: 'Documentation: Creating & Rendering',
+        description: 'Markup: HTML Templating System by Before Semicolon',
         component: CreatingAndRenderingPage,
         group: 'Templating',
         root: false,
@@ -88,7 +95,8 @@ const config: Page[] = [
     {
         path: '/documentation/templating-values',
         name: 'Templating Values',
-        title: 'Templating Values : Markup by Before Semicolon',
+        title: 'Documentation: Templating Values',
+        description: 'Markup: HTML Templating System by Before Semicolon',
         component: TemplatingValuesPage,
         group: 'Templating',
         root: false,
@@ -96,7 +104,8 @@ const config: Page[] = [
     {
         path: '/documentation/replacing-content',
         name: 'Replacing Content',
-        title: 'Replacing Content : Markup by Before Semicolon',
+        title: 'Documentation: Replacing Content',
+        description: 'Markup: HTML Templating System by Before Semicolon',
         component: ReplacingContentPage,
         group: 'Templating',
         root: false,
@@ -104,7 +113,8 @@ const config: Page[] = [
     {
         path: '/documentation/dom-references',
         name: 'DOM References',
-        title: 'DOM References : Markup by Before Semicolon',
+        title: 'Documentation: DOM References',
+        description: 'Markup: HTML Templating System by Before Semicolon',
         component: DOMReferencesPage,
         group: 'Templating',
         root: false,
@@ -112,7 +122,8 @@ const config: Page[] = [
     {
         path: '/documentation/conditional-attributes',
         name: 'Conditional Attributes',
-        title: 'Conditional Attributes : Markup by Before Semicolon',
+        title: 'Documentation: Conditional Attributes',
+        description: 'Markup: HTML Templating System by Before Semicolon',
         component: ConditionalAttributesPage,
         group: 'Templating',
         root: false,
@@ -120,7 +131,8 @@ const config: Page[] = [
     {
         path: '/documentation/event-handling',
         name: 'Event Handling',
-        title: 'Event Handling : Markup by Before Semicolon',
+        title: 'Documentation: Event Handling',
+        description: 'Markup: HTML Templating System by Before Semicolon',
         component: EventHandlingPage,
         group: 'Templating',
         root: false,
@@ -128,7 +140,8 @@ const config: Page[] = [
     {
         path: '/documentation/dynamic-values-and-update',
         name: 'Dynamic Values & Update',
-        title: 'Dynamic Values & Update : Markup by Before Semicolon',
+        title: 'Documentation: Dynamic Values & Update',
+        description: 'Markup: HTML Templating System by Before Semicolon',
         component: DynamicValuesAndUpdatePage,
         group: 'Templating',
         root: false,
@@ -136,7 +149,8 @@ const config: Page[] = [
     {
         path: '/documentation/state-values',
         name: 'State Values',
-        title: 'State Values : Markup by Before Semicolon',
+        title: 'Documentation: State Values',
+        description: 'Markup: HTML Templating System by Before Semicolon',
         component: StatValuesPage,
         group: 'Templating',
         root: false,
@@ -144,7 +158,8 @@ const config: Page[] = [
     {
         path: '/documentation/what-is-a-helper',
         name: 'What is a Helper?',
-        title: 'What is a Helper? : Markup by Before Semicolon',
+        title: 'Documentation: What is a Helper?',
+        description: 'Markup: HTML Templating System by Before Semicolon',
         component: WhatIsAHelperPage,
         group: 'Helpers',
         root: false,
@@ -152,7 +167,8 @@ const config: Page[] = [
     {
         path: '/documentation/effect-helper',
         name: 'Effect Helper',
-        title: 'Effect Helper : Markup by Before Semicolon',
+        title: 'Documentation: Effect Helper',
+        description: 'Markup: HTML Templating System by Before Semicolon',
         component: EffectHelperPage,
         group: 'Helpers',
         root: false,
@@ -160,7 +176,8 @@ const config: Page[] = [
     {
         path: '/documentation/conditional-rendering',
         name: 'Conditional Rendering',
-        title: 'Conditional Rendering : Markup by Before Semicolon',
+        title: 'Documentation: Conditional Rendering',
+        description: 'Markup: HTML Templating System by Before Semicolon',
         component: ConditionalRenderingPage,
         group: 'Helpers',
         root: false,
@@ -168,7 +185,8 @@ const config: Page[] = [
     {
         path: '/documentation/repetition-and-lists',
         name: 'Repetition & Lists',
-        title: 'Repetition & Lists : Markup by Before Semicolon',
+        title: 'Documentation: Repetition & Lists',
+        description: 'Markup: HTML Templating System by Before Semicolon',
         component: RepetitionAndListsPage,
         group: 'Helpers',
         root: false,
@@ -176,7 +194,8 @@ const config: Page[] = [
     {
         path: '/documentation/is-isnot-helpers',
         name: 'Is & IsNot Helpers',
-        title: 'Is & IsNot Helpers : Markup by Before Semicolon',
+        title: 'Documentation: Is & IsNot Helpers',
+        description: 'Markup: HTML Templating System by Before Semicolon',
         component: IsIsNotHelpersPage,
         group: 'Helpers',
         root: false,
@@ -184,7 +203,8 @@ const config: Page[] = [
     {
         path: '/documentation/or-and-oneof-helpers',
         name: 'Or, And, & OneOf Helpers',
-        title: 'Or, And, & OneOf Helpers : Markup by Before Semicolon',
+        title: 'Documentation: Or, And, & OneOf Helpers',
+        description: 'Markup: HTML Templating System by Before Semicolon',
         component: OrAndOneOfHelpersPage,
         group: 'Helpers',
         root: false,
@@ -192,7 +212,8 @@ const config: Page[] = [
     {
         path: '/documentation/pick-helper',
         name: 'Pick Helper',
-        title: 'Pick Helper : Markup by Before Semicolon',
+        title: 'Documentation: Pick Helper',
+        description: 'Markup: HTML Templating System by Before Semicolon',
         component: PickHelperPage,
         group: 'Helpers',
         root: false,
@@ -200,7 +221,8 @@ const config: Page[] = [
     {
         path: '/documentation/custom-helper',
         name: 'Custom Helper',
-        title: 'Custom Helper : Markup by Before Semicolon',
+        title: 'Documentation: Custom Helper',
+        description: 'Markup: HTML Templating System by Before Semicolon',
         component: CustomHelperPage,
         group: 'Helpers',
         root: false,
@@ -208,7 +230,8 @@ const config: Page[] = [
     {
         path: '/documentation/element-util',
         name: 'Element',
-        title: 'Element : Markup by Before Semicolon',
+        title: 'Documentation: Element',
+        description: 'Markup: HTML Templating System by Before Semicolon',
         component: ElementUtilPage,
         group: 'Utilities',
         root: false,
@@ -216,7 +239,8 @@ const config: Page[] = [
     {
         path: '/documentation/suspense-util',
         name: 'Suspense',
-        title: 'Suspense : Markup by Before Semicolon',
+        title: 'Documentation: Suspense',
+        description: 'Markup: HTML Templating System by Before Semicolon',
         component: SuspenseUtilPage,
         group: 'Utilities',
         root: false,
@@ -224,7 +248,8 @@ const config: Page[] = [
     {
         path: '/documentation/function-components',
         name: 'Function Components',
-        title: 'Function Components : Markup by Before Semicolon',
+        title: 'Documentation: Function Components',
+        description: 'Markup: HTML Templating System by Before Semicolon',
         component: FunctionComponentsPage,
         group: 'Capabilities',
         root: false,
@@ -232,7 +257,8 @@ const config: Page[] = [
     {
         path: '/documentation/web-components',
         name: 'Web Components',
-        title: 'Web Components : Markup by Before Semicolon',
+        title: 'Documentation: Web Components',
+        description: 'Markup: HTML Templating System by Before Semicolon',
         component: WebComponentsPage,
         group: 'Capabilities',
         root: false,
@@ -240,7 +266,8 @@ const config: Page[] = [
     {
         path: '/documentation/state-store',
         name: 'State Store',
-        title: 'State Store : Markup by Before Semicolon',
+        title: 'Documentation: State Store',
+        description: 'Markup: HTML Templating System by Before Semicolon',
         component: StateStorePage,
         group: 'Capabilities',
         root: false,
@@ -248,7 +275,8 @@ const config: Page[] = [
     {
         path: '/documentation/server-side-rendering',
         name: 'Server Side Rendering',
-        title: 'Server Side Rendering : Markup by Before Semicolon',
+        title: 'Documentation: Server Side Rendering',
+        description: 'Markup: HTML Templating System by Before Semicolon',
         component: ServerSideRenderingPage,
         group: 'Capabilities',
         root: false,

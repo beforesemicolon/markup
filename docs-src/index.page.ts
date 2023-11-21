@@ -7,6 +7,7 @@ import { PageComponentProps } from './type'
 export default ({ page }: PageComponentProps) =>
     PageLayout({
         title: page.title,
+        description: page.description,
         stylesheets: html`
             <link
                 rel="stylesheet"

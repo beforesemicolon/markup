@@ -12,6 +12,7 @@ export interface Page {
     path: string
     component: (props: PageComponentProps) => HtmlTemplate
     title: string
+    description: string
     group: string
     root: boolean
 }

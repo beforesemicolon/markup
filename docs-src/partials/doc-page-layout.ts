@@ -4,12 +4,14 @@ import { DocumentsGroup } from '../type'
 
 export const DocPageLayout = (
     title: string,
+    description: string,
     currentPage: string,
     docMenu: DocumentsGroup[],
     content: HtmlTemplate
 ) =>
     PageLayout({
         title,
+        description,
         stylesheets: html`
             <link
                 rel="stylesheet"

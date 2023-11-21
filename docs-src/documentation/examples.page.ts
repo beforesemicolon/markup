@@ -7,6 +7,7 @@ import { PageComponentProps } from '../type'
 export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
     DocPageLayout(
         page.title,
+        page.description,
         page.path,
         docsMenu,
         html`
