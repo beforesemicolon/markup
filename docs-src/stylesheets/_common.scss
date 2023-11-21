@@ -98,6 +98,7 @@ ul {
     border-radius: 3px;
     margin: 5px 0;
     overflow: auto;
+    position: relative;
 
     pre {
         margin: 0;
@@ -106,6 +107,29 @@ ul {
 
         code {
             line-height: 130%;
+        }
+    }
+    
+    .code-copy-btn {
+        all: unset;
+        padding: 5px 10px;
+        background: #151515;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        border-top-left-radius: 5px;
+        font-size: 0.8rem;
+        letter-spacing: 0.1rem;
+        cursor: pointer;
+        
+        &:hover {
+            background: #92c5ee;
+            color: #222;
+        }
+        
+        &.copied {
+            background: #b6fffe;
+            color: #222;
         }
     }
 }
@@ -158,7 +182,7 @@ header {
 }
 
 footer {
-    background: #fff;
+    background: #f5f8ff;
     color: #333;
     padding-top: 100px;
     padding-bottom: 70px;
@@ -223,6 +247,7 @@ footer {
         width: 45%;
         color: #555;
         text-align: right;
+        margin-top: 15px;
 
         @media screen and (max-width: 1024px) {
             width: 33%;

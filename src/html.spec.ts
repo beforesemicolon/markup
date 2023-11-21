@@ -1422,4 +1422,13 @@ describe('html', () => {
 		
 		expect(document.body.innerHTML).toBe('<button></button>')
 	})
+	
+	it('should parse script injected value', () => {
+		const total = 12;
+		const sc = html`<script>const val = ${total};</script>`;
+		
+		sc.render(document.body)
+		
+		expect(document.body.innerHTML).toBe('<script>const val = 12;</script>')
+	});
 })

@@ -30,13 +30,13 @@
     },
     {
         "title": "Simple",
-        "description": "With just two core APIs, learning it is pretty straight forward even so if you already know JavaScript and HTML. Everything else, which is not much, is to aid with templating.",
+        "description": "It is just JavaScript and HTML. Markup reuses the things already existing in the environment it run and with just two core APIs, learning Markup is straight forward.",
         "img": "./assets/simple.svg",
         "imgAlt": "simple templating system"
     },
     {
         "title": "Client + Server",
-        "description": "You can use the same templating system on the client and server and take advantage of every features to either render things at runtime or on the server.",
+        "description": "You can use the same templating system on the client and server and take advantage of all the features to either render things at runtime or on the server.",
         "img": "./assets/client-server.svg",
         "imgAlt": "client-server templating system"
     }
