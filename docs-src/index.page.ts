@@ -22,11 +22,11 @@ export default ({ page }: PageComponentProps) =>
                     <p>All you needed was a good templating system!</p>
                     <div class="actions">
                         <a href="./documentation" class="btn">Documentation</a>
-                        <a
-                            href="./documentation/essential-training"
-                            class="btn outline"
-                            >Learn</a
-                        >
+                        <!--                        <a-->
+                        <!--                            href="./documentation/essential-training"-->
+                        <!--                            class="btn outline"-->
+                        <!--                            >Learn</a-->
+                        <!--                        >-->
                     </div>
                 </div>
             </div>
@@ -75,11 +75,11 @@ export default ({ page }: PageComponentProps) =>
                 <h2>Quick Start</h2>
                 <p>Install it in your project</p>
                 ${CodeSnippet(
-                    'npm install @beforesemicolon/markup\n\n' +
-                        '# or\n\n' +
-                        'yarn add @beforesemicolon/markup',
+                    'npm install @beforesemicolon/markup',
                     'typescript'
                 )}
+                <p>or</p>
+                ${CodeSnippet('yarn add @beforesemicolon/markup', 'typescript')}
                 <p>
                     Or simply add the following script in the head of your
                     document
@@ -93,13 +93,18 @@ export default ({ page }: PageComponentProps) =>
             <section class="what-to-build wrapper">
                 <h2>What can you do with it?</h2>
                 <p>
-                    The templating system will handle all the rendering needs
-                    for you. With that out of the way, what you can build is
-                    really up to you. It can be a full web application, a UI
+                    The templating system will handle all the rendering needs of
+                    your project. With that out of the way, what you can build
+                    is really up to you. It can be a full web application, a UI
                     components library or the next UI framework. The only limit
                     is your imagination.
                 </p>
-                <a href="" class="btn">Try it</a>
+                <a
+                    href="https://stackblitz.com/edit/web-platform-lvonxr?file=app.js"
+                    class="btn"
+                    target="_blank"
+                    >Try it</a
+                >
             </section>
         `,
     })

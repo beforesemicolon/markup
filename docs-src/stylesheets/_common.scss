@@ -70,15 +70,15 @@ a {
     justify-content: center;
     align-items: center;
     text-transform: capitalize;
-    background: #fff;
-    color: #222;
+    background: #D2ECFF;
+    color: #000;
     border-radius: 3px;
     cursor: pointer;
 
     &.outline {
         background: none;
-        color: #fff;
-        border: 1px solid #fff;
+        color: #D2ECFF;
+        border: 1px solid #D2ECFF;
     }
 }
 

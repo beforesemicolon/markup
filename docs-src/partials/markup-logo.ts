@@ -1,6 +1,6 @@
 import { html } from '../../src'
 
-export const MarkupLogo = (fill: string = '#fff', width = '80px') => html`
+export const MarkupLogo = (fill: string = '#D2ECFF', width = '80px') => html`
     <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 207.25 61.99"
