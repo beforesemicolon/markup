@@ -1431,4 +1431,13 @@ describe('html', () => {
 		
 		expect(document.body.innerHTML).toBe('<script>const val = 12;</script>')
 	});
+	
+	it('should handle', () => {
+		const tag = 'button';
+		const sc = html`<${tag}>click me</${tag}>`
+		
+		sc.render(document.body)
+		
+		expect(document.body.innerHTML).toBe('&lt;button&gt;click me&lt;/button&gt;')
+	});
 })

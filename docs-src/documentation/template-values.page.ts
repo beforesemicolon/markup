@@ -11,14 +11,14 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
         page.path,
         docsMenu,
         html`
-            ${Heading(page.title, 'h2')}
+            ${Heading(page.name, 'h2')}
             <p>
-                The template is simply a template literal which means you can
-                inject any value anywhere in the template.
-            </p>
-            <p>
-                For the Markup template depending on what and where you place
-                any value, you get different results.
+                A Markup template is simply a
+                <a
+                    href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals"
+                    >JavaScript template literal</a
+                >, which means you can inject any value anywhere in the
+                template.
             </p>
             ${CodeSnippet(
                 'const type = "button";\n' +
@@ -39,16 +39,61 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                     '// renders <button>click me</button>',
                 'typescript'
             )}
+            <p>
+                This is because Markup parses the HTML string into nodes and
+                will not allow dynamic tag or attribute names.
+            </p>
+            ${CodeSnippet(
+                'const tag = "button";\n\n' +
+                    'html`<${tag}>click me</${tag}>`;\n' +
+                    '// renders &lt;button&gt;click me&lt;/button&gt;',
+                'typescript'
+            )}
+            <p>
+                If you need dynamic elements, you can create one using
+                <a href="./element-util">element utility</a> and add it to the
+                template.
+            </p>
             ${Heading('Different values handling', 'h3')}
             <p>
-                The Markup templates handle certain values in a unique way so
-                lets explore all possible value you might be using.
+                Markup templates handle certain values in a unique way so lets
+                explore all possible value you might use.
             </p>
             ${Heading('Primitive JavaScript values', 'h4')}
             <p>
                 Any primitive value will be kept as is in it string format.
                 Primitives is the simplest values you can use and have no
                 special handling by the template.
+            </p>
+            ${CodeSnippet('true => "true"\n' + '12 => "12"\n', 'vim')}
+            ${Heading('Array', 'h4')}
+            <p>
+                <code>Array</code> has special handling by the template. When
+                you provide an array to the template to render, as long as it is
+                not inside an attribute value quotes, it will have each item
+                rendered separately on the DOM.
+            </p>
+            ${CodeSnippet(
+                'const arr = [1, 2, 3, 2]\n' +
+                    '\n' +
+                    'html`${arr}`;\n// renders: 1232',
+                'typescript'
+            )}
+            <p>How each item in the array gets rendered depend on its type.</p>
+            <p>
+                This simple capability makes it pretty easy to render list of
+                anything, including smaller template elements.
+            </p>
+            ${CodeSnippet(
+                'const arr = [1, 2, 3, 2].map(n => html`<strong>item ${n}</strong>`)\n' +
+                    '\n' +
+                    'html`${arr}`',
+                'typescript'
+            )}
+            <p>
+                Markup will update each "sub-template" according to the data in
+                the array changes. Depending on the data change, Markup will
+                re-order, add or remove nodes matching the data in the array.
             </p>
             ${Heading('Non-Primitive JavaScript values', 'h4')}
             <p>
@@ -144,28 +189,15 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                 'typescript'
             )}
             <p>The above example will parse the HTML string into DOM Nodes.</p>
-            ${Heading('Array', 'h4')}
-            <p>
-                <code>Array</code> also has special handling. When you provide
-                and array to the template to render, as long as it is not inside
-                a attribute value quotes, it will have each of its items
-                rendered.
-            </p>
-            ${CodeSnippet(
-                'const arr = [1, 2, 3, 2]\n' + '\n' + 'html`${arr}`',
-                'typescript'
-            )}
-            <p>How each item in the array gets rendered depend on its type.</p>
-            <p>
-                This simple capability makes it pretty easy to render list of
-                anything, including smaller template elements.
-            </p>
-            ${CodeSnippet(
-                'const arr = [1, 2, 3, 2].map(n => html`<strong>item ${n}</strong>`)\n' +
-                    '\n' +
-                    'html`${arr}`',
-                'typescript'
-            )}
+            <div class="warning">
+                Please do NOT do this with HTML strings from untrusted sources
+                like user input or third-party API call response. It can lead to
+                <a
+                    href="https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/11-Client-side_Testing/03-Testing_for_HTML_Injection"
+                    >HTML Injection Attack</a
+                >
+                which is a security risk.
+            </div>
             ${Heading('Nil values', 'h4')}
             <p>
                 Any nil value (null or undefined) will be rendered as string.
@@ -186,13 +218,14 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
             <ol>
                 <li>
                     <a href="./event-handling">Event handlers</a>: To listen to
-                    events on tags
+                    events on tags.
                 </li>
                 <li>
                     <a href="./dynamic-values-and-update">Dynamic values</a>: To
-                    react to value changes anywhere in the DOM
+                    react to value changes anywhere in the DOM.
                 </li>
             </ol>
+            <p>Please explore those two topics to understand more.</p>
             ${Heading('Web Components', 'h3')}
             <p>
                 Template values are handled differently when used with web
