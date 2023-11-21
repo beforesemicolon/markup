@@ -97,8 +97,11 @@ ul {
     padding: 20px 5px 20px 10px;
     border-radius: 3px;
     margin: 5px 0;
-    overflow: auto;
     position: relative;
+    
+    .content {
+        overflow: auto;
+    }
 
     pre {
         margin: 0;

@@ -12,7 +12,9 @@ export const CodeSnippet = (snippet: string, lang: string = 'vim') => {
     hljs.highlightElement(el)
 
     return html`<div class="code-snippet">
-        <pre>${el}</pre>
+        <div class="content">
+            <pre>${el}</pre>
+        </div>
         <button type="button" class="code-copy-btn" style="visibility: hidden">
             copy
         </button>
