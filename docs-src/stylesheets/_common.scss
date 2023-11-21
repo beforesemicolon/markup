@@ -70,15 +70,15 @@ a {
     justify-content: center;
     align-items: center;
     text-transform: capitalize;
-    background: #D2ECFF;
+    background: #d2ecff;
     color: #000;
     border-radius: 3px;
     cursor: pointer;
 
     &.outline {
         background: none;
-        color: #D2ECFF;
-        border: 1px solid #D2ECFF;
+        color: #d2ecff;
+        border: 1px solid #d2ecff;
     }
 }
 
@@ -109,7 +109,7 @@ ul {
             line-height: 130%;
         }
     }
-    
+
     .code-copy-btn {
         all: unset;
         padding: 5px 10px;
@@ -121,12 +121,12 @@ ul {
         font-size: 0.8rem;
         letter-spacing: 0.1rem;
         cursor: pointer;
-        
+
         &:hover {
             background: #92c5ee;
             color: #222;
         }
-        
+
         &.copied {
             background: #b6fffe;
             color: #222;
@@ -190,7 +190,7 @@ footer {
     gap: 25px;
     flex-wrap: wrap;
     position: relative;
-    
+
     #footer-markup-logo {
         position: absolute;
         top: 60px;
