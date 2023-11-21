@@ -79,12 +79,6 @@ export const PageLayout = ({
             ${stylesheets}
         </head>
         <body>
-            <img
-                hidden
-                loading="lazy"
-                src="${basePath}assets/markup-banner.jpg"
-                alt="Markup by Before Semicolon"
-            />
             ${Header({ basePath })}
             <main>${content}</main>
             ${Footer({ basePath })}
