@@ -14,38 +14,43 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
         html`
             ${Heading(page.name)}
             <p>
-                When working on the client, the best thing you can have is
-                dynamic values. For <em>Markup</em> dynamic values are simply
-                functions.
+                The best things you can have in template literal are dynamic
+                values. Lucky for <em>Markup</em> dynamic values are just
+                functions that are automatically handled in the template.
             </p>
             <p>
                 Any function added to the template, as long as it is not an
-                <a href="./event-handling">event handler</a>, will be called to
-                get the value to render or for an attribute.
+                <a href="./event-handling">event handler</a>, will be treated as
+                a
+                <a
+                    href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get"
+                    >getter</a
+                >
+                and be called to get the value to render or for an attribute.
             </p>
             <p>
-                The example bellow will render the count just fine but using a
+                The example bellow will render the count just fine. Using a
                 function to return the value tells the template that the value
-                might change in the future.
+                might change in the future, so it needs to be re-called on
+                update requests or state changes.
             </p>
             ${CodeSnippet(
                 'let count = 0;\n' +
                     '\n' +
                     'const conter = html`\n' +
                     '  <p>${() => count}</p>\n' +
-                    '  <button type="button">+</button>\n' +
                     '`;',
                 'typescript'
             )}
             <p>
-                You will learn a better way to have dynamic values when reading
-                about <a href="./state-values">states</a> in the future. For
-                now, let's focus on the function alone.
+                You will learn a better way to have dynamic values when learning
+                about <a href="./state-values">states</a> later. For now, let's
+                focus on the function alone.
             </p>
             ${Heading('Update template', 'h3')}
             <p>
                 Just having dynamic values in the template does not do much. All
-                it does is render the value correctly.
+                it does is render the value returned.
             </p>
             <p>
                 The template still needs to know when to update. Enters the
@@ -74,16 +79,16 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                     listener on the button.
                 </li>
                 <li>
-                    <code>counter.update</code>: used to tell the template the
-                    about the value change.
+                    <code>counter.update</code>: used to tell the template about
+                    the value change.
                 </li>
             </ol>
             <p>
-                The <code>update</code> is another method the template instance
-                exposes which you can use to tell it to look into all those
-                dynamic values and rerun them. The template will get a new
-                value, do a <em>shallow comparison</em> and update the DOM if
-                such value has changed.
+                <code>update</code> is another method the template instance
+                exposes that you can use to tell the template to look into all
+                the dynamic values for a change. The template will get a new
+                value, do a <a>shallow comparison</a> and update the DOM if such
+                value has changed.
             </p>
             <p>
                 <strong>Important to know</strong> that this "re-check" happens
@@ -95,7 +100,7 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
             <p>
                 It also means that the template will also re-check dynamic
                 values that did not change. You will learn how to address this
-                later when you learn about <a href="./state-values">states</a>.
+                next when you learn about <a href="./state-values">states</a>.
             </p>
             ${DocPrevNextNav({
                 prev: prevPage,
