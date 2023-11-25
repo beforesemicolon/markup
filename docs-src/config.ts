@@ -1,5 +1,6 @@
-import Home from './index.page'
-import Documentation from './documentation/index.page'
+import HomePage from './index.page'
+import NotFoundPage from './404.page'
+import DocumentationPage from './documentation/index.page'
 import InstallationPage from './documentation/installation.page'
 // import EssentialTrainingPage from './documentation/essential-training.page'
 // import TutorialPage from './documentation/tutorial.page'
@@ -34,16 +35,25 @@ const config: Page[] = [
         name: 'Markup',
         title: 'Markup',
         description: 'HTML Templating System by Before Semicolon',
-        component: Home,
+        component: HomePage,
         group: '',
         root: true,
+    },
+    {
+        path: '/404',
+        name: '404',
+        title: '404: Page Not Found',
+        description: 'Markup: HTML Templating System by Before Semicolon',
+        component: NotFoundPage,
+        group: '',
+        root: false,
     },
     {
         path: '/documentation/',
         name: 'What is Markup?',
         title: 'Documentation: What is Markup?',
         description: 'Markup: HTML Templating System by Before Semicolon',
-        component: Documentation,
+        component: DocumentationPage,
         group: 'Introduction',
         root: true,
     },
