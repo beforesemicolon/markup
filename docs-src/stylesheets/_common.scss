@@ -99,21 +99,21 @@ ul {
     position: relative;
     border: 1px solid #101617;
     margin: 5px 0 15px;
-    
+
     .content {
         overflow: auto;
     }
-    
+
     pre {
         margin: 0;
         font-size: 14px;
         line-height: 135%;
-        
+
         code {
             line-height: 130%;
         }
     }
-    
+
     .code-copy-btn {
         all: unset;
         padding: 3px 12px;
@@ -125,18 +125,18 @@ ul {
         font-size: 0.8rem;
         letter-spacing: 0.1rem;
         cursor: pointer;
-        
+
         &:hover {
             background: #92c5ee;
             color: #222;
         }
-        
+
         &.copied {
             background: #b6fffe;
             color: #222;
         }
     }
-    
+
     .hljs {
         background: none !important;
     }

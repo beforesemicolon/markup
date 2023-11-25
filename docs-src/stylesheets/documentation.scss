@@ -199,19 +199,33 @@
             }
         }
 
-        code {
+        code:not(.hljs) {
             background: #161a1c;
             display: inline-block;
             padding: 3px 8px;
             border-radius: 2px;
             line-height: 130%;
+            font-size: 0.9rem;
         }
 
-        .warning {
+        div.warning,
+        div.info {
             background: #f7e199;
             color: #222;
             padding: 20px;
             border-radius: 2px;
+            
+            code {
+                background: #f5df90;
+            }
+        }
+        
+        div.info {
+            background: #99d0f7;
+            
+            code {
+                background: #8cc9f4;
+            }
         }
 
         details {
