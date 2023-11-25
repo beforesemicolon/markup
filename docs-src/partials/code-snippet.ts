@@ -9,7 +9,7 @@ export const CodeSnippet = (snippet: string, lang: string = 'vim') => {
         textContent: snippet,
     })
 
-    hljs.highlightElement(el)
+    hljs.highlightElement(el as HTMLElement)
 
     return html`<div class="code-snippet">
         <div class="content">

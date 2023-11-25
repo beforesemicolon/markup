@@ -141,7 +141,7 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
             <p>
                 Any
                 <a
-                    href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement"
+                    href="https://developer.mozilla.org/en-US/docs/Web/API/Element"
                     >DOM element</a
                 >
                 placed in the template will be rendered normally.

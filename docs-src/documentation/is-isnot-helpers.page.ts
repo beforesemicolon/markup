@@ -16,7 +16,7 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
             <p>
                 This library is extremely function-oriented and things can get
                 messy when you try to check things in the template. However,
-                that's not the reason the most of the helpers exist.
+                that is not the reason the most of the helpers exist.
             </p>
             <p>
                 All helpers are used to perform side effects, meaning, to react

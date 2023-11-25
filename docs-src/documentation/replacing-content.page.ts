@@ -85,10 +85,10 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                     order for the "replacing" to happen.
                 </li>
                 <li>
-                    The target can be a
+                    The target can be an
                     <a
-                        href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement"
-                        >HTMLElement</a
+                        href="https://developer.mozilla.org/en-US/docs/Web/API/Element"
+                        >Element</a
                     >
                     instance but it cannot be <code>HTMLBodyElement</code>,
                     <code>HTMLHeadElement</code>, <code>HTMLHtmlElement</code>,

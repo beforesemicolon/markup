@@ -24,8 +24,8 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                 change with some state change.
             </p>
             <p>
-                That's when the <code>effect</code> helper comes in. To help you
-                perform these side effects.
+                That is when the <code>effect</code> helper comes in. To help
+                you perform these side effects.
             </p>
             ${CodeSnippet(
                 'const counter = html`\n' +

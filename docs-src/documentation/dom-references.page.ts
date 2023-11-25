@@ -14,14 +14,14 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
         html`
             ${Heading(page.name)}
             <p>
-                There could be instances where you also want to grab reference
-                of the DOM Element that was rendered. This is also an easy task
-                that will give you control over the DOM when you feel limited
-                somehow.
+                There could be times when you need to get reference of the
+                element in the DOM to perform something specific to your
+                project. Fortunately, Markup makes it easy get reference of DOM
+                elements.
             </p>
             <p>
-                There is a special attribute you can use to create DOM
-                references. The <code>ref</code> attribute.
+                Markup exposes a special attribute you can use to create DOM
+                references. It is the <code>ref</code> attribute.
             </p>
             ${CodeSnippet(
                 'const button = html`<button ref="btn">click me</button>`\n' +
@@ -32,20 +32,20 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                 'typescript'
             )}
             <p>
-                The example above sets a <code>ref</code> with value of
-                <code>btn</code> which is the name for your reference.
+                The example above sets a <code>ref</code> attribute with the
+                value of <code>btn</code> which is the name for your reference.
             </p>
             <p>
                 To access the reference it reads the <code>refs</code> property
-                on the template which is an object literal keyed by the name of
-                reference you created.
+                on the HTMLTemplate that is an object literal keyed by the name
+                of references you created.
             </p>
             <p>
-                Each <code>ref</code> will be an array of elements, that's why
-                it's accessing the first item in that array to set the color to
+                Each <code>ref</code> will be an array of elements, that is why
+                it is accessing the first item in that array to set the color to
                 red.
             </p>
-            ${Heading('Grouping references', 'h3')}
+            ${Heading('Grouped references', 'h3')}
             <p>
                 By default, all references are grouped because every reference
                 returns an array of elements.
@@ -75,9 +75,9 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
             </p>
             ${Heading('Nested references', 'h3')}
             <p>
-                In case you nest templates and a deep template contain
-                references, you may collect those reference in the parent most
-                template.
+                You can nest multiple templates containing
+                <code>ref</code> attribute, you may collect these references via
+                the individual template itself or in the parent most template.
             </p>
             ${CodeSnippet(
                 'const button = html`<button ref="btn">+</button>`;\n' +
@@ -93,27 +93,25 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                 'typescript'
             )}
             <p>
-                Feel free to collect those reference from whatever template but
-                this feature will make it convenient to consume your references
-                in one place.
+                Feel free to collect those reference from whichever template you
+                like but this feature will make it convenient to consume your
+                references in one place instead.
             </p>
             ${Heading('Dynamic references', 'h3')}
             <p>
-                You can only collect references from templates that are
-                rendered. Just trying to access a reference from a template that
-                was never rendered will not work.
+                You can only collect references from templates that have been
+                rendered at least once. That is why Markup references are
+                created as needed with every change.
             </p>
             <p>
-                This affects references when you dynamically render templates.
-                Because template must be rendered to produce a DOM reference,
-                conditionally rendering templates will dynamically change based
-                on the condition they were rendered.
+                If you have templates that are dynamically rendered, you can
+                collect these references as the DOM changes.
             </p>
             ${CodeSnippet(
-                'let loading = false;\n' +
+                'let loading = true;\n' +
                     '\n' +
                     'const sample = html`${\n' +
-                    '  loading \n' +
+                    '  () => loading \n' +
                     '    ? html`<p ref="loading">loading</p>` \n' +
                     '    : html`<p ref="loaded">loaded</p>`}`\n' +
                     '\n' +
@@ -121,7 +119,16 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                     '\n' +
                     '// refs object will not contain the "loaded" ref\n' +
                     '// because it was never rendered\n' +
-                    'sample.refs // {loading: [P]}',
+                    'sample.refs // {loading: [P]}\n' +
+                    '\n' +
+                    'sample.onUpdate(() => {\n' +
+                    '  sample.refs // {loading: [P], loaded: [P]}\n' +
+                    '})\n' +
+                    '\n' +
+                    'setTimeout(() => {\n' +
+                    '  loading = false;\n' +
+                    '  sample.update(); // trigger update\n' +
+                    '}, 2500)',
                 'typescript'
             )}
             ${DocPrevNextNav({

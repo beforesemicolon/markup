@@ -93,29 +93,30 @@ ul {
 }
 
 .code-snippet {
-    background: #161a1c;
-    padding: 20px 5px 20px 10px;
+    background: #0d1112;
+    padding: 15px 5px 15px 10px;
     border-radius: 3px;
-    margin: 5px 0;
     position: relative;
-
+    border: 1px solid #101617;
+    margin: 5px 0 15px;
+    
     .content {
         overflow: auto;
     }
-
+    
     pre {
         margin: 0;
         font-size: 14px;
         line-height: 135%;
-
+        
         code {
             line-height: 130%;
         }
     }
-
+    
     .code-copy-btn {
         all: unset;
-        padding: 5px 10px;
+        padding: 3px 12px;
         background: #151515;
         position: absolute;
         right: 0;
@@ -124,16 +125,20 @@ ul {
         font-size: 0.8rem;
         letter-spacing: 0.1rem;
         cursor: pointer;
-
+        
         &:hover {
             background: #92c5ee;
             color: #222;
         }
-
+        
         &.copied {
             background: #b6fffe;
             color: #222;
         }
+    }
+    
+    .hljs {
+        background: none !important;
     }
 }
 

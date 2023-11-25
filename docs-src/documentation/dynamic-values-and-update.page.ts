@@ -19,7 +19,7 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                 functions.
             </p>
             <p>
-                Any function added to the template, as long as it's not an
+                Any function added to the template, as long as it is not an
                 <a href="./event-handling">event handler</a>, will be called to
                 get the value to render or for an attribute.
             </p>
