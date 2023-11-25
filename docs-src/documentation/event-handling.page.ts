@@ -20,7 +20,7 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                     href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener"
                     >addEventListener</a
                 >
-                more than anything.
+                instead event attributes.
             </p>
             ${CodeSnippet(
                 'const handleClick = (evt: Event) => {\n' +
@@ -39,7 +39,7 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
             <p>
                 All event attributes must start with <code>on</code> keyword
                 followed by the name of the event. This is nothing specific to
-                this library but something native to HTML.
+                this library but something native to HTML itself.
             </p>
             <p>The value of this attribute must be a function of any type.</p>
             ${Heading('Custom events', 'h3')}
@@ -58,10 +58,11 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                     '// renders: <button>click me</button>`',
                 'typescript'
             )}
+            <p>This is particularly good when working with web components.</p>
             ${Heading('Event options', 'h3')}
             <p>
                 One thing that you cannot do natively in HTML, but you can with
-                this library is providing
+                Markup is providing
                 <a
                     href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#options"
                     >event listener options</a
