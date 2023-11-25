@@ -155,19 +155,19 @@ export class HtmlTemplate {
                 this.#init(element)
             }
 
-            if (element.parentNode) {
-                const frag = doc.createDocumentFragment()
-                frag.append(...this.nodes)
-                element.parentNode.replaceChild(frag, element)
+            const frag = doc.createDocumentFragment()
+            frag.append(...this.nodes)
+            element.parentNode?.replaceChild(frag, element)
 
-                if (target instanceof HtmlTemplate) {
-                    target.unmount()
-                }
-            } else {
-                return
+            // only need to unmount the template nodes
+            // if the target is not a template, it will be automatically removed
+            // when replaceChild is called above.
+            if (target instanceof HtmlTemplate) {
+                target.unmount()
             }
 
-            this.#renderTarget = element
+            this.#renderTarget = element.parentNode as HTMLElement
+
             return
         }
 
