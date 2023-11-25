@@ -14,15 +14,15 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
         html`
             ${Heading(page.name)}
             <p>
-                A helper is simply a function. A function that main purpose is
-                to help with some logic in the template.
+                A Markup helper is simply a function, which the main purpose is
+                to help with some render logic or value in the template.
             </p>
             <p>
                 It can be used to check data, wrap or render templates,
                 manipulate data, etc. You can create simple functions and use
                 the template
                 <code>update</code> method to trigger them all or wrap functions
-                in <code>Helper</code> call to make it work with template
+                in <code>helper</code> call to make it work with template
                 states.
             </p>
             ${Heading('Simple helper', 'h3')}
@@ -35,6 +35,7 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
             ${CodeSnippet(
                 'let count = 0;\n' +
                     '\n' +
+                    '// simple count helper function to display "even" or "odd" \n' +
                     "const evenOddCountLabel = () => count % 2 === 0 ? 'even' : 'odd';\n" +
                     '\n' +
                     'const counter = html`\n' +
@@ -58,7 +59,7 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
             </p>
             <p>
                 For contrast, this is how it would look like if I was using
-                <a href="./state-values">state</a> instead.
+                <a href="./state-values">state</a> count instead.
             </p>
             ${CodeSnippet(
                 'let [count, setCount] = state(0);\n' +
@@ -87,16 +88,28 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
             ${Heading('Helper wrapper', 'h3')}
             <p>
                 We can simplify the helper above with the
-                <code>helper</code> wrapper.
+                <code>helper</code> wrapper and remove the need for the
+                <a href="./effect-helper">effect</a> helper when using it in the
+                template.
             </p>
-
             <p>
                 To use the <code>helper</code> wrapper, all you need to do is
-                wrap a function with it. If that function takes as
-                <code>StateGetter</code> directly as argument, the template will
-                know to recalculate the result of that helper when the states it
-                depends on changes.
+                wrap a function with it.
             </p>
+            ${CodeSnippet(
+                'const evenOddLabel = helper((x: StateGetter<number>) => x() % 2 === 0 \n' +
+                    "   ? 'even' \n" +
+                    "   : 'odd');",
+                'typescript'
+            )}
+            <p>
+                Notice that now it is a pure function that takes the
+                <code>x</code> input which must be a <code>StateGetter</code>.
+                What this mean is that, whenever the state changes, the helper
+                will tell the template to update that specific part of the DOM
+                where it is used.
+            </p>
+            <p>Here is the full result:</p>
             ${CodeSnippet(
                 'let [count, setCount] = state(0);\n' +
                     '\n' +
@@ -117,13 +130,25 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                     'counter.render(document.body)',
                 'typescript'
             )}
-            ${Heading('Helper value', 'h4')}
+            <p>
+                You can learn to improve it further by checking
+                <a href="./custom-helper">how to create your custom helpers</a>.
+            </p>
+            ${Heading('Helper value and arguments', 'h4')}
             <p>
                 The <code>helper</code> wrapper returns an instance of
-                <code>Helper</code> which the template itself knows how to
-                handle. All it does is call it and get the <code>value</code>.
+                <code>Helper</code> that the template itself knows how to handle
+                by accessing the <code>value</code> and
+                <code>args</code> properties.
             </p>
-            ${CodeSnippet('evenOddLabel(() => 12).value', 'typescript')}
+            ${CodeSnippet(
+                'evenOddLabel(count).value;\nevenOddLabel(count).args;\n',
+                'typescript'
+            )}
+            <p>
+                By knowing these two properties, you can use them anywhere in
+                your code for any type of functionality you want to create.
+            </p>
             ${Heading('Working with helpers', 'h4')}
             <p>
                 Helpers are just functions, and you can do anything you would
@@ -142,24 +167,27 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                 'typescript'
             )}
             <p>
-                Ofcourse you can simplify this by moving them into a new helper
-                altogether to make it easier to read, but it should give you
-                enough idea of what is possible.
+                What this is illustrating is the
+                <a href="https://en.wikipedia.org/wiki/Functional_programming"
+                    >functional oriented</a
+                >
+                nature of Markup, specifically the ability to compose simple
+                functions to create complex renders and logic handlers.
             </p>
             ${Heading('Helper scope state', 'h3')}
             <p>
-                The best way to introduce internal state to the helper functions
-                is to use
+                Helpers can also keep internal state through
                 <a
                     href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures"
-                    >JavaScript closure</a
-                >
-                and the helper would still work just fine.
+                    >JavaScript closures</a
+                >, and it should not be a problem. Your helper function can be
+                up to one level nested function.
             </p>
             <p>
                 The following filter use the outer function to "cache" the
-                condition and the filtered list results, so it can save
-                unnecessary computation.
+                condition, and the filtered list results, so it can save
+                unnecessary computation. The inner returned function is used as
+                the handler.
             </p>
             ${CodeSnippet(
                 'const filterList = helper((list, filterer, condition = () => null) => {\n' +
@@ -178,14 +206,13 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                 'typescript'
             )}
             <p>
-                This is just an example and not something you will need with
-                this library if using state, but it shows that you can freely
-                nest functions up to one two levels (outer and inner) and the
-                helper would still function well.
+                This is just a simple example, but it shows that you can nest
+                functions up to one level (outer and inner) and the helper would
+                still function well.
             </p>
             <p>
-                This capability will allow helpers to keep data in between
-                calculations and you to build more powerful helpers to support
+                This capability will allow helpers to keep data between
+                calculations, and you to build more powerful helpers to support
                 your project.
             </p>
             ${DocPrevNextNav({

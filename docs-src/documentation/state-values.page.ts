@@ -141,8 +141,9 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                 'typescript'
             )}
             <p>
-                Simply wrap your calculation in <code>effect</code> and comma
-                separate all the states it depends on before your side effect.
+                Simply wrap a state or dynamic value in <code>effect</code> and
+                comma separate all the states it depends on before your "side
+                effect".
             </p>
             <p><code>effect(...STATE, SIDE_EFFECT_ACTION_OR_STATE)</code></p>
             <p>
