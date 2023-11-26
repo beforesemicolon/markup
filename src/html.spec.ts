@@ -511,6 +511,10 @@ describe('html', () => {
 		
 		btn.render(document.body)
 		
+		expect(btn.refs['btn'][0]).toBeInstanceOf(HTMLButtonElement)
+		expect(btn.refs['greater'][0]).toBeInstanceOf(HTMLSpanElement)
+		expect(btn.refs['less']).toBeUndefined()
+		
 		x = 5
 		
 		btn.update()

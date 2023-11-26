@@ -18,7 +18,7 @@ const id = 'S' + Math.floor(Math.random() * 10000000)
 export class HtmlTemplate {
     #htmlTemplate: string
     #nodes: Node[] = []
-    #renderTarget: HTMLElement | ShadowRoot | Element | null = null
+    #renderTarget: ShadowRoot | Element | null = null
     #refs: Record<string, Set<Element>> = {}
     #subs: Set<() => () => void> = new Set()
     #stateUnsubs: Set<() => void> = new Set()
@@ -50,7 +50,7 @@ export class HtmlTemplate {
     }
 
     /**
-     * the HTMLElement or ShadowRoot instance provided in the render method
+     * the Element or ShadowRoot instance provided in the render method
      */
     get renderTarget() {
         return this.#renderTarget
@@ -96,12 +96,12 @@ export class HtmlTemplate {
     }
 
     /**
-     * appends the template on the provided HTMLElement or ShadowRoot instance
+     * appends the template on the provided Element or ShadowRoot instance
      * @param elementToAttachNodesTo
      * @param force
      */
     render = (
-        elementToAttachNodesTo: ShadowRoot | HTMLElement | Element | null,
+        elementToAttachNodesTo: ShadowRoot | Element | null,
         force = false
     ) => {
         if (
@@ -109,12 +109,12 @@ export class HtmlTemplate {
             elementToAttachNodesTo !== this.renderTarget &&
             (force || !this.renderTarget) &&
             (elementToAttachNodesTo instanceof ShadowRoot ||
-                elementToAttachNodesTo instanceof HTMLElement)
+                elementToAttachNodesTo instanceof Element)
         ) {
             this.#renderTarget = elementToAttachNodesTo
 
             if (!this.#root) {
-                this.#init(elementToAttachNodesTo as HTMLElement)
+                this.#init(elementToAttachNodesTo as Element)
             }
 
             this.nodes.forEach((node) => {
@@ -129,10 +129,10 @@ export class HtmlTemplate {
      * replaces the target element with the template nodes. Does not replace HEAD, BODY, HTML, and ShadowRoot elements
      * @param target
      */
-    replace = (target: Node | HTMLElement | Element | HtmlTemplate | null) => {
+    replace = (target: Node | Element | HtmlTemplate | null) => {
         if (
             target instanceof HtmlTemplate ||
-            (target instanceof HTMLElement &&
+            (target instanceof Element &&
                 !(
                     target instanceof ShadowRoot ||
                     target instanceof HTMLBodyElement ||
@@ -140,10 +140,10 @@ export class HtmlTemplate {
                     target instanceof HTMLHtmlElement
                 ))
         ) {
-            let element: HTMLElement = target as HTMLElement
+            let element = target as Element
 
             if (target instanceof HtmlTemplate) {
-                element = target.nodes.find((n) => n.isConnected) as HTMLElement
+                element = target.nodes.find((n) => n.isConnected) as Element
             }
 
             // only try to replace elements that are actually rendered anywhere
@@ -166,7 +166,7 @@ export class HtmlTemplate {
                 target.unmount()
             }
 
-            this.#renderTarget = element.parentNode as HTMLElement
+            this.#renderTarget = element.parentNode as Element
 
             return
         }
@@ -219,7 +219,7 @@ export class HtmlTemplate {
         }
     }
 
-    #init(target: ShadowRoot | HTMLElement | Element) {
+    #init(target: ShadowRoot | Element) {
         if (target) {
             // eslint-disable-next-line @typescript-eslint/no-this-alias
             const self = this
@@ -248,19 +248,17 @@ export class HtmlTemplate {
                             // @ts-ignore
                             typeof val[id] === 'function'
                         ) {
-                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                            // @ts-ignore
-                            const unsub = val[id](() => {
-                                handleExecutable(
-                                    node,
-                                    self.#executablesByNode.get(
-                                        node
-                                    ) as Executable,
-                                    self.#refs
-                                )
-                                self.#subs.forEach((cb) => cb())
-                            }, id)
-                            self.#stateUnsubs.add(unsub)
+                            const nodeExec = self.#executablesByNode.get(node)
+
+                            if (nodeExec) {
+                                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                // @ts-ignore
+                                const unsub = val[id](() => {
+                                    handleExecutable(node, nodeExec, self.#refs)
+                                    self.#subs.forEach((cb) => cb())
+                                }, id)
+                                self.#stateUnsubs.add(unsub)
+                            }
                         }
                     })
 
@@ -287,53 +285,46 @@ export const html = (
     return new HtmlTemplate(parts, values)
 }
 
-class ValueGetSet<T> extends Array {
-    // create a set of weak references instead of a weakSet
-    // because we still need to iterate the references which weakSet does not allow
-    #subs: Set<() => void> = new Set()
-
-    constructor(val: T, sub?: StateSubscriber) {
-        super(3) // sized array
-
-        if (typeof sub === 'function') {
-            this.#subs.add(sub)
-        }
-
-        this[0] = () => val
-        this[1] = (newVal: T | ((val: T) => T)) => {
-            val =
-                typeof newVal === 'function'
-                    ? (newVal as (val: T) => T)(val)
-                    : newVal
-            this.#subs.forEach((sub) => {
-                sub()
-            })
-        }
-        this[2] = () => {
-            sub && this.#subs.delete(sub)
-        }
-
-        Object.defineProperty(this[0], id, {
-            // ensure only HtmlTemplate can subscribe to this value
-            value: (sub: () => void, subId: string) => {
-                if (subId === id && typeof sub === 'function') {
-                    this.#subs.add(sub)
-                }
-
-                return () => {
-                    this.#subs.delete(sub)
-                }
-            },
-        })
-
-        Object.freeze(this)
-    }
-}
-
 export const state = <T>(val: T, sub?: StateSubscriber) => {
-    return new ValueGetSet<T>(val, sub) as unknown as [
+    const subs: Set<() => void> = new Set()
+    const arr = new Array(3) as [
         StateGetter<T>,
         StateSetter<T>,
         StateUnSubscriber,
     ]
+
+    if (typeof sub === 'function') {
+        subs.add(sub)
+    }
+
+    arr[0] = () => val
+    arr[1] = (newVal: T | ((val: T) => T)) => {
+        val =
+            typeof newVal === 'function'
+                ? (newVal as (val: T) => T)(val)
+                : newVal
+        subs.forEach((sub) => {
+            sub()
+        })
+    }
+    arr[2] = () => {
+        sub && subs.delete(sub)
+    }
+
+    Object.defineProperty(arr[0], id, {
+        // ensure only HtmlTemplate can subscribe to this value
+        value: (sub: () => void, subId: string) => {
+            if (subId === id && typeof sub === 'function') {
+                subs.add(sub)
+            }
+
+            return () => {
+                subs.delete(sub)
+            }
+        },
+    })
+
+    Object.freeze(arr)
+
+    return arr
 }

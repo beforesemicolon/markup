@@ -99,7 +99,7 @@ describe('element', () => {
             attributes: {
                 onclick: clickMock,
             },
-        })
+        }) as HTMLElement
 
         el.click()
 

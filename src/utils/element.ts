@@ -27,9 +27,7 @@ export const element = <A>(
 ) => {
     if (tagName) {
         const Comp = customElements.get(tagName)
-        const el = Comp
-            ? new Comp()
-            : (doc.createElementNS(ns, tagName) as HTMLElement)
+        const el = Comp ? new Comp() : doc.createElementNS(ns, tagName)
 
         Object.entries(attributes as Record<string, unknown>).forEach(
             ([key, val]) => {
@@ -56,7 +54,7 @@ export const element = <A>(
                             typeof descriptors[key].set === 'function'
                         ) {
                             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                            // @ts-ignore cant use string key for HTMLElement
+                            // @ts-ignore cant use string key for Element
                             el[key] = val
                         }
                     }
