@@ -6,7 +6,7 @@ export const CodeSnippet = (snippet: string, lang: string = 'vim') => {
         attributes: {
             class: `language-${lang} theme-hybrid`,
         },
-        textContent: snippet.trim(),
+        textContent: snippet,
     })
 
     hljs.highlightElement(el as HTMLElement)

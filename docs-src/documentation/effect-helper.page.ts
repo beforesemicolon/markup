@@ -14,30 +14,38 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
         html`
             ${Heading(page.name)}
             <p>
-                When using <a href="./state-values">state</a> you will notice
+                When using <a href="./state-values">state</a> data you notice
                 that only the part of the template dependent on the state will
                 update with changes.
             </p>
             <p>
-                For those situations you would want to perform "side effects" on
-                the template, meaning, you want other part of the template to
-                change with some state change.
+                For those situations you could want to perform "side effects",
+                meaning, you want other part of the template to change with the
+                state change.
             </p>
             <p>
                 That is when the <code>effect</code> helper comes in. To help
-                you perform these side effects.
+                you perform these side effects directly in the template.
             </p>
             ${CodeSnippet(
-                'const counter = html`\n' +
+                'const doubleCount = () => count() * 2;\n' +
+                    '\n' +
+                    'const counter = html`\n' +
                     '  <p>${count}</p>\n' +
-                    '  <p>${effect(count, () => count() * 2)}</p>\n' +
-                    '`;'
+                    '\n' +
+                    '  <!-- Also display count doubled whenever count changes -->\n' +
+                    '  <p>${effect(count, doubleCount)}</p>\n' +
+                    '`;',
+                'typescript'
             )}
             <p>
-                The above example shows a simple example of performing a side
-                effect. The bellow example show using <code>effect</code> we can
-                react to the <code>activeTab</code>
-                state change to get the content and render it.
+                Above example shows a simple example of how to perform a side
+                effect to display double of count whenever count changes.
+            </p>
+            <p>
+                Bellow example shows that using <code>effect</code> we can react
+                to something like the <code>activeTab</code> state change to
+                dynamically get content for the tab and render it.
             </p>
             ${CodeSnippet(
                 "type Tab = 'home' | 'about' | 'contact';\n\n" +
@@ -76,13 +84,15 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
             )}
             ${Heading('Effect format', 'h3')}
             <p>
-                The <code>effect</code> take comma-separated states and as the
-                last argument should be the action to take or the "thing" you
-                need to be returned.
+                The <code>effect</code> helper takes comma-separated states and
+                the last argument must be the action to take or, the "thing" you
+                need to be returned or rendered.
             </p>
             <p><code>effect(STATE, ...STATE, SIDE_EFFECT_ACTION)</code></p>
             ${CodeSnippet(
-                'effect(activeTab, currentPath, contentLoader)',
+                "// react to 'activeTab' and 'currentPath' state changes \n" +
+                    "// to load content by calling 'contentLoader'\n" +
+                    'effect(activeTab, currentPath, contentLoader)',
                 'typescript'
             )}
             ${DocPrevNextNav({

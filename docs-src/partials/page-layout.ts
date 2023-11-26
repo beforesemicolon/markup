@@ -100,7 +100,7 @@ export const PageLayout = ({
                         copyBtn.style.visibility = 'visible'
                         copyBtn.addEventListener('click', () => {
                             clearTimeout(timer)
-                            navigator.clipboard.writeText(code)
+                            navigator.clipboard.writeText(code.trim())
                             copyBtn.textContent = 'copied'
                             copyBtn.classList.add('copied')
                             timer = setTimeout(() => {
