@@ -2,16 +2,15 @@ import { html } from '../../src'
 import { DocPageLayout } from '../partials/doc-page-layout'
 import { Heading } from '../partials/heading'
 import { CodeSnippet } from '../partials/code-snippet'
-import { DocPrevNextNav } from '../partials/doc-prev-next-nav'
 import { PageComponentProps } from '../type'
 
 export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
-    DocPageLayout(
-        page.title,
-        page.description,
-        page.path,
+    DocPageLayout({
+        page,
+        prevPage,
+        nextPage,
         docsMenu,
-        html`
+        content: html`
             ${Heading(page.name)}
             <p>
                 The concept of state is related to
@@ -151,9 +150,5 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                 <code>Helper</code> and you can learn more about
                 <a href="./what-is-a-helper">helpers</a> in the next section.
             </p>
-            ${DocPrevNextNav({
-                prev: prevPage,
-                next: nextPage,
-            })}
-        `
-    )
+        `,
+    })

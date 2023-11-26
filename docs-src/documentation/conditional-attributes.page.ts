@@ -2,16 +2,15 @@ import { html } from '../../src'
 import { DocPageLayout } from '../partials/doc-page-layout'
 import { Heading } from '../partials/heading'
 import { CodeSnippet } from '../partials/code-snippet'
-import { DocPrevNextNav } from '../partials/doc-prev-next-nav'
 import { PageComponentProps } from '../type'
 
 export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
-    DocPageLayout(
-        page.title,
-        page.description,
-        page.path,
+    DocPageLayout({
+        page,
+        nextPage,
+        prevPage,
         docsMenu,
-        html`
+        content: html`
         ${Heading(page.name)}
         <p>
             You cannot use template literal value to define attributes directly on the
@@ -132,9 +131,5 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                 'html`<button attr.aria-label="${label}">click me</button>`',
             'typescript'
         )}
-        ${DocPrevNextNav({
-            prev: prevPage,
-            next: nextPage,
-        })}
-    `
-    )
+    `,
+    })

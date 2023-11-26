@@ -2,16 +2,15 @@ import { html } from '../../src'
 import { DocPageLayout } from '../partials/doc-page-layout'
 import { Heading } from '../partials/heading'
 import { CodeSnippet } from '../partials/code-snippet'
-import { DocPrevNextNav } from '../partials/doc-prev-next-nav'
 import { PageComponentProps } from '../type'
 
 export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
-    DocPageLayout(
-        page.title,
-        page.description,
-        page.path,
+    DocPageLayout({
+        page,
+        prevPage,
+        nextPage,
         docsMenu,
-        html`
+        content: html`
         ${Heading(page.name)}
         <p>
             The <code>element</code> utility exists solely to help you create DOM elements easily.
@@ -71,9 +70,5 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
           <li><strong>Web component properties</strong>: If you create a web component instance that maps attributes
           to internal setters it will automatically provide them as properties as well.</li
         </ul>
-        ${DocPrevNextNav({
-            prev: prevPage,
-            next: nextPage,
-        })}
-    `
-    )
+    `,
+    })

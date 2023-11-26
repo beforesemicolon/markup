@@ -2,16 +2,15 @@ import { html } from '../../src'
 import { DocPageLayout } from '../partials/doc-page-layout'
 import { Heading } from '../partials/heading'
 import { CodeSnippet } from '../partials/code-snippet'
-import { DocPrevNextNav } from '../partials/doc-prev-next-nav'
 import { PageComponentProps } from '../type'
 
 export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
-    DocPageLayout(
-        page.title,
-        page.description,
-        page.path,
+    DocPageLayout({
+        page,
+        prevPage,
+        nextPage,
         docsMenu,
-        html`
+        content: html`
             ${Heading(page.name)}
             <p>
                 A Markup helper is simply a function, which the main purpose is
@@ -215,9 +214,5 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                 calculations, and you to build more powerful helpers to support
                 your project.
             </p>
-            ${DocPrevNextNav({
-                prev: prevPage,
-                next: nextPage,
-            })}
-        `
-    )
+        `,
+    })

@@ -1,24 +1,21 @@
 import { html, HtmlTemplate } from '../../src'
 import { Header } from './header'
 import { Footer } from './footer'
+import { Page } from '../type'
 
 interface PageProps {
+    page: Page
     content: HtmlTemplate
-    title?: string
-    description?: string
     stylesheets?: HtmlTemplate
     scripts?: HtmlTemplate
     basePath?: string
-    path?: string
 }
 
 export const PageLayout = ({
-    title = 'Markup - HTML Templating System by Before Semicolon',
-    description = '',
+    page,
     content,
     stylesheets,
     basePath = './',
-    path = '',
 }: PageProps) => html`
     <!doctype html>
     <html lang="en">
@@ -29,29 +26,29 @@ export const PageLayout = ({
                 content="width=device-width, initial-scale=1.0"
             />
             <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-            <title>${title}</title>
-            <meta name="description" content="${description}" />
-            <meta property="og:title" content="${title}" />
+            <title>${page.title}</title>
+            <meta name="description" content="${page.description}" />
+            <meta property="og:title" content="${page.title}" />
             <meta property="og:type" content="website" />
-            <meta property="og:description" content="${description}" />
+            <meta property="og:description" content="${page.description}" />
             <meta
                 property="og:image"
                 content="https://markup.beforesemicolon.com/assets/markup-banner.jpg"
             />
             <meta
                 property="og:url"
-                content="https://markup.beforesemicolon.com/${path}"
+                content="https://markup.beforesemicolon.com${page.path}"
             />
             <meta property="og:site_name" content="Markup" />
             <meta name="twitter:card" content="summary_large_image" />
             <meta name="twitter:site" content="@beforesemicolon" />
-            <meta name="twitter:title" content="${title}" />
+            <meta name="twitter:title" content="${page.title}" />
             <meta
                 name="twitter:image"
                 content="https://markup.beforesemicolon.com/assets/markup-banner.jpg"
             />
-            <meta name="twitter:description" content="${description}" />
-            <meta name="twitter:image:alt" content="${title}" />
+            <meta name="twitter:description" content="${page.description}" />
+            <meta name="twitter:image:alt" content="${page.title}" />
             <link
                 rel="apple-touch-icon"
                 sizes="180x180"

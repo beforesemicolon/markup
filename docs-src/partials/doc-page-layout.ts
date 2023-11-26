@@ -1,17 +1,23 @@
 import { html, HtmlTemplate } from '../../src'
 import { PageLayout } from '../partials/page-layout'
-import { DocumentsGroup } from '../type'
+import { DocumentsGroup, Page } from '../type'
+import { DocPrevNextNav } from '../partials/doc-prev-next-nav'
 
-export const DocPageLayout = (
-    title: string,
-    description: string,
-    currentPage: string,
-    docMenu: DocumentsGroup[],
+export const DocPageLayout = ({
+    page,
+    nextPage,
+    prevPage,
+    docsMenu,
+    content,
+}: {
+    page: Page
+    docsMenu: DocumentsGroup[]
     content: HtmlTemplate
-) =>
+    prevPage?: Page
+    nextPage?: Page
+}) =>
     PageLayout({
-        title,
-        description,
+        page,
         stylesheets: html`
             <link
                 rel="stylesheet"
@@ -20,7 +26,6 @@ export const DocPageLayout = (
             <link rel="stylesheet" href="../stylesheets/documentation.css" />
         `,
         basePath: '../',
-        path: currentPage,
         content: html`
             <div class="wrapper docs">
                 <div class="doc-nav" id="menu">
@@ -28,7 +33,7 @@ export const DocPageLayout = (
                         <span>menu</span>
                     </a>
                     <ul class="doc-nav-list" id="doc-nav-list" tabindex="0">
-                        ${docMenu.map(
+                        ${docsMenu.map(
                             (g) => html`
                                 <li>
                                     <span>${g.name}</span>
@@ -37,7 +42,7 @@ export const DocPageLayout = (
                                             (l) => html`
                                                 <li
                                                     attr.class.active="${l.path ===
-                                                    currentPage}"
+                                                    page.path}"
                                                 >
                                                     <a href="..${l.path}"
                                                         >${l.name}</a
@@ -50,9 +55,15 @@ export const DocPageLayout = (
                             `
                         )}
                     </ul>
-                    <a href="../${currentPage}" class="mobile-menu-close"></a>
+                    <a href="../${page.path}" class="mobile-menu-close"></a>
                 </div>
-                <article>${content}</article>
+                <article>
+                    ${content}
+                    ${DocPrevNextNav({
+                        prev: prevPage,
+                        next: nextPage,
+                    })}
+                </article>
             </div>
         `,
     })

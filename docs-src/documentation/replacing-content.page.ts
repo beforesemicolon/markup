@@ -2,16 +2,15 @@ import { html } from '../../src'
 import { DocPageLayout } from '../partials/doc-page-layout'
 import { CodeSnippet } from '../partials/code-snippet'
 import { Heading } from '../partials/heading'
-import { DocPrevNextNav } from '../partials/doc-prev-next-nav'
 import { PageComponentProps } from '../type'
 
 export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
-    DocPageLayout(
-        page.title,
-        page.description,
-        page.path,
+    DocPageLayout({
+        page,
+        prevPage,
+        nextPage,
         docsMenu,
-        html`
+        content: html`
             ${Heading(page.name)}
             <p>
                 One special thing about Markup template is that it is an
@@ -102,9 +101,5 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                     where the target is.
                 </li>
             </ul>
-            ${DocPrevNextNav({
-                prev: prevPage,
-                next: nextPage,
-            })}
-        `
-    )
+        `,
+    })

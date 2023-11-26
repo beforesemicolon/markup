@@ -2,16 +2,15 @@ import { html } from '../../src'
 import { DocPageLayout } from '../partials/doc-page-layout'
 import { Heading } from '../partials/heading'
 import { CodeSnippet } from '../partials/code-snippet'
-import { DocPrevNextNav } from '../partials/doc-prev-next-nav'
 import { PageComponentProps } from '../type'
 
 export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
-    DocPageLayout(
-        page.title,
-        page.description,
-        page.path,
+    DocPageLayout({
+        page,
+        nextPage,
+        prevPage,
         docsMenu,
-        html`
+        content: html`
             ${Heading(page.name)}
             <p>
                 One of the biggest sells for working with templates is the
@@ -112,9 +111,5 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                 keeps increasing the DOM will never change. Only when it goes
                 under for the first time.
             </p>
-            ${DocPrevNextNav({
-                prev: prevPage,
-                next: nextPage,
-            })}
-        `
-    )
+        `,
+    })

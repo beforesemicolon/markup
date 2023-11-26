@@ -2,16 +2,15 @@ import { html } from '../../src'
 import { DocPageLayout } from '../partials/doc-page-layout'
 import { CodeSnippet } from '../partials/code-snippet'
 import { Heading } from '../partials/heading'
-import { DocPrevNextNav } from '../partials/doc-prev-next-nav'
 import { PageComponentProps } from '../type'
 
 export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
-    DocPageLayout(
-        page.title,
-        page.description,
-        page.path,
+    DocPageLayout({
+        page,
+        nextPage,
+        prevPage,
         docsMenu,
-        html`
+        content: html`
             ${Heading(page.name)}
             <p>
                 To create a template you will need to use the
@@ -115,9 +114,5 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                 instance to its original state ready to be re-rendered by
                 calling the <code>render</code> method.
             </p>
-            ${DocPrevNextNav({
-                prev: prevPage,
-                next: nextPage,
-            })}
-        `
-    )
+        `,
+    })

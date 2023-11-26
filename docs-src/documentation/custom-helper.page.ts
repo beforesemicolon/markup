@@ -2,16 +2,15 @@ import { html } from '../../src'
 import { DocPageLayout } from '../partials/doc-page-layout'
 import { Heading } from '../partials/heading'
 import { CodeSnippet } from '../partials/code-snippet'
-import { DocPrevNextNav } from '../partials/doc-prev-next-nav'
 import { PageComponentProps } from '../type'
 
 export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
-    DocPageLayout(
-        page.title,
-        page.description,
-        page.path,
+    DocPageLayout({
+        page,
+        nextPage,
+        prevPage,
         docsMenu,
-        html`
+        content: html`
             ${Heading(page.name)}
             <p>
                 To create a custom helper, all you need to do is create a
@@ -161,9 +160,5 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                     ')}`.render(document.body);',
                 'typescript'
             )}
-            ${DocPrevNextNav({
-                prev: prevPage,
-                next: nextPage,
-            })}
-        `
-    )
+        `,
+    })

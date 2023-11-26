@@ -2,16 +2,15 @@ import { html } from '../../src'
 import { DocPageLayout } from '../partials/doc-page-layout'
 import { Heading } from '../partials/heading'
 import { CodeSnippet } from '../partials/code-snippet'
-import { DocPrevNextNav } from '../partials/doc-prev-next-nav'
 import { PageComponentProps } from '../type'
 
 export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
-    DocPageLayout(
-        page.title,
-        page.description,
-        page.path,
+    DocPageLayout({
+        page,
+        prevPage,
+        nextPage,
         docsMenu,
-        html`
+        content: html`
             ${Heading(page.name)}
             <p>
                 Having a global store can come in handy. There are many
@@ -93,9 +92,5 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                 application, and you can <a href="">watch it here</a> to learn
                 more.
             </p>
-            ${DocPrevNextNav({
-                prev: prevPage,
-                next: nextPage,
-            })}
-        `
-    )
+        `,
+    })

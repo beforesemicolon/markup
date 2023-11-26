@@ -2,16 +2,15 @@ import { html } from '../../src'
 import { DocPageLayout } from '../partials/doc-page-layout'
 import { CodeSnippet } from '../partials/code-snippet'
 import { Heading } from '../partials/heading'
-import { DocPrevNextNav } from '../partials/doc-prev-next-nav'
 import { PageComponentProps } from '../type'
 
 export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
-    DocPageLayout(
-        page.title,
-        page.description,
-        page.path,
+    DocPageLayout({
+        page,
+        prevPage,
+        nextPage,
         docsMenu,
-        html`
+        content: html`
             ${Heading(page.name)}
             <p>
                 There could be times when you need to get reference of the
@@ -131,9 +130,5 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                     '}, 2500)',
                 'typescript'
             )}
-            ${DocPrevNextNav({
-                prev: prevPage,
-                next: nextPage,
-            })}
-        `
-    )
+        `,
+    })
