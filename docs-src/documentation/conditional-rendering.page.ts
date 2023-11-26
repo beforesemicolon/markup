@@ -14,10 +14,15 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
         html`
             ${Heading(page.name)}
             <p>
-                The biggest advantage of working with a template is the ability
-                to conditional render things. This library makes it super easy
+                One of the biggest sells for working with templates is the
+                ability to conditional render things. Markup makes it super easy
                 to conditional render anything because of
                 <a href="./dynamic-values-and-update">dynamic values</a>.
+            </p>
+            <p>
+                For a simple example, you can add a function in the template
+                that can quickly check a condition and return different values
+                accordingly.
             </p>
             ${CodeSnippet(
                 'let count = 5;\n' +
@@ -27,14 +32,13 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
             )}
             <p>
                 You can use a function to conditionally return anything you want
-                to be renderer or used in the template. However, there is a
-                better way.
+                to be renderer. However, Markup offers a better way.
             </p>
             ${Heading('when helper', 'h3')}
             <p>
-                This library exposes a set of helpful helpers and one of them is
-                the
-                <code>when</code> helper.
+                Markup exposes a set of helpful helpers and one of them is the
+                <code>when</code> helper which allows you to conditional render
+                anything with better performance and handling.
             </p>
             ${CodeSnippet(
                 'let count = 5;\n' +
@@ -45,14 +49,15 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                 'typescript'
             )}
             <p>
-                The <code>when</code> helper takes 3 arguments, and the third
-                one is optional:
+                The <code>when</code> helper takes three arguments, and the
+                third one is optional:
             </p>
             <p><code>when(CONDITION, THEN, ?ELSE)</code>:</p>
             <ul>
                 <li>
-                    <strong>CONDITION</strong>: The contition can be a function
-                    or a value, and it will be checked if it is
+                    <strong>CONDITION</strong>: The condition can be a value or,
+                    a function that returns a value, and it will be checked if
+                    it is
                     <a
                         href="https://developer.mozilla.org/en-US/docs/Glossary/Truthy"
                         >TRUTHY</a
@@ -61,16 +66,15 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                     <a
                         href="https://developer.mozilla.org/en-US/docs/Glossary/Falsy"
                         >FALSY</a
-                    >
-                    .
+                    >.
                 </li>
                 <li>
-                    <strong>THEN</strong>: Something to return if the condition
+                    <strong>THEN</strong>: Something to render if the condition
                     is truthy. It can also be a function that returns any value
                     you need.
                 </li>
                 <li>
-                    <strong>ELSE</strong> (optional): Something to return if the
+                    <strong>ELSE</strong> (optional): Something to render if the
                     condition is falsy. It can also be a function that returns
                     any value you need.
                 </li>
@@ -94,10 +98,14 @@ export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
                     '`'
             )}
             <p>
-                The above example will render a new <code>over 10</code> or
-                <code>under 10</code> template on every change even though what
+                The above example will render <code>over 10</code> or
+                <code>under 10</code> templates on every change even though what
                 you render for over or under 10 looks the same. This would cause
-                unnecessary renders and DOM calculations.
+                unnecessary renders and DOM calculations using plain function
+                instead of <code>when</code> helper because every time the
+                function is called a new template instance is created, which for
+                Markup is different, therefore re-render the DOM to look the
+                same.
             </p>
             <p>
                 With the <code>when</code> helper once the count is over 10 and
