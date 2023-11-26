@@ -4,12 +4,14 @@ import { DocumentsGroup, Page } from '../type'
 import { DocPrevNextNav } from '../partials/doc-prev-next-nav'
 
 export const DocPageLayout = ({
+    name,
     page,
     nextPage,
     prevPage,
     docsMenu,
     content,
 }: {
+    name: string
     page: Page
     docsMenu: DocumentsGroup[]
     content: HtmlTemplate
@@ -17,6 +19,7 @@ export const DocPageLayout = ({
     nextPage?: Page
 }) =>
     PageLayout({
+        siteName: name,
         page,
         stylesheets: html`
             <link

@@ -5,8 +5,15 @@ import essentialTraining from '../data/essential-training.json'
 import { PlaylistContent } from '../partials/playlist-content'
 import { PageComponentProps } from '../type'
 
-export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
+export default ({
+    name,
+    page,
+    nextPage,
+    prevPage,
+    docsMenu,
+}: PageComponentProps) =>
     DocPageLayout({
+        name,
         page,
         prevPage,
         nextPage,

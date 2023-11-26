@@ -2,8 +2,9 @@ import { html } from '../src'
 import { PageLayout } from './partials/page-layout'
 import { PageComponentProps } from './type'
 
-export default ({ page }: PageComponentProps) =>
+export default ({ page, name }: PageComponentProps) =>
     PageLayout({
+        siteName: name,
         page,
         stylesheets: html`
             <link

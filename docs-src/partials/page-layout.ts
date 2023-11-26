@@ -4,6 +4,7 @@ import { Footer } from './footer'
 import { Page } from '../type'
 
 interface PageProps {
+    siteName: string
     page: Page
     content: HtmlTemplate
     stylesheets?: HtmlTemplate
@@ -12,12 +13,12 @@ interface PageProps {
 }
 
 export const PageLayout = ({
+    siteName,
     page,
     content,
     stylesheets,
     basePath = './',
 }: PageProps) => html`
-    <!doctype html>
     <html lang="en">
         <head>
             <meta charset="UTF-8" />
@@ -39,7 +40,7 @@ export const PageLayout = ({
                 property="og:url"
                 content="https://markup.beforesemicolon.com${page.path}"
             />
-            <meta property="og:site_name" content="Markup" />
+            <meta property="og:site_name" content="${siteName}" />
             <meta name="twitter:card" content="summary_large_image" />
             <meta name="twitter:site" content="@beforesemicolon" />
             <meta name="twitter:title" content="${page.title}" />

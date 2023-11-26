@@ -4,8 +4,9 @@ import reasons from './data/reasons.json'
 import { CodeSnippet } from './partials/code-snippet'
 import { PageComponentProps } from './type'
 
-export default ({ page }: PageComponentProps) =>
+export default ({ page, name }: PageComponentProps) =>
     PageLayout({
+        siteName: name,
         page,
         stylesheets: html`
             <link

@@ -5,8 +5,15 @@ import { PlaylistContent } from '../partials/playlist-content'
 import tutorialTraining from '../data/tutorial.json'
 import { PageComponentProps } from '../type'
 
-export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
+export default ({
+    name,
+    page,
+    nextPage,
+    prevPage,
+    docsMenu,
+}: PageComponentProps) =>
     DocPageLayout({
+        name,
         page,
         prevPage,
         nextPage,

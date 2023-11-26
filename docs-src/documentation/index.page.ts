@@ -4,8 +4,15 @@ import { Heading } from '../partials/heading'
 import { PageComponentProps } from '../type'
 import reasons from '../data/reasons.json'
 
-export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
+export default ({
+    name,
+    page,
+    nextPage,
+    prevPage,
+    docsMenu,
+}: PageComponentProps) =>
     DocPageLayout({
+        name,
         page,
         prevPage,
         nextPage,

@@ -1,6 +1,7 @@
 import { HtmlTemplate } from '../src'
 
 export interface PageComponentProps {
+    name: string
     page: Page
     docsMenu: DocumentsGroup[]
     nextPage?: Page

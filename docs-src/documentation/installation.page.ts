@@ -4,8 +4,15 @@ import { CodeSnippet } from '../partials/code-snippet'
 import { Heading } from '../partials/heading'
 import { PageComponentProps } from '../type'
 
-export default ({ page, nextPage, prevPage, docsMenu }: PageComponentProps) =>
+export default ({
+    name,
+    page,
+    nextPage,
+    prevPage,
+    docsMenu,
+}: PageComponentProps) =>
     DocPageLayout({
+        name,
         page,
         prevPage,
         nextPage,
