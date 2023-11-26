@@ -22,24 +22,12 @@ const node = (
     const comp = customElements.get(nodeName.toLowerCase())
 
     return {
+        __self__: node,
         namespaceURI: (node as Element).namespaceURI as string,
-        get __self__() {
-            return node
-        },
-        get tagName() {
-            return nodeName
-        },
-        get childNodes() {
-            return node.childNodes
-        },
-        get attributes() {
-            return node instanceof Element ? node.attributes : null
-        },
-        set textContent(value: string) {
-            if (node instanceof Element) {
-                node.textContent = value
-            }
-        },
+        tagName: nodeName,
+        childNodes: node.childNodes,
+        attributes: 'attributes' in node ? node.attributes : null,
+        textContent: node.textContent,
         setAttribute: (name: string, value: string = '') => {
             if (/^val[0-9]+$/.test(name)) {
                 return
@@ -117,7 +105,8 @@ const node = (
                 n = n.__self__
             }
 
-            if (n.nodeName === '#text') {
+            if (n.nodeType === 3) {
+                // text node
                 node.appendChild(n)
 
                 if (n.nodeValue && /{{val([0-9]+)}}/.test(n.nodeValue)) {
