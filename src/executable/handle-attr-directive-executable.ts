@@ -15,7 +15,7 @@ export const handleAttrDirectiveExecutable = (
         const [attrName, property] = (executableValue.prop || '').split('.')
         const element = executableValue.renderedNodes[0] as HTMLElement
         // eslint-disable-next-line prefer-const
-        let [value, condition] = rawValue.split(/\||,/).map((s) => s.trim())
+        let [value, condition] = rawValue.split(/\|/).map((s) => s.trim())
         let shouldAdd = condition ? jsonParse(condition) : jsonParse(value)
         const parsedValue = jsonParse(value)
 
