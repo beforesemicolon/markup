@@ -188,6 +188,7 @@ export class HtmlTemplate {
     }
 
     unmount() {
+        // make sure the inner HTML template also reset
         this.#values.forEach((val) => {
             if (val instanceof HtmlTemplate) {
                 val.unmount()
@@ -199,6 +200,7 @@ export class HtmlTemplate {
             }
         })
         this.#renderTarget = null
+        this.#root = null
         this.unsubscribeFromStates()
     }
 
