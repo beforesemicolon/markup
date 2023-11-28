@@ -23,7 +23,8 @@ export default ({
                 In addition to
                 <a href="./is-isnot-helpers#is-helper">is</a> and
                 <a href="./is-isnot-helpers#isnot-helper">isNot</a> helpers,
-                this library offers additional boolean helpers.
+                this library offers additional boolean helpers right out of the
+                box.
             </p>
             <p>
                 All these helpers will return <code>true</code> or

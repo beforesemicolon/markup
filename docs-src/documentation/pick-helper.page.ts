@@ -19,7 +19,11 @@ export default ({
         docsMenu,
         content: html`
             ${Heading(page.name)}
-            <p>The <code>pick</code> helper is a quick way to read</p>
+            <p>
+                The <code>pick</code> helper is a quick way to read object key
+                values at any level without sacrificing readability and
+                reactivity of state.
+            </p>
             ${Heading('The problem', 'h3')}
             <p>
                 If you have a state value and try to read a deep value it would

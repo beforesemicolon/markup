@@ -20,14 +20,14 @@ export default ({
         content: html`
             ${Heading(page.name)}
             <p>
-                Pages can get super complex with a lot of repetitive markup and
-                long lists. Using a template makes the work much easier since
-                you can use data and logic to create long lists or repeat things
-                with small variations much easier.
+                An area where templates shine is dealing with repeating parts of
+                the content. Markup template already handles Arrays of content
+                for you, but it goes further to support you with even more
+                optimal and simpler way to deal with things that repeat.
             </p>
             <p>
-                By default, the template will already render array of contents
-                for you:
+                As mentioned above, Markup already renders array of contents for
+                you:
             </p>
             ${CodeSnippet(
                 'const todos = [\n' +
@@ -43,13 +43,12 @@ export default ({
             )}
             <p>
                 The above example will correctly render the list just fine and
-                all need in the template was a single line.
+                all that was needed in the template was a single line.
             </p>
             <p>
                 Using the natively supported array rendering of the template is
                 perfect for static lists but not so much if the list content or
-                size keeps changing. Fortunately, the system offers a helper for
-                that.
+                size keeps changing. Fortunately, there is a helper for that.
             </p>
             ${Heading('repeat helper', 'h3')}
             <p>
@@ -90,8 +89,8 @@ export default ({
                 <li>
                     <strong>ITEM_RENDERER</strong>: A function that will be
                     called for every item and must return what to render. If a
-                    number ws specified as the first argument, this function
-                    will be get called with a number value and the index,
+                    number was specified as the first argument, this function
+                    will get called with a number value and the index,
                     otherwise, it will get called with the item in the array and
                     its index.
                 </li>
@@ -104,8 +103,8 @@ export default ({
             </ul>
             ${Heading('Why use the repeat helper?', 'h4')}
             <p>
-                The <code>repeat</code> helper will keep an internal cache based
-                on the items in the list. This is done to only re-render the
+                The <code>repeat</code> helper will keep an internal cache keyed
+                by the items in the list. This is done to only re-render the
                 items that change and not the whole list every time there is a
                 change.
             </p>
@@ -120,7 +119,7 @@ export default ({
                     'html`${repeat([1, 3, 5, 3], (n) => html`<span>item ${n}</span>`)}`\n' +
                     '// renders: item 1 item 3 item 5' +
                     '\n\n' +
-                    "html`${repeat([1, 3, 5, 3], (n) => element('li', {\n" +
+                    "html`${repeat([1, 3, 5, 3], (n) => element('span', {\n" +
                     '  textContent: `item ${n}`\n' +
                     '}))}`\n' +
                     '// renders: item 1 item 3 item 5',
@@ -130,9 +129,8 @@ export default ({
                 This is only true when you are trying to render
                 <a href="https://developer.mozilla.org/en-US/docs/Web/API/Node"
                     >Nodes</a
-                >
-                , and it is not specific to this library. You can't render the
-                same nodes in multiple places. Because each template or node are
+                >, and it is not specific to Markup. You can't render the same
+                nodes in multiple places. Because each template or node are
                 mapped to the same value reference even when the
                 <code>repeat</code> tries to render the whole list.
             </p>
