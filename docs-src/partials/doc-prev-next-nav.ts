@@ -9,7 +9,7 @@ interface DocPrevNextNavProps {
 export const DocPrevNextNav = ({ prev, next }: DocPrevNextNavProps) => {
     return html`<div class="doc-prev-next-nav">
         ${when(
-            prev,
+            prev && prev.group,
             () =>
                 html`<a href="..${prev?.path}" class="prev-page"
                     ><< ${prev?.name}</a
@@ -17,7 +17,7 @@ export const DocPrevNextNav = ({ prev, next }: DocPrevNextNavProps) => {
             html`<span />`
         )}
         ${when(
-            next,
+            next && next.group,
             () =>
                 html`<a href="..${next?.path}" class="next-page"
                     >${next?.name} >></a

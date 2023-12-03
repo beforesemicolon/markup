@@ -1,10 +1,17 @@
+import 'global-jsdom/register'
 import { cp, mkdir, writeFile } from 'fs/promises'
 import * as path from 'path'
-import { toStatic } from '../src/to-static'
 import config, { DocMenu } from '../docs-src/config'
+import { HtmlTemplate } from '../src'
 
 const docsDir = path.resolve(process.cwd(), 'docs')
 const docsSrcDir = path.resolve(process.cwd(), 'docs-src')
+
+const toStatic = (temp: HtmlTemplate, docType = '<!doctype html>') => {
+    document.body.innerHTML = ''
+    temp.render(document.body)
+    return docType + document.body.innerHTML.trim()
+}
 
 async function init() {
     // create docs dir

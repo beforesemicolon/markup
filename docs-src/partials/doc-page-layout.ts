@@ -30,7 +30,7 @@ export const DocPageLayout = ({
         `,
         basePath: '../',
         content: html`
-            <div class="wrapper docs">
+            <div class="docs">
                 <div class="doc-nav" id="menu">
                     <a class="mobile-menu-open" href="#menu">
                         <span>menu</span>

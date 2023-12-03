@@ -17,62 +17,57 @@ export default ({ page, name }: PageComponentProps) =>
         `,
         content: html`
             <!-- Banner -->
-            <div class="wrapper">
-                <div class="banner">
-                    <h2>HTML Templating System</h2>
-                    <p>All you needed was a good templating system!</p>
-                    <div class="actions">
-                        <a href="./documentation" class="btn">Documentation</a>
-                        <!--                        <a-->
-                        <!--                            href="./documentation/essential-training"-->
-                        <!--                            class="btn outline"-->
-                        <!--                            >Learn</a-->
-                        <!--                        >-->
-                    </div>
+            <div class="banner">
+                <h2>HTML Templating System</h2>
+                <p>All you needed was a good templating system!</p>
+                <div class="actions">
+                    <a href="./documentation" class="btn">Documentation</a>
+                    <!--                        <a-->
+                    <!--                            href="./documentation/essential-training"-->
+                    <!--                            class="btn outline"-->
+                    <!--                            >Learn</a-->
+                    <!--                        >-->
                 </div>
             </div>
             <!-- Why -->
-            <div class="wrapper">
-                <section class="why">
-                    <h2>Why Markup?</h2>
-                    <p>
-                        The best UI frameworks and libraries out there rely
-                        heavily on a good templating system. Nobody uses React
-                        without JSX or Angular without its HTML templates. Now,
-                        what if you had a standalone good templating system?
-                        Something that is:
-                    </p>
-                    <ul class="reason-list">
-                        ${reasons.map(
-                            (reason) => html`
-                                <li class="reason-border">
-                                    <div class="reason">
-                                        <img
-                                            src="${reason.img}"
-                                            alt="${reason.imgAlt}"
-                                        />
-                                        <h3>${reason.title}</h3>
-                                        <p>${reason.description}</p>
-                                        ${reason.breakDown
-                                            ? html`
-                                                  <ul>
-                                                      ${reason.breakDown.map(
-                                                          (b) =>
-                                                              html`<li>
-                                                                  ${html([b])}
-                                                              </li>`
-                                                      )}
-                                                  </ul>
-                                              `
-                                            : ''}
-                                    </div>
-                                </li>
-                            `
-                        )}
-                    </ul>
-                </section>
-            </div>
-            <div class="get-started wrapper">
+            <section class="why">
+                <h2>Why Markup?</h2>
+                <p>
+                    The best UI frameworks and libraries out there rely heavily
+                    on a good templating system. Nobody uses React without JSX
+                    or Angular without its HTML templates. Now, what if you had
+                    a standalone good templating system? Something that is:
+                </p>
+                <ul class="reason-list">
+                    ${reasons.map(
+                        (reason) => html`
+                            <li class="reason-border">
+                                <div class="reason">
+                                    <img
+                                        src="${reason.img}"
+                                        alt="${reason.imgAlt}"
+                                    />
+                                    <h3>${reason.title}</h3>
+                                    <p>${reason.description}</p>
+                                    ${reason.breakDown
+                                        ? html`
+                                              <ul>
+                                                  ${reason.breakDown.map(
+                                                      (b) =>
+                                                          html`<li>
+                                                              ${html([b])}
+                                                          </li>`
+                                                  )}
+                                              </ul>
+                                          `
+                                        : ''}
+                                </div>
+                            </li>
+                        `
+                    )}
+                </ul>
+            </section>
+            <section class="get-started">
                 <h2>Quick Start</h2>
                 <p>Install it in your project</p>
                 ${CodeSnippet(
@@ -89,9 +84,9 @@ export default ({ page, name }: PageComponentProps) =>
                     '<script src="https://unpkg.com/@beforesemicolon/markup/dist/client.js"/>',
                     'html'
                 )}
-            </div>
+            </section>
             <!-- what you can do -->
-            <section class="what-to-build wrapper">
+            <section class="what-to-build">
                 <h2>What can you do with it?</h2>
                 <p>
                     The templating system will handle all the rendering needs of

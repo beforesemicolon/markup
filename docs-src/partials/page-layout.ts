@@ -94,7 +94,7 @@ export const PageLayout = ({
                 gtag('config', 'G-N3MXGDP5PS')
             </script>
             ${Header({ basePath })}
-            <main>${content}</main>
+            <main class="wrapper">${content}</main>
             ${Footer({ basePath })}
         </body>
 
