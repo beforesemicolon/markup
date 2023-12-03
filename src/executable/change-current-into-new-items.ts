@@ -1,5 +1,3 @@
-import { doc } from '../doc'
-
 /**
  * this function is to move nodes around without the need to unmount and remount them
  * to avoid unnecessary DOM changes especially for components. If node was not moved from its
@@ -16,7 +14,7 @@ export const changeCurrentIntoNewItems = (
     const currentChildNodesSet = new Set(currentChildNodes)
     const lastNode = currentChildNodes.at(-1)
     const endAnchor = lastNode?.nextSibling ?? null
-    let frag: DocumentFragment = doc.createDocumentFragment()
+    let frag: DocumentFragment = document.createDocumentFragment()
 
     newChildNodes.forEach((n, i) => {
         const moved = currentChildNodes[i] !== n
@@ -29,7 +27,7 @@ export const changeCurrentIntoNewItems = (
         } else {
             if (frag.childNodes.length) {
                 n.parentNode?.insertBefore(frag as DocumentFragment, n)
-                frag = doc.createDocumentFragment()
+                frag = document.createDocumentFragment()
             }
 
             currentChildNodesSet.delete(n)

@@ -1,6 +1,5 @@
 import { ExecutableValue } from '../types'
 import { changeCurrentIntoNewItems } from './change-current-into-new-items'
-import { doc } from '../doc'
 
 export const handleTextExecutable = (
     executableValue: ExecutableValue,
@@ -17,7 +16,7 @@ export const handleTextExecutable = (
     } else {
         const n = executableValue.renderedNodes[0]
 
-        const emptyNode = doc.createTextNode('')
+        const emptyNode = document.createTextNode('')
         n.parentNode?.replaceChild(emptyNode, n)
 
         if (Array.isArray(executableValue.renderedNodes)) {

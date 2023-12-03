@@ -6,7 +6,6 @@ import {
     handleEventExecutableValue,
     handleTextExecutableValue,
 } from './handle-executable'
-import { doc } from '../doc'
 
 const node = (
     nodeName: string,
@@ -17,8 +16,8 @@ const node = (
 ) => {
     const node =
         nodeName === '#fragment'
-            ? doc.createDocumentFragment()
-            : doc.createElementNS(ns, nodeName)
+            ? document.createDocumentFragment()
+            : document.createElementNS(ns, nodeName)
     const comp = customElements.get(nodeName.toLowerCase())
 
     return {
@@ -51,10 +50,10 @@ const node = (
                     }
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 } else if (
-                    doc.head &&
+                    document.head &&
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
-                    typeof doc.head[name] !== 'undefined'
+                    typeof document.head[name] !== 'undefined'
                 ) {
                     // ignore unknown events
                     e.prop = name.slice(2)
@@ -139,10 +138,10 @@ export const Doc = (
 ) => {
     return {
         createTextNode: (text: string) => {
-            return doc.createTextNode(text)
+            return document.createTextNode(text)
         },
         createComment: (text: string) => {
-            return doc.createComment(text)
+            return document.createComment(text)
         },
         createDocumentFragment: () => {
             return node('#fragment', '', values, refs, cb)

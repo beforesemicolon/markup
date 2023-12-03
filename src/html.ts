@@ -9,7 +9,6 @@ import { Doc } from './executable/Doc'
 import { handleExecutable } from './executable/handle-executable'
 import { parse } from '@beforesemicolon/html-parser'
 import { Helper } from './Helper'
-import { doc } from './doc'
 
 // prevents others from creating functions that can be subscribed to
 // and forces them to use state instead
@@ -155,7 +154,7 @@ export class HtmlTemplate {
                 this.#init(element)
             }
 
-            const frag = doc.createDocumentFragment()
+            const frag = document.createDocumentFragment()
             frag.append(...this.nodes)
             element.parentNode?.replaceChild(frag, element)
 
