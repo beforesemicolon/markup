@@ -1,19 +1,9 @@
 {
     "name": "@beforesemicolon/markup",
-    "version": "0.10.0",
+    "version": "0.11.0",
     "description": "HTML Templating System",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
-    "exports": {
-        ".": "./dist/index.js"
-    },
-    "typesVersions": {
-        "*": {
-            "*": [
-                "dist/*"
-            ]
-        }
-    },
     "scripts": {
         "test": "jest",
         "test:watch": "jest --watch",
