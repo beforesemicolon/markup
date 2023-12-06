@@ -14,7 +14,7 @@ export default ({ page, name }: PageComponentProps) =>
             <link rel="stylesheet" href="./stylesheets/landing.css" />
         `,
         content: html`
-            <div class="wrapper" style="height: 500px; padding-top: 50px;">
+            <div style="height: 500px; padding-top: 50px;">
                 <h2>404 - Page Not Found</h2>
                 <p>
                     Either the page was moved or removed, or you are making
