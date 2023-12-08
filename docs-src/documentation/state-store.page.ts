@@ -94,10 +94,5 @@ export default ({
                 <code>todoList</code> in the template with the nice cocktail of
                 helpers is all you need to create very complex applications.
             </p>
-            <p>
-                We have prepared a full tutorial on how to create such
-                application, and you can <a href="">watch it here</a> to learn
-                more.
-            </p>
         `,
     })

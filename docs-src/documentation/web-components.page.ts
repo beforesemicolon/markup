@@ -107,10 +107,5 @@ export default ({
                     'customElements.define("text-field", TextField)',
                 'typescript'
             )}
-            <p>
-                We can further simplify this component and we have prepared a
-                full tutorial on how to do so. You can
-                <a href="">watch it here</a>.
-            </p>
         `,
     })
