@@ -10,19 +10,18 @@
     @media screen and (max-width: 1024px) {
         padding: 50px 0;
     }
-
+    
     .doc-nav {
         width: 250px;
         min-width: 250px;
-        scroll-margin: 100px;
 
         @media screen and (max-width: 1024px) {
             position: absolute;
             z-index: 1;
-            left: 0;
+            left: -25px;
             top: 0;
             height: 30px;
-            width: 100%;
+            width: 100vw;
             padding: 5px 10px;
             overflow: auto;
 
