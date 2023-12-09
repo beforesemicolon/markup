@@ -10,7 +10,7 @@
         "test:coverage": "jest --coverage",
         "docs:css-watch": "nodemon --watch docs-src -e scss --exec 'npm run docs:css'",
         "docs:css": "node-sass docs-src/stylesheets -o docs/stylesheets --output-style compressed",
-        "docs:watch": "rm -rf docs && nodemon --watch docs-src -e ts,json --exec 'npm run docs:build'",
+        "docs:watch": "rm -rf docs && nodemon --watch docs-src -e ts,json --exec 'NODE_ENV=development npm run docs:build'",
         "docs:build": "ts-node docs-src/build",
         "build:docs": "rm -rf docs && npm-run-all docs:build docs:css",
         "build:min": "esbuild `find src \\( -name '*.ts' ! -name '*.spec.ts' ! -name 'client.ts' \\)` --outdir=dist --platform=node --format=cjs --keep-names --target=esnext",

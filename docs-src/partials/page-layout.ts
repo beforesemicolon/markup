@@ -1,7 +1,9 @@
-import { html, HtmlTemplate } from '../../src'
+import { html, HtmlTemplate, when } from '../../src'
 import { Header } from './header'
 import { Footer } from './footer'
 import { Page } from '../type'
+
+const devMode = process.env.NODE_ENV === 'development'
 
 interface PageProps {
     siteName: string
@@ -79,20 +81,25 @@ export const PageLayout = ({
             ${stylesheets}
         </head>
         <body>
-            <!-- Google tag (gtag.js) -->
-            <script
-                async
-                src="https://www.googletagmanager.com/gtag/js?id=G-N3MXGDP5PS"
-            ></script>
-            <script>
-                window.dataLayer = window.dataLayer || []
-                function gtag() {
-                    dataLayer.push(arguments)
-                }
-                gtag('js', new Date())
+            ${when(
+                !devMode,
+                html`
+                    <!-- Google tag (gtag.js) -->
+                    <script
+                        async
+                        src="https://www.googletagmanager.com/gtag/js?id=G-N3MXGDP5PS"
+                    ></script>
+                    <script>
+                        window.dataLayer = window.dataLayer || []
+                        function gtag() {
+                            dataLayer.push(arguments)
+                        }
+                        gtag('js', new Date())
 
-                gtag('config', 'G-N3MXGDP5PS')
-            </script>
+                        gtag('config', 'G-N3MXGDP5PS')
+                    </script>
+                `
+            )}
             ${Header({ basePath })}
             <main class="wrapper">${content}</main>
             ${Footer({ basePath })}
