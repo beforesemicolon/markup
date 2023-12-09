@@ -6,6 +6,7 @@ import InstallationPage from './documentation/installation.page'
 // import TutorialPage from './documentation/tutorial.page'
 // import ExamplesPage from './documentation/examples.page'
 import CreatingAndRenderingPage from './documentation/creating-and-rendering.page'
+import GetStartedPage from './documentation/get-started.page'
 import TemplatingValuesPage from './documentation/template-values.page'
 import ReplacingContentPage from './documentation/replacing-content.page'
 import DOMReferencesPage from './documentation/dom-references.page'
@@ -58,6 +59,15 @@ const config: { name: string; pages: Page[] } = {
             component: DocumentationPage,
             group: 'Introduction',
             root: true,
+        },
+        {
+            path: '/documentation/get-started',
+            name: 'Get Started',
+            title: 'Documentation: Get Started',
+            description: 'Markup: HTML Templating System by Before Semicolon',
+            component: GetStartedPage,
+            group: 'Introduction',
+            root: false,
         },
         {
             path: '/documentation/installation',

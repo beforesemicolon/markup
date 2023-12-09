@@ -198,6 +198,10 @@
                 line-height: 150%;
             }
         }
+        
+        ol {
+            list-style: decimal;
+        }
 
         code:not(.hljs) {
             background: #161a1c;

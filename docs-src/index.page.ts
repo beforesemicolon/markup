@@ -22,11 +22,9 @@ export default ({ page, name }: PageComponentProps) =>
                 <p>All you needed was a good templating system!</p>
                 <div class="actions">
                     <a href="./documentation" class="btn">Documentation</a>
-                    <!--                        <a-->
-                    <!--                            href="./documentation/essential-training"-->
-                    <!--                            class="btn outline"-->
-                    <!--                            >Learn</a-->
-                    <!--                        >-->
+                    <a href="./documentation/get-started" class="btn outline"
+                        >Get Started</a
+                    >
                 </div>
             </div>
             <!-- Why -->
