@@ -14,22 +14,24 @@
     .doc-nav {
         width: 250px;
         min-width: 250px;
+        position: initial;
 
         @media screen and (max-width: 1024px) {
             position: absolute;
             z-index: 1;
-            left: -25px;
+            left: 0;
             top: 0;
             height: 30px;
             width: 100vw;
-            padding: 5px 10px;
-            overflow: auto;
+            padding: 15px 0;
 
             &:target {
                 background: rgba(255, 255, 255, 0.2);
                 height: 100%;
                 padding: 0;
                 display: flex;
+                position: fixed;
+                z-index: 1000;
 
                 .doc-nav-list {
                     display: block;
@@ -76,6 +78,7 @@
             padding-top: 50px;
             height: 100%;
             display: none;
+            overflow: auto;
         }
 
         & > li {

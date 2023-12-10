@@ -58,7 +58,7 @@ export const DocPageLayout = ({
                             `
                         )}
                     </ul>
-                    <a href="../${page.path}" class="mobile-menu-close"></a>
+                    <a href="..${page.path}" class="mobile-menu-close"></a>
                 </div>
                 <article>
                     ${content}
