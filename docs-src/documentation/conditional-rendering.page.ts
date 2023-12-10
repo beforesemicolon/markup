@@ -49,9 +49,9 @@ export default ({
             ${CodeSnippet(
                 'let count = 5;\n' +
                     '\n' +
-                    'const even = x => x % 2 === 0;\n' +
+                    'const isEven = x => x % 2 === 0;\n' +
                     '\n' +
-                    "html`${when(is(count, even), 'even', 'odd')}`",
+                    "html`${when(isEven(count), 'even', 'odd')}`",
                 'typescript'
             )}
             <p>
