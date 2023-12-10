@@ -109,11 +109,11 @@ describe('handleExecutable', () => {
             ...defaultExec,
             directives: [
                 {
-                    name: 'attr',
+                    name: 'disabled',
                     rawValue: 'true',
                     value: '',
                     renderedNodes: [div],
-                    prop: 'disabled',
+                    prop: '',
                     parts: [true],
                 },
             ],
@@ -125,8 +125,8 @@ describe('handleExecutable', () => {
             ...defaultExec,
             directives: [
                 {
-                    name: 'attr',
-                    prop: 'disabled',
+                    name: 'disabled',
+                    prop: '',
                     rawValue: 'true',
                     renderedNodes: [div],
                     value: "true",

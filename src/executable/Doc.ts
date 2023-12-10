@@ -6,6 +6,7 @@ import {
     handleEventExecutableValue,
     handleTextExecutableValue,
 } from './handle-executable'
+import { booleanAttributes } from '../utils'
 
 const node = (
     nodeName: string,
@@ -66,28 +67,36 @@ const node = (
                 }
             }
 
-            if (/^(attr|ref)/.test(name)) {
-                // element.removeAttribute(name);
-
-                if (name === 'ref') {
-                    if (!refs[value]) {
-                        refs[value] = new Set()
-                    }
-
-                    refs[value].add(node as Element)
-                } else {
-                    const isAttrOrBind = name.match(/(attr)\.([a-z0-9-.]+)/)
-                    const prop = isAttrOrBind ? isAttrOrBind[2] : ''
-                    e = {
-                        ...e,
-                        name: name.slice(0, name.indexOf('.')),
-                        value: '',
-                        prop,
-                    }
-
-                    handleAttrDirectiveExecutableValue(e)
-                    cb(node, e, 'directives')
+            if (name === 'ref') {
+                if (!refs[value]) {
+                    refs[value] = new Set()
                 }
+
+                refs[value].add(node as Element)
+                return
+            }
+
+            const attrLessName = name.replace(/^attr\./, '')
+
+            if (
+                name.startsWith('attr.') ||
+                booleanAttributes[
+                    attrLessName.toLowerCase() as keyof typeof booleanAttributes
+                ] ||
+                /^(class|style|data)/i.test(attrLessName)
+            ) {
+                let props: string[] = []
+                ;[name, ...props] = attrLessName.split('.')
+
+                e = {
+                    ...e,
+                    name,
+                    value: '',
+                    prop: props.join('.'),
+                }
+
+                handleAttrDirectiveExecutableValue(e)
+                cb(node, e, 'directives')
             } else if (/{{val[0-9]+}}/.test(value)) {
                 handleAttrExecutableValue(e, node as Element)
                 cb(node, e, 'attributes')
