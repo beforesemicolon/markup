@@ -20,8 +20,9 @@ export default ({ page, name }: PageComponentProps) =>
             <div class="banner">
                 <h2>HTML Templating System</h2>
                 <p>
-                    All you needed was a
-                    <strong>reactive templating system</strong>!
+                    All you need is a
+                    <strong>reactive templating system</strong> to build
+                    anything.
                 </p>
                 <div class="actions">
                     <a href="./documentation" class="btn">Documentation</a>
@@ -37,7 +38,7 @@ export default ({ page, name }: PageComponentProps) =>
                     The best UI frameworks and libraries out there rely heavily
                     on a good templating system. Nobody uses React without JSX
                     or Angular without its HTML templates. Now, what if you had
-                    a standalone good templating system? Something that is:
+                    a standalone reactive templating system? Something that is:
                 </p>
                 <ul class="reason-list">
                     ${reasons.map(
