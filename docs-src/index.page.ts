@@ -19,7 +19,10 @@ export default ({ page, name }: PageComponentProps) =>
             <!-- Banner -->
             <div class="banner">
                 <h2>HTML Templating System</h2>
-                <p>All you needed was a good templating system!</p>
+                <p>
+                    All you needed was a
+                    <strong>reactive templating system</strong>!
+                </p>
                 <div class="actions">
                     <a href="./documentation" class="btn">Documentation</a>
                     <a href="./documentation/get-started" class="btn outline"

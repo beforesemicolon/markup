@@ -1,6 +1,6 @@
 # Markup
 
-HTML Templating System
+Reactive HTML Templating System
 
 [![Static Badge](https://img.shields.io/badge/docs-markup.beforesemicolon.com-blue)](https://markup.beforesemicolon.com)
 [![npm](https://img.shields.io/npm/v/%40beforesemicolon%2Fmarkup)](https://www.npmjs.com/package/@beforesemicolon/markup)

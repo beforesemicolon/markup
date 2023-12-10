@@ -20,7 +20,7 @@ export default ({
         content: html`
             ${Heading(page.name)}
             <p>
-                Markup is a reactive HTML templating system that can run in any
+                Markup is a Reactive HTML templating System that can run in any
                 JavaScript environment, client or server, and simplify how web
                 views can be created. Additionally:
             </p>
