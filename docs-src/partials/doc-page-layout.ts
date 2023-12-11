@@ -44,7 +44,7 @@ export const DocPageLayout = ({
                                         ${g.list.map(
                                             (l) => html`
                                                 <li
-                                                    attr.class.active="${l.path ===
+                                                    class.active="${l.path ===
                                                     page.path}"
                                                 >
                                                     <a href="..${l.path}"

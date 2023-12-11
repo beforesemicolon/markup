@@ -55,7 +55,7 @@ export default ({
                 attribute values and even body content.
             </p>
             ${CodeSnippet(
-                'html`<button attr.disabled="${is(status, \'logged\')}">login</button>`',
+                'html`<button disabled="${is(status, \'logged\')}">login</button>`',
                 'typescript'
             )}
             <p>

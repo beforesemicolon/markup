@@ -85,7 +85,7 @@ export default ({
                     '    <input \n' +
                     '      type="text" \n' +
                     '      value="${() => this.value}"\n' +
-                    '      attr.disabled="${() => this.disabled}"\n' +
+                    '      disabled="${() => this.disabled}"\n' +
                     '      />\n' +
                     '  `\n' +
                     '  \n' +
