@@ -37,7 +37,7 @@ export default ({
 	        ${CodeSnippet(
                 'const disabled = true;\n' +
                     '\n' +
-                    'html`<button disabled="${disabled}">click me</button>`;',
+                    'html`<button attr.disabled="${disabled}">click me</button>`;',
                 'typescript'
             )}
 	        <p>
