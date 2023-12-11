@@ -67,17 +67,17 @@ export default ({
                     '  <h1>Tab Example</h1>\n' +
                     '  <ul>\n' +
                     '    <li \n' +
-                    '      attr.class.active="${is(activeTab, \'home\')}" \n' +
+                    '      class.active="${is(activeTab, \'home\')}" \n' +
                     '      onclick="${() => setActiveTab(\'home\')}">\n' +
                     '      Home\n' +
                     '    </li>\n' +
                     '    <li \n' +
-                    '      attr.class.active="${is(activeTab, \'about\')}"\n' +
+                    '      class.active="${is(activeTab, \'about\')}"\n' +
                     '      onclick="${() => setActiveTab(\'about\')}">\n' +
                     '      About\n' +
                     '    </li>\n' +
                     '    <li \n' +
-                    '      attr.class.active="${is(activeTab, \'contact\')}"\n' +
+                    '      class.active="${is(activeTab, \'contact\')}"\n' +
                     '      onclick="${() => setActiveTab(\'contact\')}">\n' +
                     '      Contact\n' +
                     '    </li>\n' +

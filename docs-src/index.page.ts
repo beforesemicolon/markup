@@ -80,7 +80,7 @@ export default ({ page, name }: PageComponentProps) =>
                 ${CodeSnippet('yarn add @beforesemicolon/markup', 'typescript')}
                 <p>
                     Or simply add the following script in the head of your
-                    document
+                    document.
                 </p>
                 ${CodeSnippet(
                     '<script src="https://unpkg.com/@beforesemicolon/markup/dist/client.js"/>',
@@ -93,7 +93,7 @@ export default ({ page, name }: PageComponentProps) =>
                 <p>
                     The templating system will handle all the rendering needs of
                     your project. With that out of the way, what you can build
-                    is really up to you. It can be a full web application, a UI
+                    is up to you. It can be a full web application, a UI
                     components library or the next UI framework. The only limit
                     is your imagination.
                 </p>

@@ -42,7 +42,7 @@ export default ({
                     '  return html`\n' +
                     '    <button \n' +
                     '      type="${type}"\n' +
-                    '      attr.disabled="${disabled}"\n' +
+                    '      disabled="${disabled}"\n' +
                     '      >\n' +
                     '      ${content}\n' +
                     '    </button>`;\n' +

@@ -23,7 +23,7 @@ describe('suspense', () => { // @ts-ignore
 		html`${suspense(() => new Promise((res, rej) => {
 			rej(new Error('failed'))
 			setTimeout(() => {
-				expect(document.body.innerHTML).toBe('<p style="color: red">failed</p>')
+				expect(document.body.innerHTML).toBe('<p style="color: red;">failed</p>')
 				done()
 			}, 0)
 		}))}`.render(document.body)
@@ -36,7 +36,7 @@ describe('suspense', () => { // @ts-ignore
 			// @ts-ignore
 			res(null)
 			setTimeout(() => {
-				expect(document.body.innerHTML).toBe('<p style="color: red">async action did not return a HTMLTemplate instance</p>')
+				expect(document.body.innerHTML).toBe('<p style="color: red;">async action did not return a HTMLTemplate instance</p>')
 				done()
 			}, 0)
 		}))}`.render(document.body)

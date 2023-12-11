@@ -10,20 +10,20 @@ describe('handleAttrDirectiveExecutable', () => {
 
     it('should handle style attribute', () => {
         const e1: ExecutableValue = {
-            name: 'attr',
+            name: 'style',
             rawValue: 'bold',
             value: '',
             renderedNodes: [div],
-            prop: 'style.font-style',
+            prop: 'font-style',
             parts: [],
         }
 
         const e2: ExecutableValue = {
-            name: 'attr',
+            name: 'style',
             rawValue: 'background-color: #900 | true',
             value: '',
             renderedNodes: [div],
-            prop: 'style',
+            prop: '',
             parts: [],
         }
 
@@ -51,20 +51,20 @@ describe('handleAttrDirectiveExecutable', () => {
 
     it('should handle class attribute', () => {
         const e1: ExecutableValue = {
-            name: 'attr',
+            name: 'class',
             rawValue: 'false',
             value: '',
             renderedNodes: [div],
-            prop: 'class.simple-cls',
+            prop: 'simple-cls',
             parts: [],
         }
 
         const e2: ExecutableValue = {
-            name: 'attr',
+            name: 'class',
             rawValue: 'sample | true',
             value: '',
             renderedNodes: [div],
-            prop: 'class',
+            prop: '',
             parts: [],
         }
 
@@ -90,20 +90,20 @@ describe('handleAttrDirectiveExecutable', () => {
 
     it('should handle data attribute', () => {
         const e1: ExecutableValue = {
-            name: 'attr',
+            name: 'data',
             rawValue: 'val | true',
             value: '',
             renderedNodes: [div],
-            prop: 'data.simple-val',
+            prop: 'simple-val',
             parts: [],
         }
 
         const e2: ExecutableValue = {
-            name: 'attr',
+            name: 'data',
             rawValue: 'simple-val | true',
             value: '',
             renderedNodes: [div],
-            prop: 'data',
+            prop: '',
             parts: [],
         }
 
@@ -123,20 +123,20 @@ describe('handleAttrDirectiveExecutable', () => {
 
     it('should handle boolean attribute', () => {
         const e1: ExecutableValue = {
-            name: 'attr',
+            name: 'disabled',
             rawValue: 'true',
             value: '',
             renderedNodes: [div],
-            prop: 'disabled',
+            prop: '',
             parts: [],
         }
 
         const e2: ExecutableValue = {
-            name: 'attr',
+            name: 'hidden',
             rawValue: 'until-found | true',
             value: '',
             renderedNodes: [div],
-            prop: 'hidden',
+            prop: '',
             parts: [],
         }
 
@@ -158,20 +158,20 @@ describe('handleAttrDirectiveExecutable', () => {
 
     it('should handle all other attributes', () => {
         const e1: ExecutableValue = {
-            name: 'attr',
+            name: 'id',
             rawValue: 'sample | true',
             value: '',
             renderedNodes: [div],
-            prop: 'id',
+            prop: '',
             parts: [],
         }
 
         const e2: ExecutableValue = {
-            name: 'attr',
+            name: 'aria-disabled',
             rawValue: 'true',
             value: '',
             renderedNodes: [div],
-            prop: 'aria-disabled',
+            prop: '',
             parts: [],
         }
 

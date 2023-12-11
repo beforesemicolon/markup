@@ -11,8 +11,8 @@ export const handleAttrDirectiveExecutable = (
     rawValue: string
 ) => {
     if (rawValue !== executableValue.value) {
+        const { name: attrName, prop: property } = executableValue
         executableValue.value = rawValue
-        const [attrName, property] = (executableValue.prop || '').split('.')
         const element = executableValue.renderedNodes[0] as HTMLElement
         // eslint-disable-next-line prefer-const
         let [value, condition] = rawValue.split(/\|/).map((s) => s.trim())
