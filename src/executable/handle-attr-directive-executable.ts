@@ -15,9 +15,16 @@ export const handleAttrDirectiveExecutable = (
         executableValue.value = rawValue
         const element = executableValue.renderedNodes[0] as HTMLElement
         // eslint-disable-next-line prefer-const
-        let [value, condition] = rawValue.split(/\|/).map((s) => s.trim())
-        let shouldAdd = condition ? jsonParse(condition) : jsonParse(value)
+        const valueParts = rawValue.split(/\|/)
+        const [value, condition] = valueParts.map((s) => s.trim())
         const parsedValue = jsonParse(value)
+        let shouldAdd = Boolean(
+            valueParts.length > 1
+                ? typeof condition === 'string'
+                    ? jsonParse(condition)
+                    : condition
+                : parsedValue
+        )
 
         switch (attrName) {
             case 'style':

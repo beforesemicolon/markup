@@ -1,7 +1,10 @@
 export function jsonParse<T>(value: T): T {
     if (value && typeof value === 'string') {
         try {
-            value = JSON.parse(value.replace(/['`]/g, '"'))
+            value =
+                value === 'undefined'
+                    ? undefined
+                    : JSON.parse(value.replace(/['`]/g, '"'))
         } catch (e) {
             /* empty */
         }

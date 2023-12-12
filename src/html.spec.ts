@@ -537,9 +537,9 @@ describe('html', () => {
 			)
 			
 			loading = false
-			
+
 			btn.update()
-			
+
 			expect(document.body.innerHTML).toBe(
 				'<button class="btn">click me</button>'
 			)
@@ -836,21 +836,43 @@ describe('html', () => {
 		})
 		
 		it('any boolean attr without attr.', () => {
-			let disabled = true
+			let disabled = false
 			const btn = html`
 				<button disabled="${() => disabled}">click me</button>`
 			
 			btn.render(document.body)
 			
 			expect(document.body.innerHTML).toBe(
-				'<button disabled="">click me</button>'
+				'<button>click me</button>'
 			)
 			
-			disabled = false
+			disabled = true
 			
 			btn.update()
 			
-			expect(document.body.innerHTML).toBe('<button>click me</button>')
+			expect(document.body.innerHTML).toBe('<button disabled="">click me</button>')
+		})
+		
+		it('any boolean attr with nil value', () => {
+			const btn = html`
+				<button attr.disabled="${undefined}">click me</button>`
+			
+			btn.render(document.body)
+			
+			expect(document.body.innerHTML).toBe(
+				'<button>click me</button>'
+			)
+		})
+		
+		it('any boolean attr with nil value without attr.', () => {
+			const btn = html`
+				<button disabled="${undefined}">click me</button>`
+			
+			btn.render(document.body)
+			
+			expect(document.body.innerHTML).toBe(
+				'<button>click me</button>'
+			)
 		})
 		
 		it('any boolean attr with possible values', () => {
