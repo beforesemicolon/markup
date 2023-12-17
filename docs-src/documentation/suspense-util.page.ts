@@ -68,5 +68,22 @@ export default ({
                     'html`${suspense(loadTodos)}`',
                 'typescript'
             )}
+            <p>
+                To handle error, you can provide a third argument to handle how
+                to render the error message.
+            </p>
+            ${CodeSnippet(
+                'const loadTodos = () => {\n' +
+                    "  return fetch('/api/todos')\n" +
+                    '    .then(res => res.json())\n' +
+                    '    .then(res => html`${repeat(res, renderTodo)}`)\n' +
+                    '}\n\n\n' +
+                    'html`${suspense(\n' +
+                    '   loadTodos,\n' +
+                    '   html`<p>Loading todos...</p>`,\n' +
+                    '   (error) => html`<error-display message="${error.message}" />`\n' +
+                    ')}`',
+                'typescript'
+            )}
         `,
     })
