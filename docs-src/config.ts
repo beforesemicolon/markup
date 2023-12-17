@@ -25,6 +25,7 @@ import FunctionComponentsPage from './documentation/function-components.page'
 import WebComponentsPage from './documentation/web-components.page'
 import ServerSideRenderingPage from './documentation/server-side-rendering.page'
 import StateStorePage from './documentation/state-store.page'
+import TemplateLifecyclesPage from './documentation/template-lifecycles.page'
 import { DocumentsGroup, Page } from './type'
 
 const genericDescription =
@@ -147,6 +148,15 @@ const config: { name: string; pages: Page[] } = {
             title: 'Documentation: State Values',
             description: genericDescription,
             component: StatValuesPage,
+            group: 'Templating',
+            root: false,
+        },
+        {
+            path: '/documentation/template-lifecycles',
+            name: 'Template Lifecycles',
+            title: 'Documentation: Template Lifecycles',
+            description: genericDescription,
+            component: TemplateLifecyclesPage,
             group: 'Templating',
             root: false,
         },
