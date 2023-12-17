@@ -108,18 +108,5 @@ export default ({
                 render it in a different place, it will be automatically removed
                 from the previous place.
             </p>
-            ${Heading('Unmounting', 'h3')}
-            <p>
-                Another method you have available is the
-                <code>unmount</code> which gives you the ability to unmount your
-                template the right way.
-            </p>
-            ${CodeSnippet('temp.unmount()', 'typescript')}
-            <p>
-                The unmount method will unsubscribe from any
-                <a href="./state-values">state</a> and reset the template
-                instance to its original state ready to be re-rendered by
-                calling the <code>render</code> method.
-            </p>
         `,
     })
