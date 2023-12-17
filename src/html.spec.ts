@@ -1,5 +1,5 @@
 import {html, HtmlTemplate, state} from './html'
-import {when, repeat} from './helpers'
+import {when, repeat, oneOf} from './helpers'
 import {suspense} from './utils'
 import {helper} from "./Helper";
 
@@ -1269,15 +1269,15 @@ describe('html', () => {
 							<div class="todo-actions">
 								${when(
 									() => this.#status === 'pending',
-									html`${completeBtn}${editBtn}${archiveBtn}`
+									html`${completeBtn}${editBtn}`
+								)}
+								${when(
+									oneOf(this.#status, ['completed', 'pending']),
+									archiveBtn
 								)}
 								${when(
 									() => this.#status === 'archived',
 									html`${progressBtn}${deleteBtn}`
-								)}
-								${when(
-									() => this.#status === 'completed',
-									archiveBtn
 								)}
 							</div>
 						</div>`
@@ -1336,8 +1336,8 @@ describe('html', () => {
 			expect(todo.shadowRoot?.innerHTML).toBe('<div class="todo-item">\n' +
 				'\t\t\t\t\t\t\t<div class="details">\n' +
 				'\t\t\t\t\t\t\t\t<h3>sample</h3></div>\n' +
-				'\t\t\t\t\t\t\t<div class="todo-actions"><button>complete</button><button>edit</button><button>archive</button>\n' +
-				'\t\t\t\t\t\t\t\t\n' +
+				'\t\t\t\t\t\t\t<div class="todo-actions"><button>complete</button><button>edit</button>\n' +
+				'\t\t\t\t\t\t\t\t<button>archive</button>\n' +
 				'\t\t\t\t\t\t\t\t</div>\n' +
 				'\t\t\t\t\t\t</div>')
 			
@@ -1348,11 +1348,10 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe(
 				'<todo-item name="sample" description="" status="completed"></todo-item>'
 			)
-			expect(todo.shadowRoot?.innerHTML).toBe(
-				'<div class="todo-item">\n' +
+			expect(todo.shadowRoot?.innerHTML).toBe('<div class="todo-item">\n' +
 				'\t\t\t\t\t\t\t<div class="details">\n' +
 				'\t\t\t\t\t\t\t\t<h3>sample</h3></div>\n' +
-				'\t\t\t\t\t\t\t<div class="todo-actions"><button>edit</button><button>archive</button>\n' +
+				'\t\t\t\t\t\t\t<div class="todo-actions"><button>archive</button>\n' +
 				'\t\t\t\t\t\t\t\t</div>\n' +
 				'\t\t\t\t\t\t</div>'
 			)
@@ -1636,21 +1635,74 @@ describe('html', () => {
 		expect(document.body.innerHTML).toBe('<span>1</span><button>+</button>')
 	});
 	
-	it('should handle onUpdate callback', () => {
-		const [count, setCount] = state<number>(0)
-		const updateMock = jest.fn()
+	describe('should handle lifecycles', () => {
+		it('onUpdate', () => {
+			const [count, setCount] = state<number>(0)
+			const updateMock = jest.fn()
+			
+			const counter = html`<span>${count}</span>`
+			counter.onUpdate(updateMock)
+			counter.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<span>0</span>')
+			
+			setCount((prev) => prev + 1)
+			
+			expect(updateMock).toHaveBeenCalledTimes(1)
+			
+			expect(document.body.innerHTML).toBe('<span>1</span>')
+		})
 		
-		const counter = html`<span>${count}</span>`
-		counter.onUpdate(updateMock)
-		counter.render(document.body)
+		it('onMount', () => {
+			const mountMock = jest.fn()
+			
+			html`<span>sample</span>`
+				.onMount(mountMock)
+				.render(document.body)
+			
+			expect(mountMock).toHaveBeenCalledTimes(1)
+		});
 		
-		expect(document.body.innerHTML).toBe('<span>0</span>')
+		it('onUnmount', () => {
+			const unmountMock = jest.fn()
+			
+			const temp = html`<span>sample</span>`
+				.onUnmount(unmountMock)
+				.render(document.body)
+			
+			temp.unmount();
+			
+			expect(unmountMock).toHaveBeenCalledTimes(1)
+		});
 		
-		setCount((prev) => prev + 1)
-		
-		expect(updateMock).toHaveBeenCalledTimes(1)
-		
-		expect(document.body.innerHTML).toBe('<span>1</span>')
+		it('onUnmount on removed item', () => {
+			const unmountMock = jest.fn();
+			const list = [
+				html`one`.onUnmount(unmountMock),
+				html`two`.onUnmount(unmountMock),
+				html`three`.onUnmount(unmountMock),
+			]
+
+			const temp = html`${() => list}`
+				.render(document.body)
+
+			expect(document.body.innerHTML).toBe('onetwothree')
+
+			list.splice(1, 1);
+			const three = list.splice(1, 1);
+
+			temp.update();
+
+			expect(document.body.innerHTML).toBe('one')
+
+			expect(unmountMock).toHaveBeenCalledTimes(2)
+
+			list.unshift(...three);
+
+			temp.update();
+
+			expect(document.body.innerHTML).toBe('threeone')
+		});
 	})
 	
 	it('should ignore values between tag and attribute', () => {
