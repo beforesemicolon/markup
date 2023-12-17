@@ -1,10 +1,10 @@
 {
     "name": "@beforesemicolon/markup",
-    "version": "0.17.0",
+    "version": "0.16.0-next",
     "description": "Reactive HTML Templating System",
     "engines": {
         "node": ">=18.16.0"
-    },
+    }
     "type": "module",
     "types": "./dist/types/index.d.ts",
     "exports": {
