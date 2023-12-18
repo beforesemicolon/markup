@@ -187,12 +187,6 @@ export class HtmlTemplate {
     }
 
     unmount() {
-        // make sure the inner HTML template also reset
-        this.#values.forEach((val) => {
-            if (val instanceof HtmlTemplate) {
-                val.unmount()
-            }
-        })
         this.nodes.forEach((n) => {
             if (n.parentNode) {
                 n.parentNode.removeChild(n)

@@ -154,18 +154,12 @@ export function handleTextExecutableValue(
         if (v instanceof HtmlTemplate) {
             const renderedBefore = v.renderTarget !== null
 
-            if (!renderedBefore) {
-                v.render(document.createElement('div'))
-                // need to disconnect these nodes because the div created above
-                // is only used ,so we can get access to the nodes but not necessarily
-                // where we want these nodes to be rendered at
-                v.nodes.forEach((node) => {
-                    node.parentNode?.removeChild(node)
-                })
-            } else {
+            if (renderedBefore) {
                 // could be that the component was sitting around while data changed
                 // for that we need to update it, so it has the latest data
                 v.update()
+            } else {
+                v.render(document.createElement('div'))
             }
 
             // collect dynamic refs that could appear
