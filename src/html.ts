@@ -199,16 +199,14 @@ export class HtmlTemplate {
     }
 
     unmount() {
-        if (this.#renderTarget) {
-            this.#nodes.forEach((n) => {
-                if (n.parentNode) {
-                    n.parentNode.removeChild(n)
-                }
-            })
-            this.#renderTarget = null
-            this.unsubscribeFromStates()
-            this.#unmountSubs.forEach((sub) => sub())
-        }
+        this.#nodes.forEach((n) => {
+            if (n.parentNode) {
+                n.parentNode.removeChild(n)
+            }
+        })
+        this.#renderTarget = null
+        this.unsubscribeFromStates()
+        this.#unmountSubs.forEach((sub) => sub())
     }
 
     unsubscribeFromStates = () => {
