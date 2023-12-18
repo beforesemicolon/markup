@@ -126,7 +126,7 @@ export class HtmlTemplate {
                     elementToAttachNodesTo.appendChild(node)
                 }
             })
-            this.#mountSubs.forEach((sub) => sub())
+            this.#broadcast(this.#mountSubs)
         }
 
         return this
@@ -170,7 +170,7 @@ export class HtmlTemplate {
             const frag = document.createDocumentFragment()
             frag.append(...this.#nodes)
             element.parentNode?.replaceChild(frag, element)
-            this.#mountSubs.forEach((sub) => sub())
+            this.#broadcast(this.#mountSubs)
 
             // only need to unmount the template nodes
             // if the target is not a template, it will be automatically removed
@@ -194,7 +194,7 @@ export class HtmlTemplate {
             this.#executablesByNode.forEach((executable, node) => {
                 handleExecutable(node, executable, this.#refs)
             })
-            this.#updateSubs.forEach((cb) => cb())
+            this.#broadcast(this.#updateSubs)
         }
     }
 
@@ -206,7 +206,7 @@ export class HtmlTemplate {
         })
         this.#renderTarget = null
         this.unsubscribeFromStates()
-        this.#unmountSubs.forEach((sub) => sub())
+        this.#broadcast(this.#unmountSubs)
     }
 
     unsubscribeFromStates = () => {
@@ -217,27 +217,27 @@ export class HtmlTemplate {
     }
 
     onUpdate(cb: () => void) {
-        if (typeof cb === 'function') {
-            this.#updateSubs.add(cb)
-        }
-
-        return this
+        return this.#sub(cb, this.#updateSubs)
     }
 
     onMount(cb: () => void) {
+        return this.#sub(cb, this.#mountSubs)
+    }
+
+    onUnmount(cb: () => void) {
+        return this.#sub(cb, this.#unmountSubs)
+    }
+
+    #sub(cb: () => void, set: Set<() => void>) {
         if (typeof cb === 'function') {
-            this.#mountSubs.add(cb)
+            set.add(cb)
         }
 
         return this
     }
 
-    onUnmount(cb: () => void) {
-        if (typeof cb === 'function') {
-            this.#unmountSubs.add(cb)
-        }
-
-        return this
+    #broadcast(set: Set<() => void>) {
+        set.forEach((sub) => setTimeout(sub, 0))
     }
 
     #init(target: ShadowRoot | Element) {

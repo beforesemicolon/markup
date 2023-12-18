@@ -1636,6 +1636,10 @@ describe('html', () => {
 	});
 	
 	describe('should handle lifecycles', () => {
+		beforeEach(() => {
+			jest.useFakeTimers()
+		})
+		
 		it('onUpdate', () => {
 			const [count, setCount] = state<number>(0)
 			const updateMock = jest.fn()
@@ -1648,17 +1652,22 @@ describe('html', () => {
 			
 			setCount((prev) => prev + 1)
 			
+			jest.advanceTimersByTime(100);
+			
 			expect(updateMock).toHaveBeenCalledTimes(1)
 			
 			expect(document.body.innerHTML).toBe('<span>1</span>')
 		})
 		
 		it('onMount', () => {
+		
 			const mountMock = jest.fn()
 			
 			html`<span>sample</span>`
 				.onMount(mountMock)
 				.render(document.body)
+			
+			jest.advanceTimersByTime(100);
 			
 			expect(mountMock).toHaveBeenCalledTimes(1)
 		});
@@ -1671,6 +1680,8 @@ describe('html', () => {
 				.render(document.body)
 			
 			temp.unmount();
+			
+			jest.advanceTimersByTime(100);
 			
 			expect(unmountMock).toHaveBeenCalledTimes(1)
 		});
@@ -1694,6 +1705,8 @@ describe('html', () => {
 			temp.update();
 
 			expect(document.body.innerHTML).toBe('one')
+			
+			jest.advanceTimersByTime(100);
 
 			expect(unmountMock).toHaveBeenCalledTimes(2)
 
