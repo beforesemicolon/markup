@@ -61,6 +61,30 @@ export default ({
                 <a href="./element-util">element utility</a> and add it to the
                 template.
             </p>
+            ${Heading('Optional quotes', 'h3')}
+            <p>
+                If you want to inject a single value as attribute, you may
+                choose to leave out the quotes altogether.
+            </p>
+            ${CodeSnippet(
+                'const type = "button";\n' +
+                    'const label = "click me";\n' +
+                    '\n' +
+                    'html`<button type=${type} disabled=${disabled} class="btn ${cls}">${label}</button>`;'
+            )}
+            <p>
+                The above example set the <code>type</code> and
+                <code>disabled</code> attributes without using the quotes
+                because it used the template literal curly braces
+                <code>\${...}</code>. This is find as long as the attribute is
+                single value. For multi or mixed value like the
+                <code>class</code> in above example, you need the quotes.
+            </p>
+            <p>
+                If in doubt or just for consistency’s sake, you can always go
+                for keeping the quotes which matches the normal HTML syntax.
+                Just know that this is an option.
+            </p>
             ${Heading('Different values handling', 'h3')}
             <p>
                 Markup templates handle certain values in a unique way so lets
