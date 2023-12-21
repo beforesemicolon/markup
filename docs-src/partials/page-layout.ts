@@ -44,7 +44,7 @@ export const PageLayout = ({
             />
             <meta property="og:site_name" content="${siteName}" />
             <meta name="twitter:card" content="summary_large_image" />
-            <meta name="twitter:site" content="@beforesemicolon" />
+            <meta name="twitter:site" content="@MarkupJs" />
             <meta name="twitter:title" content="${page.title}" />
             <meta
                 name="twitter:image"
