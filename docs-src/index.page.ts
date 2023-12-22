@@ -83,7 +83,7 @@ export default ({ page, name }: PageComponentProps) =>
                     document.
                 </p>
                 ${CodeSnippet(
-                    '<script src="https://unpkg.com/@beforesemicolon/markup/dist/client.js"/>',
+                    '<script src="https://unpkg.com/@beforesemicolon/markup/dist/client.js"></script>',
                     'html'
                 )}
             </section>
