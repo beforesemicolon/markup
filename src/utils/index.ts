@@ -1,4 +1,4 @@
-import bool from './boolean-attributes.json'
+export * from './boolean-attributes'
 export * from './json-parse'
 export * from './json-stringify'
 export * from './is-object-literal'
@@ -8,5 +8,3 @@ export * from './is-primitive'
 export * from './val'
 export * from './element'
 export * from './suspense'
-
-export const booleanAttributes = bool

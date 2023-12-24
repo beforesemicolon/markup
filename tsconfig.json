@@ -12,7 +12,7 @@
         "declaration": true,
         "declarationMap": false,
         "sourceMap": true,
-        "outDir": "./dist",
+        "outDir": "./dist/types",
         "removeComments": true,
         "downlevelIteration": true,
         "strict": true,

@@ -1,9 +1,17 @@
 {
     "name": "@beforesemicolon/markup",
-    "version": "0.13.2",
+    "version": "0.13.3",
     "description": "Reactive HTML Templating System",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
+    "engines": {
+        "node": ">=18.16.0"
+    },
+    "type": "module",
+    "types": "./dist/types/index.d.ts",
+    "exports": {
+        "import": "./dist/esm/index.js",
+        "require": "./dist/cjs/index.js",
+        "default": "./dist/cjs/index.js"
+    },
     "scripts": {
         "test": "jest",
         "test:watch": "jest --watch",
@@ -13,9 +21,10 @@
         "docs:watch": "rm -rf docs && nodemon --watch docs-src -e ts,json --exec 'NODE_ENV=development npm run docs:build'",
         "docs:build": "ts-node docs-src/build",
         "build:docs": "rm -rf docs && npm-run-all docs:build docs:css",
-        "build:min": "esbuild `find src \\( -name '*.ts' ! -name '*.spec.ts' ! -name 'client.ts' \\)` --outdir=dist --platform=node --format=cjs --keep-names --target=esnext",
+        "build:cjs-min": "esbuild `find src \\( -name '*.ts' ! -name '*.spec.ts' ! -name 'client.ts' \\)` --minify --outdir=dist/cjs --platform=node --format=cjs --keep-names --target=esnext",
+        "build:esm-min": "esbuild `find src \\( -name '*.ts' ! -name '*.spec.ts' ! -name 'client.ts' \\)` --minify --outdir=dist/esm --platform=node --format=esm --keep-names --target=esnext",
         "build:browser": "esbuild src/client.ts --bundle --minify --keep-names --sourcemap --target=esnext --outfile=dist/client.js",
-        "build": "rm -rf dist && npm-run-all lint test && tsc && npm-run-all build:min build:browser",
+        "build": "rm -rf dist && npm-run-all lint test && tsc --emitDeclarationOnly && npm-run-all build:cjs-min build:esm-min build:browser",
         "lint": "eslint ./src && prettier --check .",
         "format": "eslint ./src --fix && prettier --write ."
     },
