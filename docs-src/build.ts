@@ -1,7 +1,7 @@
 import 'global-jsdom/register'
 import { cp, mkdir, writeFile } from 'fs/promises'
 import * as path from 'path'
-import config, { DocMenu } from '../docs-src/config'
+import config, { DocMenu } from './config'
 import { HtmlTemplate } from '../src'
 
 const docsDir = path.resolve(process.cwd(), 'docs')

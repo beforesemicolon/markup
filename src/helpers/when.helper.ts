@@ -33,8 +33,8 @@ export const when = helper(
                     elseThat === undefined
                         ? ''
                         : typeof elseThat === 'function'
-                        ? elseThat()
-                        : elseThat
+                          ? elseThat()
+                          : elseThat
                 falseValueSet = true
             }
 
