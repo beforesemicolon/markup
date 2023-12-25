@@ -146,11 +146,12 @@ export function handleTextExecutableValue(
     refs: Record<string, Set<Element>>,
     el: Node
 ) {
-    const value = partsToValue(val.parts)
+    const value = partsToValue(val.parts) as Array<Node | HtmlTemplate | string>
     const nodes: Array<Node> = []
 
-    let idx = 0
-    for (const v of value as Array<Node | HtmlTemplate | string>) {
+    for (let i = 0; i < value.length; i++) {
+        const v = value[i]
+
         if (v instanceof HtmlTemplate) {
             const renderedBefore = v.renderTarget !== null
 
@@ -182,20 +183,29 @@ export function handleTextExecutableValue(
             // to avoid unnecessary DOM updates
             if (
                 Array.isArray(val.value) &&
-                String(val.value[idx]) === String(v)
+                String(val.value[i]) === String(v)
             ) {
-                nodes.push(val.renderedNodes[idx])
+                nodes.push(val.renderedNodes[i])
             } else {
                 nodes.push(document.createTextNode(String(v)))
             }
         }
-
-        idx += 1
     }
-
-    val.value = value
 
     // need to make sure nodes array does not have repeated nodes
     // which cannot be rendered in 2 places at once
     handleTextExecutable(val, Array.from(new Set(nodes)), el)
+
+    // clean up templates removed by unmounting them
+    if (Array.isArray(val.value)) {
+        const valueSet = new Set(value)
+
+        for (const v of val.value as unknown[]) {
+            if (v instanceof HtmlTemplate && !valueSet.has(v)) {
+                v.unmount()
+            }
+        }
+    }
+
+    val.value = value
 }

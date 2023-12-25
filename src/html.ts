@@ -19,7 +19,9 @@ export class HtmlTemplate {
     #nodes: Node[] = []
     #renderTarget: ShadowRoot | Element | null = null
     #refs: Record<string, Set<Element>> = {}
-    #subs: Set<() => () => void> = new Set()
+    #updateSubs: Set<() => void> = new Set()
+    #mountSubs: Set<() => void> = new Set()
+    #unmountSubs: Set<() => void> = new Set()
     #stateUnsubs: Set<() => void> = new Set()
     #executablesByNode: Map<Node, Executable> = new Map()
     #values: Array<unknown> = []
@@ -114,14 +116,20 @@ export class HtmlTemplate {
 
             if (!this.#root) {
                 this.#init(elementToAttachNodesTo as Element)
+            } else if (!this.#stateUnsubs.size) {
+                this.#subscribeToState()
+                this.update()
             }
 
-            this.nodes.forEach((node) => {
+            this.#nodes.forEach((node) => {
                 if (node.parentNode !== elementToAttachNodesTo) {
                     elementToAttachNodesTo.appendChild(node)
                 }
             })
+            this.#broadcast(this.#mountSubs)
         }
+
+        return this
     }
 
     /**
@@ -150,13 +158,19 @@ export class HtmlTemplate {
                 return
             }
 
+            this.#renderTarget = element.parentNode as Element
+
             if (!this.#root) {
                 this.#init(element)
+            } else if (!this.#stateUnsubs.size) {
+                this.#subscribeToState()
+                this.update()
             }
 
             const frag = document.createDocumentFragment()
-            frag.append(...this.nodes)
+            frag.append(...this.#nodes)
             element.parentNode?.replaceChild(frag, element)
+            this.#broadcast(this.#mountSubs)
 
             // only need to unmount the template nodes
             // if the target is not a template, it will be automatically removed
@@ -165,9 +179,7 @@ export class HtmlTemplate {
                 target.unmount()
             }
 
-            this.#renderTarget = element.parentNode as Element
-
-            return
+            return this
         }
 
         throw new Error(`Invalid replace target element. Received ${target}`)
@@ -182,19 +194,19 @@ export class HtmlTemplate {
             this.#executablesByNode.forEach((executable, node) => {
                 handleExecutable(node, executable, this.#refs)
             })
-            this.#subs.forEach((cb) => cb())
+            this.#broadcast(this.#updateSubs)
         }
     }
 
     unmount() {
-        this.nodes.forEach((n) => {
+        this.#nodes.forEach((n) => {
             if (n.parentNode) {
                 n.parentNode.removeChild(n)
             }
         })
         this.#renderTarget = null
-        this.#root = null
         this.unsubscribeFromStates()
+        this.#broadcast(this.#unmountSubs)
     }
 
     unsubscribeFromStates = () => {
@@ -204,21 +216,32 @@ export class HtmlTemplate {
         this.#stateUnsubs.clear()
     }
 
-    onUpdate(cb: () => () => void) {
-        if (typeof cb === 'function') {
-            this.#subs.add(cb)
+    onUpdate(cb: () => void) {
+        return this.#sub(cb, this.#updateSubs)
+    }
 
-            return () => {
-                this.#subs.delete(cb)
-            }
+    onMount(cb: () => void) {
+        return this.#sub(cb, this.#mountSubs)
+    }
+
+    onUnmount(cb: () => void) {
+        return this.#sub(cb, this.#unmountSubs)
+    }
+
+    #sub(cb: () => void, set: Set<() => void>) {
+        if (typeof cb === 'function') {
+            set.add(cb)
         }
+
+        return this
+    }
+
+    #broadcast(set: Set<() => void>) {
+        set.forEach((sub) => setTimeout(sub, 0))
     }
 
     #init(target: ShadowRoot | Element) {
         if (target) {
-            // eslint-disable-next-line @typescript-eslint/no-this-alias
-            const self = this
-
             this.#root = parse(
                 this.#htmlTemplate,
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -232,39 +255,56 @@ export class HtmlTemplate {
                             attributes: [],
                         })
                     }
-
-                    // subscribe to any state value used in the node
-                    e.parts.forEach(function sub(val: unknown) {
-                        if (val instanceof Helper) {
-                            val.args.forEach(sub)
-                        } else if (
-                            typeof val === 'function' &&
-                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                            // @ts-ignore
-                            typeof val[id] === 'function'
-                        ) {
-                            const nodeExec = self.#executablesByNode.get(node)
-
-                            if (nodeExec) {
-                                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                                // @ts-ignore
-                                const unsub = val[id](() => {
-                                    handleExecutable(node, nodeExec, self.#refs)
-                                    self.#subs.forEach((cb) => cb())
-                                }, id)
-                                self.#stateUnsubs.add(unsub)
-                            }
-                        }
-                    })
-
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
                     this.#executablesByNode.get(node)[type].push(e)
                 })
             ) as DocumentFragment
-
+            this.#subscribeToState()
             this.#nodes = Array.from(this.#root.childNodes)
         }
+    }
+
+    #subscribeToState() {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const self = this
+
+        Array.from(this.#executablesByNode.entries()).forEach(
+            ([node, { content, directives, attributes, events }]) => {
+                ;[...content, ...directives, ...events, ...attributes].forEach(
+                    (e) => {
+                        // subscribe to any state value used in the node
+                        e.parts.forEach(function sub(val: unknown) {
+                            if (val instanceof Helper) {
+                                val.args.forEach(sub)
+                            } else if (
+                                typeof val === 'function' &&
+                                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                // @ts-ignore
+                                typeof val[id] === 'function'
+                            ) {
+                                const nodeExec =
+                                    self.#executablesByNode.get(node)
+
+                                if (nodeExec) {
+                                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                    // @ts-ignore
+                                    const unsub = val[id](() => {
+                                        handleExecutable(
+                                            node,
+                                            nodeExec,
+                                            self.#refs
+                                        )
+                                        self.#updateSubs.forEach((cb) => cb())
+                                    }, id)
+                                    self.#stateUnsubs.add(unsub)
+                                }
+                            }
+                        })
+                    }
+                )
+            }
+        )
     }
 }
 
