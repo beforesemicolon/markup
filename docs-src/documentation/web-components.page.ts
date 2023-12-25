@@ -107,5 +107,38 @@ export default ({
                     'customElements.define("text-field", TextField)',
                 'typescript'
             )}
+            ${Heading('WebComponent solution', 'h3')}
+            <p>
+                There is already a Markup based web components solution you can
+                use to make your web component creation easy and still take
+                advantage of Markup reactive template.
+            </p>
+            ${CodeSnippet(
+                'class TextField extends WebComponent {\n' +
+                    '  static observedAttributes = ["value", "disabled"];\n' +
+                    '  value = "";\n' +
+                    '  disabled = false;\n' +
+                    '  \n' +
+                    '  render() {\n' +
+                    '    return html`\n' +
+                    '      <input \n' +
+                    '        type="text" \n' +
+                    '        value="${this.props.value}"\n' +
+                    '        disabled="${this.props.disabled}"\n' +
+                    '        />\n' +
+                    '    `\n' +
+                    '  }\n' +
+                    '}\n' +
+                    '\n' +
+                    'customElements.define("text-field", TextField)',
+                'typescript'
+            )}
+            <p>
+                You can learn more about this powerful tool by checking the
+                <a
+                    href="https://www.npmjs.com/package/@beforesemicolon/web-component"
+                    >WebComponent package</a
+                >.
+            </p>
         `,
     })
