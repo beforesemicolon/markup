@@ -59,17 +59,16 @@ export const handleAttrDirectiveExecutable = (
                         element.classList.remove(property)
                     }
                 } else {
-                    const classes = value.split(/\s+/g)
-
-                    if (shouldAdd) {
-                        classes.forEach((cls: string) =>
-                            element.classList.add(cls)
-                        )
-                    } else {
-                        classes.forEach((cls: string) =>
-                            element.classList.remove(cls)
-                        )
-                    }
+                    // ''.split(/\s+/g) results in [''] which will fail in classList actions
+                    ;(value ? value.split(/\s+/g) : []).forEach(
+                        (cls: string) => {
+                            if (shouldAdd) {
+                                element.classList.add(cls)
+                            } else {
+                                element.classList.remove(cls)
+                            }
+                        }
+                    )
                 }
 
                 if (!element.classList.length) {
