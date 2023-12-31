@@ -495,6 +495,14 @@ describe('html', () => {
 		expect(divElement).toBeInstanceOf(HTMLDivElement)
 	})
 	
+	it('should handle empty ref directive', () => {
+		const btn = html`<button ref="">click me</button>`
+		
+		btn.render(document.body)
+		
+		expect(document.body.innerHTML).toBe('<button>click me</button>');
+	})
+	
 	it('should handle ref directive on dynamic elements', () => {
 		let x = 15
 		const label = html`${when(
@@ -601,6 +609,14 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('<button>click me</button>')
 		})
 		
+		it('empty class should be ignored', () => {
+			const btn = html`<button attr.class="" class.sample="">click me</button>`
+			
+			btn.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<button>click me</button>');
+		})
+		
 		it('data name as property', () => {
 			let loading = true
 			const btn = html`
@@ -699,6 +715,14 @@ describe('html', () => {
 			btn.render(document.body)
 			
 			expect(document.body.innerHTML).toBe('<button>click me</button>')
+		})
+		
+		it('empty data should be ignored', () => {
+			const btn = html`<button attr.data="" data.sample="">click me</button>`
+			
+			btn.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<button>click me</button>');
 		})
 		
 		it('style property without flag', () => {
@@ -815,6 +839,14 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe(
 				'<button style="cursor: pointer;">click me</button>'
 			)
+		})
+		
+		it('empty style should be ignored', () => {
+			const btn = html`<button attr.style="" style.color="">click me</button>`
+			
+			btn.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<button>click me</button>');
 		})
 		
 		it('any boolean attr', () => {

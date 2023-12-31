@@ -34,13 +34,40 @@ const node = (
                 return
             }
 
-            if (value.trim()) {
+            const trimmedValue = value.trim()
+
+            if (trimmedValue) {
+                if (name === 'ref') {
+                    if (!refs[trimmedValue]) {
+                        refs[trimmedValue] = new Set()
+                    }
+
+                    refs[trimmedValue].add(node as Element)
+                    return
+                }
+
+                const attrLessName = name.replace(/^attr\./, '')
+                const isBollAttr =
+                    booleanAttributes[
+                        attrLessName.toLowerCase() as keyof typeof booleanAttributes
+                    ]
+
+                // boolean attr with false value can just be ignored
+                if (trimmedValue === 'false' && isBollAttr) {
+                    return
+                }
+
                 let e: ExecutableValue = {
                     name,
-                    value,
-                    rawValue: value,
+                    value: trimmedValue,
+                    rawValue: trimmedValue,
                     renderedNodes: [node],
-                    parts: extractExecutableValueFromRawValue(value, values),
+                    parts: /^(true|false)$/.test(trimmedValue)
+                        ? [Boolean(trimmedValue)]
+                        : extractExecutableValueFromRawValue(
+                              trimmedValue,
+                              values
+                          ),
                 }
 
                 if (/^on[a-z]+/.test(name)) {
@@ -69,24 +96,10 @@ const node = (
                     }
                 }
 
-                if (name === 'ref') {
-                    if (!refs[value]) {
-                        refs[value] = new Set()
-                    }
-
-                    refs[value].add(node as Element)
-                    return
-                }
-
-                const attrLessName = name.replace(/^attr\./, '')
-
                 if (
-                    name.startsWith('attr.') ||
-                    booleanAttributes[
-                        attrLessName.toLowerCase() as keyof typeof booleanAttributes
-                    ] ||
-                    /^(class|style|data)/i.test(attrLessName) ||
-                    value.split(/\|/).length > 1
+                    isBollAttr ||
+                    /^(attr|class|style|data)/i.test(name) ||
+                    trimmedValue.split(/\|/).length > 1
                 ) {
                     let props: string[] = []
                     ;[name, ...props] = attrLessName.split('.')
@@ -100,14 +113,20 @@ const node = (
 
                     handleAttrDirectiveExecutableValue(e)
                     return cb(node, e, 'directives')
-                } else if (/{{val[0-9]+}}/.test(value)) {
+                }
+
+                if (/{{val[0-9]+}}/.test(trimmedValue)) {
                     handleAttrExecutableValue(e, node as Element)
                     return cb(node, e, 'attributes')
                 }
             }
 
-            if ('setAttribute' in node) {
-                node.setAttribute(name, value)
+            if (
+                'setAttribute' in node &&
+                // ignore special attributes specific to Markup that did not get handled
+                !/^(ref|(attr|class|style|data)\.)/.test(name)
+            ) {
+                node.setAttribute(name, trimmedValue)
             }
         },
         appendChild: (n: DocumentFragment | Node) => {
