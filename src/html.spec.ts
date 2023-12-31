@@ -853,6 +853,18 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('<button disabled="">click me</button>')
 		})
 		
+		it('any boolean attr without attr. and no value', () => {
+			let disabled = false
+			const btn = html`
+				<button disabled>click me</button>`
+			
+			btn.render(document.body)
+			
+			expect(document.body.innerHTML).toBe(
+				'<button disabled="">click me</button>'
+			)
+		})
+		
 		it('any boolean attr with nil value', () => {
 			const btn = html`
 				<button attr.disabled="${undefined}">click me</button>`
@@ -1738,7 +1750,7 @@ describe('html', () => {
 		expect(document.body.innerHTML).toBe('<script>const val = 12;</script>')
 	});
 	
-	it('should handle', () => {
+	it('should ignore dynamically set tag name', () => {
 		const tag = 'button';
 		const sc = html`<${tag}>click me</${tag}>`
 		

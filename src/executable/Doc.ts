@@ -29,78 +29,83 @@ const node = (
         attributes: 'attributes' in node ? node.attributes : null,
         textContent: node.textContent,
         setAttribute: (name: string, value: string = '') => {
+            // should ignore dynamically set attribute name
             if (/^val[0-9]+$/.test(name)) {
                 return
             }
 
-            let e: ExecutableValue = {
-                name,
-                value,
-                rawValue: value,
-                renderedNodes: [node],
-                parts: extractExecutableValueFromRawValue(value, values),
-            }
+            if (value.trim()) {
+                let e: ExecutableValue = {
+                    name,
+                    value,
+                    rawValue: value,
+                    renderedNodes: [node],
+                    parts: extractExecutableValueFromRawValue(value, values),
+                }
 
-            if (/^on[a-z]+/.test(name)) {
-                // if the node happen to have
-                if (comp) {
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    if (!comp?.observedAttributes?.includes(name)) {
+                if (/^on[a-z]+/.test(name)) {
+                    // if the node happen to have
+                    if (comp) {
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
+                        if (!comp?.observedAttributes?.includes(name)) {
+                            e.prop = name.slice(2)
+                        }
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    } else if (
+                        document.head &&
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
+                        typeof document.head[name] !== 'undefined'
+                    ) {
+                        // ignore unknown events
                         e.prop = name.slice(2)
                     }
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                } else if (
-                    document.head &&
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    typeof document.head[name] !== 'undefined'
-                ) {
-                    // ignore unknown events
-                    e.prop = name.slice(2)
+
+                    if (e.prop) {
+                        handleEventExecutableValue(e)
+                        cb(node, e, 'events')
+                        return
+                    }
                 }
 
-                if (e.prop) {
-                    handleEventExecutableValue(e)
-                    cb(node, e, 'events')
+                if (name === 'ref') {
+                    if (!refs[value]) {
+                        refs[value] = new Set()
+                    }
+
+                    refs[value].add(node as Element)
                     return
                 }
+
+                const attrLessName = name.replace(/^attr\./, '')
+
+                if (
+                    name.startsWith('attr.') ||
+                    booleanAttributes[
+                        attrLessName.toLowerCase() as keyof typeof booleanAttributes
+                    ] ||
+                    /^(class|style|data)/i.test(attrLessName)
+                ) {
+                    let props: string[] = []
+                    ;[name, ...props] = attrLessName.split('.')
+
+                    e = {
+                        ...e,
+                        name,
+                        value: '',
+                        prop: props.join('.'),
+                    }
+
+                    handleAttrDirectiveExecutableValue(e)
+                    return cb(node, e, 'directives')
+                } else if (/{{val[0-9]+}}/.test(value)) {
+                    handleAttrExecutableValue(e, node as Element)
+                    return cb(node, e, 'attributes')
+                }
             }
 
-            if (name === 'ref') {
-                if (!refs[value]) {
-                    refs[value] = new Set()
-                }
-
-                refs[value].add(node as Element)
-                return
-            }
-
-            const attrLessName = name.replace(/^attr\./, '')
-
-            if (
-                name.startsWith('attr.') ||
-                booleanAttributes[
-                    attrLessName.toLowerCase() as keyof typeof booleanAttributes
-                ] ||
-                /^(class|style|data)/i.test(attrLessName)
-            ) {
-                let props: string[] = []
-                ;[name, ...props] = attrLessName.split('.')
-
-                e = {
-                    ...e,
-                    name,
-                    value: '',
-                    prop: props.join('.'),
-                }
-
-                handleAttrDirectiveExecutableValue(e)
-                cb(node, e, 'directives')
-            } else if (/{{val[0-9]+}}/.test(value)) {
-                handleAttrExecutableValue(e, node as Element)
-                cb(node, e, 'attributes')
-            } else if ('setAttribute' in node) {
+            if ('setAttribute' in node) {
                 node.setAttribute(name, value)
             }
         },
