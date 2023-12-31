@@ -85,7 +85,8 @@ const node = (
                     booleanAttributes[
                         attrLessName.toLowerCase() as keyof typeof booleanAttributes
                     ] ||
-                    /^(class|style|data)/i.test(attrLessName)
+                    /^(class|style|data)/i.test(attrLessName) ||
+                    value.split(/\|/).length > 1
                 ) {
                     let props: string[] = []
                     ;[name, ...props] = attrLessName.split('.')

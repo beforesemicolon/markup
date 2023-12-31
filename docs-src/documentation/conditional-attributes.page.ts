@@ -20,7 +20,7 @@ export default ({
         content: html`
 	        ${Heading(page.name)}
 	        <p>
-		        You cannot use template literal value to define attributes directly on the
+		        Markup does not allow you to use template literal value to define attributes directly on the
 		        tag.
 	        </p>
 	        ${CodeSnippet(
@@ -30,41 +30,25 @@ export default ({
                     '// renders <button>click me</button>',
                 'typescript'
             )}
-	        <p>
-		        This means that you need another way to dynamically render
-		        attributes and that way is the Markup <code>attr</code> attribute's name prefixer.
-	        </p>
-	        ${CodeSnippet(
-                'const disabled = true;\n' +
-                    '\n' +
-                    'html`<button attr.disabled="${disabled}">click me</button>`;',
-                'typescript'
-            )}
-	        <p>
-		        In the above example the <code>disabled</code> attribute
-		        was prefixed with <code>attr.</code> then provided the condition(boolean) as
-		        value to whether include that attribute.
-	        </p>
-	        <div class="info">
-		        The <code>attr.</code> is not always needed. Attributes like <code>class</code>, <code>style</code>, <code>data</code>,
-		        and <a href="https://developer.mozilla.org/en-US/docs/Glossary/Boolean/HTML" target="_blank">HTML boolean
-		                                                                                                     attributes</a>
-		        work without it or can have the condition specified after the pipe <code>|</code> as the value. Everything
-		        else requires it.
-	        </div>
+          <p>There is a different way to go about conditionally set attributes.</p>
 	        ${Heading('Boolean attributes', 'h3')}
+          <p>
+           By default, Markup handles all boolean attributes based on value.
+          </p>
+          ${CodeSnippet(
+              'const disabled = true;\n' +
+                  '\n' +
+                  'html`<button disabled="${disabled}">click me</button>`;',
+              'typescript'
+          )}
+          <p><a
+            href="https://developer.mozilla.org/en-US/docs/Glossary/Boolean/HTML"
+          >Boolean attributes</a
+          > values in native HTML does not matter in whether the attribute
+             should have an effect or be included. In Markup, if you set boolean attribute values
+            to <code>FALSY</code> it will not be included.</p>
 	        <p>
-		        <a
-			        href="https://developer.mozilla.org/en-US/docs/Glossary/Boolean/HTML"
-		        >Boolean attributes</a
-		        >
-		        are attributes that affect the element by
-		        simply being on the tag or whether they have value of
-		        <code>true</code> or <code>false</code>. HTML natively have these.
-	        </p>
-	        <p>
-		        The boolean attribute pattern is simple: <code>NAME="CONDITION"</code>. The <code>attr.</code> prefix is NOT
-		        required.
+		        The boolean attribute pattern is simply: <code>NAME="CONDITION"</code>.
 	        </p>
 	        ${CodeSnippet(
                 'html`<input type="checkbox" checked="true"/>`;',
@@ -72,7 +56,7 @@ export default ({
             )}
 	        <p>
 		        You may directly set the value as <code>true</code> or
-		        <code>false</code> string values or add a variable.
+		        <code>false</code> string or inject a variable.
 	        </p>
 	        ${CodeSnippet(
                 'const checked = false;\n\n' +
@@ -82,7 +66,7 @@ export default ({
 	        ${Heading('The class attribute', 'h3')}
 	        <p>
 		        The class attribute has a special handle that allows you to
-		        dynamically set specific classes more elegantly.
+		        dynamically target single classes to be conditionally set.
 	        </p>
 	        <p>
 		        The class attribute pattern can be a key-value type
@@ -97,8 +81,7 @@ export default ({
                     '// renders: <button class="primary btn">click me</button>\n',
                 'typescript'
             )}
-	        <div class="info">You need to use the <code>|</code> (pipe symbol) to separate the value from the condition
-	                          and the <code>attr.</code> prefix is not required.
+	        <div class="info">You need to use the <code>|</code> (pipe) to separate the value from the condition.
 	        </div>
 	        ${Heading('The style attribute', 'h3')}
 	        <p>
@@ -118,7 +101,6 @@ export default ({
                     '// renders: <button style="color: orange">click me</button>\n',
                 'typescript'
             )}
-	        <p>The <code>attr.</code> prefix is not required for style attributes.</p>
 	        ${Heading('The data attribute', 'h3')}
 	        <p>Data attributes follow the pattern: <code>data.NAME="VALUE | CONDITION"</code> and
 	           can also be <code>data.NAME="CONDITION"</code> if value is same as the condition value.
@@ -129,21 +111,15 @@ export default ({
                     'html`<button data.loading="${loading}" data.btn="true">click me</button>`',
                 'typescript'
             )}
-	        <p>The <code>attr.</code> prefix is not required for data attributes.</p>
 	        ${Heading('Other attributes', 'h3')}
-	        <p>
-		        Everything else will fall into the category of a key-value pairs
-		        which is a collection of attributes that require specific values or
-		        work as "prop" for a tag to pass data or set configurations.
-	        </p>
-	        <p>All other attributes follow the pattern: <code>attr.NAME="VALUE | CONDITION"</code> or
-		        <code>attr.NAME="CONDITION"</code> if value is same as the condition value.
-	           The template will evaluate if the value is truthy or falsy to decide
+          <p>For any other attribute you will need to either prefix the attribute with <code>attr.</code> or <code>|</code>(pipe) the value to a condition.</p>
+	        <p>These follow the pattern: <code>NAME="VALUE | CONDITION"</code> or <code>attr.NAME="VALUE_SAME_AS_CONDITION"</code>.
+	           The template will evaluate if the condition is truthy or falsy to decide
 	           whether the attribute should be set.</p>
 	        ${CodeSnippet(
                 'const label = "action button";\n\n' +
                     '// will not render if label is an empty string\n' +
-                    'html`<button attr.aria-label="${label}">click me</button>`',
+                    'html`<button attr.aria-label="${label}" formenctype="multipart/form-data | ${isFormData}">click me</button>`',
                 'typescript'
             )}
         `,

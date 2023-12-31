@@ -958,6 +958,21 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('<input pattern="[a-z]">')
 		})
 		
+		it('any key-value pair without .attr', () => {
+			let pattern = ''
+			const field = html`<input pattern="${() => pattern} | ${() => pattern}"/>`
+			
+			field.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<input>')
+			
+			pattern = '[a-z]'
+			
+			field.update()
+			
+			expect(document.body.innerHTML).toBe('<input pattern="[a-z]">')
+		})
+		
 		it('should work with helper value', () => {
 			const is = helper(<T>(st: () => T, val: unknown) => st() === val);
 			const [disabled, setDisabled] = state(false);
@@ -988,6 +1003,14 @@ describe('html', () => {
 			const slotName = '123'
 			
 			html`<slot attr.name="${slotName} | ${false}"></slot><slot attr.name="${slotName} | ${true}"></slot>`.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<slot></slot><slot name="123"></slot>')
+		});
+		
+		it('should handle slot name without attr.', () => {
+			const slotName = '123'
+			
+			html`<slot name="${slotName} | ${false}"></slot><slot name="${slotName} | ${true}"></slot>`.render(document.body)
 			
 			expect(document.body.innerHTML).toBe('<slot></slot><slot name="123"></slot>')
 		});
