@@ -4,7 +4,7 @@
     "description": "Reactive HTML Templating System",
     "engines": {
         "node": ">=18.16.0"
-    }
+    },
     "type": "module",
     "types": "./dist/types/index.d.ts",
     "exports": {
