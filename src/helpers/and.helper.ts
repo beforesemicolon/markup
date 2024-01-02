@@ -7,6 +7,8 @@ import { val } from '../utils'
  * @param a
  * @param b
  */
-export const and = helper(<T>(a: T | StateGetter<T>, b: T | StateGetter<T>) => {
-    return Boolean(val(a) && val(b))
-})
+export const and = helper(
+    <T, S>(a: T | StateGetter<T>, b: S | StateGetter<S>) => {
+        return Boolean(val(a) && val(b))
+    }
+)
