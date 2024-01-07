@@ -36,24 +36,30 @@ export default ({
             </p>
             ${Heading('or helper', 'h3')}
             <p>
-                The <code>or</code> helper will return true whether either value
-                is truthy.
+                The <code>or</code> helper will return true at least one of the
+                provided values is <code>TRUTHY</code>.
             </p>
-            <p>It takes two arguments and both are required.</p>
             <p>
-                <code>or(VAL1, VAL2)</code> where the values can be anything
-                including a state value.
+                It takes comma-separated arguments and at least two must be
+                provided.
+            </p>
+            <p>
+                <code>or(VAL1, VAL2, ...VALN)</code> where the values can be
+                anything including a state value.
             </p>
             ${CodeSnippet('html`${or(val1, val2)}`', 'typescript')}
             ${Heading('and helper', 'h3')}
             <p>
-                The <code>and</code> helper will return true when both values
-                are truthy.
+                The <code>and</code> helper will return true if all the values
+                provided are <code>TRUTHY</code>.
             </p>
-            <p>It takes two arguments and both are required.</p>
             <p>
-                <code>and(VALUE_OR_STATE1, VALUE_OR_STATE2)</code> where the
-                values can be anything including a state value.
+                It takes comma-separated arguments and at least two must be
+                provided.
+            </p>
+            <p>
+                <code>and(VAL1, VAL2, ...VALN)</code> where the values can be
+                anything including a state value.
             </p>
             ${CodeSnippet('html`${and(val1, val2)}`', 'typescript')}
             ${Heading('oneOf helper', 'h3')}

@@ -1,14 +1,14 @@
 import { helper } from '../Helper'
-import { StateGetter } from '../types'
 import { val } from '../utils'
 
 /**
- * checks if either a OR b value is truthy
- * @param a
- * @param b
+ * checks if at least one of the values is truthy
+ * @param values
+ * @returns {boolean}
  */
-export const or = helper(
-    <T, S>(a: T | StateGetter<T>, b: S | StateGetter<S>) => {
-        return Boolean(val(a) || val(b))
-    }
-)
+export const or = helper((...values: Array<unknown>) => {
+    if (values.length < 2)
+        throw new Error('The "or" helper requires at least two arguments.')
+
+    return values.some((x) => Boolean(val(x)))
+})
