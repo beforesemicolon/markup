@@ -135,7 +135,7 @@ describe('handleExecutable', () => {
             ],
         })
 
-        expect(div.outerHTML).toBe('<div disabled=""></div>')
+        expect(div.outerHTML).toBe('<div disabled="true"></div>')
     })
 
     it('should handle text executable as text', () => {

@@ -111,7 +111,9 @@ export const handleAttrDirectiveExecutable = (
                         if (boolAttr) {
                             element.setAttribute(
                                 attrName,
-                                boolAttributeWithValidPossibleValue ? value : ''
+                                boolAttributeWithValidPossibleValue
+                                    ? value
+                                    : 'true'
                             )
                         } else {
                             element.setAttribute(attrName, value)

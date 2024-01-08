@@ -144,7 +144,7 @@ describe('handleAttrDirectiveExecutable', () => {
         handleAttrDirectiveExecutable(e2, 'until-found | true')
 
         expect(div.outerHTML).toBe(
-            '<div disabled="" hidden="until-found"></div>'
+            '<div disabled="true" hidden="until-found"></div>'
         )
         expect(e1.value).toBe('true')
         expect(e2.value).toBe('until-found | true')

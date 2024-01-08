@@ -857,7 +857,7 @@ describe('html', () => {
 			btn.render(document.body)
 			
 			expect(document.body.innerHTML).toBe(
-				'<button disabled="">click me</button>'
+				'<button disabled="true">click me</button>'
 			)
 			
 			disabled = false
@@ -882,7 +882,7 @@ describe('html', () => {
 			
 			btn.update()
 			
-			expect(document.body.innerHTML).toBe('<button disabled="">click me</button>')
+			expect(document.body.innerHTML).toBe('<button disabled="true">click me</button>')
 		})
 		
 		it('any boolean attr without attr. and no value', () => {
@@ -1015,7 +1015,7 @@ describe('html', () => {
 			
 			setDisabled(true);
 			
-			expect(document.body.innerHTML).toBe('<button disabled="" class="disabled">click me</button>')
+			expect(document.body.innerHTML).toBe('<button disabled="true" class="disabled">click me</button>')
 		});
 		
 		it('should work with helper value without attr.', () => {
@@ -1028,7 +1028,7 @@ describe('html', () => {
 			
 			setDisabled(true);
 			
-			expect(document.body.innerHTML).toBe('<button disabled="" class="disabled">click me</button>')
+			expect(document.body.innerHTML).toBe('<button disabled="true" class="disabled">click me</button>')
 		});
 		
 		it('should handle slot name', () => {
