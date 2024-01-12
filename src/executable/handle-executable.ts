@@ -6,6 +6,7 @@ import {
     jsonStringify,
     turnKebabToCamelCasing,
     val,
+    setElementAttribute,
 } from '../utils'
 import { handleTextExecutable } from './handle-text-executable'
 import { handleAttrDirectiveExecutable } from './handle-attr-directive-executable'
@@ -100,7 +101,7 @@ export function handleAttrExecutableValue(
 
         try {
             // always update the element attribute
-            node.setAttribute(eVal.name, value)
+            setElementAttribute(node, eVal.name, value)
             // for WC we can also use the setter to set the value in case they
             // have correspondent camel case property version of the attribute
             // we do this only for non-primitive value because they are not handled properly

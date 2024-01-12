@@ -1,10 +1,12 @@
-import { isPrimitive, jsonStringify, turnCamelToKebabCasing } from '.'
+import { jsonStringify } from './json-stringify'
+import { setElementAttribute } from './set-element-attribute'
+import { turnCamelToKebabCasing } from './turn-camel-to-kebab-casing'
 
 export interface ElementOptions<A> {
     attributes?: A
     textContent?: string
     htmlContent?: string
-    ns?: 'http://www.w3.org/1999/xhtml' | 'http://www.w3.org/2000/svg'
+    ns?: 'http://www.w3.org/1999/xhtml' | 'http://www.w3.org/2000/svg' | ''
 }
 
 /**
@@ -37,26 +39,7 @@ export const element = <A>(
                             val as EventListenerOrEventListenerObject
                         )
                 } else {
-                    el.setAttribute(
-                        turnCamelToKebabCasing(key),
-                        jsonStringify(val)
-                    )
-
-                    if (Comp && !isPrimitive(val)) {
-                        const descriptors = Object.getOwnPropertyDescriptors(
-                            Object.getPrototypeOf(el)
-                        )
-
-                        // make sure the property can be set
-                        if (
-                            descriptors.hasOwnProperty(key) &&
-                            typeof descriptors[key].set === 'function'
-                        ) {
-                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                            // @ts-ignore cant use string key for Element
-                            el[key] = val
-                        }
-                    }
+                    setElementAttribute(el, turnCamelToKebabCasing(key), val)
                 }
             }
         )

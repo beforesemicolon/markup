@@ -6,11 +6,16 @@ import {
     handleEventExecutableValue,
     handleTextExecutableValue,
 } from './handle-executable'
-import { booleanAttributes } from '../utils'
+import {
+    booleanAttributes,
+    element,
+    ElementOptions,
+    setElementAttribute,
+} from '../utils'
 
 const node = (
     nodeName: string,
-    ns = '',
+    ns: ElementOptions<unknown>['ns'] = '',
     values: Array<unknown> = [],
     refs: Record<string, Set<Element>> = {},
     cb: (node: Node, e: ExecutableValue, type: string) => void = () => {}
@@ -18,7 +23,7 @@ const node = (
     const node =
         nodeName === '#fragment'
             ? document.createDocumentFragment()
-            : document.createElementNS(ns, nodeName)
+            : element(nodeName, { ns })
     const comp = customElements.get(nodeName.toLowerCase())
 
     return {
@@ -126,7 +131,7 @@ const node = (
                 // ignore special attributes specific to Markup that did not get handled
                 !/^(ref|(attr|class|style|data)\.)/.test(name)
             ) {
-                node.setAttribute(name, trimmedValue)
+                setElementAttribute(node, name, trimmedValue)
             }
         },
         appendChild: (n: DocumentFragment | Node) => {
@@ -180,7 +185,10 @@ export const Doc = (
         createDocumentFragment: () => {
             return node('#fragment', '', values, refs, cb)
         },
-        createElementNS: (ns: string, tagName: string) => {
+        createElementNS: (
+            ns: ElementOptions<unknown>['ns'],
+            tagName: string
+        ) => {
             return node(tagName, ns, values, refs, cb)
         },
     }

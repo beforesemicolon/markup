@@ -5,6 +5,7 @@ import {
     turnCamelToKebabCasing,
     turnKebabToCamelCasing,
 } from '../utils'
+import { setElementAttribute } from '../utils/set-element-attribute'
 
 export const handleAttrDirectiveExecutable = (
     executableValue: ExecutableValue,
@@ -109,14 +110,15 @@ export const handleAttrDirectiveExecutable = (
 
                     if (shouldAdd) {
                         if (boolAttr) {
-                            element.setAttribute(
+                            setElementAttribute(
+                                element,
                                 attrName,
                                 boolAttributeWithValidPossibleValue
                                     ? value
                                     : 'true'
                             )
                         } else {
-                            element.setAttribute(attrName, value)
+                            setElementAttribute(element, attrName, value)
                         }
                     } else {
                         element.removeAttribute(attrName)
