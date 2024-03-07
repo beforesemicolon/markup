@@ -12,21 +12,25 @@ export const setElementAttribute = (
     key: string,
     value: unknown
 ) => {
-    el.setAttribute(key, jsonStringify(value))
+    if (value !== undefined && value !== null) {
+        el.setAttribute(key, jsonStringify(value))
 
-    if (el.nodeName.includes('-') && !isPrimitive(value)) {
-        const descriptors = Object.getOwnPropertyDescriptors(
-            Object.getPrototypeOf(el)
-        )
+        if (el.nodeName.includes('-') && !isPrimitive(value)) {
+            const descriptors = Object.getOwnPropertyDescriptors(
+                Object.getPrototypeOf(el)
+            )
 
-        // make sure the property can be set
-        if (
-            descriptors.hasOwnProperty(key) &&
-            typeof descriptors[key].set === 'function'
-        ) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore cant use string key for Element
-            el[key] = value
+            // make sure the property can be set
+            if (
+                descriptors.hasOwnProperty(key) &&
+                typeof descriptors[key].set === 'function'
+            ) {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore cant use string key for Element
+                el[key] = value
+            }
         }
+    } else {
+        el.removeAttribute(key)
     }
 }
