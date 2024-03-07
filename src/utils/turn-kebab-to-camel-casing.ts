@@ -1,4 +1,8 @@
 export function turnKebabToCamelCasing(name: string): string {
+    if (!/-/.test(name)) {
+        return name.toLowerCase()
+    }
+
     return (
         name
             .split(/-+/)

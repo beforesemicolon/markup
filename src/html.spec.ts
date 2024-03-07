@@ -58,6 +58,15 @@ describe('html', () => {
 		expect(document.body.innerHTML).toBe('sample')
 	})
 	
+	it('should render static text from dynamic variable', () => {
+		const s = () => 'sample'
+		const temp = html`${s}`
+		
+		temp.render(document.body)
+		
+		expect(document.body.innerHTML).toBe('sample')
+	})
+	
 	it('should render html as text', () => {
 		const htmlString = '<p>sample</p>'
 		const temp = html`${htmlString}`
@@ -847,6 +856,16 @@ describe('html', () => {
 			btn.render(document.body)
 			
 			expect(document.body.innerHTML).toBe('<button>click me</button>');
+		})
+		
+		it('should accept style in a variable', () => {
+			const bg = 'red'
+			const style = `background: ${bg}`
+			const btn = html`<button style="${style}">click me</button>`
+			
+			btn.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<button style="background: red;">click me</button>');
 		})
 		
 		it('any boolean attr', () => {
