@@ -28,6 +28,18 @@ export default ({
                 Additionally, you can run it on the client and server to produce
                 any type of application.
             </p>
+            ${Heading('Essentials Training', 'h3')}
+            <p>
+                Learn everything about Markup including tips and best practice
+                guides to build web interface.
+            </p>
+            <a
+                target="_blank"
+                href="https://www.youtube.com/watch?v=mIr2XglV5nQ&list=PLpWvGP6yhJUgWNiz25vj__CArY9Z0O6ke&index=1"
+                ><img
+                    src="../assets/markup-essentials-training.jpg"
+                    alt="Markup Essentials Training"
+            /></a>
             ${Heading('Try it in-Browser', 'h3')}
             <p>
                 The simplest way to start is by trying it in-browser, and we

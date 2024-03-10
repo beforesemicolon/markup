@@ -18,6 +18,13 @@ export const Footer = ({ basePath = '.' }: FooterProps = {}) => {
             <ul class="learning-resources">
                 <li><h4>Learning Resources</h4></li>
                 <li><a href="${basePath}documentation">Documentation</a></li>
+                <li>
+                    <a
+                        target="_blank"
+                        href="https://www.youtube.com/watch?v=mIr2XglV5nQ&list=PLpWvGP6yhJUgWNiz25vj__CArY9Z0O6ke&index=1"
+                        >Essentials Training</a
+                    >
+                </li>
             </ul>
             <ul class="about-bfs">
                 <li>
