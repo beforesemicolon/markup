@@ -1802,6 +1802,33 @@ describe('html', () => {
 
 			expect(document.body.innerHTML).toBe('threeone')
 		});
+		
+		it('unmount and resume on mount', () => {
+			const updateMock = jest.fn();
+			const [x, setX] = state(5);
+			
+			const temp = html`item ${x}`
+				.onUpdate(updateMock)
+				.render(document.body);
+			
+			expect(document.body.innerHTML).toBe("item 5")
+			
+			temp.unmount();
+			
+			setX(10);
+			
+			temp.render(document.body)
+			
+			expect(updateMock).not.toHaveBeenCalled()
+			
+			expect(document.body.innerHTML).toBe("item 10")
+			
+			setX(20);
+			
+			expect(updateMock).toHaveBeenCalled()
+			
+			expect(document.body.innerHTML).toBe("item 20")
+		})
 	})
 	
 	it('should ignore values between tag and attribute', () => {

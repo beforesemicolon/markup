@@ -113,12 +113,11 @@ export class HtmlTemplate {
                 elementToAttachNodesTo instanceof Element)
         ) {
             this.#renderTarget = elementToAttachNodesTo
+            let initialized = false
 
             if (!this.#root) {
+                initialized = true
                 this.#init(elementToAttachNodesTo as Element)
-            } else if (!this.#stateUnsubs.size) {
-                this.#subscribeToState()
-                this.update()
             }
 
             this.#nodes.forEach((node) => {
@@ -126,6 +125,15 @@ export class HtmlTemplate {
                     elementToAttachNodesTo.appendChild(node)
                 }
             })
+
+            // this needs to happen after the nodes have been added again in order
+            // to catch any updates done to things like state while the template
+            // was unmounted
+            if (!initialized && !this.#stateUnsubs.size) {
+                this.#subscribeToState()
+                this.update()
+            }
+
             this.#broadcast(this.#mountSubs)
         }
 
@@ -159,18 +167,26 @@ export class HtmlTemplate {
             }
 
             this.#renderTarget = element.parentNode as Element
+            let initialized = false
 
             if (!this.#root) {
+                initialized = true
                 this.#init(element)
-            } else if (!this.#stateUnsubs.size) {
-                this.#subscribeToState()
-                this.update()
             }
 
             const frag = document.createDocumentFragment()
             frag.append(...this.#nodes)
             element.parentNode?.replaceChild(frag, element)
-            this.#broadcast(this.#mountSubs)
+
+            // this needs to happen after the nodes have been added again in order
+            // to catch any updates done to things like state while the template
+            // was unmounted
+            if (!initialized && !this.#stateUnsubs.size) {
+                this.#subscribeToState()
+                this.update()
+            } else {
+                this.#broadcast(this.#mountSubs)
+            }
 
             // only need to unmount the template nodes
             // if the target is not a template, it will be automatically removed
