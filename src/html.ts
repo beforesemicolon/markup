@@ -1,14 +1,14 @@
 import {
-    Executable,
+    DynamicValue,
     StateGetter,
     StateSetter,
     StateSubscriber,
     StateUnSubscriber,
 } from './types'
-import { Doc } from './executable/Doc'
-import { handleExecutable } from './executable/handle-executable'
+import { Doc } from './Doc'
 import { parse } from '@beforesemicolon/html-parser'
 import { Helper } from './Helper'
+import { handleDynamicValue } from './utils'
 
 // prevents others from creating functions that can be subscribed to
 // and forces them to use state instead
@@ -16,38 +16,24 @@ const id = 'S' + Math.floor(Math.random() * 10000000)
 
 export class HtmlTemplate {
     #htmlTemplate: string
-    #nodes: Node[] = []
-    #renderTarget: ShadowRoot | Element | null = null
+    #nodes: Array<Node | DynamicValue> = []
+    #renderTarget: ShadowRoot | Element | DocumentFragment | null = null
     #refs: Record<string, Set<Element>> = {}
     #updateSubs: Set<() => void> = new Set()
     #mountSubs: Set<() => void> = new Set()
     #unmountSubs: Set<() => void> = new Set()
     #stateUnsubs: Set<() => void> = new Set()
-    #executablesByNode: Map<Node, Executable> = new Map()
+    #dynamicValues: DynamicValue[] = []
     #values: Array<unknown> = []
-    #root: DocumentFragment | null = null
+    #mounted = false
 
     /**
      * list of direct ChildNode from the template that got rendered
      */
     get nodes() {
-        return this.#nodes.flatMap((node) => {
-            const e = this.#executablesByNode.get(node)
-
-            if (e?.content.length) {
-                return Array.from(
-                    new Set(
-                        e.content.flatMap((v) =>
-                            Array.isArray(v.renderedNodes)
-                                ? v.renderedNodes
-                                : [v.renderedNodes]
-                        )
-                    )
-                )
-            }
-
-            return [node]
-        })
+        return this.#nodes.flatMap((n) =>
+            n instanceof Node ? [n] : n.renderedNodes
+        )
     }
 
     /**
@@ -86,11 +72,15 @@ export class HtmlTemplate {
         })
     }
 
+    get mounted() {
+        return this.#mounted
+    }
+
     constructor(parts: TemplateStringsArray | string[], values: unknown[]) {
         this.#values = values
         this.#htmlTemplate = parts
             .map((s, i) => {
-                return i === parts.length - 1 ? s : s + `{{val${i}}}`
+                return i === parts.length - 1 ? s : s + `$val${i}`
             })
             .join('')
             .trim()
@@ -102,7 +92,7 @@ export class HtmlTemplate {
      * @param force
      */
     render = (
-        elementToAttachNodesTo: ShadowRoot | Element | null,
+        elementToAttachNodesTo: ShadowRoot | Element | DocumentFragment,
         force = false
     ) => {
         if (
@@ -110,30 +100,18 @@ export class HtmlTemplate {
             elementToAttachNodesTo !== this.renderTarget &&
             (force || !this.renderTarget) &&
             (elementToAttachNodesTo instanceof ShadowRoot ||
-                elementToAttachNodesTo instanceof Element)
+                elementToAttachNodesTo instanceof Element ||
+                elementToAttachNodesTo instanceof DocumentFragment)
         ) {
+            if (force) {
+                this.unmount()
+            }
             this.#renderTarget = elementToAttachNodesTo
-            let initialized = false
+            const initialized = false
 
-            if (!this.#root) {
-                initialized = true
-                this.#init(elementToAttachNodesTo as Element)
-            }
+            elementToAttachNodesTo.appendChild(this.#init())
 
-            this.#nodes.forEach((node) => {
-                if (node.parentNode !== elementToAttachNodesTo) {
-                    elementToAttachNodesTo.appendChild(node)
-                }
-            })
-
-            // this needs to happen after the nodes have been added again in order
-            // to catch any updates done to things like state while the template
-            // was unmounted
-            if (!initialized && !this.#stateUnsubs.size) {
-                this.#subscribeToState()
-                this.update()
-            }
-
+            this.#mounted = true
             this.#broadcast(this.#mountSubs)
         }
 
@@ -144,10 +122,10 @@ export class HtmlTemplate {
      * replaces the target element with the template nodes. Does not replace HEAD, BODY, HTML, and ShadowRoot elements
      * @param target
      */
-    replace = (target: Node | Element | HtmlTemplate | null) => {
+    replace = (target: Node | HtmlTemplate) => {
         if (
             target instanceof HtmlTemplate ||
-            (target instanceof Element &&
+            (target instanceof Node &&
                 !(
                     target instanceof ShadowRoot ||
                     target instanceof HTMLBodyElement ||
@@ -167,30 +145,13 @@ export class HtmlTemplate {
             }
 
             this.#renderTarget = element.parentNode as Element
-            let initialized = false
+            element.parentNode?.replaceChild(this.#init(), element)
 
-            if (!this.#root) {
-                initialized = true
-                this.#init(element)
-            }
+            this.#mounted = true
+            this.#broadcast(this.#mountSubs)
 
-            const frag = document.createDocumentFragment()
-            frag.append(...this.#nodes)
-            element.parentNode?.replaceChild(frag, element)
-
-            // this needs to happen after the nodes have been added again in order
-            // to catch any updates done to things like state while the template
-            // was unmounted
-            if (!initialized && !this.#stateUnsubs.size) {
-                this.#subscribeToState()
-                this.update()
-            } else {
-                this.#broadcast(this.#mountSubs)
-            }
-
-            // only need to unmount the template nodes
-            // if the target is not a template, it will be automatically removed
-            // when replaceChild is called above.
+            // since the nodes of the template are being replaced
+            // we can go ahead an unmount it so it cleans up properly
             if (target instanceof HtmlTemplate) {
                 target.unmount()
             }
@@ -206,22 +167,33 @@ export class HtmlTemplate {
      */
     update() {
         // only update if the nodes were already rendered and there are actual values
-        if (this.renderTarget && this.#executablesByNode.size) {
-            this.#executablesByNode.forEach((executable, node) => {
-                handleExecutable(node, executable, this.#refs)
-            })
+        if (this.renderTarget && this.#dynamicValues.length) {
+            this.#dynamicValues.forEach((dv) =>
+                handleDynamicValue(dv, this.#refs)
+            )
             this.#broadcast(this.#updateSubs)
         }
     }
 
     unmount() {
-        if (this.#renderTarget) {
-            this.#nodes.forEach((n) => {
+        if (this.#renderTarget && this.#mounted) {
+            this.#dynamicValues.forEach((dv) => {
+                ;(Array.isArray(dv.value) ? dv.value : [dv.value]).forEach(
+                    (p) => {
+                        if (p instanceof HtmlTemplate) {
+                            p.unmount()
+                        }
+                    }
+                )
+            })
+            this.nodes.forEach((n) => {
                 if (n.parentNode) {
                     n.parentNode.removeChild(n)
                 }
             })
             this.#renderTarget = null
+            this.#dynamicValues = []
+            this.#mounted = false
             this.unsubscribeFromStates()
             this.#broadcast(this.#unmountSubs)
         }
@@ -258,71 +230,53 @@ export class HtmlTemplate {
         set.forEach((sub) => setTimeout(sub, 0))
     }
 
-    #init(target: ShadowRoot | Element) {
-        if (target) {
-            this.#root = parse(
-                this.#htmlTemplate,
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                Doc(this.#values, this.#refs, (node, e, type) => {
-                    if (!this.#executablesByNode.has(node)) {
-                        this.#executablesByNode.set(node, {
-                            content: [],
-                            events: [],
-                            directives: [],
-                            attributes: [],
-                        })
-                    }
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    this.#executablesByNode.get(node)[type].push(e)
-                })
-            ) as DocumentFragment
-            this.#subscribeToState()
-            this.#nodes = Array.from(this.#root.childNodes)
-        }
+    #init() {
+        const fragLike = parse(
+            this.#htmlTemplate,
+            // @ts-expect-error this is a Document like object
+            Doc(this.#values, this.#refs, (dv) => this.#dynamicValues.push(dv))
+        ) as DocumentFragment
+        this.#subscribeToState()
+        const renderedNodeDvMapping = new WeakMap()
+        this.#dynamicValues.forEach((dv) => {
+            handleDynamicValue(dv, this.#refs)
+            dv.renderedNodes.forEach((n) => renderedNodeDvMapping.set(n, dv))
+        })
+        this.#nodes = Array.from(
+            fragLike.childNodes,
+            (n) => renderedNodeDvMapping.get(n) ?? n
+        )
+        const frag = document.createDocumentFragment()
+        frag.append(...fragLike.childNodes)
+        return frag
     }
 
     #subscribeToState() {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const self = this
 
-        Array.from(this.#executablesByNode.entries()).forEach(
-            ([node, { content, directives, attributes, events }]) => {
-                ;[...content, ...directives, ...events, ...attributes].forEach(
-                    (e) => {
-                        // subscribe to any state value used in the node
-                        e.parts.forEach(function sub(val: unknown) {
-                            if (val instanceof Helper) {
-                                val.args.forEach(sub)
-                            } else if (
-                                typeof val === 'function' &&
-                                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                                // @ts-ignore
-                                typeof val[id] === 'function'
-                            ) {
-                                const nodeExec =
-                                    self.#executablesByNode.get(node)
-
-                                if (nodeExec) {
-                                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                                    // @ts-ignore
-                                    const unsub = val[id](() => {
-                                        handleExecutable(
-                                            node,
-                                            nodeExec,
-                                            self.#refs
-                                        )
-                                        self.#updateSubs.forEach((cb) => cb())
-                                    }, id)
-                                    self.#stateUnsubs.add(unsub)
-                                }
-                            }
-                        })
+        this.#dynamicValues.forEach((dv) => {
+            // subscribe to any state value used in the node
+            ;(Array.isArray(dv.value) ? dv.value : [dv.value]).forEach(
+                function sub(val: unknown) {
+                    if (val instanceof Helper) {
+                        // subscribe to possible state value provided as argument to helpers
+                        val.args.forEach(sub)
+                    } else if (
+                        typeof val === 'function' &&
+                        // @ts-expect-error state value exposes function accessible by this global id
+                        typeof val[id] === 'function'
+                    ) {
+                        // @ts-expect-error state value exposes function accessible by this global id
+                        const unsub = val[id](() => {
+                            handleDynamicValue(dv, self.#refs)
+                            self.#updateSubs.forEach((cb) => cb())
+                        }, id)
+                        self.#stateUnsubs.add(unsub)
                     }
-                )
-            }
-        )
+                }
+            )
+        })
     }
 }
 
@@ -334,37 +288,20 @@ export class HtmlTemplate {
 export const html = (
     parts: TemplateStringsArray | string[],
     ...values: unknown[]
-) => {
-    return new HtmlTemplate(parts, values)
-}
+) => new HtmlTemplate(parts, values)
 
-export const state = <T>(val: T, sub?: StateSubscriber) => {
+export const state = <T>(
+    val: T,
+    sub?: StateSubscriber
+): Readonly<[StateGetter<T>, StateSetter<T>, StateUnSubscriber]> => {
     const subs: Set<() => void> = new Set()
-    const arr = new Array(3) as [
-        StateGetter<T>,
-        StateSetter<T>,
-        StateUnSubscriber,
-    ]
+    const getter = () => val
 
     if (typeof sub === 'function') {
         subs.add(sub)
     }
 
-    arr[0] = () => val
-    arr[1] = (newVal: T | ((val: T) => T)) => {
-        val =
-            typeof newVal === 'function'
-                ? (newVal as (val: T) => T)(val)
-                : newVal
-        subs.forEach((sub) => {
-            sub()
-        })
-    }
-    arr[2] = () => {
-        sub && subs.delete(sub)
-    }
-
-    Object.defineProperty(arr[0], id, {
+    Object.defineProperty(getter, id, {
         // ensure only HtmlTemplate can subscribe to this value
         value: (sub: () => void, subId: string) => {
             if (subId === id && typeof sub === 'function') {
@@ -377,7 +314,19 @@ export const state = <T>(val: T, sub?: StateSubscriber) => {
         },
     })
 
-    Object.freeze(arr)
-
-    return arr
+    return Object.freeze([
+        getter,
+        (newVal: T | ((val: T) => T)) => {
+            val =
+                typeof newVal === 'function'
+                    ? (newVal as (val: T) => T)(val)
+                    : newVal
+            subs.forEach((sub) => {
+                sub()
+            })
+        },
+        () => {
+            sub && subs.delete(sub)
+        },
+    ])
 }

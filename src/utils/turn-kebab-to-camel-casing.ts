@@ -1,4 +1,4 @@
-export function turnKebabToCamelCasing(name: string): string {
+export const turnKebabToCamelCasing = (name: string) => {
     if (!/-/.test(name)) {
         return name.toLowerCase()
     }

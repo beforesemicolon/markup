@@ -1,4 +1,4 @@
-export const booleanAttributes = {
+export const booleanAttributes: Record<string, Record<string, string[]>> = {
     allowfullscreen: {},
     async: {},
     autofocus: {},

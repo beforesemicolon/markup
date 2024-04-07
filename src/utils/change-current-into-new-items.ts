@@ -9,12 +9,11 @@
 export const changeCurrentIntoNewItems = (
     currentChildNodes: Node[],
     newChildNodes: Node[],
-    parent: ParentNode | null
+    parent: ParentNode | null = null
 ) => {
     const currentChildNodesSet = new Set(currentChildNodes)
-    const lastNode = currentChildNodes.at(-1)
-    const endAnchor = lastNode?.nextSibling ?? null
-    let frag: DocumentFragment = document.createDocumentFragment()
+    const endAnchor = currentChildNodes.at(-1)?.nextSibling ?? null
+    let frag = document.createDocumentFragment()
 
     newChildNodes.forEach((n, i) => {
         const moved = currentChildNodes[i] !== n

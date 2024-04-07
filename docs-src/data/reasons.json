@@ -25,7 +25,7 @@
         "breakDown": [
             "<strong>< 8kb </strong> CDN compressed",
             "<strong>< 18kb </strong>minified",
-            "<strong>< 230kb </strong> raw"
+            "<strong>< 200kb </strong> raw"
         ]
     },
     {

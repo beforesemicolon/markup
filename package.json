@@ -1,6 +1,6 @@
 {
     "name": "@beforesemicolon/markup",
-    "version": "0.16.0-next",
+    "version": "0.18.3-next",
     "description": "Reactive HTML Templating System",
     "engines": {
         "node": ">=18.16.0"
@@ -14,9 +14,8 @@
         "types": "./dist/types/index.d.ts"
     },
     "scripts": {
-        "test": "jest",
+        "test": "jest --coverage",
         "test:watch": "jest --watch",
-        "test:coverage": "jest --coverage",
         "docs:css-watch": "nodemon --watch docs-src -e scss --exec 'npm run docs:css'",
         "docs:css": "node-sass docs-src/stylesheets -o docs/stylesheets --output-style compressed",
         "docs:watch": "rm -rf docs && nodemon --watch docs-src -e ts,json --exec 'NODE_ENV=development npm run docs:build'",

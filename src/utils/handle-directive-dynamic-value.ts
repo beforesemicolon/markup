@@ -1,22 +1,22 @@
-import { ExecutableValue } from '../types'
-import {
-    booleanAttributes,
-    jsonParse,
-    turnCamelToKebabCasing,
-    turnKebabToCamelCasing,
-} from '../utils'
-import { setElementAttribute } from '../utils/set-element-attribute'
+import { DynamicValue } from '../types'
+import { jsonParse } from './json-parse'
+import { turnKebabToCamelCasing } from './turn-kebab-to-camel-casing'
+import { turnCamelToKebabCasing } from './turn-camel-to-kebab-casing'
+import { booleanAttributes } from './boolean-attributes'
+import { val } from './val'
+import { jsonStringify } from './json-stringify'
+import { setElementAttribute } from './set-element-attribute'
 
-export const handleAttrDirectiveExecutable = (
-    executableValue: ExecutableValue,
-    rawValue: string
-) => {
-    if (rawValue !== executableValue.value) {
-        const { name: attrName, prop: property } = executableValue
-        executableValue.value = rawValue
-        const element = executableValue.renderedNodes[0] as HTMLElement
-        // eslint-disable-next-line prefer-const
-        const valueParts = rawValue.split(/\|/)
+export function handleDirectiveDynamicValue(
+    dv: DynamicValue<Array<unknown>, string>
+) {
+    const newData = dv.value.map((v) => jsonStringify(val(v))).join('')
+
+    if (newData !== dv.data) {
+        dv.data = newData
+        const { name: attrName, prop: property } = dv
+        const element = dv.renderedNodes[0] as HTMLElement
+        const valueParts = dv.data.split(/\|/)
         const [value, condition] = valueParts.map((s) => s.trim())
         const parsedValue = jsonParse(value)
         let shouldAdd = Boolean(
@@ -90,12 +90,7 @@ export const handleAttrDirectiveExecutable = (
                 break
             default:
                 if (attrName) {
-                    const boolAttr = (
-                        booleanAttributes as Record<
-                            string,
-                            { possibleValues?: string[] }
-                        >
-                    )[attrName]
+                    const boolAttr = booleanAttributes[attrName]
                     const boolAttributeWithValidPossibleValue =
                         boolAttr?.possibleValues &&
                         boolAttr.possibleValues.includes(value)

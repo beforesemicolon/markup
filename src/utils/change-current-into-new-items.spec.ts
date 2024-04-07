@@ -9,12 +9,10 @@ describe('changeCurrentIntoNewItems', () => {
 
         return li
     })
-
-    const endAnchor = document.createComment('')
-
+    
     beforeEach(() => {
         ul.innerHTML = ''
-        nodes.forEach((n) => ul.appendChild(n))
+        ul.append(...nodes)
     })
 
     it('should add all new items', () => {
@@ -245,5 +243,29 @@ describe('changeCurrentIntoNewItems', () => {
         changeCurrentIntoNewItems([complete, edit, archive], [archive], ul)
 
         expect(ul.innerHTML).toBe('<archive></archive>')
+    })
+    
+    it('should handle first item moved with end anchor', () => {
+        const parent = document.createElement('div');
+        const span1 = document.createElement('span');
+        const span2 = document.createElement('span');
+        const span3 = document.createElement('span');
+        const span4 = document.createElement('span');
+        parent.appendChild(span1)
+        parent.appendChild(span2)
+        parent.appendChild(span4)
+        
+        expect(parent.children).toHaveLength(3)
+        expect(parent.children[0]).toEqual(span1)
+        expect(parent.children[1]).toEqual(span2)
+        expect(parent.children[2]).toEqual(span4)
+        
+        changeCurrentIntoNewItems([span1, span2], [span3, span2, span1], parent);
+        
+        expect(parent.children).toHaveLength(4)
+        expect(parent.children[0]).toEqual(span3)
+        expect(parent.children[1]).toEqual(span2)
+        expect(parent.children[2]).toEqual(span1)
+        expect(parent.children[3]).toEqual(span4)
     })
 })
