@@ -1947,4 +1947,16 @@ describe('html', () => {
 		expect(document.body.innerHTML).toBe('&lt;button&gt;click me&lt;/button&gt;')
 	});
 	
+	it('should render array', () => {
+		const reasons = [
+			"sample 1",
+			"sample 2"
+		].map((reason) => html`<li>${reason}</li>`);
+		
+		html`<ul>${reasons}</ul>`
+			.render(document.body)
+		
+		expect(document.body.innerHTML).toBe('<ul><li>sample 1</li><li>sample 2</li></ul>')
+	})
+	
 })
