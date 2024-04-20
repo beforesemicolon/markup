@@ -11,9 +11,8 @@ export const isNot = helper(
     <T>(
         st: T | StateGetter<T>,
         checker: HelperValueChecker<T> | AnythingButAFunction<T>
-    ) => {
-        return typeof checker === 'function'
+    ) =>
+        typeof checker === 'function'
             ? !(checker as HelperValueChecker<T>)(val(st))
             : val(st) !== checker
-    }
 )

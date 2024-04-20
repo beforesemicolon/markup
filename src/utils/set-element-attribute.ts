@@ -15,18 +15,16 @@ export const setElementAttribute = (
     if (value !== undefined && value !== null) {
         el.setAttribute(key, jsonStringify(value))
 
+        // take care of web component elements with prop setters
         if (el.nodeName.includes('-') && !isPrimitive(value)) {
-            const descriptors = Object.getOwnPropertyDescriptors(
-                Object.getPrototypeOf(el)
-            )
+            const descriptor =
+                // describe the property directly on the object
+                Object.getOwnPropertyDescriptor(el, key) ??
+                // describe properties defined as setter/getter by checking the prototype
+                Object.getOwnPropertyDescriptors(Object.getPrototypeOf(el))[key]
 
-            // make sure the property can be set
-            if (
-                descriptors.hasOwnProperty(key) &&
-                typeof descriptors[key].set === 'function'
-            ) {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore cant use string key for Element
+            if (descriptor?.writable || typeof descriptor?.set === 'function') {
+                // @ts-expect-error Cannot assign to X because it is a read-only property.
                 el[key] = value
             }
         }

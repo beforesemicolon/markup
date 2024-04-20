@@ -17,7 +17,12 @@
         "esModuleInterop": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
-        "allowJs": true
+        "allowJs": true,
+        "paths": {
+            "node_modules/@beforesemicolon/html-parser/dist/Doc.js": [
+                "./src/Doc"
+            ]
+        }
     },
     "include": ["./src/**/*"],
     "exclude": ["src/**/*.spec.ts"]

@@ -23,9 +23,9 @@
         "img": "./assets/small.svg",
         "imgAlt": "small templating system",
         "breakDown": [
-            "<strong>< 8kb </strong> CDN compressed",
-            "<strong>< 18kb </strong>minified",
-            "<strong>< 230kb </strong> raw"
+            "<strong>~ 8kb </strong> CDN compressed",
+            "<strong>~ 16kb </strong>minified",
+            "<strong>~ 175kb </strong> raw"
         ]
     },
     {
