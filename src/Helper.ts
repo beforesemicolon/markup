@@ -24,8 +24,7 @@ export class Helper<T extends (...args: Array<unknown>) => unknown> {
     }
 }
 
-export const helper = <T>(handler: T) => {
-    return ((...args: Array<unknown>) => {
+export const helper = <T>(handler: T) =>
+    ((...args: Array<unknown>) => {
         return new Helper(handler as (...args: Array<unknown>) => void, args)
     }) as typeof handler
-}

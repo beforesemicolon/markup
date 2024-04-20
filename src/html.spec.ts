@@ -1,5 +1,5 @@
 import {html, HtmlTemplate, state} from './html'
-import {when, repeat, oneOf} from './helpers'
+import {when, repeat, oneOf, is} from './helpers'
 import {suspense} from './utils'
 import {helper} from "./Helper";
 
@@ -65,6 +65,8 @@ describe('html', () => {
 		temp.render(document.body)
 		
 		expect(document.body.innerHTML).toBe('sample')
+		expect(document.body.childNodes).toHaveLength(1)
+		expect(Array.from(document.body.childNodes)).toEqual(temp.nodes)
 	})
 	
 	it('should render html as text', () => {
@@ -107,17 +109,37 @@ describe('html', () => {
 		const a = html`<p>more than 10</p>`
 		const b = html`<p>less than 10</p>`
 		
-		const temp = html`${() => (x > 10 ? html`${a}` : html`${b}`)}`
+		const temp = html`total: ${() => (x > 10 ? html`>${a}` : html`<${b}`)}`
 		
 		temp.render(document.body)
 		
-		expect(document.body.innerHTML).toBe('<p>more than 10</p>')
+		expect(temp.nodes).toHaveLength(3)
+		expect(temp.nodes.map(n => (n as Element).outerHTML || n.nodeValue)).toEqual([
+			"total: ",
+			">",
+			"<p>more than 10</p>"
+		])
+		expect(a.mounted).toBeTruthy()
+		expect(a.nodes).toHaveLength(1)
+		expect((a.nodes[0] as Element).outerHTML).toBe('<p>more than 10</p>')
+		
+		expect(b.mounted).toBeFalsy()
+		expect(b.nodes).toHaveLength(0)
+		
+		expect(document.body.innerHTML).toBe('total: &gt;<p>more than 10</p>')
 		
 		x = 5
-		
+
 		temp.update()
-		
-		expect(document.body.innerHTML).toBe('<p>less than 10</p>')
+
+		expect(temp.nodes).toHaveLength(3)
+		expect(temp.nodes.map(n => (n as Element).outerHTML || n.nodeValue)).toEqual([
+			"total: ",
+			"<",
+			"<p>less than 10</p>"
+		])
+
+		expect(document.body.innerHTML).toBe('total: &lt;<p>less than 10</p>')
 	})
 	
 	it('should handle deeply nested HTML', () => {
@@ -306,12 +328,8 @@ describe('html', () => {
 	})
 	
 	it('should render nested from values', () => {
-		const button = html`
-			<button>click me</button> `
-		const app = html`
-			<h2>App</h2>
-			${button}
-		`
+		const button = html`<button>click me</button>`
+		const app = html`<h2>App</h2>${button}`
 		
 		app.render(document.body)
 		
@@ -331,35 +349,45 @@ describe('html', () => {
 		list.render(document.body)
 		
 		expect(document.body.innerHTML).toBe(
-			'<ul><li>item-1</li><li>item-2</li><li>item-3</li></ul>'
+			'<ul>\n' +
+			'\t\t\t\t<li>item-1</li><li>item-2</li><li>item-3</li>\n' +
+			'\t\t\t</ul>'
 		)
 		
 		items = [1]
 		
 		list.update()
 		
-		expect(document.body.innerHTML).toBe('<ul><li>item-1</li></ul>')
+		expect(document.body.innerHTML).toBe('<ul>\n' +
+			'\t\t\t\t<li>item-1</li>\n' +
+			'\t\t\t</ul>')
 		
 		items = [1, 2]
 		
 		list.update()
 		
 		expect(document.body.innerHTML).toBe(
-			'<ul><li>item-1</li><li>item-2</li></ul>'
+			'<ul>\n' +
+			'\t\t\t\t<li>item-1</li><li>item-2</li>\n' +
+			'\t\t\t</ul>'
 		)
 		
 		items = []
 		
 		list.update()
 		
-		expect(document.body.innerHTML).toBe('<ul></ul>')
+		expect(document.body.innerHTML).toBe('<ul>\n' +
+			'\t\t\t\t\n' +
+			'\t\t\t</ul>')
 		
 		items = [1, 2, 3]
 		
 		list.update()
 		
 		expect(document.body.innerHTML).toBe(
-			'<ul><li>item-1</li><li>item-2</li><li>item-3</li></ul>'
+			'<ul>\n' +
+			'\t\t\t\t<li>item-1</li><li>item-2</li><li>item-3</li>\n' +
+			'\t\t\t</ul>'
 		)
 	})
 	
@@ -373,7 +401,9 @@ describe('html', () => {
 		deep.render(document.body)
 		
 		expect(document.body.innerHTML).toBe(
-			'<ul><li><span>sample</span></li></ul>'
+			'<ul>\n' +
+			'\t\t\t\t<li><span>sample</span></li>\n' +
+			'\t\t\t</ul>'
 		)
 	})
 	
@@ -528,6 +558,7 @@ describe('html', () => {
 		
 		btn.render(document.body)
 		
+		expect(document.body.innerHTML).toBe('<button><span>greater than 10</span></button>')
 		expect(btn.refs['btn'][0]).toBeInstanceOf(HTMLButtonElement)
 		expect(btn.refs['greater'][0]).toBeInstanceOf(HTMLSpanElement)
 		expect(btn.refs['less']).toBeUndefined()
@@ -536,6 +567,7 @@ describe('html', () => {
 		
 		btn.update()
 		
+		expect(document.body.innerHTML).toBe('<button><span>less than 10</span></button>')
 		expect(btn.refs['btn'][0]).toBeInstanceOf(HTMLButtonElement)
 		expect(btn.refs['greater'][0]).toBeInstanceOf(HTMLSpanElement)
 		expect(btn.refs['less'][0]).toBeInstanceOf(HTMLSpanElement)
@@ -550,7 +582,7 @@ describe('html', () => {
 			btn.render(document.body)
 			
 			expect(document.body.innerHTML).toBe(
-				'<button class="loading btn">click me</button>'
+				'<button class="btn loading">click me</button>'
 			)
 			
 			loading = false
@@ -570,7 +602,7 @@ describe('html', () => {
 			btn.render(document.body)
 			
 			expect(document.body.innerHTML).toBe(
-				'<button class="loading btn">click me</button>'
+				'<button class="btn loading">click me</button>'
 			)
 			
 			loading = false
@@ -634,7 +666,7 @@ describe('html', () => {
 			btn.render(document.body)
 			
 			expect(document.body.innerHTML).toBe(
-				'<button data-loading="true" data-btn="true">click me</button>'
+				'<button data-btn="true" data-loading="true">click me</button>'
 			)
 			
 			loading = false
@@ -654,7 +686,7 @@ describe('html', () => {
 			btn.render(document.body)
 			
 			expect(document.body.innerHTML).toBe(
-				'<button data-loading="true" data-btn="true">click me</button>'
+				'<button data-btn="true" data-loading="true">click me</button>'
 			)
 			
 			loading = false
@@ -674,7 +706,7 @@ describe('html', () => {
 			btn.render(document.body)
 			
 			expect(document.body.innerHTML).toBe(
-				'<button data-loading="true" data-btn="true">click me</button>'
+				'<button data-btn="true" data-loading="true">click me</button>'
 			)
 			
 			loading = false
@@ -694,7 +726,7 @@ describe('html', () => {
 			btn.render(document.body)
 			
 			expect(document.body.innerHTML).toBe(
-				'<button data-loading="true" data-btn="true">click me</button>'
+				'<button data-btn="true" data-loading="true">click me</button>'
 			)
 			
 			loading = false
@@ -1145,11 +1177,11 @@ describe('html', () => {
 			#sample: any;
 			temp: HtmlTemplate | undefined;
 
-			get sample(): any {
+			get sample() {
 				return this.#sample;
 			}
 
-			set sample(val: any) {
+			set sample(val) {
 				this.#sample = val;
 				this.temp?.update()
 			}
@@ -1309,7 +1341,7 @@ describe('html', () => {
 			items.render(document.body)
 			
 			expect(document.body.innerHTML).toBe(
-				'<span>item 1</span><span>item 3</span><span>item 5</span>'
+				'<span>item 1</span><span>item 5</span><span>item 3</span>'
 			)
 		})
 		
@@ -1421,10 +1453,14 @@ describe('html', () => {
 			
 			expect(todo.shadowRoot?.innerHTML).toBe('<div class="todo-item">\n' +
 				'\t\t\t\t\t\t\t<div class="details">\n' +
-				'\t\t\t\t\t\t\t\t<h3>sample</h3></div>\n' +
-				'\t\t\t\t\t\t\t<div class="todo-actions"><button>complete</button><button>edit</button>\n' +
+				'\t\t\t\t\t\t\t\t<h3>sample</h3>\n' +
+				'\t\t\t\t\t\t\t\t\n' +
+				'\t\t\t\t\t\t\t</div>\n' +
+				'\t\t\t\t\t\t\t<div class="todo-actions">\n' +
+				'\t\t\t\t\t\t\t\t<button>complete</button><button>edit</button>\n' +
 				'\t\t\t\t\t\t\t\t<button>archive</button>\n' +
-				'\t\t\t\t\t\t\t\t</div>\n' +
+				'\t\t\t\t\t\t\t\t\n' +
+				'\t\t\t\t\t\t\t</div>\n' +
 				'\t\t\t\t\t\t</div>')
 			
 			todoList[0].status = 'completed'
@@ -1436,9 +1472,14 @@ describe('html', () => {
 			)
 			expect(todo.shadowRoot?.innerHTML).toBe('<div class="todo-item">\n' +
 				'\t\t\t\t\t\t\t<div class="details">\n' +
-				'\t\t\t\t\t\t\t\t<h3>sample</h3></div>\n' +
-				'\t\t\t\t\t\t\t<div class="todo-actions"><button>archive</button>\n' +
-				'\t\t\t\t\t\t\t\t</div>\n' +
+				'\t\t\t\t\t\t\t\t<h3>sample</h3>\n' +
+				'\t\t\t\t\t\t\t\t\n' +
+				'\t\t\t\t\t\t\t</div>\n' +
+				'\t\t\t\t\t\t\t<div class="todo-actions">\n' +
+				'\t\t\t\t\t\t\t\t\n' +
+				'\t\t\t\t\t\t\t\t<button>archive</button>\n' +
+				'\t\t\t\t\t\t\t\t\n' +
+				'\t\t\t\t\t\t\t</div>\n' +
 				'\t\t\t\t\t\t</div>'
 			)
 		})
@@ -1483,15 +1524,21 @@ describe('html', () => {
 			
 			Todo.render(document.body)
 			
-			expect(document.body.innerHTML).toBe('<ul></ul>')
+			expect(document.body.innerHTML).toBe('<ul>\n' +
+				'\t\t\t\t\t\n' +
+				'\t\t\t\t</ul>')
 			
 			setTodos((prev) => [...prev, 'first'])
 			
-			expect(document.body.innerHTML).toBe('<ul><li>first</li></ul>')
+			expect(document.body.innerHTML).toBe('<ul>\n' +
+				'\t\t\t\t\t<li>first</li>\n' +
+				'\t\t\t\t</ul>')
 			
 			setTodos([])
 			
-			expect(document.body.innerHTML).toBe('<ul></ul>')
+			expect(document.body.innerHTML).toBe('<ul>\n' +
+				'\t\t\t\t\t\n' +
+				'\t\t\t\t</ul>')
 		})
 		
 		it('when item changes', () => {
@@ -1518,19 +1565,19 @@ describe('html', () => {
 					status: 'pending',
 				},
 			])
-			expect(document.body.innerHTML).toBe('<div><div id="1">action 1<span>pending</span></div></div>')
+			expect(document.body.innerHTML).toBe('<div><div id="1">action 1 <span>pending</span></div></div>')
 			
 			setTodos(prev => prev.map(t =>
 				t.id === 1 ? {...t, status: 'complete'} : t
 			))
 			
-			expect(document.body.innerHTML).toBe('<div><div id="1">action 1<span>complete</span></div></div>')
+			expect(document.body.innerHTML).toBe('<div><div id="1">action 1 <span>complete</span></div></div>')
 			
 			setTodos(prev => [...prev, {name: 'action 2', status: 'pending', id: 2}])
 			
 			expect(document.body.innerHTML).toBe('<div>' +
-				'<div id="1">action 1<span>complete</span></div>' +
-				'<div id="2">action 2<span>pending</span></div>' +
+				'<div id="1">action 1 <span>complete</span></div>' +
+				'<div id="2">action 2 <span>pending</span></div>' +
 				'</div>')
 		})
 		
@@ -1547,13 +1594,9 @@ describe('html', () => {
 			el.render(document.body)
 			
 			expect(document.body.innerHTML).toBe(
-				'<ul>' +
-				'<li>1</li>' +
-				'</ul>' +
-				'<ul>' +
-				'<li>1</li>' +
-				'<li>2</li>' +
-				'</ul>')
+				'<ul><li>1</li>\n' +
+				'\t\t\t\t\t</ul><ul><li>1</li><li>2</li>\n' +
+				'\t\t\t\t\t</ul>')
 		})
 		
 		it('with helper list', () => {
@@ -1625,7 +1668,7 @@ describe('html', () => {
 			el.update()
 			
 			expect(document.body.innerHTML).toBe('<span>Non Zero: 20</span>')
-			expect(document.body.children[0]).toEqual(n) // same node should be rendered
+			expect(document.body.children[0]).not.toEqual(n) // node should be re-created
 		})
 		
 		it('when nested', () => {
@@ -1669,6 +1712,45 @@ describe('html', () => {
 			
 			expect(document.body.innerHTML).toBe('<p>no items</p>')
 		});
+		
+		it('when nested with dependent logic', () => {
+			const [currentPlayer, setCurrentPlayer] = state("x")
+			const [ended, setEnded] = state(false)
+			
+			html`
+				${when(ended, html`
+					${when(is(currentPlayer, 'xy'),
+						html`tie`,
+						html`${currentPlayer} won`
+					)}
+					<button type="button">reset</button>
+				`)}
+			`.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('')
+			
+			setEnded(true)
+			expect(document.body.innerHTML).toBe('x won\n' +
+				'\t\t\t\t\t<button type="button">reset</button>')
+			
+			setCurrentPlayer('xy')
+			expect(document.body.innerHTML).toBe('tie\n' +
+				'\t\t\t\t\t<button type="button">reset</button>')
+			
+			setEnded(false)
+			expect(document.body.innerHTML).toBe('')
+			
+			setCurrentPlayer('x')
+			expect(document.body.innerHTML).toBe('')
+			
+			setEnded(true)
+			expect(document.body.innerHTML).toBe('x won\n' +
+				'\t\t\t\t\t<button type="button">reset</button>')
+			
+			setCurrentPlayer('x')
+			setEnded(false)
+			expect(document.body.innerHTML).toBe('')
+		})
 	})
 	
 	it('should work with state helper', () => {
@@ -1804,6 +1886,7 @@ describe('html', () => {
 		});
 		
 		it('unmount and resume on mount', () => {
+			jest.useFakeTimers()
 			const updateMock = jest.fn();
 			const [x, setX] = state(5);
 			
@@ -1825,9 +1908,13 @@ describe('html', () => {
 			
 			setX(20);
 			
+			jest.advanceTimersByTime(1000)
+			
 			expect(updateMock).toHaveBeenCalled()
 			
 			expect(document.body.innerHTML).toBe("item 20")
+			
+			jest.useRealTimers()
 		})
 	})
 	
@@ -1859,4 +1946,5 @@ describe('html', () => {
 		
 		expect(document.body.innerHTML).toBe('&lt;button&gt;click me&lt;/button&gt;')
 	});
+	
 })

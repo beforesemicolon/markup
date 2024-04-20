@@ -1,6 +1,6 @@
-import { changeCurrentIntoNewItems } from './change-current-into-new-items'
+import { changeCurrentIntoNewNodes } from './change-current-into-new-nodes'
 
-describe('changeCurrentIntoNewItems', () => {
+describe('changeCurrentIntoNewNodes', () => {
     const ul = document.createElement('ul')
 
     const nodes = Array.from({ length: 10 }, (_, i) => {
@@ -9,18 +9,16 @@ describe('changeCurrentIntoNewItems', () => {
 
         return li
     })
-
-    const endAnchor = document.createComment('')
-
+    
     beforeEach(() => {
         ul.innerHTML = ''
-        nodes.forEach((n) => ul.appendChild(n))
+        ul.append(...nodes)
     })
 
     it('should add all new items', () => {
         ul.innerHTML = ''
 
-        changeCurrentIntoNewItems([], nodes, ul)
+        changeCurrentIntoNewNodes([], nodes, ul)
 
         expect(ul.children).toHaveLength(nodes.length)
     })
@@ -29,7 +27,7 @@ describe('changeCurrentIntoNewItems', () => {
         ul.innerHTML = ''
         ul.appendChild(nodes[0])
 
-        changeCurrentIntoNewItems([nodes[0]], [nodes[0], nodes[1]], ul)
+        changeCurrentIntoNewNodes([nodes[0]], [nodes[0], nodes[1]], ul)
 
         expect(ul.children).toHaveLength(2)
     })
@@ -37,7 +35,7 @@ describe('changeCurrentIntoNewItems', () => {
     it('should remove all new items', () => {
         expect(ul.children).toHaveLength(nodes.length)
 
-        changeCurrentIntoNewItems(Array.from(ul.children), [], ul)
+        changeCurrentIntoNewNodes(Array.from(ul.children), [], ul)
 
         expect(ul.children).toHaveLength(0)
     })
@@ -53,7 +51,7 @@ describe('changeCurrentIntoNewItems', () => {
             'item 4',
         ])
 
-        changeCurrentIntoNewItems(Array.from(ul.children), nodes.slice(5), ul)
+        changeCurrentIntoNewNodes(Array.from(ul.children), nodes.slice(5), ul)
 
         expect(Array.from(ul.children, (n) => n.textContent)).toEqual([
             'item 6',
@@ -67,7 +65,7 @@ describe('changeCurrentIntoNewItems', () => {
     it('should remove items from the start', () => {
         expect(ul.children).toHaveLength(nodes.length)
 
-        changeCurrentIntoNewItems(Array.from(ul.children), nodes.slice(2), ul)
+        changeCurrentIntoNewNodes(Array.from(ul.children), nodes.slice(2), ul)
 
         expect(ul.children).toHaveLength(8)
         expect(ul.children[0].textContent).toBe('item 3')
@@ -99,7 +97,7 @@ describe('changeCurrentIntoNewItems', () => {
             'item 10',
         ])
 
-        changeCurrentIntoNewItems(
+        changeCurrentIntoNewNodes(
             Array.from(ul.children),
             [...startNodes, ...endNodes],
             ul
@@ -121,7 +119,7 @@ describe('changeCurrentIntoNewItems', () => {
     it('should remove items from the end', () => {
         expect(ul.children).toHaveLength(nodes.length)
 
-        changeCurrentIntoNewItems(
+        changeCurrentIntoNewNodes(
             Array.from(ul.children),
             nodes.slice(0, -2),
             ul
@@ -167,7 +165,7 @@ describe('changeCurrentIntoNewItems', () => {
             'item 1',
         ])
 
-        changeCurrentIntoNewItems(Array.from(ul.children), reversedNodes, ul)
+        changeCurrentIntoNewNodes(Array.from(ul.children), reversedNodes, ul)
 
         expect(Array.from(ul.children, (n) => n.textContent)).toEqual([
             'item 10',
@@ -217,7 +215,7 @@ describe('changeCurrentIntoNewItems', () => {
             'item 6',
         ])
 
-        changeCurrentIntoNewItems(Array.from(ul.children), shuffledNodes, ul)
+        changeCurrentIntoNewNodes(Array.from(ul.children), shuffledNodes, ul)
 
         expect(Array.from(ul.children, (n) => n.textContent)).toEqual([
             'item 9',
@@ -236,14 +234,38 @@ describe('changeCurrentIntoNewItems', () => {
         const edit = document.createElement('edit')
         const archive = document.createElement('archive')
 
-        changeCurrentIntoNewItems([], [complete, edit, archive], ul)
+        changeCurrentIntoNewNodes([], [complete, edit, archive], ul)
 
         expect(ul.innerHTML).toBe(
             '<complete></complete><edit></edit><archive></archive>'
         )
 
-        changeCurrentIntoNewItems([complete, edit, archive], [archive], ul)
+        changeCurrentIntoNewNodes([complete, edit, archive], [archive], ul)
 
         expect(ul.innerHTML).toBe('<archive></archive>')
+    })
+    
+    it('should handle first item moved with end anchor', () => {
+        const parent = document.createElement('div');
+        const span1 = document.createElement('span');
+        const span2 = document.createElement('span');
+        const span3 = document.createElement('span');
+        const span4 = document.createElement('span');
+        parent.appendChild(span1)
+        parent.appendChild(span2)
+        parent.appendChild(span4)
+        
+        expect(parent.children).toHaveLength(3)
+        expect(parent.children[0]).toEqual(span1)
+        expect(parent.children[1]).toEqual(span2)
+        expect(parent.children[2]).toEqual(span4)
+        
+        changeCurrentIntoNewNodes([span1, span2], [span3, span2, span1], parent);
+        
+        expect(parent.children).toHaveLength(4)
+        expect(parent.children[0]).toEqual(span3)
+        expect(parent.children[1]).toEqual(span2)
+        expect(parent.children[2]).toEqual(span1)
+        expect(parent.children[3]).toEqual(span4)
     })
 })

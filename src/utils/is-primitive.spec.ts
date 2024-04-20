@@ -8,10 +8,10 @@ describe('isPrimitive', () => {
         expect(isPrimitive(BigInt(1))).toBeTruthy()
         expect(isPrimitive(Symbol('ss'))).toBeTruthy()
         expect(isPrimitive(undefined)).toBeTruthy()
-        expect(isPrimitive(null)).toBeTruthy()
     })
 
     it('should NOT be primitive', () => {
+        expect(isPrimitive(null)).toBeFalsy()
         expect(isPrimitive([])).toBeFalsy()
         expect(isPrimitive({})).toBeFalsy()
         expect(isPrimitive(new Map())).toBeFalsy()
