@@ -1,4 +1,4 @@
-import { changeCurrentIntoNewItems } from './change-current-into-new-items'
+import { changeCurrentIntoNewNodes } from './change-current-into-new-nodes'
 
 export const syncNodes = (
     currentNodes: Array<Node>,
@@ -6,7 +6,7 @@ export const syncNodes = (
     parent: ParentNode | null = null
 ) => {
     if (newNodes.length) {
-        changeCurrentIntoNewItems(currentNodes, newNodes, parent)
+        changeCurrentIntoNewNodes(currentNodes, newNodes, parent)
         return newNodes
     }
 

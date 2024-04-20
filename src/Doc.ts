@@ -1,20 +1,30 @@
-import { DynamicValue, DynamicValueType } from './types'
 import {
     booleanAttributes,
     element,
     ElementOptions,
-    extractExecutableValueFromRawValue,
-    handleDirectiveDynamicValue,
-    isDynamicValue,
     setElementAttribute,
 } from './utils'
+import { ContentDynamicValueResolver } from './dynamic-value/ContentDynamicValueResolver'
+import { EventDynamicValueResolver } from './dynamic-value/EventDynamicValueResolver'
+import { DirectiveDynamicValueResolver } from './dynamic-value/DirectiveDynamicValueResolver'
+import { AttributeDynamicValueResolver } from './dynamic-value/AttributeDynamicValueResolver'
+import { isDynamicValue } from './dynamic-value/is-dynamic-value'
+import { parseDynamicRawValue } from './dynamic-value/parse-dynamic-raw-value'
+
+type DynamicValueCallback = (
+    dynamicVal:
+        | ContentDynamicValueResolver
+        | EventDynamicValueResolver
+        | DirectiveDynamicValueResolver
+        | AttributeDynamicValueResolver
+) => void
 
 const node = (
     nodeName: string,
     ns: ElementOptions<unknown>['ns'] = '',
     values: Array<unknown> = [],
     refs: Record<string, Set<Element>> = {},
-    cb: (dynamicVal: DynamicValue) => void = () => {}
+    cb: DynamicValueCallback = () => {}
 ) => {
     const node =
         nodeName === '#fragment'
@@ -55,24 +65,11 @@ const node = (
                     return
                 }
 
-                const parts = extractExecutableValueFromRawValue(
-                    trimmedValue,
-                    values
-                )
+                const parts = parseDynamicRawValue(trimmedValue, values)
                 const dvValue = parts.map((p) =>
                     typeof p === 'string' ? p : p.value
                 )
                 const partsWithDynamicValues = dvValue.some(isDynamicValue)
-
-                const dv: DynamicValue = {
-                    name,
-                    type: DynamicValueType.Attribute,
-                    rawValue: trimmedValue,
-                    value: dvValue,
-                    data: null,
-                    renderedNodes: [node],
-                    prop: null,
-                }
 
                 if (
                     /^on[a-z]+/.test(name) && // @ts-expect-error observedAttributes is property of web component
@@ -81,11 +78,15 @@ const node = (
                             // @ts-expect-error check if know event name
                             typeof document.head[name] !== 'undefined'))
                 ) {
-                    return cb({
-                        ...dv,
-                        prop: name.slice(2),
-                        type: DynamicValueType.Event,
-                    })
+                    return cb(
+                        new EventDynamicValueResolver(
+                            name,
+                            trimmedValue,
+                            dvValue,
+                            [node],
+                            name.slice(2)
+                        )
+                    )
                 }
 
                 if (
@@ -96,24 +97,32 @@ const node = (
                     let props: string[] = []
                     ;[name, ...props] = attrLessName.split('.')
 
-                    const dynVal = {
-                        ...dv,
+                    const dynVal = new DirectiveDynamicValueResolver(
                         name,
-                        type: DynamicValueType.Directive,
-                        prop: props.join('.'),
-                    } as DynamicValue<Array<unknown>, string>
+                        trimmedValue,
+                        dvValue,
+                        [node],
+                        props.join('.')
+                    )
 
                     if (partsWithDynamicValues) {
                         cb(dynVal)
                     } else {
-                        handleDirectiveDynamicValue(dynVal)
+                        dynVal.resolve()
                     }
 
                     return
                 }
 
                 if (partsWithDynamicValues) {
-                    return cb(dv)
+                    return cb(
+                        new AttributeDynamicValueResolver(
+                            name,
+                            trimmedValue,
+                            dvValue,
+                            [node]
+                        )
+                    )
                 }
 
                 return setElementAttribute(node as Element, name, dvValue[0])
@@ -137,10 +146,7 @@ const node = (
                 // text node
 
                 if (n.nodeValue) {
-                    const parts = extractExecutableValueFromRawValue(
-                        n.nodeValue,
-                        values
-                    )
+                    const parts = parseDynamicRawValue(n.nodeValue, values)
 
                     parts.forEach((part) => {
                         if (part) {
@@ -153,15 +159,14 @@ const node = (
                                 )
                                 node.appendChild(txtNode)
 
-                                cb({
-                                    name: 'nodeValue',
-                                    type: DynamicValueType.Content,
-                                    rawValue: part.text,
-                                    value: part.value,
-                                    data: null,
-                                    renderedNodes: [txtNode],
-                                    prop: null,
-                                })
+                                cb(
+                                    new ContentDynamicValueResolver(
+                                        'nodeValue',
+                                        part.text,
+                                        part.value,
+                                        [txtNode]
+                                    )
+                                )
                             } else {
                                 node.appendChild(
                                     document.createTextNode(String(part))
@@ -180,7 +185,7 @@ const node = (
 export const Doc = (
     values: Array<unknown>,
     refs: Record<string, Set<Element>>,
-    cb: (dynamicVal: DynamicValue) => void
+    cb: DynamicValueCallback
 ) => ({
     createTextNode: (text: string) => document.createTextNode(text),
     createComment: (text: string) => document.createComment(text),

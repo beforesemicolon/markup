@@ -6,7 +6,7 @@
  * @param newChildNodes - list of nodes of how the parent node child nodes should become
  * @param parent
  */
-export const changeCurrentIntoNewItems = (
+export const changeCurrentIntoNewNodes = (
     currentChildNodes: Node[],
     newChildNodes: Node[],
     parent: ParentNode | null = null

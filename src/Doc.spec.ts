@@ -62,8 +62,6 @@ describe("Doc", () => {
       value: fn,
       rawValue: "$val0",
       prop: null,
-      renderedNodes: [(res.childNodes[0] as HTMLParagraphElement).childNodes[0]],
-      type: "content"
     });
   });
   
@@ -84,8 +82,6 @@ describe("Doc", () => {
       "name": "onclick",
       "prop": "click",
       "rawValue": "$val0",
-      "renderedNodes": [res.childNodes[0]],
-      "type": "event",
       "value": [handler]
     });
   });
@@ -107,8 +103,6 @@ describe("Doc", () => {
       "name": "onclick",
       "prop": "click",
       "rawValue": "$val0, $val1",
-      "renderedNodes": [res.childNodes[0]],
-      "type": "event",
       "value": [handler, ", ", {once: true}]
     });
   });
@@ -130,8 +124,6 @@ describe("Doc", () => {
       "name": "onval",
       "prop": null,
       "rawValue": "$val0",
-      "renderedNodes": [res.childNodes[0]],
-      "type": "attribute",
       "value": [handler]
     });
   });
@@ -158,8 +150,6 @@ describe("Doc", () => {
       "name": "onval",
       "prop": "val",
       "rawValue": "$val0",
-      "renderedNodes": [res.childNodes[0]],
-      "type": "event",
       "value": [handler]
     });
   });
@@ -201,8 +191,6 @@ describe("Doc", () => {
       "name": "class",
       "prop": "active",
       "rawValue": "$val0",
-      "renderedNodes": [res.childNodes[0]],
-      "type": "directive",
       "value": [active]
     });
     expect(dynamicValueCollector.mock.calls[1][0]).toEqual({
@@ -210,8 +198,6 @@ describe("Doc", () => {
       "name": "style",
       "prop": "loading",
       "rawValue": "color: blue; | $val1",
-      "renderedNodes": [res.childNodes[0]],
-      "type": "directive",
       "value": ["color: blue; | ", loading]
     });
     expect(dynamicValueCollector.mock.calls[2][0]).toEqual({
@@ -219,8 +205,6 @@ describe("Doc", () => {
       "name": "disabled",
       "prop": "",
       "rawValue": "$val2",
-      "renderedNodes": [res.childNodes[0]],
-      "type": "directive",
       "value": [disabled]
     });
     expect(dynamicValueCollector.mock.calls[3][0]).toEqual({
@@ -228,8 +212,6 @@ describe("Doc", () => {
       "name": "data",
       "prop": "sample",
       "rawValue": "$val3",
-      "renderedNodes": [res.childNodes[0]],
-      "type": "directive",
       "value": [sample]
     });
   });

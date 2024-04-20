@@ -1,14 +1,13 @@
 import {
-    DynamicValue,
     StateGetter,
     StateSetter,
     StateSubscriber,
     StateUnSubscriber,
 } from './types'
+import type { DynamicValueResolver } from './dynamic-value/DynamicValueResolver'
 import { Doc } from './Doc'
-import { parse } from '@beforesemicolon/html-parser'
+import { parse } from '@beforesemicolon/html-parser/dist/parse'
 import { Helper } from './Helper'
-import { handleDynamicValue } from './utils'
 
 // prevents others from creating functions that can be subscribed to
 // and forces them to use state instead
@@ -16,14 +15,14 @@ const id = 'S' + Math.floor(Math.random() * 10000000)
 
 export class HtmlTemplate {
     #htmlTemplate: string
-    #nodes: Array<Node | DynamicValue> = []
+    #nodes: Array<Node | DynamicValueResolver> = []
     #renderTarget: ShadowRoot | Element | DocumentFragment | null = null
     #refs: Record<string, Set<Element>> = {}
     #updateSubs: Set<() => void> = new Set()
     #mountSubs: Set<() => void> = new Set()
     #unmountSubs: Set<() => void> = new Set()
     #stateUnsubs: Set<() => void> = new Set()
-    #dynamicValues: DynamicValue[] = []
+    #dynamicValues: DynamicValueResolver[] = []
     #values: Array<unknown> = []
     #mounted = false
 
@@ -31,8 +30,12 @@ export class HtmlTemplate {
      * list of direct ChildNode from the template that got rendered
      */
     get nodes() {
-        return this.#nodes.flatMap((n) =>
-            n instanceof Node ? [n] : n.renderedNodes
+        return Array.from(
+            new Set(
+                this.#nodes.flatMap((n) =>
+                    n instanceof Node ? [n] : n.renderedNodes
+                )
+            )
         )
     }
 
@@ -107,10 +110,8 @@ export class HtmlTemplate {
                 this.unmount()
             }
             this.#renderTarget = elementToAttachNodesTo
-            const initialized = false
 
             elementToAttachNodesTo.appendChild(this.#init())
-
             this.#mounted = true
             this.#broadcast(this.#mountSubs)
         }
@@ -168,9 +169,7 @@ export class HtmlTemplate {
     update() {
         // only update if the nodes were already rendered and there are actual values
         if (this.renderTarget && this.#dynamicValues.length) {
-            this.#dynamicValues.forEach((dv) =>
-                handleDynamicValue(dv, this.#refs)
-            )
+            this.#dynamicValues.forEach((dv) => dv.resolve(this.#refs))
             this.#broadcast(this.#updateSubs)
         }
     }
@@ -178,13 +177,7 @@ export class HtmlTemplate {
     unmount() {
         if (this.#renderTarget && this.#mounted) {
             this.#dynamicValues.forEach((dv) => {
-                ;(Array.isArray(dv.value) ? dv.value : [dv.value]).forEach(
-                    (p) => {
-                        if (p instanceof HtmlTemplate) {
-                            p.unmount()
-                        }
-                    }
-                )
+                dv.unmount()
             })
             this.nodes.forEach((n) => {
                 if (n.parentNode) {
@@ -194,6 +187,7 @@ export class HtmlTemplate {
             this.#renderTarget = null
             this.#dynamicValues = []
             this.#mounted = false
+            this.#nodes = []
             this.unsubscribeFromStates()
             this.#broadcast(this.#unmountSubs)
         }
@@ -239,7 +233,7 @@ export class HtmlTemplate {
         this.#subscribeToState()
         const renderedNodeDvMapping = new WeakMap()
         this.#dynamicValues.forEach((dv) => {
-            handleDynamicValue(dv, this.#refs)
+            dv.resolve(this.#refs)
             dv.renderedNodes.forEach((n) => renderedNodeDvMapping.set(n, dv))
         })
         this.#nodes = Array.from(
@@ -269,7 +263,7 @@ export class HtmlTemplate {
                     ) {
                         // @ts-expect-error state value exposes function accessible by this global id
                         const unsub = val[id](() => {
-                            handleDynamicValue(dv, self.#refs)
+                            dv.resolve(self.#refs)
                             self.#updateSubs.forEach((cb) => cb())
                         }, id)
                         self.#stateUnsubs.add(unsub)

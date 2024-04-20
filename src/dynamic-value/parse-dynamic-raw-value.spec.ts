@@ -1,9 +1,9 @@
-import { extractExecutableValueFromRawValue } from "./extract-executable-value-from-raw-value";
+import { parseDynamicRawValue } from "./parse-dynamic-raw-value";
 
-describe("extractExecutableValueFromRawValue", () => {
+describe("parseDynamicRawValue", () => {
   it("should return raw value if no placeholder preset", () => {
     expect(
-      extractExecutableValueFromRawValue(
+      parseDynamicRawValue(
         "just a simple straight up text",
         [12, 45]
       )
@@ -12,13 +12,13 @@ describe("extractExecutableValueFromRawValue", () => {
   
   it("should collect single value", () => {
     expect(
-      extractExecutableValueFromRawValue("$val0", [12, 45])
+      parseDynamicRawValue("$val0", [12, 45])
     ).toEqual(["12"]);
   });
   
   it("should collect single value mixed with other content", () => {
     expect(
-      extractExecutableValueFromRawValue(
+      parseDynamicRawValue(
         "$val0 in between $val1",
         [12, 24, 36]
       )
@@ -29,7 +29,7 @@ describe("extractExecutableValueFromRawValue", () => {
   
   it("should collect multiple values", () => {
     expect(
-      extractExecutableValueFromRawValue(
+      parseDynamicRawValue(
         "$val0 $val1",
         [12, 24, 36]
       )
@@ -38,7 +38,7 @@ describe("extractExecutableValueFromRawValue", () => {
   
   it("should collect multiple values mixed with other content", () => {
     expect(
-      extractExecutableValueFromRawValue(
+      parseDynamicRawValue(
         "heading $val0 middle $val1 tail text",
         [12, 24, 36]
       )
@@ -47,7 +47,7 @@ describe("extractExecutableValueFromRawValue", () => {
   
   it("should collect multiple dynamic values mixed with other content", () => {
     expect(
-      extractExecutableValueFromRawValue(
+      parseDynamicRawValue(
         "heading $val0 middle $val1 tail text $val2",
         [() => 12, () => 24, 36]
       )

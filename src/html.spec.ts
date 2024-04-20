@@ -109,17 +109,37 @@ describe('html', () => {
 		const a = html`<p>more than 10</p>`
 		const b = html`<p>less than 10</p>`
 		
-		const temp = html`${() => (x > 10 ? html`${a}` : html`${b}`)}`
+		const temp = html`total: ${() => (x > 10 ? html`>${a}` : html`<${b}`)}`
 		
 		temp.render(document.body)
 		
-		expect(document.body.innerHTML).toBe('<p>more than 10</p>')
+		expect(temp.nodes).toHaveLength(3)
+		expect(temp.nodes.map(n => (n as Element).outerHTML || n.nodeValue)).toEqual([
+			"total: ",
+			">",
+			"<p>more than 10</p>"
+		])
+		expect(a.mounted).toBeTruthy()
+		expect(a.nodes).toHaveLength(1)
+		expect((a.nodes[0] as Element).outerHTML).toBe('<p>more than 10</p>')
+		
+		expect(b.mounted).toBeFalsy()
+		expect(b.nodes).toHaveLength(0)
+		
+		expect(document.body.innerHTML).toBe('total: &gt;<p>more than 10</p>')
 		
 		x = 5
-		
+
 		temp.update()
-		
-		expect(document.body.innerHTML).toBe('<p>less than 10</p>')
+
+		expect(temp.nodes).toHaveLength(3)
+		expect(temp.nodes.map(n => (n as Element).outerHTML || n.nodeValue)).toEqual([
+			"total: ",
+			"<",
+			"<p>less than 10</p>"
+		])
+
+		expect(document.body.innerHTML).toBe('total: &lt;<p>less than 10</p>')
 	})
 	
 	it('should handle deeply nested HTML', () => {
@@ -1321,7 +1341,7 @@ describe('html', () => {
 			items.render(document.body)
 			
 			expect(document.body.innerHTML).toBe(
-				'<span>item 1</span><span>item 3</span><span>item 5</span>'
+				'<span>item 1</span><span>item 5</span><span>item 3</span>'
 			)
 		})
 		
@@ -1726,6 +1746,10 @@ describe('html', () => {
 			setEnded(true)
 			expect(document.body.innerHTML).toBe('x won\n' +
 				'\t\t\t\t\t<button type="button">reset</button>')
+			
+			setCurrentPlayer('x')
+			setEnded(false)
+			expect(document.body.innerHTML).toBe('')
 		})
 	})
 	
@@ -1862,6 +1886,7 @@ describe('html', () => {
 		});
 		
 		it('unmount and resume on mount', () => {
+			jest.useFakeTimers()
 			const updateMock = jest.fn();
 			const [x, setX] = state(5);
 			
@@ -1883,9 +1908,13 @@ describe('html', () => {
 			
 			setX(20);
 			
+			jest.advanceTimersByTime(1000)
+			
 			expect(updateMock).toHaveBeenCalled()
 			
 			expect(document.body.innerHTML).toBe("item 20")
+			
+			jest.useRealTimers()
 		})
 	})
 	
@@ -1917,4 +1946,5 @@ describe('html', () => {
 		
 		expect(document.body.innerHTML).toBe('&lt;button&gt;click me&lt;/button&gt;')
 	});
+	
 })

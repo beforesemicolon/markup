@@ -1,6 +1,6 @@
 {
     "name": "@beforesemicolon/markup",
-    "version": "0.18.3-next",
+    "version": "0.18.6-next",
     "description": "Reactive HTML Templating System",
     "engines": {
         "node": ">=18.16.0"
@@ -20,10 +20,11 @@
         "docs:css": "node-sass docs-src/stylesheets -o docs/stylesheets --output-style compressed",
         "docs:watch": "rm -rf docs && nodemon --watch docs-src -e ts,json --exec 'NODE_ENV=development npm run docs:build'",
         "docs:build": "tsx docs-src/build.ts",
+        "local": "nodemon --watch src -e ts --exec 'npm run build:browser'",
         "build:docs": "rm -rf docs && npm-run-all docs:build docs:css",
         "build:cjs-min": "esbuild `find src \\( -name '*.ts' ! -name '*.spec.ts' ! -name 'client.ts' \\)` --minify --outdir=dist/cjs --platform=node --format=cjs --keep-names --target=esnext",
         "build:esm-min": "esbuild `find src \\( -name '*.ts' ! -name '*.spec.ts' ! -name 'client.ts' \\)` --minify --outdir=dist/esm --platform=node --format=esm --keep-names --target=esnext",
-        "build:browser": "esbuild src/client.ts --bundle --minify --keep-names --sourcemap --target=esnext --outfile=dist/client.js",
+        "build:browser": "tsx build-scripts/build-browser.ts",
         "build": "rm -rf dist && npm-run-all lint test && tsc --emitDeclarationOnly && npm-run-all build:cjs-min build:esm-min build:browser",
         "lint": "eslint ./src && prettier --check .",
         "format": "eslint ./src --fix && prettier --write ."
@@ -54,6 +55,7 @@
         "@typescript-eslint/parser": "^6.15.0",
         "core-js": "^3.34.0",
         "esbuild": "^0.19.10",
+        "esbuild-plugin-text-replace": "^1.3.0",
         "eslint": "^8.56.0",
         "eslint-config-prettier": "^9.1.0",
         "eslint-config-standard": "^17.1.0",
@@ -75,6 +77,6 @@
         "typescript": "^5.3.3"
     },
     "dependencies": {
-        "@beforesemicolon/html-parser": "*"
+        "@beforesemicolon/html-parser": "^0.4.0"
     }
 }

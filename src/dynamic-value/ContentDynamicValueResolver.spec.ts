@@ -1,31 +1,28 @@
-import { handleContentDynamicValue } from "./handle-content-dynamic-value";
-import { DynamicValueType } from "../types";
-import { html, state } from "../html";
-import { is, when } from "../helpers";
+import { html, state } from '../html'
+import { is, when } from '../helpers'
+import { ContentDynamicValueResolver } from './ContentDynamicValueResolver'
 
-describe('handleContentDynamicValue', () => {
+describe('ContentDynamicValueResolver', () => {
     const renderContent = (value: any, data = null, renderedNodes = [document.createTextNode('$val0')]) => {
         const refs = {}
         document.body.innerHTML = '';
         document.body.append(...renderedNodes)
         
-        const dynamicValue = {
-            name: 'nodeValue',
-            type: DynamicValueType.Content,
-            rawValue: '$val0',
+        const dynamicValue = new ContentDynamicValueResolver(
+            'nodeValue',
+            '$val0',
             value,
-            data,
-            renderedNodes,
-            prop: null,
-        }
+            renderedNodes
+        )
+        dynamicValue.data = data;
         
-        handleContentDynamicValue(dynamicValue, refs)
+        dynamicValue.resolve(refs)
         
         return {
             dynamicValue,
             refs,
             update: () => {
-                handleContentDynamicValue(dynamicValue, refs);
+                dynamicValue.resolve(refs);
             }
         };
     }
@@ -51,7 +48,6 @@ describe('handleContentDynamicValue', () => {
         expect(document.body.innerHTML).toBe('changed')
     })
     
-    
     it('should render and update a list of text', () => {
         let list = [() => 'one', () => 'two', () => 'three'];
         const {dynamicValue, update} = renderContent(list)
@@ -72,6 +68,39 @@ describe('handleContentDynamicValue', () => {
         expect(dynamicValue.renderedNodes[0].nodeValue).toBe('one');
         expect(dynamicValue.renderedNodes[1].nodeValue).toBe('two');
         expect(document.body.innerHTML).toBe('onetwo')
+    })
+    
+    it('should render and update a dynamic conditional template', () => {
+        let x = 15
+        const a = html`<p>more than 10</p>`
+        const b = html`<p>less than 10</p>`
+        const {dynamicValue, update} = renderContent(
+            () => x > 10 ? html`>${a}` : html`<${b}`
+        )
+        
+        expect(a.nodes).toHaveLength(1);
+        expect(a.mounted).toBeTruthy();
+        expect(b.nodes).toHaveLength(0);
+        expect(b.mounted).toBeFalsy();
+        expect(dynamicValue.renderedNodes).toHaveLength(2);
+        expect(dynamicValue.renderedNodes[0]).toBeInstanceOf(Text);
+        expect(dynamicValue.renderedNodes[0].nodeValue).toBe('>');
+        expect((dynamicValue.renderedNodes[1] as Element).outerHTML).toBe('<p>more than 10</p>');
+        expect(document.body.innerHTML).toBe('&gt;<p>more than 10</p>')
+        
+        x = 5;
+        
+        update();
+        
+        expect(a.nodes).toHaveLength(0);
+        expect(a.mounted).toBeFalsy();
+        expect(b.nodes).toHaveLength(1);
+        expect(b.mounted).toBeTruthy();
+        expect(dynamicValue.renderedNodes).toHaveLength(2);
+        expect(dynamicValue.renderedNodes[0]).toBeInstanceOf(Text);
+        expect(dynamicValue.renderedNodes[0].nodeValue).toBe('<');
+        expect((dynamicValue.renderedNodes[1] as Element).outerHTML).toBe('<p>less than 10</p>');
+        expect(document.body.innerHTML).toBe('&lt;<p>less than 10</p>')
     })
     
     it('should render and update a template', () => {
@@ -346,19 +375,16 @@ describe('handleContentDynamicValue', () => {
         expect(document.body.innerHTML).toBe('')
         
         setEnded(true)
-
-        expect(document.body.innerHTML).toBe('x won<button type="button">reset</button>')
-        
-        expect(dynamicValue.renderedNodes).toHaveLength(1);
-        expect(dynamicValue.renderedNodes[0].nodeValue).toBe('');
-        expect(dynamicValue.data).toBe(temp);
-        
-        update() // updates to reflect the deeply changed nodes
         
         expect(dynamicValue.renderedNodes).toHaveLength(3);
+        expect(dynamicValue.renderedNodes[0].nodeValue).toBe('x');
+        expect(dynamicValue.renderedNodes[1].nodeValue).toBe(' won');
+        expect((dynamicValue.renderedNodes[2] as Element).outerHTML).toBe('<button type="button">reset</button>');
         expect(dynamicValue.data).toBe(temp);
+        expect(document.body.innerHTML).toBe('x won<button type="button">reset</button>')
     });
     
+    // todo: html.spec.ts has these tests but moving them here makes it easier to debug
     it.todo('should render and update repeat helper with primitives')
     it.todo('should render and update nested repeat helper with primitives')
     it.todo('should render and update deeply nested repeat helper with primitives')

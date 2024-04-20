@@ -1,4 +1,4 @@
-import { isPrimitive } from './is-primitive'
+import { isPrimitive } from '../utils/is-primitive'
 
 const handleLastPart = (parts: unknown[], str: string) => {
     if (str) {
@@ -10,10 +10,7 @@ const handleLastPart = (parts: unknown[], str: string) => {
     }
 }
 
-export const extractExecutableValueFromRawValue = (
-    str: string,
-    values: unknown[]
-) => {
+export const parseDynamicRawValue = (str: string, values: unknown[]) => {
     const vals = Array.from(str.matchAll(/\$val([0-9]+)/g))
 
     if (!vals.length) {
