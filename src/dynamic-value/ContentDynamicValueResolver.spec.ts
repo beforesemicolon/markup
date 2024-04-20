@@ -48,7 +48,7 @@ describe('ContentDynamicValueResolver', () => {
         expect(document.body.innerHTML).toBe('changed')
     })
     
-    it('should render and update a list of text', () => {
+    it('should render and update a list of dynamic text', () => {
         let list = [() => 'one', () => 'two', () => 'three'];
         const {dynamicValue, update} = renderContent(list)
         
@@ -385,6 +385,8 @@ describe('ContentDynamicValueResolver', () => {
     });
     
     // todo: html.spec.ts has these tests but moving them here makes it easier to debug
+    it.todo('should render and update array')
+    it.todo('should render and update nodes')
     it.todo('should render and update repeat helper with primitives')
     it.todo('should render and update nested repeat helper with primitives')
     it.todo('should render and update deeply nested repeat helper with primitives')

@@ -1,6 +1,6 @@
 import {html, HtmlTemplate, state} from './html'
 import {when, repeat, oneOf, is} from './helpers'
-import {suspense} from './utils'
+import { element, suspense } from './utils'
 import {helper} from "./Helper";
 
 describe('html', () => {
@@ -1958,5 +1958,13 @@ describe('html', () => {
 		
 		expect(document.body.innerHTML).toBe('<ul><li>sample 1</li><li>sample 2</li></ul>')
 	})
+    
+    it('should render DOM element', () => {
+        const btn = element('button', { attributes: { type: 'button' }, textContent: 'click me' })
+        html`${btn}`
+            .render(document.body)
+        
+        expect(document.body.innerHTML).toBe('<button type="button">click me</button>')
+    })
 	
 })
