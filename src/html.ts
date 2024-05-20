@@ -7,11 +7,15 @@ import {
 import type { DynamicValueResolver } from './dynamic-value/DynamicValueResolver'
 import { Doc } from './Doc'
 import { parse } from '@beforesemicolon/html-parser/dist/parse'
-import { Helper } from './Helper'
 
 // prevents others from creating functions that can be subscribed to
 // and forces them to use state instead
-const id = 'S' + Math.floor(Math.random() * 10000000)
+const id = 'S' + Math.floor(Math.random() * 10000000);
+let currentResolver: StateSubscriber | null = null;
+let currentResolverUnsubscriber: StateUnSubscriber | null = null;
+const setCurrentResolver = (fn: StateSubscriber) => {
+    currentResolver = fn;
+}
 
 export class HtmlTemplate {
     #htmlTemplate: string
@@ -230,10 +234,13 @@ export class HtmlTemplate {
             // @ts-expect-error this is a Document like object
             Doc(this.#values, this.#refs, (dv) => this.#dynamicValues.push(dv))
         ) as DocumentFragment
-        this.#subscribeToState()
+        // this.#subscribeToState()
         const renderedNodeDvMapping = new WeakMap()
         this.#dynamicValues.forEach((dv) => {
-            dv.resolve(this.#refs)
+            this.#stateUnsubs.add(onStateUpdate(() => {
+                dv.resolve(this.#refs);
+                this.mounted && this.#broadcast(this.#updateSubs)
+            }))
             dv.renderedNodes.forEach((n) => renderedNodeDvMapping.set(n, dv))
         })
         this.#nodes = Array.from(
@@ -245,33 +252,33 @@ export class HtmlTemplate {
         return frag
     }
 
-    #subscribeToState() {
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        const self = this
-
-        this.#dynamicValues.forEach((dv) => {
-            // subscribe to any state value used in the node
-            ;(Array.isArray(dv.value) ? dv.value : [dv.value]).forEach(
-                function sub(val: unknown) {
-                    if (val instanceof Helper) {
-                        // subscribe to possible state value provided as argument to helpers
-                        val.args.forEach(sub)
-                    } else if (
-                        typeof val === 'function' &&
-                        // @ts-expect-error state value exposes function accessible by this global id
-                        typeof val[id] === 'function'
-                    ) {
-                        // @ts-expect-error state value exposes function accessible by this global id
-                        const unsub = val[id](() => {
-                            dv.resolve(self.#refs)
-                            self.#updateSubs.forEach((cb) => cb())
-                        }, id)
-                        self.#stateUnsubs.add(unsub)
-                    }
-                }
-            )
-        })
-    }
+    // #subscribeToState() {
+    //     // eslint-disable-next-line @typescript-eslint/no-this-alias
+    //     const self = this
+    //
+    //     this.#dynamicValues.forEach((dv) => {
+    //         // subscribe to any state value used in the node
+    //         ;(Array.isArray(dv.value) ? dv.value : [dv.value]).forEach(
+    //             function sub(val: unknown) {
+    //                 if (val instanceof Helper) {
+    //                     // subscribe to possible state value provided as argument to helpers
+    //                     val.args.forEach(sub)
+    //                 } else if (
+    //                     typeof val === 'function' &&
+    //                     // @ts-expect-error state value exposes function accessible by this global id
+    //                     typeof val[id] === 'function'
+    //                 ) {
+    //                     // @ts-expect-error state value exposes function accessible by this global id
+    //                     const unsub = val[id](() => {
+    //                         dv.resolve(self.#refs)
+    //                         self.#updateSubs.forEach((cb) => cb())
+    //                     }, id)
+    //                     self.#stateUnsubs.add(unsub)
+    //                 }
+    //             }
+    //         )
+    //     })
+    // }
 }
 
 /**
@@ -284,36 +291,79 @@ export const html = (
     ...values: unknown[]
 ) => new HtmlTemplate(parts, values)
 
-export const state = <T>(
-    val: T,
-    sub?: StateSubscriber
-): Readonly<[StateGetter<T>, StateSetter<T>, StateUnSubscriber]> => {
-    const subs: Set<() => void> = new Set()
-    const getter = () => val
+// export const state = <T>(
+//     val: T,
+//     sub?: StateSubscriber
+// ): Readonly<[StateGetter<T>, StateSetter<T>, StateUnSubscriber]> => {
+//     const subs: Set<() => void> = new Set()
+//     const getter = () => val
+//
+//     if (typeof sub === 'function') {
+//         subs.add(sub)
+//     }
+//
+//     Object.defineProperty(getter, id, {
+//         // ensure only HtmlTemplate can subscribe to this value
+//         value: (sub: () => void, subId: string) => {
+//             if (subId === id && typeof sub === 'function') {
+//                 subs.add(sub)
+//             }
+//
+//             return () => {
+//                 subs.delete(sub)
+//             }
+//         },
+//     })
+//
+//     return Object.freeze([
+//         getter,
+//         (newVal: T | ((val: T) => T)) => {
+//             val =
+//                 typeof newVal === 'function'
+//                     ? (newVal as (val: T) => T)(val)
+//                     : newVal
+//             subs.forEach((sub) => {
+//                 sub()
+//             })
+//         },
+//         () => {
+//             sub && subs.delete(sub)
+//         },
+//     ])
+// }
+
+export function onStateUpdate(sub: StateSubscriber): StateUnSubscriber {
+    if (typeof sub === 'function') {
+        currentResolver = sub;
+        sub();
+        currentResolver = null;
+    }
+
+    return currentResolverUnsubscriber ?? (() => {})
+}
+
+export const state = <T>(initialValue: T, sub?: StateSubscriber): Readonly<[StateGetter<T>, StateSetter<T>, StateUnSubscriber]> => {
+    const subs: Set<StateSubscriber> = new Set();
 
     if (typeof sub === 'function') {
         subs.add(sub)
     }
 
-    Object.defineProperty(getter, id, {
-        // ensure only HtmlTemplate can subscribe to this value
-        value: (sub: () => void, subId: string) => {
-            if (subId === id && typeof sub === 'function') {
-                subs.add(sub)
-            }
-
-            return () => {
-                subs.delete(sub)
-            }
-        },
-    })
-
     return Object.freeze([
-        getter,
+        () => {
+            if(typeof currentResolver === 'function' && !subs.has(currentResolver)) {
+                subs.add(currentResolver)
+                const res = currentResolver;
+                currentResolverUnsubscriber = () => {
+                    subs.delete(res)
+                }
+            }
+            return initialValue;
+        },
         (newVal: T | ((val: T) => T)) => {
-            val =
+            initialValue =
                 typeof newVal === 'function'
-                    ? (newVal as (val: T) => T)(val)
+                    ? (newVal as (val: T) => T)(initialValue)
                     : newVal
             subs.forEach((sub) => {
                 sub()

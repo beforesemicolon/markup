@@ -1,5 +1,4 @@
 import { HtmlTemplate } from '../html'
-import { Helper } from '../Helper'
 import { jsonStringify } from '../utils/json-stringify'
 import { val } from '../utils/val'
 
@@ -32,7 +31,7 @@ export const resolveContentDynamicValueToNodes = (
             return value.nodes
         }
 
-        if (value instanceof Helper || typeof value === 'function') {
+        if (typeof value === 'function') {
             return getNode(val(value))
         }
 

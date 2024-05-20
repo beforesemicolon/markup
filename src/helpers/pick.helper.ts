@@ -1,14 +1,14 @@
-import { helper } from '../Helper'
 import { StateGetter } from '../types'
 import { val } from '../utils'
+import { compute } from '../compute'
 
 /**
  * given a dot separated string key it will try to get deep value from an object literal or array
  * @param st
  * @param key
  */
-export const pick = helper(
-    <T extends Record<keyof T, T[keyof T]> | Array<unknown>, R>(
+export const pick =
+    compute(<T extends Record<keyof T, T[keyof T]> | Array<unknown>, R>(
         st: T | StateGetter<T>,
         key: string
     ): R => {
@@ -25,5 +25,5 @@ export const pick = helper(
                   }, x)
                 : ''
         ) as R
-    }
-)
+    })
+
