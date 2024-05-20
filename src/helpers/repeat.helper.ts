@@ -1,4 +1,3 @@
-import { helper } from '../Helper'
 import { val } from '../utils'
 
 type DataGetter<T> = () => number | Array<T>
@@ -23,7 +22,7 @@ const getList = (data: unknown) => {
  * @param cb
  * @param whenEmpty
  */
-export const repeat = helper(
+export const repeat =
     <T>(
         data: number | Array<T> | DataGetter<T>,
         cb: (data: T, index: number) => unknown,
@@ -59,4 +58,4 @@ export const repeat = helper(
             return renderedList
         }
     }
-)
+

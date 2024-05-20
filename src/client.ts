@@ -10,7 +10,6 @@ import {
     repeat,
     when,
 } from './helpers'
-import { helper, Helper } from './Helper'
 import { val, element, suspense } from './utils'
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -28,8 +27,6 @@ if (window) {
             // helpers
             and,
             effect,
-            Helper,
-            helper,
             is,
             isNot,
             oneOf,

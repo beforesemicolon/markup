@@ -1,6 +1,6 @@
-import { helper } from '../Helper'
 import { val } from '../utils'
 import { StateGetter } from '../types'
+import { compute } from '../compute'
 
 /**
  * conditionally render second and third argument value based on the first argument condition
@@ -8,8 +8,8 @@ import { StateGetter } from '../types'
  * @param thenThis
  * @param elseThat
  */
-export const when = helper(
-    <C, T, E>(condition: C | StateGetter<C>, thenThis: T, elseThat?: E) => {
+export const when =
+    compute(<C, T, E>(condition: C | StateGetter<C>, thenThis: T, elseThat?: E) => {
         let truthValue: T | null = null
         let truthValueSet = false
         let falseValue: E | null = null
@@ -40,5 +40,5 @@ export const when = helper(
 
             return val(falseValue)
         }
-    }
-)
+    })
+
