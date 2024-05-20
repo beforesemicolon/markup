@@ -1,7 +1,6 @@
 import {html, HtmlTemplate, state} from './html'
 import {when, repeat, oneOf, is} from './helpers'
 import { element, suspense } from './utils'
-import {helper} from "./Helper";
 
 describe('html', () => {
 	beforeEach(() => {
@@ -1057,7 +1056,6 @@ describe('html', () => {
 		})
 		
 		it('should work with helper value', () => {
-			const is = helper(<T>(st: () => T, val: unknown) => st() === val);
 			const [disabled, setDisabled] = state(false);
 			
 			html`<button attr.disabled="${is(disabled, true)}" attr.class="disabled | ${is(disabled, true)}">click me</button>`.render(document.body)
@@ -1070,7 +1068,6 @@ describe('html', () => {
 		});
 		
 		it('should work with helper value without attr.', () => {
-			const is = helper(<T>(st: () => T, val: unknown) => st() === val);
 			const [disabled, setDisabled] = state(false);
 			
 			html`<button disabled="${is(disabled, true)}" class="disabled | ${is(disabled, true)}">click me</button>`.render(document.body)
@@ -1600,7 +1597,7 @@ describe('html', () => {
 		})
 		
 		it('with helper list', () => {
-			let even = helper((list: () => number[]) => list().filter(n => n % 2 === 0))
+			let even = (list: () => number[]) => list().filter(n => n % 2 === 0)
 			const el = html`${repeat<number>(
 				even(() => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
 				(n) => html`<span>${n}</span>`
@@ -1701,7 +1698,7 @@ describe('html', () => {
 		it('when helper as condition', () => {
 			const list: any[] = [];
 			
-			const isEmpty = helper((lis: () => any[]) => lis().length === 0)
+			const isEmpty = (lis: () => any[]) => lis().length === 0
 			
 			const el = html`${when(
 				isEmpty(() => list),

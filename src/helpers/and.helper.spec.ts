@@ -1,16 +1,15 @@
 import {and} from "./and.helper";
 
 describe('and', () => {// @ts-ignore
-	const A = and().handler
-	
+
 	it('should handle and', () => {
-		expect(A(() => true, () => true)).toBe(true)
-		expect(() => A(true)).toThrowError('The "and" helper requires at least two arguments.')
-		expect(A(true, true, true)).toBe(true)
-		expect(A(true, true, false)).toBe(false)
-		expect(A(() => true, () => false)).toBe(false)
-		expect(A(() => false, () => false)).toBe(false)
-		expect(A(() => false, () => false, false)).toBe(false)
+		expect(and(() => true, () => true)).toBe(true)
+		expect(() => and(true)).toThrowError('The "and" helper requires at least two arguments.')
+		expect(and(true, true, true)).toBe(true)
+		expect(and(true, true, false)).toBe(false)
+		expect(and(() => true, () => false)).toBe(false)
+		expect(and(() => false, () => false)).toBe(false)
+		expect(and(() => false, () => false, false)).toBe(false)
 	})
 	
 })

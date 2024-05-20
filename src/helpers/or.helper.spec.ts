@@ -1,15 +1,14 @@
 import {or} from "./or.helper";
 
 describe('or', () => {// @ts-ignore
-	const O = or().handler
-	
+
 	it('should handle or', () => {
-		expect(O(() => true, () => true)).toBe(true)
-		expect(O(true, true, true)).toBe(true)
-		expect(O(false, false, false)).toBe(false)
-		expect(O(false, false, true)).toBe(true)
-		expect(() => O(true)).toThrowError('The "or" helper requires at least two arguments.')
-		expect(O(() => true, () => false)).toBe(true)
-		expect(O(() => false, () => false)).toBe(false)
+		expect(or(() => true, () => true)).toBe(true)
+		expect(or(true, true, true)).toBe(true)
+		expect(or(false, false, false)).toBe(false)
+		expect(or(false, false, true)).toBe(true)
+		expect(() => or(true)).toThrowError('The "or" helper requires at least two arguments.')
+		expect(or(() => true, () => false)).toBe(true)
+		expect(or(() => false, () => false)).toBe(false)
 	})
 })
