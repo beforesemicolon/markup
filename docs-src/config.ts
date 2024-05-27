@@ -23,6 +23,7 @@ import ElementUtilPage from './documentation/element-util.page'
 import SuspenseUtilPage from './documentation/suspense-util.page'
 import FunctionComponentsPage from './documentation/function-components.page'
 import WebComponentsPage from './documentation/web-components.page'
+import RouterPage from './documentation/router.page'
 import ServerSideRenderingPage from './documentation/server-side-rendering.page'
 import StateStorePage from './documentation/state-store.page'
 import TemplateLifecyclesPage from './documentation/template-lifecycles.page'
@@ -283,6 +284,15 @@ const config: { name: string; pages: Page[] } = {
             title: 'Documentation: Server Side Rendering',
             description: genericDescription,
             component: ServerSideRenderingPage,
+            group: 'Capabilities',
+            root: false,
+        },
+        {
+            path: '/documentation/router',
+            name: 'Router',
+            title: 'Documentation: Router',
+            description: genericDescription,
+            component: RouterPage,
             group: 'Capabilities',
             root: false,
         },
