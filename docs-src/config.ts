@@ -56,7 +56,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/',
             name: 'What is Markup?',
-            title: 'Documentation: What is Markup?',
+            title: 'What is Markup? - Markup Reactive Templating System',
             description: genericDescription,
             component: DocumentationPage,
             group: 'Introduction',
@@ -65,7 +65,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/installation',
             name: 'Installation',
-            title: 'Documentation: Installation',
+            title: 'Installation - Markup Reactive Templating System',
             description: genericDescription,
             component: InstallationPage,
             group: 'Introduction',
@@ -74,7 +74,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/get-started',
             name: 'Get Started',
-            title: 'Documentation: Get Started',
+            title: 'Get Started - Markup Reactive Templating System',
             description: genericDescription,
             component: GetStartedPage,
             group: 'Introduction',
@@ -83,7 +83,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/creating-and-rendering',
             name: 'Creating & Rendering',
-            title: 'Documentation: Creating & Rendering',
+            title: 'Creating & Rendering - Markup Reactive Templating System',
             description: genericDescription,
             component: CreatingAndRenderingPage,
             group: 'Templating',
@@ -92,7 +92,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/templating-values',
             name: 'Templating Values',
-            title: 'Documentation: Templating Values',
+            title: 'Templating Values - Markup Reactive Templating System',
             description: genericDescription,
             component: TemplatingValuesPage,
             group: 'Templating',
@@ -101,7 +101,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/replacing-content',
             name: 'Replacing Content',
-            title: 'Documentation: Replacing Content',
+            title: 'Replacing Content - Markup Reactive Templating System',
             description: genericDescription,
             component: ReplacingContentPage,
             group: 'Templating',
@@ -110,7 +110,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/dom-references',
             name: 'DOM References',
-            title: 'Documentation: DOM References',
+            title: 'DOM References - Markup Reactive Templating System',
             description: genericDescription,
             component: DOMReferencesPage,
             group: 'Templating',
@@ -119,7 +119,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/conditional-attributes',
             name: 'Conditional Attributes',
-            title: 'Documentation: Conditional Attributes',
+            title: 'Conditional Attributes - Markup Reactive Templating System',
             description: genericDescription,
             component: ConditionalAttributesPage,
             group: 'Templating',
@@ -128,7 +128,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/event-handling',
             name: 'Event Handling',
-            title: 'Documentation: Event Handling',
+            title: 'Event Handling - Markup Reactive Templating System',
             description: genericDescription,
             component: EventHandlingPage,
             group: 'Templating',
@@ -137,7 +137,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/dynamic-values-and-update',
             name: 'Dynamic Values & Update',
-            title: 'Documentation: Dynamic Values & Update',
+            title: 'Dynamic Values & Update - Markup Reactive Templating System',
             description: genericDescription,
             component: DynamicValuesAndUpdatePage,
             group: 'Templating',
@@ -146,7 +146,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/state-values',
             name: 'State Values',
-            title: 'Documentation: State Values',
+            title: 'State Values - Markup Reactive Templating System',
             description: genericDescription,
             component: StatValuesPage,
             group: 'Templating',
@@ -155,7 +155,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/template-lifecycles',
             name: 'Template Lifecycles',
-            title: 'Documentation: Template Lifecycles',
+            title: 'Template Lifecycles - Markup Reactive Templating System',
             description: genericDescription,
             component: TemplateLifecyclesPage,
             group: 'Templating',
@@ -164,7 +164,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/what-is-a-helper',
             name: 'What is a Helper?',
-            title: 'Documentation: What is a Helper?',
+            title: 'What is a Helper? - Markup Reactive Templating System',
             description: genericDescription,
             component: WhatIsAHelperPage,
             group: 'Helpers',
@@ -173,7 +173,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/effect-helper',
             name: 'Effect Helper',
-            title: 'Documentation: Effect Helper',
+            title: 'Effect Helper - Markup Reactive Templating System',
             description: genericDescription,
             component: EffectHelperPage,
             group: 'Helpers',
@@ -182,7 +182,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/conditional-rendering',
             name: 'Conditional Rendering',
-            title: 'Documentation: Conditional Rendering',
+            title: 'Conditional Rendering - Markup Reactive Templating System',
             description: genericDescription,
             component: ConditionalRenderingPage,
             group: 'Helpers',
@@ -191,7 +191,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/repetition-and-lists',
             name: 'Repetition & Lists',
-            title: 'Documentation: Repetition & Lists',
+            title: 'Repetition & Lists - Markup Reactive Templating System',
             description: genericDescription,
             component: RepetitionAndListsPage,
             group: 'Helpers',
@@ -200,7 +200,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/is-isnot-helpers',
             name: 'Is & IsNot Helpers',
-            title: 'Documentation: Is & IsNot Helpers',
+            title: 'Is & IsNot Helpers - Markup Reactive Templating System',
             description: genericDescription,
             component: IsIsNotHelpersPage,
             group: 'Helpers',
@@ -209,7 +209,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/or-and-oneof-helpers',
             name: 'Or, And, & OneOf Helpers',
-            title: 'Documentation: Or, And, & OneOf Helpers',
+            title: 'Or, And, & OneOf Helpers - Markup Reactive Templating System',
             description: genericDescription,
             component: OrAndOneOfHelpersPage,
             group: 'Helpers',
@@ -218,7 +218,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/pick-helper',
             name: 'Pick Helper',
-            title: 'Documentation: Pick Helper',
+            title: 'Pick Helper - Markup Reactive Templating System',
             description: genericDescription,
             component: PickHelperPage,
             group: 'Helpers',
@@ -227,7 +227,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/custom-helper',
             name: 'Custom Helper',
-            title: 'Documentation: Custom Helper',
+            title: 'Custom Helper - Markup Reactive Templating System',
             description: genericDescription,
             component: CustomHelperPage,
             group: 'Helpers',
@@ -236,7 +236,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/element-util',
             name: 'Element',
-            title: 'Documentation: Element',
+            title: 'Element - Markup Reactive Templating System',
             description: genericDescription,
             component: ElementUtilPage,
             group: 'Utilities',
@@ -245,7 +245,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/suspense-util',
             name: 'Suspense',
-            title: 'Documentation: Suspense',
+            title: 'Suspense - Markup Reactive Templating System',
             description: genericDescription,
             component: SuspenseUtilPage,
             group: 'Utilities',
@@ -254,7 +254,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/function-components',
             name: 'Function Components',
-            title: 'Documentation: Function Components',
+            title: 'Function Components - Markup Reactive Templating System',
             description: genericDescription,
             component: FunctionComponentsPage,
             group: 'Capabilities',
@@ -263,7 +263,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/web-components',
             name: 'Web Components',
-            title: 'Documentation: Web Components',
+            title: 'Web Components - Markup Reactive Templating System',
             description: genericDescription,
             component: WebComponentsPage,
             group: 'Capabilities',
@@ -272,7 +272,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/state-store',
             name: 'State Store',
-            title: 'Documentation: State Store',
+            title: 'State Store - Markup Reactive Templating System',
             description: genericDescription,
             component: StateStorePage,
             group: 'Capabilities',
@@ -281,7 +281,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/server-side-rendering',
             name: 'Server Side Rendering',
-            title: 'Documentation: Server Side Rendering',
+            title: 'Server Side Rendering - Markup Reactive Templating System',
             description: genericDescription,
             component: ServerSideRenderingPage,
             group: 'Capabilities',
@@ -290,7 +290,7 @@ const config: { name: string; pages: Page[] } = {
         {
             path: '/documentation/router',
             name: 'Router',
-            title: 'Documentation: Router',
+            title: 'Router - Markup Reactive Templating System',
             description: genericDescription,
             component: RouterPage,
             group: 'Capabilities',
