@@ -22,40 +22,38 @@ const getList = (data: unknown) => {
  * @param cb
  * @param whenEmpty
  */
-export const repeat =
-    <T>(
-        data: number | Array<T> | DataGetter<T>,
-        cb: (data: T, index: number) => unknown,
-        whenEmpty: () => unknown = () => ''
-    ) => {
-        const cache: Map<T, unknown> = new Map()
-        let prevList: unknown[] = []
+export const repeat = <T>(
+    data: number | Array<T> | DataGetter<T>,
+    cb: (data: T, index: number) => unknown,
+    whenEmpty: () => unknown = () => ''
+) => {
+    const cache: Map<T, unknown> = new Map()
+    let prevList: unknown[] = []
 
-        const each = (d: T, i: number) => {
-            if (prevList[i] !== undefined && d !== prevList[i]) {
-                cache.delete(d)
-            }
-
-            if (!cache.has(d)) {
-                cache.set(d, cb(d, i))
-            }
-
-            return cache.get(d)
+    const each = (d: T, i: number) => {
+        if (prevList[i] !== undefined && d !== prevList[i]) {
+            cache.delete(d)
         }
 
-        return () => {
-            const list = getList(data)
-
-            if (list.length === 0) {
-                prevList = []
-                return whenEmpty()
-            }
-
-            const renderedList = (list as T[]).map(each)
-
-            prevList = list
-
-            return renderedList
+        if (!cache.has(d)) {
+            cache.set(d, cb(d, i))
         }
+
+        return cache.get(d)
     }
 
+    return () => {
+        const list = getList(data)
+
+        if (list.length === 0) {
+            prevList = []
+            return whenEmpty()
+        }
+
+        const renderedList = (list as T[]).map(each)
+
+        prevList = list
+
+        return renderedList
+    }
+}

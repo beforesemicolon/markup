@@ -7,7 +7,7 @@ describe('repeat', () => {
         expect(repeat(3, (n: number) => n)()).toEqual([1, 2, 3])
 
         let count = 3
-        const r = repeat<number, HtmlTemplate>(
+        const r = repeat<number>(
             () => count,
             (n: number) => html`sample-${n}`
         )
