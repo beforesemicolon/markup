@@ -10,7 +10,7 @@ import { parse } from '@beforesemicolon/html-parser/dist/parse'
 
 interface Resolver {
     sub: StateSubscriber
-    unsub?: StateUnSubscriber
+    unsubs: StateUnSubscriber[]
 }
 
 const currentResolvers: Resolver[] = []
@@ -267,9 +267,9 @@ export function effect(sub: StateSubscriber): StateUnSubscriber {
     if (typeof sub !== 'function') {
         throw new Error(`onStateUpdate: callback must be a function`)
     }
-    const obj: Resolver = { sub }
+    const res: Resolver = { sub, unsubs: [] }
 
-    currentResolvers.push(obj)
+    currentResolvers.push(res)
 
     // its important to clear the "currentResolvers"
     // therefore, "finally" must be used
@@ -279,7 +279,9 @@ export function effect(sub: StateSubscriber): StateUnSubscriber {
         currentResolvers.pop()
     }
 
-    return obj.unsub ?? (() => {})
+    return () => {
+        res.unsubs.forEach((unsub) => unsub())
+    }
 }
 
 export const state = <T>(
@@ -300,9 +302,9 @@ export const state = <T>(
                 !subs.has(currentResolver?.sub)
             ) {
                 subs.add(currentResolver.sub)
-                currentResolver.unsub = () => {
+                currentResolver.unsubs.push(() =>
                     subs.delete(currentResolver?.sub)
-                }
+                )
             }
             return initialValue
         },
