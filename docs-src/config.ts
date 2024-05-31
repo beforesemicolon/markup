@@ -12,7 +12,6 @@ import EventHandlingPage from './documentation/event-handling.page'
 import DynamicValuesAndUpdatePage from './documentation/dynamic-values-and-update.page'
 import StatValuesPage from './documentation/state-values.page'
 import WhatIsAHelperPage from './documentation/what-is-a-helper.page'
-import EffectHelperPage from './documentation/effect-helper.page'
 import ConditionalRenderingPage from './documentation/conditional-rendering.page'
 import RepetitionAndListsPage from './documentation/repetition-and-lists.page'
 import IsIsNotHelpersPage from './documentation/is-isnot-helpers.page'
@@ -110,6 +109,7 @@ const config: { name: string; pages: Page[] } = {
             path: '/documentation/dom-references',
             name: 'DOM References',
             title: 'Documentation: DOM References',
+            title: 'Documentation: DOM References',
             description: genericDescription,
             component: DOMReferencesPage,
             group: 'Templating',
@@ -166,15 +166,6 @@ const config: { name: string; pages: Page[] } = {
             title: 'Documentation: What is a Helper?',
             description: genericDescription,
             component: WhatIsAHelperPage,
-            group: 'Helpers',
-            root: false,
-        },
-        {
-            path: '/documentation/effect-helper',
-            name: 'Effect Helper',
-            title: 'Documentation: Effect Helper',
-            description: genericDescription,
-            component: EffectHelperPage,
             group: 'Helpers',
             root: false,
         },
