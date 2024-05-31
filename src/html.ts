@@ -285,7 +285,7 @@ export function effect(sub: StateSubscriber): StateUnSubscriber {
 }
 
 export const state = <T>(
-    initialValue: T,
+    value: T,
     sub?: StateSubscriber
 ): Readonly<[StateGetter<T>, StateSetter<T>, StateUnSubscriber]> => {
     const subs: Set<StateSubscriber> = new Set()
@@ -306,16 +306,20 @@ export const state = <T>(
                     subs.delete(currentResolver?.sub)
                 )
             }
-            return initialValue
+            return value
         },
         (newVal: T | ((val: T) => T)) => {
-            initialValue =
+            const updatedValue =
                 typeof newVal === 'function'
-                    ? (newVal as (val: T) => T)(initialValue)
+                    ? (newVal as (val: T) => T)(value)
                     : newVal
-            subs.forEach((sub) => {
-                sub()
-            })
+
+            if (updatedValue !== value) {
+                value = updatedValue
+                subs.forEach((sub) => {
+                    sub()
+                })
+            }
         },
         () => {
             sub && subs.delete(sub)
