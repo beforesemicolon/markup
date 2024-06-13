@@ -1,4 +1,4 @@
-import { html, state, effect, HtmlTemplate } from './html'
+import { html, state, effect, rafEffect, HtmlTemplate } from './html'
 import { and, is, isNot, oneOf, or, pick, repeat, when } from './helpers'
 import { val, element, suspense } from './utils'
 
@@ -15,6 +15,7 @@ if (window) {
             html,
             state,
             effect,
+            rafEffect,
             HtmlTemplate,
             // helpers
             and,

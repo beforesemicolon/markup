@@ -96,10 +96,10 @@ export class HtmlTemplate {
      * @param elementToAttachNodesTo
      * @param force
      */
-    render = (
+    render(
         elementToAttachNodesTo: ShadowRoot | Element | DocumentFragment,
         force = false
-    ) => {
+    ) {
         if (
             elementToAttachNodesTo &&
             elementToAttachNodesTo !== this.renderTarget &&
@@ -125,7 +125,7 @@ export class HtmlTemplate {
      * replaces the target element with the template nodes. Does not replace HEAD, BODY, HTML, and ShadowRoot elements
      * @param target
      */
-    replace = (target: Node | HtmlTemplate) => {
+    replace(target: Node | HtmlTemplate) {
         if (
             target instanceof HtmlTemplate ||
             (target instanceof Node &&
@@ -236,7 +236,7 @@ export class HtmlTemplate {
         const renderedNodeDvMapping = new WeakMap()
         this.#dynamicValues.forEach((dv) => {
             this.#stateUnsubs.add(
-                effect(() => {
+                _effect(() => {
                     dv.resolve(this.#refs)
                     this.mounted && this.#broadcast(this.#updateSubs)
                 })
@@ -263,25 +263,53 @@ export const html = (
     ...values: unknown[]
 ) => new HtmlTemplate(parts, values)
 
-export function effect(sub: StateSubscriber): StateUnSubscriber {
-    if (typeof sub !== 'function') {
-        throw new Error(`onStateUpdate: callback must be a function`)
-    }
-    const res: Resolver = { sub, unsubs: [] }
+// using setTimeout will defer execution and not block everything else
+// because the effect needs to call the cb at least once to register to state
+// we can also make setTimeout callback fn, async so we can handle async effect cb
+function _effect(
+    sub: StateSubscriber,
+    {
+        fn,
+    }: {
+        fn?: typeof requestAnimationFrame | typeof setTimeout
+    } = {}
+) {
+    if (typeof sub === 'function') {
+        const res: Resolver = { sub, unsubs: [] }
 
-    currentResolvers.push(res)
+        if (fn) {
+            fn(async () => {
+                currentResolvers.push(res)
+                try {
+                    await sub()
+                } finally {
+                    currentResolvers.pop()
+                }
+            })
+        } else {
+            currentResolvers.push(res)
 
-    // its important to clear the "currentResolvers"
-    // therefore, "finally" must be used
-    try {
-        sub()
-    } finally {
-        currentResolvers.pop()
+            try {
+                sub()
+            } finally {
+                currentResolvers.pop()
+            }
+        }
+
+        return () => {
+            res.unsubs.forEach((unsub) => unsub())
+        }
     }
 
-    return () => {
-        res.unsubs.forEach((unsub) => unsub())
-    }
+    throw new Error(`effect: callback must be a function`)
+}
+
+export function effect(cb: StateSubscriber) {
+    return _effect(cb, { fn: setTimeout })
+}
+
+export function rafEffect(cb: StateSubscriber) {
+    return _effect(cb, { fn: requestAnimationFrame })
 }
 
 export const state = <T>(
