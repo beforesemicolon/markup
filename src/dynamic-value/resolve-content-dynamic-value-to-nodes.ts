@@ -56,7 +56,7 @@ function getTextNode(value: unknown, renderedNode: Node, onlyNode = false) {
 
     if (renderedNode?.nodeType === Node.TEXT_NODE) {
         // sometimes the rendered node just got a text update and
-        // as long as its the only child just updating it is enough
+        // as long as it's the only child just updating it is enough
         // which saves on the creation of new text node just for a value change
         if (onlyNode && renderedNode.isConnected) {
             renderedNode.nodeValue = str
