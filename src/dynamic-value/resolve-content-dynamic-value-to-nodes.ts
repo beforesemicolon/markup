@@ -1,12 +1,16 @@
 import { HtmlTemplate } from '../html'
-import { jsonStringify } from '../utils/json-stringify'
-import { val } from '../utils/val'
+import { val, jsonStringify } from '../utils'
+import { isDynamicValue } from './is-dynamic-value'
 
 export const resolveContentDynamicValueToNodes = (
     data: unknown,
     renderedNodes: Node[],
     refs: Record<string, Set<Element>> = {}
 ): Node[] => {
+    if (!isDynamicValue(data)) {
+        return getTextNode(data, renderedNodes[0], renderedNodes.length === 1)
+    }
+
     return (function getNode(value): Node[] {
         if (value instanceof HtmlTemplate) {
             if (value.mounted) {
@@ -43,18 +47,25 @@ export const resolveContentDynamicValueToNodes = (
             return [value]
         }
 
-        const str = jsonStringify(value)
+        return getTextNode(value, renderedNodes[0])
+    })(data)
+}
 
-        const renderedNode = renderedNodes[0]
+function getTextNode(value: unknown, renderedNode: Node, onlyNode = false) {
+    const str = jsonStringify(value)
 
-        if (
-            renderedNode &&
-            renderedNode.nodeValue === str &&
-            renderedNode.nodeType === Node.TEXT_NODE
-        ) {
-            return [renderedNode]
+    if (renderedNode?.nodeType === Node.TEXT_NODE) {
+        // sometimes the rendered node just got a text update and
+        // as long as its the only child just updating it is enough
+        // which saves on the creation of new text node just for a value change
+        if (onlyNode && renderedNode.isConnected) {
+            renderedNode.nodeValue = str
         }
 
-        return [document.createTextNode(str)]
-    })(data)
+        if (renderedNode?.nodeValue === str) {
+            return [renderedNode]
+        }
+    }
+
+    return [document.createTextNode(str)]
 }
