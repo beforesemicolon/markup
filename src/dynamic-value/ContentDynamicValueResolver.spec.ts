@@ -1,4 +1,5 @@
-import { html, state } from '../html'
+import { html } from '../html'
+import { state } from '../state'
 import { is, when } from '../helpers'
 import { ContentDynamicValueResolver } from './ContentDynamicValueResolver'
 import { act } from '../testing/wait'

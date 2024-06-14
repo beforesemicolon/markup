@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Hello World</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+        <script src="./dist/client.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+
+        <script>
+            const { html, state, effect } = BFS.MARKUP
+
+            const [count, setCount] = state(0)
+
+            effect(() => {
+                console.log(count())
+            })
+
+            const increment = () => setCount((prev) => prev + 1)
+
+            html` <button onclick="${increment}">${count}</button> `.render(
+                document.getElementById('app')
+            )
+
+            // setInterval(increment)
+        </script>
+    </body>
+</html>

@@ -1,4 +1,7 @@
-const flush = async <T>(cb: () => Promise<T> | T, timeout = 0): Promise<T> => {
+export const waitFor = async <T>(
+    cb: () => Promise<T> | T,
+    timeout = 0
+): Promise<T> => {
     return new Promise((res) =>
         setTimeout(async () => {
             const result = await cb()
@@ -8,7 +11,7 @@ const flush = async <T>(cb: () => Promise<T> | T, timeout = 0): Promise<T> => {
     )
 }
 export const wait = async (ms = 0) => {
-    await flush(
+    await waitFor(
         () =>
             new Promise((res) => {
                 setTimeout(res, ms)
