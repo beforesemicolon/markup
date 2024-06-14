@@ -29,5 +29,5 @@ await esbuild.build({
     sourcemap: true,
     target: 'esnext',
     minify: true,
-    plugins: [emptyParserDoc]
+    plugins: [emptyParserDoc],
 })
