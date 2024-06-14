@@ -53,8 +53,8 @@ export class ContentDynamicValueResolver extends DynamicValueResolver {
 
             // the syncNodes only deals with Nodes but at the data level
             // we could have HTMLTemplates which nodes were unmounted but the template
-            // reference would still be around so therefore we need to find those which
-            // are not longer being tracked and unmount them
+            // reference would still be around therefore we need to find those which
+            // are no longer being tracked and unmount them
             if (this.data) {
                 const newDataList = new Set(getDataAsList(newData))
                 const currentDataList = getDataAsList(this.data)
