@@ -11,8 +11,31 @@ export const changeCurrentIntoNewNodes = (
     newChildNodes: Node[],
     parent: ParentNode | null = null
 ) => {
-    const currentChildNodesSet = new Set(currentChildNodes)
-    const endAnchor = currentChildNodes.at(-1)?.nextSibling ?? null
+    // if no new child nodes, simply remove all current child nodes
+    if (newChildNodes.length === 0) {
+        return currentChildNodes.forEach((c) => c?.parentNode?.removeChild(c))
+    }
+
+    // if not current child nodes simply add everything
+    if (currentChildNodes.length === 0) {
+        return newChildNodes.forEach((n) => parent?.appendChild(n))
+    }
+
+    // if both new and current child nodes contain one node
+    // simply swap them if they are not the same node
+    if (newChildNodes.length === 1 && currentChildNodes.length === 1) {
+        const newChild = newChildNodes[0]
+        const currentChild = currentChildNodes[0]
+
+        if (newChild !== currentChild) {
+            currentChild?.parentNode?.replaceChild(newChild, currentChild)
+        }
+
+        return
+    }
+
+    const currentChildNodesSet = new Set(currentChildNodes),
+        endAnchor = currentChildNodes.at(-1)?.nextSibling ?? null
     let frag = document.createDocumentFragment()
 
     newChildNodes.forEach((n, i) => {
