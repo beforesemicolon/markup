@@ -7,6 +7,7 @@ import {
 import type { DynamicValueResolver } from './dynamic-value/DynamicValueResolver'
 import { Doc } from './Doc'
 import { parse } from '@beforesemicolon/html-parser/dist/parse'
+import { ActionQueue } from './ActionQueue'
 
 interface Resolver {
     sub: StateSubscriber
@@ -316,7 +317,14 @@ export const state = <T>(
     value: T,
     sub?: StateSubscriber
 ): Readonly<[StateGetter<T>, StateSetter<T>, StateUnSubscriber]> => {
-    const subs: Set<StateSubscriber> = new Set()
+    let lastValue = value
+    const subs: Set<StateSubscriber> = new Set(),
+        Q = new ActionQueue(),
+        broadcast = () => {
+            if (value !== lastValue) {
+                subs.forEach((sub) => sub())
+            }
+        }
 
     if (typeof sub === 'function') {
         subs.add(sub)
@@ -343,10 +351,9 @@ export const state = <T>(
                     : newVal
 
             if (updatedValue !== value) {
+                lastValue = value
                 value = updatedValue
-                subs.forEach((sub) => {
-                    sub()
-                })
+                Q.set(broadcast)
             }
         },
         () => {
