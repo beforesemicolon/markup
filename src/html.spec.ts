@@ -1,6 +1,7 @@
 import {html, HtmlTemplate, state} from './html'
 import {when, repeat, oneOf, is} from './helpers'
 import { element, suspense } from './utils'
+import { act, wait } from './testing/wait'
 
 describe('html', () => {
 	beforeEach(() => {
@@ -1055,26 +1056,30 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('<input pattern="[a-z]">')
 		})
 		
-		it('should work with helper value', () => {
+		it('should work with helper value', async () => {
 			const [disabled, setDisabled] = state(false);
 			
 			html`<button attr.disabled="${is(disabled, true)}" attr.class="disabled | ${is(disabled, true)}">click me</button>`.render(document.body)
 			
 			expect(document.body.innerHTML).toBe('<button>click me</button>')
 			
-			setDisabled(true);
+			await act(() => {
+				setDisabled(true);
+			});
 			
 			expect(document.body.innerHTML).toBe('<button disabled="true" class="disabled">click me</button>')
 		});
 		
-		it('should work with helper value without attr.', () => {
+		it('should work with helper value without attr.', async () => {
 			const [disabled, setDisabled] = state(false);
 			
 			html`<button disabled="${is(disabled, true)}" class="disabled | ${is(disabled, true)}">click me</button>`.render(document.body)
 			
 			expect(document.body.innerHTML).toBe('<button>click me</button>')
 			
-			setDisabled(true);
+			await act(() => {
+				setDisabled(true);
+			});
 			
 			expect(document.body.innerHTML).toBe('<button disabled="true" class="disabled">click me</button>')
 		});
@@ -1165,8 +1170,7 @@ describe('html', () => {
 		expect(updateMock).toHaveBeenCalledWith('val', null, '{"val":12}', null)
 	})
 
-	it('should handle non-primitive attribute value in conditionally rendered WC', () => {
-		jest.useFakeTimers();
+	it('should handle non-primitive attribute value in conditionally rendered WC', async () => {
 		type obj = { sample: { x: 12} | null }
 
 		class ObjValue extends HTMLElement {
@@ -1209,10 +1213,10 @@ describe('html', () => {
 		const el = html`<main-app></main-app>`
 
 		el.render(document.body)
-
+		
 		expect(document.body.innerHTML).toBe('<main-app></main-app>')
-
-		jest.advanceTimersByTime(1000)
+		
+		await wait(1200);
 
 		expect(document.body.innerHTML).toBe('<main-app><obj-value sample="{&quot;x&quot;:12}">12</obj-value></main-app>')
 	})
@@ -1510,7 +1514,7 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('<li>one: <span>1</span></li>')
 		})
 		
-		it('with state', () => {
+		it('with state', async () => {
 			const [todos, setTodos] = state<Array<string>>([])
 			
 			const Todo = html`
@@ -1525,20 +1529,20 @@ describe('html', () => {
 				'\t\t\t\t\t\n' +
 				'\t\t\t\t</ul>')
 			
-			setTodos((prev) => [...prev, 'first'])
+			await act(() => setTodos((prev) => [...prev, 'first']))
 			
 			expect(document.body.innerHTML).toBe('<ul>\n' +
 				'\t\t\t\t\t<li>first</li>\n' +
 				'\t\t\t\t</ul>')
 			
-			setTodos([])
+			await act(() => setTodos([]))
 			
 			expect(document.body.innerHTML).toBe('<ul>\n' +
 				'\t\t\t\t\t\n' +
 				'\t\t\t\t</ul>')
 		})
 		
-		it('when item changes', () => {
+		it('when item changes', async () => {
 			const updateMock = jest.fn()
 			const [todos, setTodos] = state<
 				Array<{ name: string; status: string; id: number }>
@@ -1552,7 +1556,7 @@ describe('html', () => {
 			
 			expect(document.body.innerHTML).toBe('<div></div>')
 			
-			setTodos([{name: 'action 1', status: 'pending', id: 1}])
+			await act(() => setTodos([{name: 'action 1', status: 'pending', id: 1}]))
 			
 			expect(updateMock).toHaveBeenCalled()
 			expect(todos()).toEqual([
@@ -1564,13 +1568,13 @@ describe('html', () => {
 			])
 			expect(document.body.innerHTML).toBe('<div><div id="1">action 1 <span>pending</span></div></div>')
 			
-			setTodos(prev => prev.map(t =>
+			await act(() => setTodos(prev => prev.map(t =>
 				t.id === 1 ? {...t, status: 'complete'} : t
-			))
+			)))
 			
 			expect(document.body.innerHTML).toBe('<div><div id="1">action 1 <span>complete</span></div></div>')
 			
-			setTodos(prev => [...prev, {name: 'action 2', status: 'pending', id: 2}])
+			await act(() => setTodos(prev => [...prev, {name: 'action 2', status: 'pending', id: 2}]))
 			
 			expect(document.body.innerHTML).toBe('<div>' +
 				'<div id="1">action 1 <span>complete</span></div>' +
@@ -1710,7 +1714,7 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('<p>no items</p>')
 		});
 		
-		it('when nested with dependent logic', () => {
+		it('when nested with dependent logic', async () => {
 			const [currentPlayer, setCurrentPlayer] = state("x")
 			const [ended, setEnded] = state(false)
 			
@@ -1726,31 +1730,33 @@ describe('html', () => {
 			
 			expect(document.body.innerHTML).toBe('')
 			
-			setEnded(true)
+			await act(() => setEnded(true))
 			expect(document.body.innerHTML).toBe('x won\n' +
 				'\t\t\t\t\t<button type="button">reset</button>')
 			
-			setCurrentPlayer('xy')
+			await act(() => setCurrentPlayer('xy'))
 			expect(document.body.innerHTML).toBe('tie\n' +
 				'\t\t\t\t\t<button type="button">reset</button>')
 			
-			setEnded(false)
+			await act(() => setEnded(false))
 			expect(document.body.innerHTML).toBe('')
 			
-			setCurrentPlayer('x')
+			await act(() => setCurrentPlayer('x'))
 			expect(document.body.innerHTML).toBe('')
 			
-			setEnded(true)
+			await act(() => setEnded(true))
 			expect(document.body.innerHTML).toBe('x won\n' +
 				'\t\t\t\t\t<button type="button">reset</button>')
 			
-			setCurrentPlayer('x')
-			setEnded(false)
+			await act(() => {
+				setCurrentPlayer('x')
+				setEnded(false)
+			})
 			expect(document.body.innerHTML).toBe('')
 		})
 	})
 	
-	it('should work with state helper', () => {
+	it('should work with state helper', async () => {
 		const [count, setCount] = state<number>(0)
 		const countUp = () => {
 			setCount((prev: number) => prev + 1)
@@ -1764,7 +1770,7 @@ describe('html', () => {
 		
 		const btn = document.querySelector('button') as HTMLButtonElement
 		
-		btn.click()
+		await act(() => btn.click())
 		
 		expect(document.body.innerHTML).toBe('<span>1</span><button>+</button>')
 		
@@ -1775,7 +1781,7 @@ describe('html', () => {
 		expect(document.body.innerHTML).toBe('')
 	})
 	
-	it('should unsubscribe from state', () => {
+	it('should unsubscribe from state', async () => {
 		const [count, setCount] = state<number>(0)
 		const countUp = () => {
 			setCount((prev: number) => prev + 1)
@@ -1789,13 +1795,13 @@ describe('html', () => {
 		
 		const btn = document.querySelector('button') as HTMLButtonElement
 		
-		btn.click()
+		await act(() => btn.click())
 		
 		expect(document.body.innerHTML).toBe('<span>1</span><button>+</button>')
 		
 		counter.unsubscribeFromStates()
 		
-		btn.click()
+		await act(() => btn.click())
 		
 		expect(document.body.innerHTML).toBe('<span>1</span><button>+</button>')
 	});
