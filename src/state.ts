@@ -1,14 +1,15 @@
 import {
+    EffectSubscriber,
+    EffectUnSubscriber,
     StateGetter,
     StateSetter,
     StateSubscriber,
     StateUnSubscriber,
 } from './types'
-import { ActionQueue } from './ActionQueue'
 
 interface Resolver {
     sub: StateSubscriber
-    unsubs: StateUnSubscriber[]
+    unsubs: EffectUnSubscriber[]
 }
 
 const currentResolvers: Resolver[] = []
@@ -19,9 +20,9 @@ export const state = <T>(
 ): Readonly<[StateGetter<T>, StateSetter<T>, StateUnSubscriber]> => {
     let lastValue = value
     const subs: Set<StateSubscriber> = new Set(),
-        Q = new ActionQueue(),
         broadcast = () => {
             if (value !== lastValue) {
+                lastValue = value
                 subs.forEach((sub) => sub())
             }
         }
@@ -51,9 +52,8 @@ export const state = <T>(
                     : newVal
 
             if (updatedValue !== value) {
-                lastValue = value
                 value = updatedValue
-                Q.set(broadcast)
+                setTimeout(broadcast)
             }
         },
         () => {
@@ -66,7 +66,7 @@ export const state = <T>(
 // because the effect needs to call the cb at least once to register to state
 // we can also make setTimeout callback fn, async so we can handle async effect cb
 function __effect(
-    sub: StateSubscriber,
+    sub: EffectSubscriber,
     {
         fn,
     }: {
@@ -74,25 +74,23 @@ function __effect(
     } = {}
 ) {
     if (typeof sub === 'function') {
-        const res: Resolver = { sub, unsubs: [] },
-            handler = async () => {
+        let value: unknown
+        const subWrapper: StateSubscriber = () => {
+            value = sub(value)
+        }
+        const res: Resolver = { sub: subWrapper, unsubs: [] },
+            handler = () => {
                 currentResolvers.push(res)
                 try {
-                    await sub()
+                    subWrapper()
                 } finally {
                     currentResolvers.pop()
                 }
             }
 
-        if (fn) {
-            fn(handler)
-        } else {
-            handler()
-        }
+        ;(fn ?? handler)(handler)
 
-        return () => {
-            res.unsubs.forEach((unsub) => unsub())
-        }
+        return () => res.unsubs.forEach((unsub) => unsub())
     }
 
     throw new Error(`effect: callback must be a function`)
