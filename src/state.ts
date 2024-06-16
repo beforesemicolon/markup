@@ -18,14 +18,7 @@ export const state = <T>(
     value: T,
     sub?: StateSubscriber
 ): Readonly<[StateGetter<T>, StateSetter<T>, StateUnSubscriber]> => {
-    let lastValue = value
-    const subs: Set<StateSubscriber> = new Set(),
-        broadcast = () => {
-            if (value !== lastValue) {
-                lastValue = value
-                subs.forEach((sub) => sub())
-            }
-        }
+    const subs: Set<StateSubscriber> = new Set()
 
     if (typeof sub === 'function') {
         subs.add(sub)
@@ -53,7 +46,7 @@ export const state = <T>(
 
             if (updatedValue !== value) {
                 value = updatedValue
-                setTimeout(broadcast)
+                subs.forEach((sub) => sub())
             }
         },
         () => {
@@ -62,19 +55,16 @@ export const state = <T>(
     ])
 }
 
-// using setTimeout will defer execution and not block everything else
-// because the effect needs to call the cb at least once to register to state
-// we can also make setTimeout callback fn, async so we can handle async effect cb
-function __effect(
-    sub: EffectSubscriber,
+export const effect = <T>(
+    sub: EffectSubscriber<T>,
     {
         fn,
     }: {
         fn?: typeof requestAnimationFrame | typeof setTimeout
     } = {}
-) {
+) => {
     if (typeof sub === 'function') {
-        let value: unknown
+        let value: T | undefined
         const subWrapper: StateSubscriber = () => {
             value = sub(value)
         }
@@ -96,10 +86,25 @@ function __effect(
     throw new Error(`effect: callback must be a function`)
 }
 
-export function effect(cb: StateSubscriber) {
-    return __effect(cb)
-}
-
-export function rafEffect(cb: StateSubscriber) {
-    return __effect(cb, { fn: requestAnimationFrame })
-}
+// let currentCompute: StateSubscriber | null = null
+//
+// export const computed = <T>(cb: () => T) => {
+//     let value: T
+//     const subs: Set<StateSubscriber> = new Set()
+//
+//     const subscriber = () => {
+//         value = cb()
+//         subs.forEach((sub) => sub())
+//     }
+//
+//     currentCompute = subscriber
+//     effect(subscriber)
+//     currentCompute = null
+//
+//     return () => {
+//         if (currentCompute) {
+//             subs.add(currentCompute)
+//         }
+//         return value
+//     }
+// }
