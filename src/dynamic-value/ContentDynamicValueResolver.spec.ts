@@ -2,7 +2,6 @@ import { html } from '../html'
 import { state } from '../state'
 import { is, when } from '../helpers'
 import { ContentDynamicValueResolver } from './ContentDynamicValueResolver'
-import { act } from '../testing/wait'
 
 describe('ContentDynamicValueResolver', () => {
     const renderContent = (value: any, data = null, renderedNodes = [document.createTextNode('$val0')]) => {
@@ -343,7 +342,7 @@ describe('ContentDynamicValueResolver', () => {
         expect(document.body.innerHTML).toBe('deep-truthy<span>after-truthy</span>')
     })
     
-    it("should render nested 'when' helper with 'is' helper for condition and 'state' for data update", async () => {
+    it("should render nested 'when' helper with 'is' helper for condition and 'state' for data update",  () => {
         const [currentPlayer, setCurrentPlayer] = state("x")
         const [ended, setEnded] = state(false);
         
@@ -360,23 +359,23 @@ describe('ContentDynamicValueResolver', () => {
         expect(dynamicValue.data).toBe(temp);
         expect(document.body.innerHTML).toBe('')
         
-        await act(() => setEnded(true))
+        setEnded(true)
 
         expect(document.body.innerHTML).toBe('x won<button type="button">reset</button>')
         
-        await act(() => setCurrentPlayer('xy'))
+        setCurrentPlayer('xy')
 
         expect(document.body.innerHTML).toBe('tie<button type="button">reset</button>')
         
-        await act(() => setEnded(false))
+        setEnded(false)
 
         expect(document.body.innerHTML).toBe('')
         
-        await act(() => setCurrentPlayer('x'))
+        setCurrentPlayer('x')
        
         expect(document.body.innerHTML).toBe('')
         
-        await act(() => setEnded(true))
+        setEnded(true)
         
         expect(dynamicValue.renderedNodes).toHaveLength(3);
         expect(dynamicValue.renderedNodes[0].nodeValue).toBe('x');
