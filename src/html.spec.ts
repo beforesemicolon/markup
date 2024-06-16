@@ -5,8 +5,17 @@ import { element, suspense } from './utils'
 
 describe('html', () => {
 	beforeEach(() => {
+		jest.spyOn(window, 'requestAnimationFrame').mockImplementation(cb => {
+			const id = Math.random()
+			cb(id);
+			return id;
+		});
 		document.body.innerHTML = ''
 	})
+	
+	afterEach(() => {
+		(window.requestAnimationFrame as jest.Mock)?.mockRestore?.();
+	});
 	
 	it('should render correctly', () => {
 		const app = html`<h1>Todo Manager</h1>
@@ -1808,6 +1817,10 @@ describe('html', () => {
 			jest.useFakeTimers()
 		})
 		
+		afterEach(() => {
+			jest.useRealTimers()
+		})
+		
 		it('onUpdate', () => {
 			const [count, setCount] = state<number>(0)
 			const updateMock = jest.fn()
@@ -1871,6 +1884,8 @@ describe('html', () => {
 			const three = list.splice(1, 1);
 
 			temp.update();
+			
+			jest.advanceTimersByTime(100);
 
 			expect(document.body.innerHTML).toBe('one')
 			
@@ -1881,6 +1896,8 @@ describe('html', () => {
 			list.unshift(...three);
 
 			temp.update();
+			
+			jest.advanceTimersByTime(100);
 
 			expect(document.body.innerHTML).toBe('threeone')
 		});
