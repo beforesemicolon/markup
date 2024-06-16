@@ -4,6 +4,18 @@ import { is, when } from '../helpers'
 import { ContentDynamicValueResolver } from './ContentDynamicValueResolver'
 
 describe('ContentDynamicValueResolver', () => {
+    beforeEach(() => {
+        jest.spyOn(window, 'requestAnimationFrame').mockImplementation(cb => {
+            const id = Math.random()
+            cb(id);
+            return id;
+        });
+    })
+    
+    afterEach(() => {
+        (window.requestAnimationFrame as jest.Mock)?.mockRestore?.();
+    })
+    
     const renderContent = (value: any, data = null, renderedNodes = [document.createTextNode('$val0')]) => {
         const refs = {}
         document.body.innerHTML = '';
