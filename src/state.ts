@@ -85,26 +85,3 @@ export const effect = <T>(
 
     throw new Error(`effect: callback must be a function`)
 }
-
-// let currentCompute: StateSubscriber | null = null
-//
-// export const computed = <T>(cb: () => T) => {
-//     let value: T
-//     const subs: Set<StateSubscriber> = new Set()
-//
-//     const subscriber = () => {
-//         value = cb()
-//         subs.forEach((sub) => sub())
-//     }
-//
-//     currentCompute = subscriber
-//     effect(subscriber)
-//     currentCompute = null
-//
-//     return () => {
-//         if (currentCompute) {
-//             subs.add(currentCompute)
-//         }
-//         return value
-//     }
-// }

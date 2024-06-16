@@ -159,8 +159,10 @@ export class HtmlTemplate {
     update() {
         // only update if the nodes were already rendered and there are actual values
         if (this.renderTarget && this.#dynamicValues.length) {
-            this.#dynamicValues.forEach((dv) => dv.resolve(this.#refs))
-            this.#broadcast(this.#updateSubs)
+            requestAnimationFrame(() => {
+                this.#dynamicValues.forEach((dv) => dv.resolve(this.#refs))
+                this.#broadcast(this.#updateSubs)
+            })
         }
     }
 
@@ -211,7 +213,9 @@ export class HtmlTemplate {
     }
 
     #broadcast(set: Set<() => void>) {
-        set.forEach((sub) => setTimeout(sub, 0))
+        setTimeout(() => {
+            set.forEach((sub) => sub())
+        })
     }
 
     #init() {
@@ -222,11 +226,20 @@ export class HtmlTemplate {
         ) as DocumentFragment
         // this.#subscribeToState()
         const renderedNodeDvMapping = new WeakMap()
+        // the init is called before mount and for that we can render things synchronously
+        // to prevent unresolved values to flash in the DOM
+        // afterwards we can handle all DOM updates inside the requestAnimationFrame
+        const renderer = this.mounted
+            ? requestAnimationFrame
+            : (cb: () => void) => cb()
+
         this.#dynamicValues.forEach((dv) => {
             this.#stateUnsubs.add(
                 effect(() => {
-                    dv.resolve(this.#refs)
-                    this.mounted && this.#broadcast(this.#updateSubs)
+                    renderer(() => {
+                        dv.resolve(this.#refs)
+                        this.mounted && this.#broadcast(this.#updateSubs)
+                    })
                 })
             )
             dv.renderedNodes.forEach((n) => renderedNodeDvMapping.set(n, dv))
