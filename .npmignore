@@ -3,7 +3,7 @@ node_modules
 src
 tsconfig.json
 package-lock.json
-jest.config.js
+jest.config.cjs
 .npmignore
 .gitignore
 *.tgz
@@ -12,11 +12,7 @@ coverage
 playground
 .prettierrc
 .prettierignore
-.eslintrc.js
+.eslintrc.cjs
 .eslintignore
 docs
 docs-src
-scripts
-build-scripts
-.eslintrc.cjs
-jest.config.cjs
