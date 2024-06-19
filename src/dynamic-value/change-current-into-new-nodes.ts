@@ -13,12 +13,18 @@ export const changeCurrentIntoNewNodes = (
 ) => {
     // if no new child nodes, simply remove all current child nodes
     if (newChildNodes.length === 0) {
-        return currentChildNodes.forEach((c) => c?.parentNode?.removeChild(c))
+        for (const node of currentChildNodes) {
+            node?.parentNode?.removeChild(node)
+        }
+        return
     }
 
     // if not current child nodes simply add everything
     if (currentChildNodes.length === 0) {
-        return newChildNodes.forEach((n) => parent?.appendChild(n))
+        for (const node of newChildNodes) {
+            parent?.appendChild(node)
+        }
+        return
     }
 
     // if both new and current child nodes contain one node
@@ -38,8 +44,10 @@ export const changeCurrentIntoNewNodes = (
         endAnchor = currentChildNodes.at(-1)?.nextSibling ?? null
     let frag = document.createDocumentFragment()
 
-    newChildNodes.forEach((n, i) => {
-        const moved = currentChildNodes[i] !== n
+    for (let i = 0; i < newChildNodes.length; i++) {
+        const n = newChildNodes[i],
+            moved = currentChildNodes[i] !== n
+
         if (moved || !currentChildNodesSet.has(n)) {
             frag.appendChild(n)
 
@@ -54,7 +62,7 @@ export const changeCurrentIntoNewNodes = (
 
             currentChildNodesSet.delete(n)
         }
-    })
+    }
 
     if (frag.childNodes.length) {
         if (endAnchor === null) {
@@ -64,7 +72,7 @@ export const changeCurrentIntoNewNodes = (
         }
     }
 
-    currentChildNodesSet.forEach((c) => {
+    for (const c of currentChildNodesSet) {
         c?.parentNode?.removeChild(c)
-    })
+    }
 }

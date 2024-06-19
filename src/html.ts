@@ -160,7 +160,9 @@ export class HtmlTemplate {
         // only update if the nodes were already rendered and there are actual values
         if (this.renderTarget && this.#dynamicValues.length) {
             requestAnimationFrame(() => {
-                this.#dynamicValues.forEach((dv) => dv.resolve(this.#refs))
+                for (const dv of this.#dynamicValues) {
+                    dv.resolve(this.#refs)
+                }
                 this.#broadcast(this.#updateSubs)
             })
         }
@@ -168,14 +170,14 @@ export class HtmlTemplate {
 
     unmount() {
         if (this.#renderTarget && this.#mounted) {
-            this.#dynamicValues.forEach((dv) => {
+            for (const dv of this.#dynamicValues) {
                 dv.unmount()
-            })
-            this.nodes.forEach((n) => {
+            }
+            for (const n of this.nodes) {
                 if (n.parentNode) {
                     n.parentNode.removeChild(n)
                 }
-            })
+            }
             this.#renderTarget = null
             this.#dynamicValues = []
             this.#mounted = false
@@ -186,9 +188,9 @@ export class HtmlTemplate {
     }
 
     unsubscribeFromStates = () => {
-        this.#stateUnsubs.forEach((unsub) => {
+        for (const unsub of this.#stateUnsubs) {
             unsub()
-        })
+        }
         this.#stateUnsubs.clear()
     }
 
@@ -213,9 +215,9 @@ export class HtmlTemplate {
     }
 
     #broadcast(set: Set<() => void>) {
-        setTimeout(() => {
-            set.forEach((sub) => sub())
-        })
+        for (const sub of set) {
+            sub()
+        }
     }
 
     #init() {
@@ -233,7 +235,7 @@ export class HtmlTemplate {
             ? requestAnimationFrame
             : (cb: () => void) => cb()
 
-        this.#dynamicValues.forEach((dv) => {
+        for (const dv of this.#dynamicValues) {
             this.#stateUnsubs.add(
                 effect(() => {
                     renderer(() => {
@@ -242,8 +244,10 @@ export class HtmlTemplate {
                     })
                 })
             )
-            dv.renderedNodes.forEach((n) => renderedNodeDvMapping.set(n, dv))
-        })
+            for (const n of dv.renderedNodes) {
+                renderedNodeDvMapping.set(n, dv)
+            }
+        }
         this.#nodes = Array.from(
             fragLike.childNodes,
             (n) => renderedNodeDvMapping.get(n) ?? n

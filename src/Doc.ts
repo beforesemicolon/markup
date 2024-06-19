@@ -65,10 +65,12 @@ const node = (
                     return
                 }
 
-                const parts = parseDynamicRawValue(trimmedValue, values)
-                const dvValue = parts.map((p) =>
-                    typeof p === 'string' ? p : p.value
-                )
+                const dvValue: unknown[] = []
+
+                for (const p of parseDynamicRawValue(trimmedValue, values)) {
+                    dvValue.push(typeof p === 'string' ? p : p.value)
+                }
+
                 const partsWithDynamicValues = dvValue.some(isDynamicValue)
 
                 if (
@@ -144,36 +146,32 @@ const node = (
 
             if (n.nodeType === 3) {
                 // text node
-
                 if (n.nodeValue) {
-                    const parts = parseDynamicRawValue(n.nodeValue, values)
+                    for (const part of parseDynamicRawValue(
+                        n.nodeValue,
+                        values
+                    )) {
+                        if (
+                            typeof part !== 'string' &&
+                            isDynamicValue(part.value)
+                        ) {
+                            const txtNode = document.createTextNode(part.text)
+                            node.appendChild(txtNode)
 
-                    parts.forEach((part) => {
-                        if (part) {
-                            if (
-                                typeof part !== 'string' &&
-                                isDynamicValue(part.value)
-                            ) {
-                                const txtNode = document.createTextNode(
-                                    part.text
+                            cb(
+                                new ContentDynamicValueResolver(
+                                    'nodeValue',
+                                    part.text,
+                                    part.value,
+                                    [txtNode]
                                 )
-                                node.appendChild(txtNode)
-
-                                cb(
-                                    new ContentDynamicValueResolver(
-                                        'nodeValue',
-                                        part.text,
-                                        part.value,
-                                        [txtNode]
-                                    )
-                                )
-                            } else {
-                                node.appendChild(
-                                    document.createTextNode(String(part))
-                                )
-                            }
+                            )
+                        } else {
+                            node.appendChild(
+                                document.createTextNode(String(part))
+                            )
                         }
-                    })
+                    }
                 }
             } else {
                 node.appendChild(n as Node)

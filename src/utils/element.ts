@@ -30,9 +30,11 @@ export const element = <A>(
         const Comp = customElements.get(tagName)
         const el = Comp ? new Comp() : document.createElementNS(ns, tagName)
 
-        Object.entries(attributes as Record<string, unknown>).forEach(
-            ([key, val]) => {
-                if (/^on[a-z]+/.test(key)) {
+        if (attributes) {
+            for (const [key, val] of Object.entries(
+                attributes as Record<string, unknown>
+            )) {
+                if (/^on[a-z]+/g.test(key)) {
                     typeof val === 'function' &&
                         el.addEventListener(
                             key.slice(2).toLowerCase(),
@@ -42,7 +44,7 @@ export const element = <A>(
                     setElementAttribute(el, turnCamelToKebabCasing(key), val)
                 }
             }
-        )
+        }
 
         if (textContent) {
             el.textContent = jsonStringify(textContent)

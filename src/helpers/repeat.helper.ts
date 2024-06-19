@@ -50,7 +50,11 @@ export const repeat = <T>(
             return whenEmpty()
         }
 
-        const renderedList = (list as T[]).map(each)
+        const renderedList = []
+
+        for (let i = 0; i < list.length; i++) {
+            renderedList.push(each(list[i], i))
+        }
 
         prevList = list
 
