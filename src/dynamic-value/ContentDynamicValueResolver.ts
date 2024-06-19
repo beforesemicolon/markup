@@ -85,6 +85,8 @@ function unmount(data: unknown) {
     }
 
     if (Array.isArray(data)) {
-        return data.forEach(unmount)
+        for (const n of data) {
+            unmount(n)
+        }
     }
 }

@@ -15,9 +15,9 @@ export const syncNodes = (
     const emptyNode = document.createTextNode('')
     n.parentNode?.replaceChild(emptyNode, n)
 
-    currentNodes.forEach((n: Node) => {
+    for (const n of currentNodes) {
         n.parentNode?.removeChild(n)
-    })
+    }
 
     return [emptyNode]
 }

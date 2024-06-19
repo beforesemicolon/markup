@@ -22,15 +22,15 @@ export const resolveContentDynamicValueToNodes = (
 
             // collect dynamic refs that could appear
             // after render/update
-            Object.entries(value.refs).forEach(([name, els]) => {
-                els.forEach((el) => {
+            for (const [name, els] of Object.entries(value.refs)) {
+                for (const el of els) {
                     if (!refs[name]) {
                         refs[name] = new Set()
                     }
 
                     refs[name].add(el)
-                })
-            })
+                }
+            }
 
             return value.nodes
         }

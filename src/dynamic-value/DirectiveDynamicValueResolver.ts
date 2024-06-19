@@ -1,6 +1,5 @@
 import {
     booleanAttributes,
-    jsonParse,
     jsonStringify,
     setElementAttribute,
     turnCamelToKebabCasing,
@@ -9,12 +8,32 @@ import {
 } from '../utils'
 import { DynamicValueResolver } from './DynamicValueResolver'
 
+const simpleParseString = (value: string) => {
+    if (value === 'undefined') {
+        return undefined
+    }
+
+    if (/^(true|false)$/.test(value)) {
+        return /^true$/.test(value)
+    }
+
+    if (/^[\d.]+$/.test(value)) {
+        return Number(value)
+    }
+
+    return value
+}
+
 export class DirectiveDynamicValueResolver extends DynamicValueResolver<
     unknown[],
     string
 > {
     resolve() {
-        const newData = this.value.map((v) => jsonStringify(val(v))).join('')
+        let newData = ''
+
+        for (let i = 0; i < this.value.length; i++) {
+            newData += jsonStringify(val(this.value[i]))
+        }
 
         if (newData !== this.data) {
             this.data = newData
@@ -22,14 +41,11 @@ export class DirectiveDynamicValueResolver extends DynamicValueResolver<
             const element = this.renderedNodes[0] as HTMLElement
             const valueParts = this.data.split(/\|/)
             const [value, condition] = valueParts.map((s) => s.trim())
-            const parsedValue = jsonParse(value)
-            let shouldAdd = Boolean(
+            const parsedValue = simpleParseString(value)
+            let shouldAdd =
                 valueParts.length > 1
-                    ? typeof condition === 'string'
-                        ? jsonParse(condition)
-                        : condition
+                    ? simpleParseString(condition)
                     : parsedValue
-            )
 
             switch (attrName) {
                 case 'style':
@@ -39,19 +55,19 @@ export class DirectiveDynamicValueResolver extends DynamicValueResolver<
                             shouldAdd ? value : ''
                         )
                     } else {
-                        value
-                            .match(/([a-z][a-z-]+)(?=:):([^;]+)/g)
-                            ?.forEach((style: string) => {
-                                const [name, styleValue] = style
-                                    .split(':')
-                                    .map((s) => s.trim())
+                        for (const style of value.match(
+                            /([a-z][a-z-]+)(?=:):([^;]+)/g
+                        ) ?? []) {
+                            const [name, styleValue] = style
+                                .split(':')
+                                .map((s) => s.trim())
 
-                                if (shouldAdd) {
-                                    element.style.setProperty(name, styleValue)
-                                } else {
-                                    element.style.removeProperty(name)
-                                }
-                            })
+                            if (shouldAdd) {
+                                element.style.setProperty(name, styleValue)
+                            } else {
+                                element.style.removeProperty(name)
+                            }
+                        }
                     }
 
                     if (!element.style.length) {
@@ -68,15 +84,13 @@ export class DirectiveDynamicValueResolver extends DynamicValueResolver<
                         }
                     } else {
                         // ''.split(/\s+/g) results in [''] which will fail in classList actions
-                        ;(value ? value.split(/\s+/g) : []).forEach(
-                            (cls: string) => {
-                                if (shouldAdd) {
-                                    element.classList.add(cls)
-                                } else {
-                                    element.classList.remove(cls)
-                                }
+                        for (const cls of value ? value.split(/\s+/g) : []) {
+                            if (shouldAdd) {
+                                element.classList.add(cls)
+                            } else {
+                                element.classList.remove(cls)
                             }
-                        )
+                        }
                     }
 
                     if (!element.classList.length) {

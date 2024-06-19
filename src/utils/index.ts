@@ -1,5 +1,4 @@
 export * from './boolean-attributes'
-export * from './json-parse'
 export * from './json-stringify'
 export * from './is-object-literal'
 export * from './turn-kebab-to-camel-casing'
