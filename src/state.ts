@@ -46,7 +46,9 @@ export const state = <T>(
 
             if (updatedValue !== value) {
                 value = updatedValue
-                subs.forEach((sub) => sub())
+                for (const sub of subs) {
+                    sub()
+                }
             }
         },
         () => {
@@ -80,7 +82,11 @@ export const effect = <T>(
 
         ;(fn ?? handler)(handler)
 
-        return () => res.unsubs.forEach((unsub) => unsub())
+        return () => {
+            for (const unsub of res.unsubs) {
+                unsub()
+            }
+        }
     }
 
     throw new Error(`effect: callback must be a function`)

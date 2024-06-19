@@ -1,4 +1,3 @@
-import { isObjectLiteral, jsonParse } from '../utils'
 import { DynamicValueResolver } from './DynamicValueResolver'
 
 export class EventDynamicValueResolver extends DynamicValueResolver<
@@ -6,9 +5,7 @@ export class EventDynamicValueResolver extends DynamicValueResolver<
     EventListener
 > {
     resolve() {
-        const eventHandler = this.value.find(
-            (p) => typeof p === 'function'
-        ) as EventListenerOrEventListenerObject
+        const eventHandler = this.value[0] as EventListenerOrEventListenerObject
 
         if (typeof eventHandler !== 'function') {
             throw new Error(
@@ -18,12 +15,19 @@ export class EventDynamicValueResolver extends DynamicValueResolver<
 
         if (this.data !== eventHandler) {
             const node = this.renderedNodes[0]
-            const option =
-                this.value.length > 1
-                    ? this.value.find(
-                          (p) => typeof p === 'boolean' || isObjectLiteral(p)
-                      )
-                    : jsonParse(this.rawValue.split(',')[1])
+            let option = this.value[1]
+
+            if (option == undefined) {
+                const rawOpt = this.rawValue.split(',')[1]
+
+                if (rawOpt) {
+                    try {
+                        option = JSON.parse(rawOpt)
+                    } catch (e) {
+                        // ignore
+                    }
+                }
+            }
 
             node.addEventListener(
                 this.prop as string,

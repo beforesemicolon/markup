@@ -11,40 +11,30 @@ const handleLastPart = (parts: unknown[], str: string) => {
 }
 
 export const parseDynamicRawValue = (str: string, values: unknown[]) => {
-    const vals = Array.from(str.matchAll(/\$val([0-9]+)/g))
+    const pattern = /\$val([0-9]+)/g,
+        parts: (string | { value: unknown; text: string })[] = []
+    let match: RegExpExecArray | null = null,
+        lastIndex = 0
 
-    if (!vals.length) {
-        return [str]
-    }
-
-    const parts: (string | { value: unknown; text: string })[] = []
-    let idx = 0
-
-    for (const val of vals) {
-        const prevVal = vals[idx - 1]
-        const value = values[Number(val[0].match(/\d+/g))]
-        const newPart = str.slice(
-            prevVal ? (prevVal.index ?? 0) + prevVal[0].length : 0,
-            val.index
-        )
+    while ((match = pattern.exec(str)) !== null) {
+        const [text, idx] = match,
+            part = str.slice(lastIndex, match.index),
+            value = values[Number(idx)]
 
         if (isPrimitive(value) || value === null) {
-            handleLastPart(parts, newPart + value)
+            handleLastPart(parts, part + value)
         } else {
-            newPart && parts.push(newPart)
-            parts.push({ value, text: val[0] })
+            part && parts.push(part)
+            parts.push({ value, text })
         }
 
-        idx += 1
+        lastIndex = pattern.lastIndex
     }
 
-    const lastVal = vals.at(-1)
+    const lastPart = str.slice(lastIndex)
 
-    if (lastVal) {
-        handleLastPart(
-            parts,
-            str.substring((lastVal.index ?? 0) + lastVal[0].length)
-        )
+    if (lastPart) {
+        handleLastPart(parts, lastPart)
     }
 
     return parts
