@@ -9,7 +9,9 @@ import {
 
 interface Resolver {
     sub: StateSubscriber
-    unsubs: EffectUnSubscriber[]
+    unsubs: Set<EffectUnSubscriber>
+    children: Set<Resolver>
+    clear: () => void
 }
 
 const currentResolvers: Resolver[] = []
@@ -32,7 +34,7 @@ export const state = <T>(
                 !subs.has(currentResolver?.sub)
             ) {
                 subs.add(currentResolver.sub)
-                currentResolver.unsubs.push(() =>
+                currentResolver.unsubs.add(() =>
                     subs.delete(currentResolver?.sub)
                 )
             }
@@ -57,36 +59,42 @@ export const state = <T>(
     ])
 }
 
-export const effect = <T>(
-    sub: EffectSubscriber<T>,
-    {
-        fn,
-    }: {
-        fn?: typeof requestAnimationFrame | typeof setTimeout
-    } = {}
-) => {
+export const effect = <T>(sub: EffectSubscriber<T>) => {
     if (typeof sub === 'function') {
         let value: T | undefined
-        const subWrapper: StateSubscriber = () => {
-            value = sub(value)
-        }
-        const res: Resolver = { sub: subWrapper, unsubs: [] },
-            handler = () => {
+        const res: Resolver = {
+            sub() {
+                const parent = currentResolvers.at(-1) as Resolver
+
+                if (parent && parent !== res) {
+                    parent.children.add(res)
+                }
+
                 currentResolvers.push(res)
                 try {
-                    subWrapper()
+                    value = sub(value)
                 } finally {
                     currentResolvers.pop()
                 }
-            }
-
-        ;(fn ?? handler)(handler)
-
-        return () => {
-            for (const unsub of res.unsubs) {
-                unsub()
-            }
+            },
+            unsubs: new Set(),
+            children: new Set(),
+            clear() {
+                for (const child of this.children) {
+                    child.clear()
+                }
+                for (const unsub of this.unsubs) {
+                    unsub()
+                }
+                this.children.clear()
+                this.unsubs.clear()
+                value = undefined
+            },
         }
+
+        res.sub()
+
+        return () => res.clear()
     }
 
     throw new Error(`effect: callback must be a function`)
