@@ -1,5 +1,5 @@
 import { StateGetter } from '../types'
-import { val } from '../utils'
+import { val } from '../utils/val'
 
 /**
  * given a dot separated string key it will try to get deep value from an object literal or array

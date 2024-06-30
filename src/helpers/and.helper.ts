@@ -1,4 +1,4 @@
-import { val } from '../utils'
+import { val } from '../utils/val'
 
 /**
  * checks if all values are truthy

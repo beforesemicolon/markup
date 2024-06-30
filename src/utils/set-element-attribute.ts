@@ -8,7 +8,7 @@ import { isPrimitive } from './is-primitive'
  * @param value
  */
 export const setElementAttribute = (
-    el: Element,
+    el: HTMLElement | Element,
     key: string,
     value: unknown
 ) => {

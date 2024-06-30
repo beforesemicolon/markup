@@ -1,13 +1,7 @@
 import { jsonStringify } from './json-stringify'
 import { setElementAttribute } from './set-element-attribute'
 import { turnCamelToKebabCasing } from './turn-camel-to-kebab-casing'
-
-export interface ElementOptions<A> {
-    attributes?: A
-    textContent?: string
-    htmlContent?: string
-    ns?: 'http://www.w3.org/1999/xhtml' | 'http://www.w3.org/2000/svg' | ''
-}
+import { ElementOptions } from '../types'
 
 /**
  * creates HTML element based of provided details

@@ -1,7 +1,8 @@
 import {html, HtmlTemplate} from './html'
 import {state} from './state'
 import {when, repeat, oneOf, is} from './helpers'
-import { element, suspense } from './utils'
+import { suspense } from './utils/suspense'
+import { element } from './utils/element'
 
 describe('html', () => {
 	beforeEach(() => {
@@ -98,27 +99,25 @@ describe('html', () => {
 	})
 	
 	it('should render dynamic text and update', () => {
-		let x = 15
+		let [x, setX] = state(15)
 		
-		const temp = html`${() => (x > 10 ? 'more than 10' : 'less than 10')}`
+		const temp = html`${() => (x() > 10 ? 'more than 10' : 'less than 10')}`
 		
 		temp.render(document.body)
 		
 		expect(document.body.innerHTML).toBe('more than 10')
 		
-		x = 5
-		
-		temp.update()
+		setX(5)
 		
 		expect(document.body.innerHTML).toBe('less than 10')
 	})
 	
 	it('should render dynamic HTML and update', () => {
-		let x = 15
+		let [x, setX] = state(15)
 		const a = html`<p>more than 10</p>`
 		const b = html`<p>less than 10</p>`
 		
-		const temp = html`total: ${() => (x > 10 ? html`>${a}` : html`<${b}`)}`
+		const temp = html`total: ${() => (x() > 10 ? html`>${a}` : html`<${b}`)}`
 		
 		temp.render(document.body)
 		
@@ -128,18 +127,16 @@ describe('html', () => {
 			">",
 			"<p>more than 10</p>"
 		])
-		expect(a.mounted).toBeTruthy()
+		expect(a.isConnected).toBeTruthy()
 		expect(a.nodes).toHaveLength(1)
 		expect((a.nodes[0] as Element).outerHTML).toBe('<p>more than 10</p>')
 		
-		expect(b.mounted).toBeFalsy()
+		expect(b.isConnected).toBeFalsy()
 		expect(b.nodes).toHaveLength(0)
 		
 		expect(document.body.innerHTML).toBe('total: &gt;<p>more than 10</p>')
 		
-		x = 5
-
-		temp.update()
+		setX(5)
 
 		expect(temp.nodes).toHaveLength(3)
 		expect(temp.nodes.map(n => (n as Element).outerHTML || n.nodeValue)).toEqual([
@@ -178,25 +175,17 @@ describe('html', () => {
 	})
 	
 	it('should render a growing list of items', () => {
-		const list: HtmlTemplate[] = []
+		const [list, updateList] = state<HtmlTemplate[]>([])
 		
-		const app = html`${() => list}`
-		
-		app.render(document.body)
+		html`${list}`.render(document.body)
 		
 		expect(document.body.innerHTML).toBe('')
 		
-		list.push(html`
-			<div>one</div>`)
-		
-		app.update()
+		updateList([html`<div>one</div>`])
 		
 		expect(document.body.innerHTML).toBe('<div>one</div>')
 		
-		list.push(html`
-			<div>two</div>`)
-		
-		app.update()
+		updateList(prev => [...prev, html`<div>two</div>`])
 		
 		expect(document.body.innerHTML).toBe('<div>one</div><div>two</div>')
 	})
@@ -257,22 +246,6 @@ describe('html', () => {
 		expect(document.body.innerHTML).toBe('<button>Page CTA Action</button>')
 	})
 	
-	it('should replace async html template', (done) => {
-		const cont = html`${suspense(() => {
-			return new Promise((res, rej) => {
-				res(html`done`)
-				setTimeout(() => {
-					expect(document.body.innerHTML).toBe('done')
-					done();
-				}, 0)
-			})
-		}, html`...`)}`
-		
-		cont.render(document.body)
-		
-		expect(document.body.innerHTML).toBe('...')
-	});
-	
 	it('should render src', () => {
 		const button = html`
 			<button>click me</button>`
@@ -283,9 +256,9 @@ describe('html', () => {
 	})
 	
 	it('should render src with dynamic attr value', () => {
-		let type = 'button'
+		let [type, setType] = state('button')
 		const button = html`
-			<button type="${() => type}">click me</button>`
+			<button type="${type}">click me</button>`
 		
 		button.render(document.body)
 		
@@ -293,9 +266,7 @@ describe('html', () => {
 			'<button type="button">click me</button>'
 		)
 		
-		type = 'submit'
-		
-		button.update()
+		setType('submit')
 		
 		expect(document.body.innerHTML).toBe(
 			'<button type="submit">click me</button>'
@@ -317,9 +288,9 @@ describe('html', () => {
 	
 	it('should render dynamic src', () => {
 		const value = 'sample'
-		let edit = false
+		let [edit, setEdit] = state(false)
 		const val = html`${() =>
-			edit
+			edit()
 				? html`<input type="text" value="${value}"/>`
 				: html`<p>${value}</p>`}`
 		
@@ -327,9 +298,7 @@ describe('html', () => {
 		
 		expect(document.body.innerHTML).toBe('<p>sample</p>')
 		
-		edit = true
-		
-		val.update()
+		setEdit(true)
 		
 		expect(document.body.innerHTML).toBe(
 			'<input type="text" value="sample">'
@@ -348,10 +317,10 @@ describe('html', () => {
 	})
 	
 	it('should render nested src 2 levels with dynamic inner level', () => {
-		let items = [1, 2, 3]
+		let [items, updateItems] = state([1, 2, 3])
 		const list = html`
 			<ul>
-				${() => items.map((i) => html`
+				${() => items().map((i) => html`
 					<li>item-${i}</li>`)}
 			</ul>`
 		
@@ -363,17 +332,13 @@ describe('html', () => {
 			'\t\t\t</ul>'
 		)
 		
-		items = [1]
-		
-		list.update()
+		updateItems([1])
 		
 		expect(document.body.innerHTML).toBe('<ul>\n' +
 			'\t\t\t\t<li>item-1</li>\n' +
 			'\t\t\t</ul>')
 		
-		items = [1, 2]
-		
-		list.update()
+		updateItems([1, 2])
 		
 		expect(document.body.innerHTML).toBe(
 			'<ul>\n' +
@@ -381,17 +346,13 @@ describe('html', () => {
 			'\t\t\t</ul>'
 		)
 		
-		items = []
-		
-		list.update()
+		updateItems([])
 		
 		expect(document.body.innerHTML).toBe('<ul>\n' +
 			'\t\t\t\t\n' +
 			'\t\t\t</ul>')
 		
-		items = [1, 2, 3]
-		
-		list.update()
+		updateItems([1, 2, 3])
 		
 		expect(document.body.innerHTML).toBe(
 			'<ul>\n' +
@@ -500,7 +461,7 @@ describe('html', () => {
 			() => html`
 				<button onclick="${2}">click me</button>`.render(document.body)
 		).toThrowError(
-			'handler for event "onclick" is not a function. Found "2".'
+			'Handler for event "onclick" is not a function. Found "2".'
 		)
 	})
 
@@ -519,7 +480,7 @@ describe('html', () => {
 			<one-comp one="${2}"></one-comp>`.render(document.body)).not.toThrowError()
 		expect(() => html`
 			<two-comp one="${2}"></two-comp>`.render(document.body)).toThrowError(
-			'handler for event "one" is not a function. Found "2".'
+			'Handler for event "one" is not a function. Found "2".'
 		)
 	})
 	
@@ -551,42 +512,84 @@ describe('html', () => {
 		expect(document.body.innerHTML).toBe('<button>click me</button>');
 	})
 	
-	it('should handle ref directive on dynamic elements', () => {
-		let x = 15
-		const label = html`${when(
-			() => x > 10,
-			html`<span ref="greater">greater than 10</span>`,
-			html`<span ref="less">less than 10</span>`
-		)}`
-		const btn = html`
-			<button ref="btn">${label}</button>`
+	describe('should handle refs', () => {
+		it('when anywhere inside own template', () => {
+			const temp = html`<div ref="box">
+				<p ref="paragraph">some text <span ref="value">value</span></p>
+			</div>`.render(document.body)
+			
+			expect(temp.refs).toEqual({
+				"box": [
+					expect.any(HTMLDivElement)
+				],
+				"paragraph": [
+					expect.any(HTMLParagraphElement)
+				],
+				"value": [
+					expect.any(HTMLSpanElement)
+				]
+			})
+		})
 		
-		expect(btn.refs['btn']).toBeUndefined()
-		expect(btn.refs['greater']).toBeUndefined()
-		expect(btn.refs['less']).toBeUndefined()
+		it('when in a nested template', () => {
+			const p = html`<p ref="paragraph">some text <span ref="value">value</span></p>`
+			const temp = html`<div ref="box">
+				${p}
+			</div>`.render(document.body)
+			
+			expect(temp.refs).toEqual({
+				"box": [
+					expect.any(HTMLDivElement)
+				],
+				"paragraph": [
+					expect.any(HTMLParagraphElement)
+				],
+				"value": [
+					expect.any(HTMLSpanElement)
+				]
+			})
+		})
 		
-		btn.render(document.body)
-		
-		expect(document.body.innerHTML).toBe('<button><span>greater than 10</span></button>')
-		expect(btn.refs['btn'][0]).toBeInstanceOf(HTMLButtonElement)
-		expect(btn.refs['greater'][0]).toBeInstanceOf(HTMLSpanElement)
-		expect(btn.refs['less']).toBeUndefined()
-		
-		x = 5
-		
-		btn.update()
-		
-		expect(document.body.innerHTML).toBe('<button><span>less than 10</span></button>')
-		expect(btn.refs['btn'][0]).toBeInstanceOf(HTMLButtonElement)
-		expect(btn.refs['greater'][0]).toBeInstanceOf(HTMLSpanElement)
-		expect(btn.refs['less'][0]).toBeInstanceOf(HTMLSpanElement)
+		it('when dynamic', () => {
+			let [x, setX] = state(15)
+			const label = html`${when(
+				() => x() > 10,
+				html`<span ref="greater">greater than 10</span>`,
+				html`<span ref="less">less than 10</span>`
+			)}`
+			const btn = html`<button ref="btn">${label}</button>`
+			
+			btn.render(document.body)
+			
+			expect(btn.refs).toEqual({
+				"btn": [
+					expect.any(HTMLButtonElement)
+				],
+				"greater": [
+					expect.any(HTMLSpanElement)
+				]
+			})
+			
+			setX(5)
+
+			expect(document.body.innerHTML).toBe('<button><span>less than 10</span></button>')
+			
+			expect(btn.refs).toEqual({
+				"btn": [
+					expect.any(HTMLButtonElement)
+				],
+				"less": [
+					expect.any(HTMLSpanElement)
+				]
+			})
+		})
 	})
 	
 	describe('should handle attr directive', () => {
 		it('class name as property', () => {
-			let loading = true
+			let [loading, setLoading] = state(true)
 			const btn = html`
-				<button attr.class.loading="${() => loading}" attr.class.btn="true">click me</button>`
+				<button attr.class.btn="true" attr.class.loading="${loading}">click me</button>`
 			
 			btn.render(document.body)
 			
@@ -594,9 +597,7 @@ describe('html', () => {
 				'<button class="btn loading">click me</button>'
 			)
 			
-			loading = false
-
-			btn.update()
+			setLoading(false)
 
 			expect(document.body.innerHTML).toBe(
 				'<button class="btn">click me</button>'
@@ -604,9 +605,9 @@ describe('html', () => {
 		})
 		
 		it('class name as property without attr.', () => {
-			let loading = true
+			let [loading, setLoading] = state(true)
 			const btn = html`
-				<button class.loading="${() => loading}" class.btn="true">click me</button>`
+				<button class.btn="true" class.loading="${loading}">click me</button>`
 			
 			btn.render(document.body)
 			
@@ -614,9 +615,7 @@ describe('html', () => {
 				'<button class="btn loading">click me</button>'
 			)
 			
-			loading = false
-			
-			btn.update()
+			setLoading(false)
 			
 			expect(document.body.innerHTML).toBe(
 				'<button class="btn">click me</button>'
@@ -624,9 +623,9 @@ describe('html', () => {
 		})
 		
 		it('class name as value', () => {
-			let loading = true
+			let [loading, setLoading] = state(true)
 			const btn = html`
-				<button attr.class="loading | ${() => loading}">click me</button>`
+				<button attr.class="loading | ${loading}">click me</button>`
 			
 			btn.render(document.body)
 			
@@ -634,17 +633,15 @@ describe('html', () => {
 				'<button class="loading">click me</button>'
 			)
 			
-			loading = false
-			
-			btn.update()
+			setLoading(false)
 			
 			expect(document.body.innerHTML).toBe('<button>click me</button>')
 		})
 		
 		it('class name as value without attr.', () => {
-			let loading = true
+			let [loading, setLoading] = state(true)
 			const btn = html`
-				<button class="loading | ${() => loading}">click me</button>`
+				<button class="loading | ${loading}">click me</button>`
 			
 			btn.render(document.body)
 			
@@ -652,9 +649,7 @@ describe('html', () => {
 				'<button class="loading">click me</button>'
 			)
 			
-			loading = false
-			
-			btn.update()
+			setLoading(false)
 			
 			expect(document.body.innerHTML).toBe('<button>click me</button>')
 		})
@@ -668,9 +663,9 @@ describe('html', () => {
 		})
 		
 		it('data name as property', () => {
-			let loading = true
+			let [loading, setLoading] = state(true)
 			const btn = html`
-				<button attr.data.loading="${() => loading}" attr.data.btn="true">click me</button>`
+				<button attr.data.btn="true" attr.data.loading="${loading}">click me</button>`
 			
 			btn.render(document.body)
 			
@@ -678,9 +673,7 @@ describe('html', () => {
 				'<button data-btn="true" data-loading="true">click me</button>'
 			)
 			
-			loading = false
-			
-			btn.update()
+			setLoading(false)
 			
 			expect(document.body.innerHTML).toBe(
 				'<button data-btn="true">click me</button>'
@@ -688,9 +681,9 @@ describe('html', () => {
 		})
 		
 		it('data name as property without attr.', () => {
-			let loading = true
+			let [loading, setLoading] = state(true)
 			const btn = html`
-				<button data.loading="${() => loading}" data.btn="true">click me</button>`
+				<button data.btn="true" data.loading="${loading}">click me</button>`
 			
 			btn.render(document.body)
 			
@@ -698,9 +691,7 @@ describe('html', () => {
 				'<button data-btn="true" data-loading="true">click me</button>'
 			)
 			
-			loading = false
-			
-			btn.update()
+			setLoading(false)
 			
 			expect(document.body.innerHTML).toBe(
 				'<button data-btn="true">click me</button>'
@@ -708,9 +699,9 @@ describe('html', () => {
 		})
 		
 		it('data name as property without dot notation', () => {
-			let loading = true
+			let [loading, setLoading] = state(true)
 			const btn = html`
-				<button attr.data-loading="${() => loading}" attr.data-btn="true">click me</button>`
+				<button attr.data-btn="true" attr.data-loading="${loading}">click me</button>`
 			
 			btn.render(document.body)
 			
@@ -718,9 +709,7 @@ describe('html', () => {
 				'<button data-btn="true" data-loading="true">click me</button>'
 			)
 			
-			loading = false
-			
-			btn.update()
+			setLoading(false)
 			
 			expect(document.body.innerHTML).toBe(
 				'<button data-btn="true">click me</button>'
@@ -728,9 +717,9 @@ describe('html', () => {
 		})
 		
 		it('data name as property without attr. and dot notation', () => {
-			let loading = true
+			let [loading, setLoading] = state(true)
 			const btn = html`
-				<button data-loading="${() => loading}" data-btn="true">click me</button>`
+				<button data-btn="true" data-loading="${loading}">click me</button>`
 			
 			btn.render(document.body)
 			
@@ -738,9 +727,7 @@ describe('html', () => {
 				'<button data-btn="true" data-loading="true">click me</button>'
 			)
 			
-			loading = false
-			
-			btn.update()
+			setLoading(false)
 			
 			expect(document.body.innerHTML).toBe(
 				'<button data-btn="true">click me</button>'
@@ -820,17 +807,15 @@ describe('html', () => {
 		})
 		
 		it('style property with flag', () => {
-			let pointer = false
+			let [pointer, setPointer] = state(false)
 			const btn = html`
-				<button attr.style.cursor="pointer | ${() => pointer}">click me</button>`
+				<button attr.style.cursor="pointer | ${pointer}">click me</button>`
 			
 			btn.render(document.body)
 			
 			expect(document.body.innerHTML).toBe('<button>click me</button>')
 			
-			pointer = true
-			
-			btn.update()
+			setPointer(true)
 			
 			expect(document.body.innerHTML).toBe(
 				'<button style="cursor: pointer;">click me</button>'
@@ -838,17 +823,15 @@ describe('html', () => {
 		})
 		
 		it('style property with flag without attr.', () => {
-			let pointer = false
+			let [pointer, setPointer] = state(false)
 			const btn = html`
-				<button style.cursor="pointer | ${() => pointer}">click me</button>`
+				<button style.cursor="pointer | ${pointer}">click me</button>`
 			
 			btn.render(document.body)
 			
 			expect(document.body.innerHTML).toBe('<button>click me</button>')
 			
-			pointer = true
-			
-			btn.update()
+			setPointer(true)
 			
 			expect(document.body.innerHTML).toBe(
 				'<button style="cursor: pointer;">click me</button>'
@@ -856,17 +839,15 @@ describe('html', () => {
 		})
 		
 		it('style value with flag', () => {
-			let pointer = false
+			let [pointer, setPointer] = state(false)
 			const btn = html`
-				<button attr.style="cursor: pointer | ${() => pointer}">click me</button>`
+				<button attr.style="cursor: pointer | ${pointer}">click me</button>`
 			
 			btn.render(document.body)
 			
 			expect(document.body.innerHTML).toBe('<button>click me</button>')
 			
-			pointer = true
-			
-			btn.update()
+			setPointer(true)
 			
 			expect(document.body.innerHTML).toBe(
 				'<button style="cursor: pointer;">click me</button>'
@@ -874,17 +855,15 @@ describe('html', () => {
 		})
 		
 		it('style value with flag without attr.', () => {
-			let pointer = false
+			let [pointer, setPointer] = state(false)
 			const btn = html`
-				<button style="cursor: pointer | ${() => pointer}">click me</button>`
+				<button style="cursor: pointer | ${pointer}">click me</button>`
 			
 			btn.render(document.body)
 			
 			expect(document.body.innerHTML).toBe('<button>click me</button>')
 			
-			pointer = true
-			
-			btn.update()
+			setPointer(true)
 			
 			expect(document.body.innerHTML).toBe(
 				'<button style="cursor: pointer;">click me</button>'
@@ -910,9 +889,9 @@ describe('html', () => {
 		})
 		
 		it('any boolean attr', () => {
-			let disabled = true
+			let [disabled, setDisabled] = state(true)
 			const btn = html`
-				<button attr.disabled="${() => disabled}">click me</button>`
+				<button attr.disabled="${disabled}">click me</button>`
 			
 			btn.render(document.body)
 			
@@ -920,17 +899,15 @@ describe('html', () => {
 				'<button disabled="true">click me</button>'
 			)
 			
-			disabled = false
-			
-			btn.update()
+			setDisabled(false)
 			
 			expect(document.body.innerHTML).toBe('<button>click me</button>')
 		})
 		
 		it('any boolean attr without attr.', () => {
-			let disabled = false
+			let [disabled, setDisabled] = state(false)
 			const btn = html`
-				<button disabled="${() => disabled}">click me</button>`
+				<button disabled="${disabled}">click me</button>`
 			
 			btn.render(document.body)
 			
@@ -938,9 +915,7 @@ describe('html', () => {
 				'<button>click me</button>'
 			)
 			
-			disabled = true
-			
-			btn.update()
+			setDisabled(true)
 			
 			expect(document.body.innerHTML).toBe('<button disabled="true">click me</button>')
 		})
@@ -980,9 +955,9 @@ describe('html', () => {
 		})
 		
 		it('any boolean attr with possible values', () => {
-			let hidden = true
+			let [hidden, setHidden] = state(true)
 			const btn = html`
-				<button attr.hidden="until-found | ${() => hidden}">click me</button>`
+				<button attr.hidden="until-found | ${hidden}">click me</button>`
 			
 			btn.render(document.body)
 			
@@ -990,17 +965,15 @@ describe('html', () => {
 				'<button hidden="until-found">click me</button>'
 			)
 			
-			hidden = false
-			
-			btn.update()
+			setHidden(false)
 			
 			expect(document.body.innerHTML).toBe('<button>click me</button>')
 		})
 		
 		it('any boolean attr with possible values without attr.', () => {
-			let hidden = true
+			let [hidden, setHidden] = state(true)
 			const btn = html`
-				<button hidden="until-found | ${() => hidden}">click me</button>`
+				<button hidden="until-found | ${hidden}">click me</button>`
 			
 			btn.render(document.body)
 			
@@ -1008,17 +981,15 @@ describe('html', () => {
 				'<button hidden="until-found">click me</button>'
 			)
 			
-			hidden = false
-			
-			btn.update()
+			setHidden(false)
 			
 			expect(document.body.innerHTML).toBe('<button>click me</button>')
 		})
 		
 		it('any non-primitive-boolean attr', () => {
-			let disabled = true
+			let [disabled, setDisabled] = state(true)
 			const btn = html`
-				<button attr.aria-disabled="${() => disabled}">click me</button>`
+				<button attr.aria-disabled="${disabled}">click me</button>`
 			
 			btn.render(document.body)
 			
@@ -1026,9 +997,7 @@ describe('html', () => {
 				'<button aria-disabled="true">click me</button>'
 			)
 			
-			disabled = false
-			
-			btn.update()
+			setDisabled(false)
 			
 			expect(document.body.innerHTML).toBe(
 				'<button>click me</button>'
@@ -1036,31 +1005,27 @@ describe('html', () => {
 		})
 		
 		it('any key-value pair', () => {
-			let pattern = ''
-			const field = html`<input attr.pattern="${() => pattern} | ${() => pattern}"/>`
+			let [pattern, setPattern] = state('')
+			const field = html`<input attr.pattern="${pattern} | ${pattern}"/>`
 			
 			field.render(document.body)
 			
 			expect(document.body.innerHTML).toBe('<input>')
 			
-			pattern = '[a-z]'
-			
-			field.update()
+			setPattern('[a-z]')
 			
 			expect(document.body.innerHTML).toBe('<input pattern="[a-z]">')
 		})
 		
 		it('any key-value pair without .attr', () => {
-			let pattern = ''
-			const field = html`<input pattern="${() => pattern} | ${() => pattern}"/>`
+			let [pattern, setPattern] = state('')
+			const field = html`<input pattern="${pattern} | ${pattern}"/>`
 			
 			field.render(document.body)
 			
 			expect(document.body.innerHTML).toBe('<input>')
 			
-			pattern = '[a-z]'
-			
-			field.update()
+			setPattern('[a-z]')
 			
 			expect(document.body.innerHTML).toBe('<input pattern="[a-z]">')
 		})
@@ -1181,20 +1146,23 @@ describe('html', () => {
 
 		class ObjValue extends HTMLElement {
 			static observedAttributes = ['sample'];
-			#sample: any;
+			#sample = (() => {
+				const [value, updateValue] = state<any>(null)
+				
+				return {value, updateValue}
+			})();
 			temp: HtmlTemplate | undefined;
 
 			get sample() {
-				return this.#sample;
+				return this.#sample.value;
 			}
 
 			set sample(val) {
-				this.#sample = val;
-				this.temp?.update()
+				this.#sample.updateValue(val);
 			}
 
 			connectedCallback() {
-				this.temp = html`${() => this.sample?.x}`;
+				this.temp = html`${() => this.sample()?.x}`;
 
 				this.temp.render(this)
 			}
@@ -1239,9 +1207,9 @@ describe('html', () => {
 		})
 		
 		it('with number value and node return', () => {
-			let count = 2
+			let [count, setCount] = state(2)
 			const el = html`${repeat(
-				() => count,
+				count,
 				(n) => html`<span>${n}</span>`
 			)}`
 			
@@ -1249,9 +1217,7 @@ describe('html', () => {
 			
 			expect(document.body.innerHTML).toBe('<span>1</span><span>2</span>')
 			
-			count = 3
-			
-			el.update()
+			setCount(3)
 			
 			expect(document.body.innerHTML).toBe(
 				'<span>1</span><span>2</span><span>3</span>'
@@ -1259,9 +1225,9 @@ describe('html', () => {
 		})
 		
 		it('with object value and node return', () => {
-			const items = [{name: 'one'}, {name: 'two'}]
+			const [items, updateItems] = state([{name: 'one'}, {name: 'two'}])
 			const el = html`${repeat(
-				() => items,
+				items,
 				(n) => html`<span>${n.name}</span>`
 			)}`
 			
@@ -1273,18 +1239,21 @@ describe('html', () => {
 			const n1 = document.body.children[0]
 			const n2 = document.body.children[1]
 			
-			items[0] = {name: 'first'}
 			
-			el.update()
+			updateItems(prev => [
+				{name: 'first'},
+				prev[1]
+			])
 			
 			expect(document.body.innerHTML).toBe(
 				'<span>first</span><span>two</span>'
 			)
 			expect(n1).not.toEqual(document.body.children[0])
 			
-			items.push({name: 'last'})
-			
-			el.update()
+			updateItems(prev => [
+				...prev,
+				{name: 'last'}
+			])
 			
 			expect(document.body.innerHTML).toBe(
 				'<span>first</span><span>two</span><span>last</span>'
@@ -1303,9 +1272,9 @@ describe('html', () => {
 			
 			customElements.define('test-component', TestComponent)
 			
-			const items = [{name: 'one'}, {name: 'two'}]
+			const [items, updateItems] = state([{name: 'one'}, {name: 'two'}])
 			const el = html`${repeat(
-				() => items,
+				items,
 				(n) => html`
 					<test-component val="${n}"></test-component>`
 			)}`
@@ -1320,15 +1289,17 @@ describe('html', () => {
 			expect(valMock).toHaveBeenCalledWith({name: 'one'})
 			expect(valMock).toHaveBeenCalledWith({name: 'two'})
 			
-			items[0] = {name: 'first'}
-			
-			el.update()
+			updateItems(prev => [
+				{name: 'first'},
+				prev[1]
+			])
 			
 			expect(valMock).toHaveBeenCalledWith({name: 'first'})
 			
-			items.push({name: 'last'})
-			
-			el.update()
+			updateItems(prev => [
+				...prev,
+				{name: 'last'}
+			])
 			
 			expect(valMock).toHaveBeenCalledWith({name: 'last'})
 		})
@@ -1350,17 +1321,26 @@ describe('html', () => {
 			items.render(document.body)
 			
 			expect(document.body.innerHTML).toBe(
-				'<span>item 1</span><span>item 5</span><span>item 3</span>'
+				'<span>item 1</span><span>item 3</span><span>item 5</span>'
 			)
 		})
 		
 		it('with array of values as html instance based on object', () => {
+			
 			class TodoItem extends HTMLElement {
 				temp: any
 				static observedAttributes = ['name', 'description', 'status']
-				#status = ''
-				#description = ''
-				#name = ''
+				state = (() => {
+					const [name, updateName] = state('');
+					const [description, updateDescription] = state('');
+					const [status, updateStatus] = state('pending');
+					
+					return {
+						name, updateName,
+						description, updateDescription,
+						status, updateStatus
+					}
+				})()
 				
 				constructor() {
 					super()
@@ -1387,23 +1367,23 @@ describe('html', () => {
 					this.temp = html`
 						<div class="todo-item">
 							<div class="details">
-								<h3>${this.#name}</h3>
+								<h3>${this.state.name}</h3>
 								${when(
-									this.#description,
-									() => html`<p>${this.#description}</p>`
+									this.state.description,
+									() => html`<p>${this.state.description}</p>`
 								)}
 							</div>
 							<div class="todo-actions">
 								${when(
-									() => this.#status === 'pending',
+									is(this.state.status, 'pending'),
 									html`${completeBtn}${editBtn}`
 								)}
 								${when(
-									oneOf(this.#status, ['completed', 'pending']),
+									oneOf(this.state.status, ['completed', 'pending']),
 									archiveBtn
 								)}
 								${when(
-									() => this.#status === 'archived',
+									is(this.state.status, 'archived'),
 									html`${progressBtn}${deleteBtn}`
 								)}
 							</div>
@@ -1419,36 +1399,32 @@ describe('html', () => {
 				) {
 					switch (name) {
 						case 'name':
-							this.#name = newValue
+							this.state.updateName(newValue)
 							break
 						case 'description':
-							this.#description = newValue
+							this.state.updateDescription(newValue)
 							break
 						case 'status':
-							this.#status = newValue
+							this.state.updateStatus(newValue)
 							break
-					}
-					
-					if (this.isConnected) {
-						this.temp.update()
 					}
 				}
 			}
 			
 			customElements.define('todo-item', TodoItem)
 			
-			const todoList = [
+			const [todoList, updateTodoList] = state([
 				{name: 'sample', description: '', status: 'pending'},
-			]
+			])
 			
 			const todos = html`${repeat(
-				() => todoList,
-				(item: any) =>
+				todoList,
+				(item) =>
 					html`
 						<todo-item
-							name="${() => item.name}"
-							description="${() => item.description}"
-							status="${() => item.status}"
+							name="${item.name}"
+							description="${item.description}"
+							status="${item.status}"
 						></todo-item>`
 			)}`
 			
@@ -1458,7 +1434,7 @@ describe('html', () => {
 				'<todo-item name="sample" description="" status="pending"></todo-item>'
 			)
 			
-			const todo = document.querySelector('todo-item') as HTMLElement
+			let todo = document.querySelector('todo-item') as HTMLElement
 			
 			expect(todo.shadowRoot?.innerHTML).toBe('<div class="todo-item">\n' +
 				'\t\t\t\t\t\t\t<div class="details">\n' +
@@ -1472,13 +1448,21 @@ describe('html', () => {
 				'\t\t\t\t\t\t\t</div>\n' +
 				'\t\t\t\t\t\t</div>')
 			
-			todoList[0].status = 'completed'
-			
-			todos.update()
+			updateTodoList(prev => {
+				prev[0] = {
+					...prev[0],
+					status: 'completed'
+				}
+				return [...prev];
+			})
 			
 			expect(document.body.innerHTML).toBe(
 				'<todo-item name="sample" description="" status="completed"></todo-item>'
 			)
+			
+			// need to query the node again because a new instance will be created
+			todo = document.querySelector('todo-item') as HTMLElement
+			
 			expect(todo.shadowRoot?.innerHTML).toBe('<div class="todo-item">\n' +
 				'\t\t\t\t\t\t\t<div class="details">\n' +
 				'\t\t\t\t\t\t\t\t<h3>sample</h3>\n' +
@@ -1494,11 +1478,11 @@ describe('html', () => {
 		})
 		
 		it('should handle nested repeat by changing data in place', () => {
-			const data: any[] = [{name: 'one', subs: [1, 2]}]
+			const [data, setData] = state([{name: 'one', subs: [1, 2]}])
 			const item = ({name, subs}: any) =>
 				html`
 					<li>${name}: ${repeat(() => subs, (sub: any) => html`<span>${sub}</span>`)}</li>`
-			const list = html`${repeat(() => data, item)}`
+			const list = html`${repeat(data, item)}`
 			
 			list.render(document.body)
 			
@@ -1506,18 +1490,26 @@ describe('html', () => {
 				'<li>one: <span>1</span><span>2</span></li>'
 			)
 			
-			data[0].subs.push(3)
 			
-			list.update()
+			setData(prev => {
+				prev[0] = {
+					...prev[0],
+					subs: prev[0].subs.concat([3])
+				}
+				return [...prev];
+			})
 			
 			expect(document.body.innerHTML).toBe(
 				'<li>one: <span>1</span><span>2</span><span>3</span></li>'
 			)
 			
-			data[0].subs.pop()
-			data[0].subs.pop()
-			
-			list.update()
+			setData(prev => {
+				prev[0] = {
+					...prev[0],
+					subs: [prev[0].subs[0]]
+				}
+				return [...prev];
+			})
 			
 			expect(document.body.innerHTML).toBe('<li>one: <span>1</span></li>')
 		})
@@ -1628,34 +1620,28 @@ describe('html', () => {
 	
 	describe('should work with "when" helper', () => {
 		it('when both sides provided as static', () => {
-			let shouldRender = true
+			let [shouldRender, updateShouldRender] = state(true)
 			const yes = html`<span>true</span>`
 			const no = html`<span>false</span>`
 			
-			const el = html`${when(() => shouldRender, yes, no)}`
-			
-			el.render(document.body)
+			html`${when(shouldRender, yes, no)}`.render(document.body)
 			
 			expect(document.body.innerHTML).toBe('<span>true</span>')
 			const n = document.body.children[0]
 			
-			shouldRender = false
-			
-			el.update()
+			updateShouldRender(false)
 			
 			expect(document.body.innerHTML).toBe('<span>false</span>')
 			
-			shouldRender = true
-			
-			el.update()
+			updateShouldRender(true)
 			
 			expect(document.body.innerHTML).toBe('<span>true</span>')
 			expect(document.body.children[0]).toEqual(n) // same node should be rendered
 		})
 		
 		it('when both sides provided as static with dynamic values', () => {
-			let x = 10
-			const total = () => x
+			let [x, setX] = state(10)
+			const total = () => x()
 			const yes = html`<span>Non Zero: ${total}</span>`
 			const no = html`<span>Zero: ${total}</span>`
 			
@@ -1666,43 +1652,35 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('<span>Non Zero: 10</span>')
 			const n = document.body.children[0]
 			
-			x = 0
-			
-			el.update()
+			setX(0)
 			
 			expect(document.body.innerHTML).toBe('<span>Zero: 0</span>')
 			
-			x = 20
-			
-			el.update()
+			setX(20)
 			
 			expect(document.body.innerHTML).toBe('<span>Non Zero: 20</span>')
-			expect(document.body.children[0]).not.toEqual(n) // node should be re-created
+			expect(document.body.children[0]).toEqual(n) // node should be kept
 		})
 		
 		it('when nested', () => {
-			const list = [];
-			let loading = true;
+			const [list, updateList] = state<number[]>([]);
+			const [loading, setLoading] = state(true);
 			
 			const el = html`${when(
-				() => loading,
+				loading,
 				html`<p>loading...</p>`,
-				when(() => list.length, html`<p>${() => list.length} items</p>`, html`<p>no items</p>`)
+				when(() => list().length, html`<p>${() => list().length} items</p>`, html`<p>no items</p>`)
 			)}`;
 			
 			el.render(document.body)
 			
 			expect(document.body.innerHTML).toBe('<p>loading...</p>')
 			
-			loading = false;
-			
-			el.update();
+			setLoading(false)
 			
 			expect(document.body.innerHTML).toBe('<p>no items</p>')
 			
-			list.push(1)
-			
-			el.update();
+			updateList([1])
 			
 			expect(document.body.innerHTML).toBe('<p>1 items</p>')
 		})
@@ -1787,31 +1765,6 @@ describe('html', () => {
 		expect(document.body.innerHTML).toBe('')
 	})
 	
-	it('should unsubscribe from state',  () => {
-		const [count, setCount] = state<number>(0)
-		const countUp = () => {
-			setCount((prev: number) => prev + 1)
-		}
-		
-		const counter = html`<span>${count}</span><button onclick="${countUp}">+</button>`
-		
-		counter.render(document.body)
-		
-		expect(document.body.innerHTML).toBe('<span>0</span><button>+</button>')
-		
-		const btn = document.querySelector('button') as HTMLButtonElement
-		
-		btn.click()
-		
-		expect(document.body.innerHTML).toBe('<span>1</span><button>+</button>')
-		
-		counter.unsubscribeFromStates()
-		
-		btn.click()
-		
-		expect(document.body.innerHTML).toBe('<span>1</span><button>+</button>')
-	});
-	
 	describe('should handle lifecycles', () => {
 		beforeEach(() => {
 			jest.useFakeTimers()
@@ -1819,25 +1772,6 @@ describe('html', () => {
 		
 		afterEach(() => {
 			jest.useRealTimers()
-		})
-		
-		it('onUpdate', () => {
-			const [count, setCount] = state<number>(0)
-			const updateMock = jest.fn()
-			
-			const counter = html`<span>${count}</span>`
-			counter.onUpdate(updateMock)
-			counter.render(document.body)
-			
-			expect(document.body.innerHTML).toBe('<span>0</span>')
-			
-			setCount((prev) => prev + 1)
-			
-			jest.advanceTimersByTime(100);
-			
-			expect(updateMock).toHaveBeenCalledTimes(1)
-			
-			expect(document.body.innerHTML).toBe('<span>1</span>')
 		})
 		
 		it('onMount', () => {
@@ -1857,7 +1791,7 @@ describe('html', () => {
 			const unmountMock = jest.fn()
 			
 			const temp = html`<span>sample</span>`
-				.onUnmount(unmountMock)
+				.onMount(() => unmountMock)
 				.render(document.body)
 			
 			temp.unmount();
@@ -1869,21 +1803,19 @@ describe('html', () => {
 		
 		it('onUnmount on removed item', () => {
 			const unmountMock = jest.fn();
-			const list = [
-				html`one`.onUnmount(unmountMock),
-				html`two`.onUnmount(unmountMock),
-				html`three`.onUnmount(unmountMock),
-			]
+			const [list, updateList] = state([
+				html`one`.onMount(() => unmountMock),
+				html`two`.onMount(() => unmountMock),
+				html`three`.onMount(() => unmountMock),
+			])
 
-			const temp = html`${() => list}`
+			const temp = html`${list}`
 				.render(document.body)
 
 			expect(document.body.innerHTML).toBe('onetwothree')
-
-			list.splice(1, 1);
-			const three = list.splice(1, 1);
-
-			temp.update();
+			
+			const three =  list()[2]
+			updateList([list()[0]])
 			
 			jest.advanceTimersByTime(100);
 
@@ -1892,10 +1824,8 @@ describe('html', () => {
 			jest.advanceTimersByTime(100);
 
 			expect(unmountMock).toHaveBeenCalledTimes(2)
-
-			list.unshift(...three);
-
-			temp.update();
+			
+			updateList([three, list()[0]])
 			
 			jest.advanceTimersByTime(100);
 
@@ -1903,12 +1833,11 @@ describe('html', () => {
 		});
 		
 		it('unmount and resume on mount', () => {
-			jest.useFakeTimers()
-			const updateMock = jest.fn();
+			const mountMock = jest.fn();
 			const [x, setX] = state(5);
 			
 			const temp = html`item ${x}`
-				.onUpdate(updateMock)
+				.onMount(mountMock)
 				.render(document.body);
 			
 			expect(document.body.innerHTML).toBe("item 5")
@@ -1919,19 +1848,15 @@ describe('html', () => {
 			
 			temp.render(document.body)
 			
-			expect(updateMock).not.toHaveBeenCalled()
+			expect(mountMock).toHaveBeenCalledTimes(2)
 			
 			expect(document.body.innerHTML).toBe("item 10")
 			
 			setX(20);
 			
-			jest.advanceTimersByTime(1000)
-			
-			expect(updateMock).toHaveBeenCalled()
+			expect(mountMock).toHaveBeenCalled()
 			
 			expect(document.body.innerHTML).toBe("item 20")
-			
-			jest.useRealTimers()
 		})
 	})
 	

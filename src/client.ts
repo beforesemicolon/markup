@@ -1,7 +1,9 @@
 import { html, HtmlTemplate } from './html'
 import { state, effect } from './state'
 import { and, is, isNot, oneOf, or, pick, repeat, when } from './helpers'
-import { val, element, suspense } from './utils'
+import { element } from './utils/element'
+import { suspense } from './utils/suspense'
+import { val } from './utils/val'
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore

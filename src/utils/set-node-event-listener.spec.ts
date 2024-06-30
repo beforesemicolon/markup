@@ -1,16 +1,16 @@
-import { EventDynamicValueResolver } from './EventDynamicValueResolver'
+import { setNodeEventListener } from './set-node-event-listener'
 
-describe('EventDynamicValueResolver', () => {
+describe('setNodeEventListener', () => {
     it('should throw error if no function is provided', () => {
         const btn = document.createElement('button')
         
-        expect(() => new EventDynamicValueResolver('click', '$val0', [], [btn], '').resolve()).toThrowError('handler for event "click" is not a function. Found "undefined".')
+        expect(() => setNodeEventListener('click', '$val0', [], btn)).toThrowError('Handler for event "click" is not a function. Found "undefined".')
     })
     it('should set event listener', () => {
         const btn = document.createElement('button')
         const fn = jest.fn()
         
-        new EventDynamicValueResolver('onclick', '$val0', [fn], [btn], 'click').resolve()
+        setNodeEventListener('onclick', '$val0', [fn], btn)
         
         btn.click()
         btn.click()
@@ -23,7 +23,7 @@ describe('EventDynamicValueResolver', () => {
         const box = document.createElement('div')
         const fn = jest.fn()
         
-        new EventDynamicValueResolver('onscroll', '$val0', [fn, true], [box], 'scroll').resolve()
+        setNodeEventListener('onscroll', '$val0', [fn, true], box)
         
         const scrollEvent = new Event('scroll')
         box.dispatchEvent(scrollEvent)
@@ -37,7 +37,7 @@ describe('EventDynamicValueResolver', () => {
         const btn = document.createElement('button')
         const fn = jest.fn()
         
-        new EventDynamicValueResolver('onclick', '$val0', [fn, { once: true }], [btn], 'click').resolve()
+        setNodeEventListener('onclick', '$val0', [fn, { once: true }], btn)
         
         btn.click()
         btn.click()
@@ -50,7 +50,7 @@ describe('EventDynamicValueResolver', () => {
         const btn = document.createElement('button')
         const fn = jest.fn()
         
-        new EventDynamicValueResolver('onclick', '$val0,{"once": true}', [fn], [btn], 'click').resolve()
+        setNodeEventListener('onclick', '$val0,{"once": true}', [fn], btn)
         
         btn.click()
         btn.click()
@@ -63,7 +63,7 @@ describe('EventDynamicValueResolver', () => {
         const btn = document.createElement('button')
         const fn = jest.fn()
         
-        new EventDynamicValueResolver('onclick', '$val0, sample', [fn], [btn], 'click').resolve()
+        setNodeEventListener('onclick', '$val0, sample', [fn], btn)
         
         btn.click()
         btn.click()
