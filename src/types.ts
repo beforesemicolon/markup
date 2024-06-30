@@ -29,3 +29,10 @@ export type AnythingButAFunction<T> = T extends typeof Function
     ? never
     : unknown
 export type HelperValueChecker<T> = (val: T) => boolean
+
+export interface ElementOptions<A> {
+    attributes?: A
+    textContent?: string
+    htmlContent?: string
+    ns?: 'http://www.w3.org/1999/xhtml' | 'http://www.w3.org/2000/svg' | ''
+}

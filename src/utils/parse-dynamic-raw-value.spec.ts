@@ -53,15 +53,9 @@ describe("parseDynamicRawValue", () => {
       )
     ).toEqual([
       "heading ",
-      {
-        "text": "$val0",
-        "value": expect.any(Function)
-      },
+      expect.any(Function),
       " middle ",
-      {
-        "text": "$val1",
-        "value": expect.any(Function)
-      },
+      expect.any(Function),
       " tail text 36"
     ]);
   });

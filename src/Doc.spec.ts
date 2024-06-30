@@ -1,5 +1,6 @@
 import { DocumentLike, parse } from "@beforesemicolon/html-parser";
 import { Doc } from "./Doc";
+import { ReactiveNode } from './ReactiveNode'
 
 describe("Doc", () => {
   const dynamicValueCollector = jest.fn();
@@ -55,14 +56,9 @@ describe("Doc", () => {
     
     expect(res.childNodes.length).toBe(1);
     expect(res.childNodes[0]).toBeInstanceOf(HTMLParagraphElement);
-    expect((res.childNodes[0] as HTMLParagraphElement).outerHTML).toBe("<p>$val0</p>");
-    expect(dynamicValueCollector).toHaveBeenCalledWith({
-      data: null,
-      name: "nodeValue",
-      value: fn,
-      rawValue: "$val0",
-      prop: null,
-    });
+    expect((res.childNodes[0] as HTMLParagraphElement).outerHTML).toBe("<p>simple</p>");
+    expect(dynamicValueCollector).toHaveBeenCalledTimes(1);
+    expect(dynamicValueCollector).toHaveBeenCalledWith(expect.any(ReactiveNode));
   });
   
   it("should parse event attribute", () => {
@@ -76,14 +72,7 @@ describe("Doc", () => {
     expect(res.childNodes.length).toBe(1);
     expect(res.childNodes[0]).toBeInstanceOf(HTMLButtonElement);
     expect((res.childNodes[0] as HTMLButtonElement).outerHTML).toBe("<button type=\"button\">click me</button>");
-    expect(dynamicValueCollector).toHaveBeenCalledTimes(1);
-    expect(dynamicValueCollector).toHaveBeenCalledWith({
-      "data": null,
-      "name": "onclick",
-      "prop": "click",
-      "rawValue": "$val0",
-      "value": [handler]
-    });
+    expect(dynamicValueCollector).not.toHaveBeenCalled();
   });
   
   it("should parse event attribute with option", () => {
@@ -97,14 +86,7 @@ describe("Doc", () => {
     expect(res.childNodes.length).toBe(1);
     expect(res.childNodes[0]).toBeInstanceOf(HTMLButtonElement);
     expect((res.childNodes[0] as HTMLButtonElement).outerHTML).toBe("<button type=\"button\">click me</button>");
-    expect(dynamicValueCollector).toHaveBeenCalledTimes(1);
-    expect(dynamicValueCollector).toHaveBeenCalledWith({
-      "data": null,
-      "name": "onclick",
-      "prop": "click",
-      "rawValue": "$val0, $val1",
-      "value": [handler, ", ", {once: true}]
-    });
+    expect(dynamicValueCollector).not.toHaveBeenCalled();
   });
   
   it("should parse and ignore unknown event attribute", () => {
@@ -119,13 +101,7 @@ describe("Doc", () => {
     expect(res.childNodes[0]).toBeInstanceOf(HTMLButtonElement);
     expect((res.childNodes[0] as HTMLButtonElement).outerHTML).toBe("<button type=\"button\">click me</button>");
     expect(dynamicValueCollector).toHaveBeenCalledTimes(1);
-    expect(dynamicValueCollector).toHaveBeenCalledWith({
-      "data": null,
-      "name": "onval",
-      "prop": null,
-      "rawValue": "$val0",
-      "value": [handler]
-    });
+    expect(dynamicValueCollector).toHaveBeenCalledWith(expect.any(Function));
   });
   
   it("should parse event attribute for webComponent", () => {
@@ -144,14 +120,7 @@ describe("Doc", () => {
     expect(res.childNodes.length).toBe(1);
     expect(res.childNodes[0]).toBeInstanceOf(MyButton);
     expect((res.childNodes[0] as MyButton).outerHTML).toBe("<my-button type=\"button\">click me</my-button>");
-    expect(dynamicValueCollector).toHaveBeenCalledTimes(1);
-    expect(dynamicValueCollector).toHaveBeenCalledWith({
-      "data": null,
-      "name": "onval",
-      "prop": "val",
-      "rawValue": "$val0",
-      "value": [handler]
-    });
+    expect(dynamicValueCollector).not.toHaveBeenCalled();
   });
   
   it("should parse ref attribute", () => {
@@ -182,38 +151,14 @@ describe("Doc", () => {
     
     expect(res.childNodes.length).toBe(1);
     expect(res.childNodes[0]).toBeInstanceOf(HTMLButtonElement);
-    expect((res.childNodes[0] as HTMLButtonElement).outerHTML).toBe('<button type="button" class="btn">click me</button>');
+    expect((res.childNodes[0] as HTMLButtonElement).outerHTML).toBe('<button type="button" class="btn active" disabled="true">click me</button>');
     expect(dynamicValueCollector).toHaveBeenCalledTimes(4);
     
     
-    expect(dynamicValueCollector.mock.calls[0][0]).toEqual({
-      "data": null,
-      "name": "class",
-      "prop": "active",
-      "rawValue": "$val0",
-      "value": [active]
-    });
-    expect(dynamicValueCollector.mock.calls[1][0]).toEqual({
-      "data": null,
-      "name": "style",
-      "prop": "loading",
-      "rawValue": "color: blue; | $val1",
-      "value": ["color: blue; | ", loading]
-    });
-    expect(dynamicValueCollector.mock.calls[2][0]).toEqual({
-      "data": null,
-      "name": "disabled",
-      "prop": "",
-      "rawValue": "$val2",
-      "value": [disabled]
-    });
-    expect(dynamicValueCollector.mock.calls[3][0]).toEqual({
-      "data": null,
-      "name": "data",
-      "prop": "sample",
-      "rawValue": "$val3",
-      "value": [sample]
-    });
+    expect(dynamicValueCollector.mock.calls[0][0]).toEqual(expect.any(Function));
+    expect(dynamicValueCollector.mock.calls[1][0]).toEqual(expect.any(Function));
+    expect(dynamicValueCollector.mock.calls[2][0]).toEqual(expect.any(Function));
+    expect(dynamicValueCollector.mock.calls[3][0]).toEqual(expect.any(Function));
   });
   
   it("should parse and ignore boolean attributes with false value", () => {

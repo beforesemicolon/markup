@@ -1,4 +1,4 @@
-import { val } from '../utils'
+import { val } from '../utils/val'
 import { StateGetter } from '../types'
 
 /**

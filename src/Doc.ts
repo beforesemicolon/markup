@@ -1,41 +1,34 @@
-import {
-    booleanAttributes,
-    element,
-    ElementOptions,
-    setElementAttribute,
-} from './utils'
-import { ContentDynamicValueResolver } from './dynamic-value/ContentDynamicValueResolver'
-import { EventDynamicValueResolver } from './dynamic-value/EventDynamicValueResolver'
-import { DirectiveDynamicValueResolver } from './dynamic-value/DirectiveDynamicValueResolver'
-import { AttributeDynamicValueResolver } from './dynamic-value/AttributeDynamicValueResolver'
-import { isDynamicValue } from './dynamic-value/is-dynamic-value'
-import { parseDynamicRawValue } from './dynamic-value/parse-dynamic-raw-value'
-
-type DynamicValueCallback = (
-    dynamicVal:
-        | ContentDynamicValueResolver
-        | EventDynamicValueResolver
-        | DirectiveDynamicValueResolver
-        | AttributeDynamicValueResolver
-) => void
+import { booleanAttributes } from './utils/boolean-attributes'
+import { element } from './utils/element'
+import { setElementAttribute } from './utils/set-element-attribute'
+import { parseDynamicRawValue } from './utils/parse-dynamic-raw-value'
+import { ReactiveNode } from './ReactiveNode'
+import { setNodeEventListener } from './utils/set-node-event-listener'
+import { effect } from './state'
+import { setElementDirectiveAttribute } from './utils/set-element-directive-attribute'
+import { EffectUnSubscriber, ElementOptions } from './types'
+import { HtmlTemplate } from './html'
+import { renderContent } from './utils/render-content'
 
 const node = (
     nodeName: string,
     ns: ElementOptions<unknown>['ns'] = '',
     values: Array<unknown> = [],
     refs: Record<string, Set<Element>> = {},
-    cb: DynamicValueCallback = () => {}
+    cb: (item: EffectUnSubscriber | ReactiveNode | HtmlTemplate) => void
 ) => {
     const node =
         nodeName === '#fragment'
             ? document.createDocumentFragment()
             : element(nodeName, { ns })
     const comp = customElements.get(nodeName.toLowerCase())
+    const nodes: Array<Node | ReactiveNode | HtmlTemplate> = []
 
     return {
         __self__: node,
+        __nodes__: nodes,
         namespaceURI: (node as Element).namespaceURI as string,
-        tagName: nodeName,
+        tagName: node.nodeName,
         childNodes: node.childNodes,
         attributes: 'attributes' in node ? node.attributes : null,
         textContent: node.textContent,
@@ -65,13 +58,10 @@ const node = (
                     return
                 }
 
-                const dvValue: unknown[] = []
-
-                for (const p of parseDynamicRawValue(trimmedValue, values)) {
-                    dvValue.push(typeof p === 'string' ? p : p.value)
-                }
-
-                const partsWithDynamicValues = dvValue.some(isDynamicValue)
+                const dvValue = parseDynamicRawValue(trimmedValue, values)
+                const partsWithDynamicValues = dvValue.some(
+                    (n) => typeof n === 'function'
+                )
 
                 if (
                     /^on[a-z]+/.test(name) && // @ts-expect-error observedAttributes is property of web component
@@ -80,14 +70,11 @@ const node = (
                             // @ts-expect-error check if know event name
                             typeof document.head[name] !== 'undefined'))
                 ) {
-                    return cb(
-                        new EventDynamicValueResolver(
-                            name,
-                            trimmedValue,
-                            dvValue,
-                            [node],
-                            name.slice(2)
-                        )
+                    return setNodeEventListener(
+                        name,
+                        trimmedValue,
+                        dvValue,
+                        node
                     )
                 }
 
@@ -99,42 +86,50 @@ const node = (
                     let props: string[] = []
                     ;[name, ...props] = attrLessName.split('.')
 
-                    const dynVal = new DirectiveDynamicValueResolver(
-                        name,
-                        trimmedValue,
-                        dvValue,
-                        [node],
-                        props.join('.')
-                    )
-
                     if (partsWithDynamicValues) {
-                        cb(dynVal)
+                        cb(
+                            effect(() =>
+                                setElementDirectiveAttribute(
+                                    name,
+                                    props.join('.'),
+                                    dvValue,
+                                    node as HTMLElement
+                                )
+                            )
+                        )
                     } else {
-                        dynVal.resolve()
+                        setElementDirectiveAttribute(
+                            name,
+                            props.join('.'),
+                            dvValue,
+                            node as HTMLElement
+                        )
                     }
 
                     return
                 }
 
                 if (partsWithDynamicValues) {
+                    const fn = dvValue[0] as () => unknown
                     return cb(
-                        new AttributeDynamicValueResolver(
-                            name,
-                            trimmedValue,
-                            dvValue,
-                            [node]
+                        effect(() =>
+                            setElementAttribute(node as HTMLElement, name, fn())
                         )
                     )
                 }
 
-                return setElementAttribute(node as Element, name, dvValue[0])
+                return setElementAttribute(
+                    node as HTMLElement,
+                    name,
+                    dvValue[0]
+                )
             }
 
             if (
                 // ignore special attributes specific to Markup that did not get handled
                 !/^(ref|(attr|class|style|data)\.)/.test(name)
             ) {
-                setElementAttribute(node as Element, name, trimmedValue)
+                setElementAttribute(node as HTMLElement, name, trimmedValue)
             }
         },
         appendChild: (n: DocumentFragment | Node) => {
@@ -151,30 +146,23 @@ const node = (
                         n.nodeValue,
                         values
                     )) {
-                        if (
-                            typeof part !== 'string' &&
-                            isDynamicValue(part.value)
-                        ) {
-                            const txtNode = document.createTextNode(part.text)
-                            node.appendChild(txtNode)
-
-                            cb(
-                                new ContentDynamicValueResolver(
-                                    'nodeValue',
-                                    part.text,
-                                    part.value,
-                                    [txtNode]
-                                )
+                        if (typeof part === 'function') {
+                            const rn = new ReactiveNode(
+                                part as () => unknown,
+                                node as HTMLElement
                             )
+                            nodes.push(rn)
+                            cb(rn)
                         } else {
-                            node.appendChild(
-                                document.createTextNode(String(part))
+                            nodes.push(
+                                ...renderContent(part, node as HTMLElement, cb)
                             )
                         }
                     }
                 }
             } else {
-                node.appendChild(n as Node)
+                node.appendChild(n)
+                nodes.push(n)
             }
         },
     }
@@ -183,7 +171,7 @@ const node = (
 export const Doc = (
     values: Array<unknown>,
     refs: Record<string, Set<Element>>,
-    cb: DynamicValueCallback
+    cb: (item: EffectUnSubscriber | ReactiveNode | HtmlTemplate) => void
 ) => ({
     createTextNode: (text: string) => document.createTextNode(text),
     createComment: (text: string) => document.createComment(text),
