@@ -1,71 +1,64 @@
-import type { DynamicValueResolver } from './dynamic-value/DynamicValueResolver'
 import { Doc } from './Doc'
 import { parse } from '@beforesemicolon/html-parser/dist/parse'
-import { effect } from './state'
+import { EffectUnSubscriber } from './types'
+import { ReactiveNode } from './ReactiveNode'
 
 export class HtmlTemplate {
     #htmlTemplate: string
-    #nodes: Array<Node | DynamicValueResolver> = []
-    #renderTarget: ShadowRoot | Element | DocumentFragment | null = null
+    #nodes: Array<Node | HtmlTemplate | ReactiveNode> = []
+    #mountables: Array<ReactiveNode | HtmlTemplate> = []
     #refs: Record<string, Set<Element>> = {}
-    #updateSubs: Set<() => void> = new Set()
-    #mountSubs: Set<() => void> = new Set()
-    #unmountSubs: Set<() => void> = new Set()
-    #stateUnsubs: Set<() => void> = new Set()
-    #dynamicValues: DynamicValueResolver[] = []
+    #effectUnsubs: Set<EffectUnSubscriber> = new Set()
     #values: Array<unknown> = []
     #mounted = false
+    #mountSub: (() => void | (() => void)) | undefined = undefined
+    #unmountSub: (() => void) | undefined = undefined
+    #parent: ShadowRoot | HTMLElement | Element | DocumentFragment | null = null
 
     /**
      * list of direct ChildNode from the template that got rendered
      */
-    get nodes() {
-        return Array.from(
-            new Set(
-                this.#nodes.flatMap((n) =>
-                    n instanceof Node ? [n] : n.renderedNodes
-                )
-            )
+    get nodes(): Node[] {
+        return this.#nodes.flatMap((n) =>
+            n instanceof HtmlTemplate || n instanceof ReactiveNode ? n.nodes : n
         )
     }
 
     /**
      * the Element or ShadowRoot instance provided in the render method
      */
-    get renderTarget() {
-        return this.#renderTarget
+    get parentNode(): ParentNode | null {
+        return this.#parent
     }
 
     /**
      * map of DOM element references keyed by the name provided as the ref attribute value
      */
     get refs(): Record<string, Array<Element>> {
-        const valueRefs = this.#values.reduce(
-            (acc: Record<string, Array<Element>>, v) => {
-                if (v instanceof HtmlTemplate) {
-                    return { ...acc, ...v.refs }
+        const childRefs = this.#mountables.reduce((acc, item) => {
+            if (item instanceof HtmlTemplate || item instanceof ReactiveNode) {
+                return {
+                    ...acc,
+                    ...item.refs,
                 }
+            }
 
-                return acc
-            },
-            {} as Record<string, Array<Element>>
-        )
+            return acc
+        }, {})
 
         return Object.freeze({
-            ...valueRefs,
+            ...childRefs,
             ...Object.entries(this.#refs).reduce(
                 (acc, [key, set]) => ({
                     ...acc,
-                    [key]: Array.from(
-                        new Set([...Array.from(set), ...(valueRefs[key] ?? [])])
-                    ),
+                    [key]: Array.from(new Set(Array.from(set))),
                 }),
                 {}
             ),
         })
     }
 
-    get mounted() {
+    get isConnected() {
         return this.#mounted
     }
 
@@ -85,13 +78,17 @@ export class HtmlTemplate {
      * @param force
      */
     render(
-        elementToAttachNodesTo: ShadowRoot | Element | DocumentFragment,
+        elementToAttachNodesTo:
+            | ShadowRoot
+            | HTMLElement
+            | Element
+            | DocumentFragment,
         force = false
     ) {
         if (
             elementToAttachNodesTo &&
-            elementToAttachNodesTo !== this.renderTarget &&
-            (force || !this.renderTarget) &&
+            elementToAttachNodesTo !== this.#parent &&
+            (force || !this.#parent) &&
             (elementToAttachNodesTo instanceof ShadowRoot ||
                 elementToAttachNodesTo instanceof Element ||
                 elementToAttachNodesTo instanceof DocumentFragment)
@@ -99,11 +96,13 @@ export class HtmlTemplate {
             if (force) {
                 this.unmount()
             }
-            this.#renderTarget = elementToAttachNodesTo
+            this.#parent = elementToAttachNodesTo
+            this.#init()
+            const res = this.#mountSub?.()
 
-            elementToAttachNodesTo.appendChild(this.#init())
-            this.#mounted = true
-            this.#broadcast(this.#mountSubs)
+            if (typeof res === 'function') {
+                this.#unmountSub = res
+            }
         }
 
         return this
@@ -135,11 +134,8 @@ export class HtmlTemplate {
                 return
             }
 
-            this.#renderTarget = element.parentNode as Element
-            element.parentNode?.replaceChild(this.#init(), element)
-
-            this.#mounted = true
-            this.#broadcast(this.#mountSubs)
+            this.#parent = element.parentNode as Element
+            this.#init(true, element)
 
             // since the nodes of the template are being replaced
             // we can go ahead an unmount it so it cleans up properly
@@ -153,108 +149,87 @@ export class HtmlTemplate {
         throw new Error(`Invalid replace target element. Received ${target}`)
     }
 
-    /**
-     * updates the already rendered DOM Nodes with the update values
-     */
-    update() {
-        // only update if the nodes were already rendered and there are actual values
-        if (this.renderTarget && this.#dynamicValues.length) {
-            requestAnimationFrame(() => {
-                for (const dv of this.#dynamicValues) {
-                    dv.resolve(this.#refs)
-                }
-                this.#broadcast(this.#updateSubs)
-            })
-        }
-    }
-
     unmount() {
-        if (this.#renderTarget && this.#mounted) {
-            for (const dv of this.#dynamicValues) {
-                dv.unmount()
+        if (this.isConnected) {
+            for (const effectUnsub of this.#effectUnsubs) {
+                effectUnsub()
             }
-            for (const n of this.nodes) {
-                if (n.parentNode) {
-                    n.parentNode.removeChild(n)
+
+            for (const node of this.#nodes) {
+                if (
+                    node instanceof ReactiveNode ||
+                    node instanceof HtmlTemplate
+                ) {
+                    node.unmount()
+                } else {
+                    node.parentNode?.removeChild(node)
                 }
             }
-            this.#renderTarget = null
-            this.#dynamicValues = []
-            this.#mounted = false
+
+            this.#parent = null
             this.#nodes = []
-            this.unsubscribeFromStates()
-            this.#broadcast(this.#unmountSubs)
+            this.#mounted = false
+            this.#unmountSub?.()
         }
-    }
-
-    unsubscribeFromStates = () => {
-        for (const unsub of this.#stateUnsubs) {
-            unsub()
-        }
-        this.#stateUnsubs.clear()
-    }
-
-    onUpdate(cb: () => void) {
-        return this.#sub(cb, this.#updateSubs)
     }
 
     onMount(cb: () => void) {
-        return this.#sub(cb, this.#mountSubs)
-    }
-
-    onUnmount(cb: () => void) {
-        return this.#sub(cb, this.#unmountSubs)
-    }
-
-    #sub(cb: () => void, set: Set<() => void>) {
-        if (typeof cb === 'function') {
-            set.add(cb)
-        }
-
+        this.#mountSub = cb
         return this
     }
 
-    #broadcast(set: Set<() => void>) {
-        for (const sub of set) {
-            sub()
+    /**
+     * Updates the parentNode
+     *
+     * !! WARNING !!
+     * This should be used in case HtmlTemplate was rendered in a DocumentFragment
+     * and then this DocumentFragment was appended to another Element from which case
+     * this will help HtmlTemplate update its parent reference to the correct one without
+     * having to render again
+     *
+     * @param newParent
+     */
+    updateParentReference(newParent: HTMLElement) {
+        if (newParent && newParent instanceof Node) {
+            this.#parent = newParent
         }
     }
 
-    #init() {
-        const fragLike = parse(
-            this.#htmlTemplate,
-            // @ts-expect-error this is a Document like object
-            Doc(this.#values, this.#refs, (dv) => this.#dynamicValues.push(dv))
-        ) as DocumentFragment
-        // this.#subscribeToState()
-        const renderedNodeDvMapping = new WeakMap()
-        // the init is called before mount and for that we can render things synchronously
-        // to prevent unresolved values to flash in the DOM
-        // afterwards we can handle all DOM updates inside the requestAnimationFrame
-        const renderer = this.mounted
-            ? requestAnimationFrame
-            : (cb: () => void) => cb()
-
-        for (const dv of this.#dynamicValues) {
-            this.#stateUnsubs.add(
-                effect(() => {
-                    renderer(() => {
-                        dv.resolve(this.#refs)
-                        this.mounted && this.#broadcast(this.#updateSubs)
-                    })
+    #init(replace = false, element: Element | null = null) {
+        if (this.#parent) {
+            const frag = parse(
+                this.#htmlTemplate,
+                // @ts-expect-error DocType not DocumentLike
+                Doc(this.#values, this.#refs, (item) => {
+                    if (
+                        item instanceof ReactiveNode ||
+                        item instanceof HtmlTemplate
+                    ) {
+                        this.#mountables.push(item)
+                    } else {
+                        this.#effectUnsubs.add(item)
+                    }
                 })
             )
-            for (const n of dv.renderedNodes) {
-                renderedNodeDvMapping.set(n, dv)
+            if (replace) {
+                // @ts-expect-error DocumentFragLike real Node is available through __self__ property
+                element.parentNode?.replaceChild(frag.__self__, element)
+            } else {
+                // @ts-expect-error DocumentFragLike real Node is available through __self__ property
+                this.#parent.appendChild(frag.__self__)
             }
+            // @ts-expect-error DocumentFragLike __nodes__ will expose Node and ReactiveNode list
+            this.#nodes = frag.__nodes__
+            for (const node of this.#nodes) {
+                if (
+                    node instanceof HtmlTemplate ||
+                    node instanceof ReactiveNode
+                ) {
+                    node.updateParentReference(this.#parent as HTMLElement)
+                }
+            }
+            this.#mounted = true
         }
-        this.#nodes = Array.from(
-            fragLike.childNodes,
-            (n) => renderedNodeDvMapping.get(n) ?? n
-        )
-        const frag = document.createDocumentFragment()
-        frag.append(...fragLike.childNodes)
-        return frag
     }
 }
 

@@ -1,5 +1,5 @@
 import { StateGetter } from '../types'
-import { val } from '../utils'
+import { val } from '../utils/val'
 
 /**
  * check if the state value is inside the provided list of options
