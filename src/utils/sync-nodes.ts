@@ -1,23 +1,121 @@
-import { changeCurrentIntoNewNodes } from './change-current-into-new-nodes'
+import { HtmlTemplate } from '../html'
 
+/**
+ * this function is to move nodes around without the need to unmount and remount them
+ * to avoid unnecessary DOM changes especially for components. If node was not moved from its
+ * position, they should remain untouched
+ * @param currentChildNodes - list of parent node child nodes
+ * @param newChildNodes - list of nodes of how the parent node child nodes should become
+ * @param parent
+ */
 export const syncNodes = (
-    currentNodes: Array<Node>,
-    newNodes: Array<Node>,
-    parent: ParentNode | null = null
+    currentChildNodes: Array<Node | HtmlTemplate>,
+    newChildNodes: Array<Node | HtmlTemplate>,
+    parent: HTMLElement | Element
 ) => {
-    if (newNodes.length) {
-        changeCurrentIntoNewNodes(currentNodes, newNodes, parent)
-        return newNodes
+    const renderedItems: Array<Node | HtmlTemplate> = []
+
+    // if no new child nodes, simply remove all current child nodes
+    if (newChildNodes.length === 0) {
+        for (let item of currentChildNodes) {
+            item = nodeOrTemplate(item)
+            if (item instanceof HtmlTemplate) item.unmount()
+            else item?.parentNode?.removeChild(item)
+            renderedItems.push(item)
+        }
+    } else if (currentChildNodes.length === 0) {
+        for (let item of newChildNodes) {
+            item = nodeOrTemplate(item)
+            if (item instanceof HtmlTemplate) item.render(parent, true)
+            else parent?.appendChild(item)
+            renderedItems.push(item)
+        }
+    } else if (newChildNodes.length === 1 && currentChildNodes.length === 1) {
+        const newChild = nodeOrTemplate(newChildNodes[0])
+        const currentChild = nodeOrTemplate(currentChildNodes[0])
+
+        if (newChild !== currentChild) {
+            if (newChild instanceof HtmlTemplate) newChild.replace(currentChild)
+            else if (currentChild instanceof HtmlTemplate) {
+                currentChild.parentNode?.insertBefore(
+                    newChild,
+                    firstNode(currentChild.nodes)
+                )
+                currentChild.unmount()
+            } else
+                currentChild?.parentNode?.replaceChild(newChild, currentChild)
+            renderedItems.push(newChild)
+        }
+    } else {
+        const currentChildNodesSet = new Set(currentChildNodes),
+            endAnchor = lastNode(currentChildNodes)?.nextSibling ?? null
+        let frag = document.createDocumentFragment()
+
+        for (let i = 0; i < newChildNodes.length; i++) {
+            const n = nodeOrTemplate(newChildNodes[i]),
+                moved = currentChildNodes[i] !== n
+
+            if (moved || !currentChildNodesSet.has(n)) {
+                if (n instanceof HtmlTemplate) {
+                    n.render(frag, true)
+                    n.updateParentReference(parent)
+                } else frag.appendChild(n)
+
+                if (moved) {
+                    currentChildNodesSet.delete(n)
+                }
+            } else {
+                if (frag.childNodes.length) {
+                    if (n instanceof HtmlTemplate) {
+                        const c = firstNode(n.nodes)
+                        c.parentNode?.insertBefore(frag as DocumentFragment, c)
+                    } else
+                        n.parentNode?.insertBefore(frag as DocumentFragment, n)
+                    frag = document.createDocumentFragment()
+                }
+
+                currentChildNodesSet.delete(n)
+            }
+
+            renderedItems.push(n)
+        }
+
+        if (frag.childNodes.length) {
+            if (endAnchor === null) {
+                parent?.appendChild(frag)
+            } else {
+                endAnchor.parentNode?.insertBefore(frag, endAnchor)
+            }
+        }
+
+        for (const c of currentChildNodesSet) {
+            if (c instanceof HtmlTemplate) c.unmount()
+            else c?.parentNode?.removeChild(c)
+        }
     }
 
-    const n = currentNodes[0]
+    return renderedItems
+}
 
-    const emptyNode = document.createTextNode('')
-    n.parentNode?.replaceChild(emptyNode, n)
+function nodeOrTemplate(value: unknown) {
+    if (value instanceof Node || value instanceof HtmlTemplate) return value
+    return document.createTextNode(String(value))
+}
 
-    for (const n of currentNodes) {
-        n.parentNode?.removeChild(n)
+function firstNode(nodes: Array<Node | HtmlTemplate>) {
+    if (nodes[0] instanceof Node) {
+        return nodes[0]
     }
 
-    return [emptyNode]
+    return firstNode(nodes[0].nodes)
+}
+
+function lastNode(nodes: Array<Node | HtmlTemplate>): Node | null {
+    const last = nodes.at(-1) as Node | HtmlTemplate
+
+    if (last instanceof Node) {
+        return last
+    }
+
+    return last ? lastNode(last.nodes) : null
 }

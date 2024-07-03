@@ -2,10 +2,12 @@ import { Doc } from './Doc'
 import { parse } from '@beforesemicolon/html-parser/dist/parse'
 import { EffectUnSubscriber } from './types'
 import { ReactiveNode } from './ReactiveNode'
+import { toNodes } from './utils/to-nodes'
 
 export class HtmlTemplate {
     #htmlTemplate: string
     #nodes: Array<Node | HtmlTemplate | ReactiveNode> = []
+    #childNodes: Array<Node> = []
     #mountables: Array<ReactiveNode | HtmlTemplate> = []
     #refs: Record<string, Set<Element>> = {}
     #effectUnsubs: Set<EffectUnSubscriber> = new Set()
@@ -13,15 +15,14 @@ export class HtmlTemplate {
     #mounted = false
     #mountSub: (() => void | (() => void)) | undefined = undefined
     #unmountSub: (() => void) | undefined = undefined
+    #updateSub: (() => void) | undefined = undefined
     #parent: ShadowRoot | HTMLElement | Element | DocumentFragment | null = null
 
     /**
      * list of direct ChildNode from the template that got rendered
      */
     get nodes(): Node[] {
-        return this.#nodes.flatMap((n) =>
-            n instanceof HtmlTemplate || n instanceof ReactiveNode ? n.nodes : n
-        )
+        return this.#childNodes
     }
 
     /**
@@ -168,6 +169,8 @@ export class HtmlTemplate {
 
             this.#parent = null
             this.#nodes = []
+            this.#childNodes = []
+            this.#mountables = []
             this.#mounted = false
             this.#unmountSub?.()
         }
@@ -175,6 +178,11 @@ export class HtmlTemplate {
 
     onMount(cb: () => void) {
         this.#mountSub = cb
+        return this
+    }
+
+    onUpdate(cb: () => void) {
+        this.#updateSub = cb
         return this
     }
 
@@ -189,7 +197,7 @@ export class HtmlTemplate {
      *
      * @param newParent
      */
-    updateParentReference(newParent: HTMLElement) {
+    updateParentReference(newParent: HTMLElement | Element) {
         if (newParent && newParent instanceof Node) {
             this.#parent = newParent
         }
@@ -206,6 +214,26 @@ export class HtmlTemplate {
                         item instanceof HtmlTemplate
                     ) {
                         this.#mountables.push(item)
+                        const isDirectChild =
+                            item.parentNode instanceof DocumentFragment
+
+                        // the root node will be a document fragment which means
+                        // item will be a direct child
+                        if (isDirectChild) {
+                            item.updateParentReference(
+                                this.#parent as HTMLElement
+                            )
+                        }
+
+                        // only subscribe to direct child ReactiveNode update
+                        // to update current nodes
+                        if (item instanceof ReactiveNode) {
+                            item.onUpdate(() => {
+                                if (isDirectChild)
+                                    this.#childNodes = toNodes(this.#nodes)
+                                this.#updateSub?.()
+                            })
+                        }
                     } else {
                         this.#effectUnsubs.add(item)
                     }
@@ -220,14 +248,7 @@ export class HtmlTemplate {
             }
             // @ts-expect-error DocumentFragLike __nodes__ will expose Node and ReactiveNode list
             this.#nodes = frag.__nodes__
-            for (const node of this.#nodes) {
-                if (
-                    node instanceof HtmlTemplate ||
-                    node instanceof ReactiveNode
-                ) {
-                    node.updateParentReference(this.#parent as HTMLElement)
-                }
-            }
+            this.#childNodes = toNodes(this.#nodes)
             this.#mounted = true
         }
     }

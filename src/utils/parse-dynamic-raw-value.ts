@@ -29,10 +29,14 @@ export const parseDynamicRawValue = (str: string, values: unknown[]) => {
         lastIndex = pattern.lastIndex
     }
 
-    const lastPart = str.slice(lastIndex)
+    if (lastIndex) {
+        const lastPart = str.slice(lastIndex)
 
-    if (lastPart) {
-        handleLastPart(parts, lastPart)
+        if (lastPart) {
+            handleLastPart(parts, lastPart)
+        }
+    } else {
+        parts.push(str)
     }
 
     return parts

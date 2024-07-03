@@ -130,23 +130,23 @@ describe('ReactiveNode', () => {
         expect(document.body.innerHTML).toBe('x won\n' +
             '                <button type="button">reset</button>')
 
-        // setCurrentPlayer('xy')
-        // expect(document.body.innerHTML).toBe('tie\n' +
-        //     '                <button type="button">reset</button>')
-        //
-        // setEnded(false)
-        // expect(document.body.innerHTML).toBe('')
-        //
-        // setCurrentPlayer('x')
-        // expect(document.body.innerHTML).toBe('')
-        //
-        // setEnded(true)
-        // expect(document.body.innerHTML).toBe('x won\n' +
-        //     '                <button type="button">reset</button>')
-        //
-        // setCurrentPlayer('x')
-        // setEnded(false)
-        // expect(document.body.innerHTML).toBe('')
+        setCurrentPlayer('xy')
+        expect(document.body.innerHTML).toBe('tie\n' +
+            '                <button type="button">reset</button>')
+
+        setEnded(false)
+        expect(document.body.innerHTML).toBe('')
+
+        setCurrentPlayer('x')
+        expect(document.body.innerHTML).toBe('')
+
+        setEnded(true)
+        expect(document.body.innerHTML).toBe('x won\n' +
+            '                <button type="button">reset</button>')
+
+        setCurrentPlayer('x')
+        setEnded(false)
+        expect(document.body.innerHTML).toBe('')
     })
     
     it('should CRUD list of templates', () => {

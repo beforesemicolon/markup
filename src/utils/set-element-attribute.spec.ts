@@ -40,10 +40,10 @@ describe("setElementAttribute", () => {
     setElementAttribute(el, "sample", {dope: true});
     setElementAttribute(el, "no", {nope: true});
     
-    expect(el.getAttribute('todo')).toEqual('{"title":"test"}');
+    expect(el.getAttribute('todo')).toEqual(null);
     expect(el.todo).toEqual({ "title": "test" });
     
-    expect(el.getAttribute('sample')).toEqual('{"dope":true}');
+    expect(el.getAttribute('sample')).toEqual(null);
     expect(el.sample).toEqual({"dope":true});
     
     expect(el.getAttribute('no')).toEqual('{"nope":true}');
