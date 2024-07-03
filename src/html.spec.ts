@@ -333,31 +333,31 @@ describe('html', () => {
 		)
 		
 		updateItems([1])
-		
+
 		expect(document.body.innerHTML).toBe('<ul>\n' +
 			'\t\t\t\t<li>item-1</li>\n' +
 			'\t\t\t</ul>')
-		
+
 		updateItems([1, 2])
-		
+
 		expect(document.body.innerHTML).toBe(
 			'<ul>\n' +
 			'\t\t\t\t<li>item-1</li><li>item-2</li>\n' +
 			'\t\t\t</ul>'
 		)
-		
+
 		updateItems([])
-		
+
 		expect(document.body.innerHTML).toBe('<ul>\n' +
 			'\t\t\t\t\n' +
 			'\t\t\t</ul>')
-		
+
 		updateItems([1, 2, 3])
-		
+
 		expect(document.body.innerHTML).toBe(
 			'<ul>\n' +
-			'\t\t\t\t<li>item-1</li><li>item-2</li><li>item-3</li>\n' +
-			'\t\t\t</ul>'
+			'\t\t\t\t\n' +
+			'\t\t\t<li>item-1</li><li>item-2</li><li>item-3</li></ul>'
 		)
 	})
 	
@@ -451,8 +451,8 @@ describe('html', () => {
 		html`<intl-list items="${["book", "car", "jet"]}"></intl-list>`
 			.render(document.body)
 		
-		expect(document.body.innerHTML).toBe('<intl-list items="[&quot;book&quot;,&quot;car&quot;,&quot;jet&quot;]"></intl-list>')
-		expect(updateMock).toHaveBeenCalledWith("items", null, '["book","car","jet"]', null)
+		expect(document.body.innerHTML).toBe('<intl-list></intl-list>')
+		expect(updateMock).not.toHaveBeenCalled()
 		expect(updateValMock).toHaveBeenCalledWith(["book", "car", "jet"])
 	});
 	
@@ -589,7 +589,7 @@ describe('html', () => {
 		it('class name as property', () => {
 			let [loading, setLoading] = state(true)
 			const btn = html`
-				<button attr.class.btn="true" attr.class.loading="${loading}">click me</button>`
+				<button class.btn="true" class.loading="${loading}">click me</button>`
 			
 			btn.render(document.body)
 			
@@ -604,41 +604,7 @@ describe('html', () => {
 			)
 		})
 		
-		it('class name as property without attr.', () => {
-			let [loading, setLoading] = state(true)
-			const btn = html`
-				<button class.btn="true" class.loading="${loading}">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button class="btn loading">click me</button>'
-			)
-			
-			setLoading(false)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button class="btn">click me</button>'
-			)
-		})
-		
 		it('class name as value', () => {
-			let [loading, setLoading] = state(true)
-			const btn = html`
-				<button attr.class="loading | ${loading}">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button class="loading">click me</button>'
-			)
-			
-			setLoading(false)
-			
-			expect(document.body.innerHTML).toBe('<button>click me</button>')
-		})
-		
-		it('class name as value without attr.', () => {
 			let [loading, setLoading] = state(true)
 			const btn = html`
 				<button class="loading | ${loading}">click me</button>`
@@ -655,32 +621,14 @@ describe('html', () => {
 		})
 		
 		it('empty class should be ignored', () => {
-			const btn = html`<button attr.class="" class.sample="">click me</button>`
+			const btn = html`<button class="" class.sample="">click me</button>`
 			
 			btn.render(document.body)
 			
-			expect(document.body.innerHTML).toBe('<button>click me</button>');
+			expect(document.body.innerHTML).toBe('<button class="">click me</button>');
 		})
 		
 		it('data name as property', () => {
-			let [loading, setLoading] = state(true)
-			const btn = html`
-				<button attr.data.btn="true" attr.data.loading="${loading}">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button data-btn="true" data-loading="true">click me</button>'
-			)
-			
-			setLoading(false)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button data-btn="true">click me</button>'
-			)
-		})
-		
-		it('data name as property without attr.', () => {
 			let [loading, setLoading] = state(true)
 			const btn = html`
 				<button data.btn="true" data.loading="${loading}">click me</button>`
@@ -701,24 +649,6 @@ describe('html', () => {
 		it('data name as property without dot notation', () => {
 			let [loading, setLoading] = state(true)
 			const btn = html`
-				<button attr.data-btn="true" attr.data-loading="${loading}">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button data-btn="true" data-loading="true">click me</button>'
-			)
-			
-			setLoading(false)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button data-btn="true">click me</button>'
-			)
-		})
-		
-		it('data name as property without attr. and dot notation', () => {
-			let [loading, setLoading] = state(true)
-			const btn = html`
 				<button data-btn="true" data-loading="${loading}">click me</button>`
 			
 			btn.render(document.body)
@@ -737,16 +667,6 @@ describe('html', () => {
 		it('data name as value wont work', () => {
 			const loading = true
 			const btn = html`
-				<button attr.data="loading, ${() => loading}">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe('<button>click me</button>')
-		})
-		
-		it('data name as value wont work without attr.', () => {
-			const loading = true
-			const btn = html`
 				<button data="loading, ${() => loading}">click me</button>`
 			
 			btn.render(document.body)
@@ -755,25 +675,14 @@ describe('html', () => {
 		})
 		
 		it('empty data should be ignored', () => {
-			const btn = html`<button attr.data="" data.sample="">click me</button>`
+			const btn = html`<button data="" sample="">click me</button>`
 			
 			btn.render(document.body)
 			
-			expect(document.body.innerHTML).toBe('<button>click me</button>');
+			expect(document.body.innerHTML).toBe('<button data="" sample="">click me</button>');
 		})
 		
 		it('style property without flag', () => {
-			const btn = html`
-				<button attr.style.cursor="pointer">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button style="cursor: pointer;">click me</button>'
-			)
-		})
-		
-		it('style property without flag without attr.', () => {
 			const btn = html`
 				<button style.cursor="pointer">click me</button>`
 			
@@ -786,17 +695,6 @@ describe('html', () => {
 		
 		it('style value without flag', () => {
 			const btn = html`
-				<button attr.style="cursor: pointer">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button style="cursor: pointer;">click me</button>'
-			)
-		})
-		
-		it('style value without flag without attr.', () => {
-			const btn = html`
 				<button style="cursor: pointer">click me</button>`
 			
 			btn.render(document.body)
@@ -807,22 +705,6 @@ describe('html', () => {
 		})
 		
 		it('style property with flag', () => {
-			let [pointer, setPointer] = state(false)
-			const btn = html`
-				<button attr.style.cursor="pointer | ${pointer}">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe('<button>click me</button>')
-			
-			setPointer(true)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button style="cursor: pointer;">click me</button>'
-			)
-		})
-		
-		it('style property with flag without attr.', () => {
 			let [pointer, setPointer] = state(false)
 			const btn = html`
 				<button style.cursor="pointer | ${pointer}">click me</button>`
@@ -841,22 +723,6 @@ describe('html', () => {
 		it('style value with flag', () => {
 			let [pointer, setPointer] = state(false)
 			const btn = html`
-				<button attr.style="cursor: pointer | ${pointer}">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe('<button>click me</button>')
-			
-			setPointer(true)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button style="cursor: pointer;">click me</button>'
-			)
-		})
-		
-		it('style value with flag without attr.', () => {
-			let [pointer, setPointer] = state(false)
-			const btn = html`
 				<button style="cursor: pointer | ${pointer}">click me</button>`
 			
 			btn.render(document.body)
@@ -871,11 +737,11 @@ describe('html', () => {
 		})
 		
 		it('empty style should be ignored', () => {
-			const btn = html`<button attr.style="" style.color="">click me</button>`
+			const btn = html`<button style="" style.color="">click me</button>`
 			
 			btn.render(document.body)
 			
-			expect(document.body.innerHTML).toBe('<button>click me</button>');
+			expect(document.body.innerHTML).toBe('<button style="">click me</button>');
 		})
 		
 		it('should accept style in a variable', () => {
@@ -891,7 +757,7 @@ describe('html', () => {
 		it('any boolean attr', () => {
 			let [disabled, setDisabled] = state(true)
 			const btn = html`
-				<button attr.disabled="${disabled}">click me</button>`
+				<button disabled="${disabled}">click me</button>`
 			
 			btn.render(document.body)
 			
@@ -904,46 +770,7 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('<button>click me</button>')
 		})
 		
-		it('any boolean attr without attr.', () => {
-			let [disabled, setDisabled] = state(false)
-			const btn = html`
-				<button disabled="${disabled}">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button>click me</button>'
-			)
-			
-			setDisabled(true)
-			
-			expect(document.body.innerHTML).toBe('<button disabled="true">click me</button>')
-		})
-		
-		it('any boolean attr without attr. and no value', () => {
-			let disabled = false
-			const btn = html`
-				<button disabled>click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button disabled="">click me</button>'
-			)
-		})
-		
 		it('any boolean attr with nil value', () => {
-			const btn = html`
-				<button attr.disabled="${undefined}">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button>click me</button>'
-			)
-		})
-		
-		it('any boolean attr with nil value without attr.', () => {
 			const btn = html`
 				<button disabled="${undefined}">click me</button>`
 			
@@ -955,22 +782,6 @@ describe('html', () => {
 		})
 		
 		it('any boolean attr with possible values', () => {
-			let [hidden, setHidden] = state(true)
-			const btn = html`
-				<button attr.hidden="until-found | ${hidden}">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button hidden="until-found">click me</button>'
-			)
-			
-			setHidden(false)
-			
-			expect(document.body.innerHTML).toBe('<button>click me</button>')
-		})
-		
-		it('any boolean attr with possible values without attr.', () => {
 			let [hidden, setHidden] = state(true)
 			const btn = html`
 				<button hidden="until-found | ${hidden}">click me</button>`
@@ -989,7 +800,7 @@ describe('html', () => {
 		it('any non-primitive-boolean attr', () => {
 			let [disabled, setDisabled] = state(true)
 			const btn = html`
-				<button attr.aria-disabled="${disabled}">click me</button>`
+				<button aria-disabled="${disabled}">click me</button>`
 			
 			btn.render(document.body)
 			
@@ -1000,21 +811,8 @@ describe('html', () => {
 			setDisabled(false)
 			
 			expect(document.body.innerHTML).toBe(
-				'<button>click me</button>'
+				'<button aria-disabled="false">click me</button>'
 			)
-		})
-		
-		it('any key-value pair', () => {
-			let [pattern, setPattern] = state('')
-			const field = html`<input attr.pattern="${pattern} | ${pattern}"/>`
-			
-			field.render(document.body)
-			
-			expect(document.body.innerHTML).toBe('<input>')
-			
-			setPattern('[a-z]')
-			
-			expect(document.body.innerHTML).toBe('<input pattern="[a-z]">')
 		})
 		
 		it('any key-value pair without .attr', () => {
@@ -1033,18 +831,6 @@ describe('html', () => {
 		it('should work with helper value',  () => {
 			const [disabled, setDisabled] = state(false);
 			
-			html`<button attr.disabled="${is(disabled, true)}" attr.class="disabled | ${is(disabled, true)}">click me</button>`.render(document.body)
-			
-			expect(document.body.innerHTML).toBe('<button>click me</button>')
-			
-			setDisabled(true);
-			
-			expect(document.body.innerHTML).toBe('<button disabled="true" class="disabled">click me</button>')
-		});
-		
-		it('should work with helper value without attr.',  () => {
-			const [disabled, setDisabled] = state(false);
-			
 			html`<button disabled="${is(disabled, true)}" class="disabled | ${is(disabled, true)}">click me</button>`.render(document.body)
 			
 			expect(document.body.innerHTML).toBe('<button>click me</button>')
@@ -1055,14 +841,6 @@ describe('html', () => {
 		});
 		
 		it('should handle slot name', () => {
-			const slotName = '123'
-			
-			html`<slot attr.name="${slotName} | ${false}"></slot><slot attr.name="${slotName} | ${true}"></slot>`.render(document.body)
-			
-			expect(document.body.innerHTML).toBe('<slot></slot><slot name="123"></slot>')
-		});
-		
-		it('should handle slot name without attr.', () => {
 			const slotName = '123'
 			
 			html`<slot name="${slotName} | ${false}"></slot><slot name="${slotName} | ${true}"></slot>`.render(document.body)
@@ -1095,7 +873,7 @@ describe('html', () => {
 		el.render(document.body)
 		
 		expect(document.body.innerHTML).toBe(
-			'<div data-test-map="{}" data-test-val="{&quot;val&quot;:12}"></div>'
+			'<div data-test-map="[object Map]" data-test-val="[object Object]"></div>'
 		)
 	})
 	
@@ -1130,14 +908,11 @@ describe('html', () => {
 		el.render(document.body)
 		
 		expect(document.body.innerHTML).toBe(
-			'<sample-comp map="{}" val="{&quot;val&quot;:12}"></sample-comp>'
+			'<sample-comp></sample-comp>'
 		)
 		expect(mapMock).toHaveBeenCalledWith(expect.any(Map))
 		expect(valMock).toHaveBeenCalledWith({val: 12})
-		
-		expect(updateMock).toHaveBeenCalledTimes(2)
-		expect(updateMock).toHaveBeenCalledWith('map', null, '{}', null)
-		expect(updateMock).toHaveBeenCalledWith('val', null, '{"val":12}', null)
+		expect(updateMock).not.toHaveBeenCalled()
 	})
 
 	it('should handle non-primitive attribute value in conditionally rendered WC',  () => {
@@ -1192,7 +967,7 @@ describe('html', () => {
 		
 		jest.advanceTimersByTime(1200);
 
-		expect(document.body.innerHTML).toBe('<main-app><obj-value sample="{&quot;x&quot;:12}">12</obj-value></main-app>')
+		expect(document.body.innerHTML).toBe('<main-app><obj-value>12</obj-value></main-app>')
 		
 		jest.useRealTimers()
 	})
@@ -1239,22 +1014,21 @@ describe('html', () => {
 			const n1 = document.body.children[0]
 			const n2 = document.body.children[1]
 			
-			
 			updateItems(prev => [
 				{name: 'first'},
 				prev[1]
 			])
-			
+
 			expect(document.body.innerHTML).toBe(
 				'<span>first</span><span>two</span>'
 			)
 			expect(n1).not.toEqual(document.body.children[0])
-			
+
 			updateItems(prev => [
 				...prev,
 				{name: 'last'}
 			])
-			
+
 			expect(document.body.innerHTML).toBe(
 				'<span>first</span><span>two</span><span>last</span>'
 			)
@@ -1282,7 +1056,7 @@ describe('html', () => {
 			el.render(document.body)
 			
 			expect(document.body.innerHTML).toBe(
-				'<test-component val="{&quot;name&quot;:&quot;one&quot;}"></test-component><test-component val="{&quot;name&quot;:&quot;two&quot;}"></test-component>'
+				'<test-component></test-component><test-component></test-component>'
 			)
 			
 			expect(valMock).toHaveBeenCalledTimes(2)
@@ -1766,13 +1540,6 @@ describe('html', () => {
 	})
 	
 	describe('should handle lifecycles', () => {
-		beforeEach(() => {
-			jest.useFakeTimers()
-		})
-		
-		afterEach(() => {
-			jest.useRealTimers()
-		})
 		
 		it('onMount', () => {
 		
@@ -1781,8 +1548,6 @@ describe('html', () => {
 			html`<span>sample</span>`
 				.onMount(mountMock)
 				.render(document.body)
-			
-			jest.advanceTimersByTime(100);
 			
 			expect(mountMock).toHaveBeenCalledTimes(1)
 		});
@@ -1796,8 +1561,6 @@ describe('html', () => {
 			
 			temp.unmount();
 			
-			jest.advanceTimersByTime(100);
-			
 			expect(unmountMock).toHaveBeenCalledTimes(1)
 		});
 		
@@ -1809,26 +1572,19 @@ describe('html', () => {
 				html`three`.onMount(() => unmountMock),
 			])
 
-			const temp = html`${list}`
-				.render(document.body)
+			html`${list}`.render(document.body)
 
 			expect(document.body.innerHTML).toBe('onetwothree')
 			
 			const three =  list()[2]
 			updateList([list()[0]])
 			
-			jest.advanceTimersByTime(100);
-
 			expect(document.body.innerHTML).toBe('one')
 			
-			jest.advanceTimersByTime(100);
-
 			expect(unmountMock).toHaveBeenCalledTimes(2)
 			
 			updateList([three, list()[0]])
 			
-			jest.advanceTimersByTime(100);
-
 			expect(document.body.innerHTML).toBe('threeone')
 		});
 		
@@ -1858,6 +1614,23 @@ describe('html', () => {
 			
 			expect(document.body.innerHTML).toBe("item 20")
 		})
+		
+		it('onUpdate', () => {
+			const updateMock = jest.fn()
+			const [value, setValue] = state('sample');
+			
+			html`<span>${value}</span>`
+				.onUpdate(updateMock)
+				.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<span>sample</span>')
+			
+			setValue('diff')
+			
+			expect(updateMock).toHaveBeenCalledTimes(1)
+			
+			expect(document.body.innerHTML).toBe('<span>diff</span>')
+		});
 	})
 	
 	it('should ignore values between tag and attribute', () => {

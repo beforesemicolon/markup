@@ -1,5 +1,4 @@
 import { booleanAttributes } from './utils/boolean-attributes'
-import { element } from './utils/element'
 import { setElementAttribute } from './utils/set-element-attribute'
 import { parseDynamicRawValue } from './utils/parse-dynamic-raw-value'
 import { ReactiveNode } from './ReactiveNode'
@@ -20,7 +19,7 @@ const node = (
     const node =
         nodeName === '#fragment'
             ? document.createDocumentFragment()
-            : element(nodeName, { ns })
+            : document.createElementNS(ns, nodeName)
     const comp = customElements.get(nodeName.toLowerCase())
     const nodes: Array<Node | ReactiveNode | HtmlTemplate> = []
 
@@ -50,8 +49,7 @@ const node = (
                     return
                 }
 
-                const attrLessName = name.replace(/^attr\./, '')
-                const isBollAttr = booleanAttributes[attrLessName.toLowerCase()]
+                const isBollAttr = booleanAttributes[name.toLowerCase()]
 
                 // boolean attr with false value can just be ignored
                 if (trimmedValue === 'false' && isBollAttr) {
@@ -59,9 +57,6 @@ const node = (
                 }
 
                 const dvValue = parseDynamicRawValue(trimmedValue, values)
-                const partsWithDynamicValues = dvValue.some(
-                    (n) => typeof n === 'function'
-                )
 
                 if (
                     /^on[a-z]+/.test(name) && // @ts-expect-error observedAttributes is property of web component
@@ -80,37 +75,29 @@ const node = (
 
                 if (
                     isBollAttr ||
-                    /^(attr|class|style|data)/i.test(name) ||
+                    /^(class|style|data)/i.test(name) ||
                     trimmedValue.split(/\|/).length > 1
                 ) {
                     let props: string[] = []
-                    ;[name, ...props] = attrLessName.split('.')
+                    ;[name, ...props] = name.split('.')
 
-                    if (partsWithDynamicValues) {
-                        cb(
-                            effect(() =>
-                                setElementDirectiveAttribute(
-                                    name,
-                                    props.join('.'),
-                                    dvValue,
-                                    node as HTMLElement
-                                )
-                            )
-                        )
-                    } else {
+                    const update = () =>
                         setElementDirectiveAttribute(
                             name,
                             props.join('.'),
                             dvValue,
                             node as HTMLElement
                         )
+
+                    if (dvValue.some((n) => typeof n === 'function')) {
+                        return cb(effect(() => update()))
                     }
 
-                    return
+                    return update()
                 }
 
-                if (partsWithDynamicValues) {
-                    const fn = dvValue[0] as () => unknown
+                if (typeof dvValue[0] === 'function') {
+                    const fn = dvValue[0]
                     return cb(
                         effect(() =>
                             setElementAttribute(node as HTMLElement, name, fn())
@@ -127,7 +114,7 @@ const node = (
 
             if (
                 // ignore special attributes specific to Markup that did not get handled
-                !/^(ref|(attr|class|style|data)\.)/.test(name)
+                !/^(ref|(class|style|data)\.)/.test(name)
             ) {
                 setElementAttribute(node as HTMLElement, name, trimmedValue)
             }
@@ -155,7 +142,15 @@ const node = (
                             cb(rn)
                         } else {
                             nodes.push(
-                                ...renderContent(part, node as HTMLElement, cb)
+                                ...renderContent(
+                                    part,
+                                    node as HTMLElement,
+                                    (item) => {
+                                        if (item instanceof HtmlTemplate) {
+                                            cb(item)
+                                        }
+                                    }
+                                )
                             )
                         }
                     }

@@ -1,4 +1,3 @@
-import { jsonStringify } from './json-stringify'
 import { setElementAttribute } from './set-element-attribute'
 import { turnCamelToKebabCasing } from './turn-camel-to-kebab-casing'
 import { ElementOptions } from '../types'
@@ -41,7 +40,7 @@ export const element = <A>(
         }
 
         if (textContent) {
-            el.textContent = jsonStringify(textContent)
+            el.textContent = textContent
         } else if (htmlContent) {
             el.innerHTML = htmlContent
         }

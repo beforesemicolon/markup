@@ -3,19 +3,22 @@ import { effect } from './state'
 import { syncNodes } from './utils/sync-nodes'
 import { EffectUnSubscriber } from './types'
 import { renderContent } from './utils/render-content'
+import { toNodes } from './utils/to-nodes'
 
 export class ReactiveNode {
-    #nodes: Node[] = []
-    #result: unknown
+    #result: Array<Node | HtmlTemplate> = []
     #unsubEffect: EffectUnSubscriber | null = null
-    #parent: HTMLElement | DocumentFragment | null = null
+    #parent: HTMLElement | Element | null = null
+    #updateSub: (() => void) | undefined = undefined
 
     get parentNode() {
         return this.#parent
     }
 
     get nodes(): Node[] {
-        return this.#nodes
+        // need to dynamically read nodes in case the HTMLTemplate changes
+        // due to having its own ReactiveNodes
+        return toNodes(this.#result)
     }
 
     get isConnected() {
@@ -23,9 +26,7 @@ export class ReactiveNode {
     }
 
     get refs(): Record<string, Array<Element>> {
-        return (
-            Array.isArray(this.#result) ? this.#result : [this.#result]
-        ).reduce((acc, item) => {
+        return this.#result.reduce((acc, item) => {
             if (item instanceof HtmlTemplate) {
                 return {
                     ...acc,
@@ -47,35 +48,37 @@ export class ReactiveNode {
                 const res = action()
 
                 if (init) {
-                    const frag = document.createDocumentFragment()
-                    const list = Array.isArray(res) ? res : [res]
-                    const newNodes = list.flatMap((item) =>
-                        renderContent(item, frag)
+                    this.#result = syncNodes(
+                        this.#result,
+                        Array.isArray(res) ? res : [res],
+                        this.parentNode as HTMLElement
                     )
-
-                    this.#nodes = syncNodes(
-                        this.#nodes,
-                        newNodes,
-                        this.parentNode
-                    )
-
-                    unmountMountable(getPreviousMountable(this.#result, res))
+                    this.#updateSub?.()
                 } else {
-                    this.#nodes = renderContent(res, parentNode)
+                    renderContent(res, parentNode, (item) => {
+                        this.#result.push(item)
+                    })
+                    init = true
                 }
-
-                init = true
-                this.#result = res
             })
         }
     }
 
     unmount() {
         this.#unsubEffect?.()
-        unmountMountable(this.#result)
-        for (const node of this.#nodes) {
-            node.parentNode?.removeChild(node)
+        for (const item of this.#result) {
+            if (item instanceof Node) {
+                item.parentNode?.removeChild(item)
+            } else {
+                item.unmount()
+            }
         }
+        this.#parent = null
+    }
+
+    onUpdate(cb: () => void) {
+        this.#updateSub = cb
+        return this
     }
 
     /**
@@ -85,36 +88,9 @@ export class ReactiveNode {
      * having to render again
      * @param newParent
      */
-    updateParentReference(newParent: HTMLElement) {
+    updateParentReference(newParent: HTMLElement | Element) {
         if (newParent && newParent instanceof Node) {
             this.#parent = newParent
         }
     }
-}
-
-function unmountMountable(item: unknown) {
-    if (item instanceof ReactiveNode || item instanceof HtmlTemplate) {
-        item.unmount()
-    } else if (Array.isArray(item)) {
-        for (const i of item) {
-            unmountMountable(i)
-        }
-    }
-}
-
-function getPreviousMountable(current: unknown, diff: unknown) {
-    const currentTemps = new Set(
-        (Array.isArray(current) ? current : [current]).filter(
-            (item) =>
-                item instanceof ReactiveNode || item instanceof HtmlTemplate
-        )
-    )
-    const newTemps = new Set(
-        (Array.isArray(diff) ? diff : [diff]).filter(
-            (item) =>
-                item instanceof ReactiveNode || item instanceof HtmlTemplate
-        )
-    )
-
-    return [...currentTemps].filter((item) => !newTemps.has(item))
 }
