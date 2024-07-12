@@ -148,10 +148,7 @@ const node = (
             if (n.nodeType === 3) {
                 // text node
                 if (n.nodeValue) {
-                    for (const part of parseDynamicRawValue(
-                        n.nodeValue,
-                        values
-                    )) {
+                    parseDynamicRawValue(n.nodeValue, values, (part) => {
                         if (typeof part === 'function') {
                             const rn = new ReactiveNode(
                                 part as () => unknown,
@@ -172,7 +169,7 @@ const node = (
                                 )
                             )
                         }
-                    }
+                    })
                 }
             } else {
                 node.appendChild(n)
