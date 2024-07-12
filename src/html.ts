@@ -7,6 +7,7 @@ import { toNodes } from './utils/to-nodes'
 export class HtmlTemplate {
     #htmlTemplate: string
     #nodes: Array<Node | HtmlTemplate | ReactiveNode> = []
+    #childNodes: Node[] = []
     #mountables: Array<ReactiveNode | HtmlTemplate> = []
     #refs: Record<string, Set<Element>> = {}
     #effectUnsubs: Set<EffectUnSubscriber> = new Set()
@@ -21,7 +22,7 @@ export class HtmlTemplate {
      * list of direct ChildNode from the template that got rendered
      */
     get nodes(): Node[] {
-        return toNodes(this.#nodes)
+        return this.#childNodes
     }
 
     /**
@@ -168,6 +169,7 @@ export class HtmlTemplate {
 
             this.#parent = null
             this.#nodes = []
+            this.#childNodes = []
             this.#mountables = []
             this.#mounted = false
             this.#unmountSub?.()
@@ -226,7 +228,12 @@ export class HtmlTemplate {
                         // only subscribe to direct child ReactiveNode update
                         // to update current nodes
                         if (item instanceof ReactiveNode) {
-                            item.onUpdate(() => this.#updateSub?.())
+                            item.onUpdate(() => {
+                                if (this.#mounted) {
+                                    this.#childNodes = toNodes(this.#nodes)
+                                }
+                                this.#updateSub?.()
+                            })
                         }
                     } else {
                         this.#effectUnsubs.add(item)
@@ -242,6 +249,7 @@ export class HtmlTemplate {
             }
             // @ts-expect-error DocumentFragLike __nodes__ will expose Node and ReactiveNode list
             this.#nodes = frag.__nodes__
+            this.#childNodes = toNodes(this.#nodes)
             this.#mounted = true
         }
     }
