@@ -4,13 +4,14 @@ describe('setNodeEventListener', () => {
     it('should throw error if no function is provided', () => {
         const btn = document.createElement('button')
         
-        expect(() => setNodeEventListener('click', '$val0', [], btn)).toThrowError('Handler for event "click" is not a function. Found "undefined".')
+        // @ts-ignore
+        expect(() => setNodeEventListener(btn, 'click')).toThrowError('Handler for event "click" is not a function. Found "undefined".')
     })
     it('should set event listener', () => {
         const btn = document.createElement('button')
         const fn = jest.fn()
         
-        setNodeEventListener('onclick', '$val0', [fn], btn)
+        setNodeEventListener(btn, 'onclick', fn)
         
         btn.click()
         btn.click()
@@ -23,7 +24,7 @@ describe('setNodeEventListener', () => {
         const box = document.createElement('div')
         const fn = jest.fn()
         
-        setNodeEventListener('onscroll', '$val0', [fn, true], box)
+        setNodeEventListener(box, 'onscroll', fn, true)
         
         const scrollEvent = new Event('scroll')
         box.dispatchEvent(scrollEvent)
@@ -37,7 +38,7 @@ describe('setNodeEventListener', () => {
         const btn = document.createElement('button')
         const fn = jest.fn()
         
-        setNodeEventListener('onclick', '$val0', [fn, { once: true }], btn)
+        setNodeEventListener(btn, 'onclick', fn, { once: true })
         
         btn.click()
         btn.click()
@@ -50,7 +51,7 @@ describe('setNodeEventListener', () => {
         const btn = document.createElement('button')
         const fn = jest.fn()
         
-        setNodeEventListener('onclick', '$val0,{"once": true}', [fn], btn)
+        setNodeEventListener(btn, 'onclick', fn, {"once": true})
         
         btn.click()
         btn.click()
@@ -63,7 +64,8 @@ describe('setNodeEventListener', () => {
         const btn = document.createElement('button')
         const fn = jest.fn()
         
-        setNodeEventListener('onclick', '$val0, sample', [fn], btn)
+        // @ts-ignore
+        setNodeEventListener(btn, 'onclick', fn, 'sample')
         
         btn.click()
         btn.click()
