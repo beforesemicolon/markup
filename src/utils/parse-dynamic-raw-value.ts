@@ -1,29 +1,27 @@
-import { isPrimitive } from './is-primitive'
-
-const handleLastPart = (parts: unknown[], str: string) => {
-    if (typeof parts.at(-1) === 'string') {
-        parts[parts.length - 1] += str
-    } else {
-        parts.push(str)
-    }
-}
-
-export const parseDynamicRawValue = (str: string, values: unknown[]) => {
+export const parseDynamicRawValue = (
+    str: string,
+    values: unknown[],
+    cb?: (part: unknown) => void
+) => {
     const pattern = /\$val([0-9]+)/g,
         parts: unknown[] = []
     let match: RegExpExecArray | null = null,
         lastIndex = 0
 
     while ((match = pattern.exec(str)) !== null) {
-        const [, idx] = match,
+        const [, idxStr] = match,
             part = str.slice(lastIndex, match.index),
-            value = values[Number(idx)]
+            idx = Number(idxStr),
+            value = values[idx]
 
-        if (isPrimitive(value) || value === null) {
-            handleLastPart(parts, part + value)
-        } else {
-            part && parts.push(part)
+        if (part) {
+            parts.push(part)
+            cb?.(part)
+        }
+
+        if (values.hasOwnProperty(idx)) {
             parts.push(value)
+            cb?.(value)
         }
 
         lastIndex = pattern.lastIndex
@@ -33,10 +31,12 @@ export const parseDynamicRawValue = (str: string, values: unknown[]) => {
         const lastPart = str.slice(lastIndex)
 
         if (lastPart) {
-            handleLastPart(parts, lastPart)
+            parts.push(lastPart)
+            cb?.(lastPart)
         }
-    } else {
+    } else if (str) {
         parts.push(str)
+        cb?.(str)
     }
 
     return parts
