@@ -56,8 +56,6 @@ const node = (
                     return
                 }
 
-                const dvValue = parseDynamicRawValue(trimmedValue, values)
-
                 if (
                     /^on[a-z]+/.test(name) && // @ts-expect-error observedAttributes is property of web component
                     ((comp && !comp?.observedAttributes?.includes(name)) ||
@@ -65,13 +63,34 @@ const node = (
                             // @ts-expect-error check if know event name
                             typeof document.head[name] !== 'undefined'))
                 ) {
+                    const [fnString, optString] = trimmedValue
+                        .split(',')
+                        .map((p) => p.trim())
+                    const [, idx] = fnString.match(/\$val([0-9]+)/) ?? []
+                    const fn = values[Number(idx)]
+                    let options: boolean | AddEventListenerOptions | undefined
+
+                    if (optString) {
+                        if (/^(true|false)$/.test(optString)) {
+                            options = /^true$/.test(optString)
+                        } else {
+                            const [, oIdx] =
+                                optString.match(/\$val([0-9]+)/g) ?? []
+                            options = values[
+                                Number(oIdx)
+                            ] as AddEventListenerOptions
+                        }
+                    }
+
                     return setNodeEventListener(
+                        node,
                         name,
-                        trimmedValue,
-                        dvValue,
-                        node
+                        fn as EventListener,
+                        options
                     )
                 }
+
+                const dvValue = parseDynamicRawValue(trimmedValue, values)
 
                 if (
                     isBollAttr ||
