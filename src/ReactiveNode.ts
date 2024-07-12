@@ -74,6 +74,7 @@ export class ReactiveNode {
             }
         }
         this.#parent = null
+        this.#result = []
     }
 
     onUpdate(cb: () => void) {
