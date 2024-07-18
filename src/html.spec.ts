@@ -585,29 +585,20 @@ describe('html', () => {
 		})
 	})
 	
-	describe('should handle attr directive', () => {
-		it('class name as property', () => {
-			let [loading, setLoading] = state(true)
+	describe('should handle attributes', () => {
+		it('should throw if injected with invalid attr', () => {
+			const disabled = 'disabled'
+			
 			const btn = html`
-				<button class.btn="true" class.loading="${loading}">click me</button>`
+			<button ${disabled}></button>`
 			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button class="btn loading">click me</button>'
-			)
-			
-			setLoading(false)
-
-			expect(document.body.innerHTML).toBe(
-				'<button class="btn">click me</button>'
-			)
+			expect(() => btn.render(document.body)).toThrowError('Invalid attribute object provided: disabled')
 		})
 		
 		it('class name as value', () => {
 			let [loading, setLoading] = state(true)
 			const btn = html`
-				<button class="loading | ${loading}">click me</button>`
+				<button class="${when(loading, 'loading')}">click me</button>`
 			
 			btn.render(document.body)
 			
@@ -617,36 +608,18 @@ describe('html', () => {
 			
 			setLoading(false)
 			
-			expect(document.body.innerHTML).toBe('<button>click me</button>')
+			expect(document.body.innerHTML).toBe('<button class="">click me</button>')
 		})
 		
 		it('empty class should be ignored', () => {
-			const btn = html`<button class="" class.sample="">click me</button>`
+			const btn = html`<button class="">click me</button>`
 			
 			btn.render(document.body)
 			
 			expect(document.body.innerHTML).toBe('<button class="">click me</button>');
 		})
 		
-		it('data name as property', () => {
-			let [loading, setLoading] = state(true)
-			const btn = html`
-				<button data.btn="true" data.loading="${loading}">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button data-btn="true" data-loading="true">click me</button>'
-			)
-			
-			setLoading(false)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button data-btn="true">click me</button>'
-			)
-		})
-		
-		it('data name as property without dot notation', () => {
+		it('data name', () => {
 			let [loading, setLoading] = state(true)
 			const btn = html`
 				<button data-btn="true" data-loading="${loading}">click me</button>`
@@ -660,93 +633,29 @@ describe('html', () => {
 			setLoading(false)
 			
 			expect(document.body.innerHTML).toBe(
-				'<button data-btn="true">click me</button>'
-			)
-		})
-		
-		it('data name as value wont work', () => {
-			const loading = true
-			const btn = html`
-				<button data="loading, ${() => loading}">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe('<button>click me</button>')
-		})
-		
-		it('empty data should be ignored', () => {
-			const btn = html`<button data="" sample="">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe('<button data="" sample="">click me</button>');
-		})
-		
-		it('style property without flag', () => {
-			const btn = html`
-				<button style.cursor="pointer">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button style="cursor: pointer;">click me</button>'
-			)
-		})
-		
-		it('style value without flag', () => {
-			const btn = html`
-				<button style="cursor: pointer">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button style="cursor: pointer;">click me</button>'
+				'<button data-btn="true" data-loading="false">click me</button>'
 			)
 		})
 		
 		it('style property with flag', () => {
 			let [pointer, setPointer] = state(false)
 			const btn = html`
-				<button style.cursor="pointer | ${pointer}">click me</button>`
+				<button style="${when(pointer, 'cursor: pointer;')}">click me</button>`
 			
 			btn.render(document.body)
 			
-			expect(document.body.innerHTML).toBe('<button>click me</button>')
+			expect(document.body.innerHTML).toBe('<button style="">click me</button>')
 			
 			setPointer(true)
 			
 			expect(document.body.innerHTML).toBe(
 				'<button style="cursor: pointer;">click me</button>'
 			)
-		})
-		
-		it('style value with flag', () => {
-			let [pointer, setPointer] = state(false)
-			const btn = html`
-				<button style="cursor: pointer | ${pointer}">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe('<button>click me</button>')
-			
-			setPointer(true)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button style="cursor: pointer;">click me</button>'
-			)
-		})
-		
-		it('empty style should be ignored', () => {
-			const btn = html`<button style="" style.color="">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe('<button style="">click me</button>');
 		})
 		
 		it('should accept style in a variable', () => {
 			const bg = 'red'
-			const style = `background: ${bg}`
+			const style = `background: ${bg};`
 			const btn = html`<button style="${style}">click me</button>`
 			
 			btn.render(document.body)
@@ -782,9 +691,9 @@ describe('html', () => {
 		})
 		
 		it('any boolean attr with possible values', () => {
-			let [hidden, setHidden] = state(true)
+			let [hidden, setHidden] = state('until-found')
 			const btn = html`
-				<button hidden="until-found | ${hidden}">click me</button>`
+				<button hidden=" ${hidden}">click me</button>`
 			
 			btn.render(document.body)
 			
@@ -792,7 +701,7 @@ describe('html', () => {
 				'<button hidden="until-found">click me</button>'
 			)
 			
-			setHidden(false)
+			setHidden('')
 			
 			expect(document.body.innerHTML).toBe('<button>click me</button>')
 		})
@@ -815,37 +724,29 @@ describe('html', () => {
 			)
 		})
 		
-		it('any key-value pair without .attr', () => {
-			let [pattern, setPattern] = state('')
-			const field = html`<input pattern="${pattern} | ${pattern}"/>`
-			
-			field.render(document.body)
-			
-			expect(document.body.innerHTML).toBe('<input>')
-			
-			setPattern('[a-z]')
-			
-			expect(document.body.innerHTML).toBe('<input pattern="[a-z]">')
-		})
-		
 		it('should work with helper value',  () => {
 			const [disabled, setDisabled] = state(false);
 			
-			html`<button disabled="${is(disabled, true)}" class="disabled | ${is(disabled, true)}">click me</button>`.render(document.body)
+			const attrs = {
+				disabled: is(disabled, true),
+				class: when(is(disabled, true), 'disabled')
+			}
 			
-			expect(document.body.innerHTML).toBe('<button>click me</button>')
+			html`<button ${attrs}>click me</button>`.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<button class="">click me</button>')
 			
 			setDisabled(true);
 			
-			expect(document.body.innerHTML).toBe('<button disabled="true" class="disabled">click me</button>')
+			expect(document.body.innerHTML).toBe('<button class="disabled" disabled="true">click me</button>')
 		});
 		
 		it('should handle slot name', () => {
 			const slotName = '123'
 			
-			html`<slot name="${slotName} | ${false}"></slot><slot name="${slotName} | ${true}"></slot>`.render(document.body)
+			html`<slot ${{name: ''}}></slot><slot  ${{name: slotName}}></slot>`.render(document.body)
 			
-			expect(document.body.innerHTML).toBe('<slot></slot><slot name="123"></slot>')
+			expect(document.body.innerHTML).toBe('<slot name=""></slot><slot name="123"></slot>')
 		});
 	})
 	
@@ -1631,17 +1532,6 @@ describe('html', () => {
 			
 			expect(document.body.innerHTML).toBe('<span>diff</span>')
 		});
-	})
-	
-	it('should ignore values between tag and attribute', () => {
-		const disabled = 'disabled'
-		
-		const btn = html`
-			<button ${disabled}></button>`
-		
-		btn.render(document.body)
-		
-		expect(document.body.innerHTML).toBe('<button></button>')
 	})
 	
 	it('should parse script injected value', () => {
