@@ -1,6 +1,7 @@
 import { DocumentLike, parse } from "@beforesemicolon/html-parser";
 import { Doc } from "./Doc";
 import { ReactiveNode } from './ReactiveNode'
+import { when } from './helpers'
 
 describe("Doc", () => {
   const dynamicValueCollector = jest.fn();
@@ -145,13 +146,13 @@ describe("Doc", () => {
     
     
     const res = parse(
-      "<button type=\"button\" class=\"btn\" class.active=\"$val0\" style.loading=\"color: blue; | $val1\" disabled=\"$val2\" data.sample=\"$val3\">click me</button>",
-      Doc([active, loading, disabled, sample], refs, dynamicValueCollector) as unknown as DocumentLike
+      "<button type=\"button\" class=\"btn\ $val0\" style=\"$val1\" disabled=\"$val2\" data-sample=\"$val3\">click me</button>",
+      Doc([when(active, 'active'), when(loading, 'color: blue;'), disabled, sample], refs, dynamicValueCollector) as unknown as DocumentLike
     );
     
     expect(res.childNodes.length).toBe(1);
     expect(res.childNodes[0]).toBeInstanceOf(HTMLButtonElement);
-    expect((res.childNodes[0] as HTMLButtonElement).outerHTML).toBe('<button type="button" class="btn active" disabled="true">click me</button>');
+    expect((res.childNodes[0] as HTMLButtonElement).outerHTML).toBe('<button type="button" class="btn active" style="" disabled="true" data-sample="false">click me</button>');
     expect(dynamicValueCollector).toHaveBeenCalledTimes(4);
     
     
@@ -169,14 +170,14 @@ describe("Doc", () => {
     
     expect(res.childNodes.length).toBe(1);
     expect(res.childNodes[0]).toBeInstanceOf(HTMLButtonElement);
-    expect((res.childNodes[0] as HTMLButtonElement).outerHTML).toBe("<button type=\"button\">click me</button>");
+    expect((res.childNodes[0] as HTMLButtonElement).outerHTML).toBe("<button type=\"button\" disabled=\"false\">click me</button>");
     expect(dynamicValueCollector).not.toHaveBeenCalled();
   });
   
-  it("should parse and ignore injected value names", () => {
+  it("should handle injected values", () => {
     const res = parse(
-      '<button type="button" $val0="true">click me</button>',
-      Doc(['disabled'], refs, dynamicValueCollector) as unknown as DocumentLike
+      '<button type="button" $val0>click me</button>',
+      Doc([{disabled: false}], refs, dynamicValueCollector) as unknown as DocumentLike
     );
     
     expect(res.childNodes.length).toBe(1);
