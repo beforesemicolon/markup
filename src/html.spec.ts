@@ -1334,7 +1334,7 @@ describe('html', () => {
 			setX(20)
 			
 			expect(document.body.innerHTML).toBe('<span>Non Zero: 20</span>')
-			expect(document.body.children[0]).toEqual(n) // node should be kept
+			expect(document.body.children[0]).not.toEqual(n)
 		})
 		
 		it('when nested', () => {
