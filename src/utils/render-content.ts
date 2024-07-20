@@ -5,15 +5,15 @@ export const renderContent = (
     content: unknown,
     parentNode: HTMLElement | DocumentFragment,
     cb?: (item: HtmlTemplate | Node) => void
-): Node[] => {
+): Array<HtmlTemplate | Node> => {
     if (content instanceof HtmlTemplate) {
         content.render(parentNode)
         cb?.(content)
-        return content.nodes
+        return [content]
     }
 
     if (Array.isArray(content)) {
-        let nodes: Node[] = []
+        let nodes: Array<HtmlTemplate | Node> = []
 
         for (const item of content) {
             if (Array.isArray(item)) {

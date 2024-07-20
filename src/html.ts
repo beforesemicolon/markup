@@ -156,6 +156,10 @@ export class HtmlTemplate {
                 effectUnsub()
             }
 
+            for (const item of this.#mountables) {
+                item.unmount()
+            }
+
             for (const node of this.#nodes) {
                 if (
                     node instanceof ReactiveNode ||
