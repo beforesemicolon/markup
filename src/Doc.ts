@@ -20,11 +20,9 @@ const node = (
         nodeName === '#fragment'
             ? document.createDocumentFragment()
             : document.createElementNS(ns, nodeName)
-    const nodes: Array<Node | ReactiveNode | HtmlTemplate> = []
 
     return {
         __self__: node,
-        __nodes__: nodes,
         namespaceURI: (node as Element).namespaceURI as string,
         tagName: node.nodeName,
         childNodes: node.childNodes,
@@ -81,26 +79,18 @@ const node = (
                                 part as () => unknown,
                                 node as HTMLElement
                             )
-                            nodes.push(rn)
                             cb(rn)
                         } else {
-                            nodes.push(
-                                ...renderContent(
-                                    part,
-                                    node as HTMLElement,
-                                    (item) => {
-                                        if (item instanceof HtmlTemplate) {
-                                            cb(item)
-                                        }
-                                    }
-                                )
-                            )
+                            renderContent(part, node as HTMLElement, (item) => {
+                                if (item instanceof HtmlTemplate) {
+                                    cb(item)
+                                }
+                            })
                         }
                     })
                 }
             } else {
                 node.appendChild(n)
-                nodes.push(n)
             }
         },
     }

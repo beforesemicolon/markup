@@ -36,7 +36,6 @@ describe('syncNodes', () => {
     })
 
     it('should add new items', () => {
-        ul.append(...nodes)
         ul.innerHTML = ''
         ul.appendChild(nodes[0])
 
@@ -187,7 +186,7 @@ describe('syncNodes', () => {
         const startNodes = nodeTemplates.slice(0, 3)
         const endNodes = nodeTemplates.slice(7)
         
-        expect([...startNodes.flatMap(n => n.nodes), ...endNodes.flatMap(n => n.nodes)].map((n) => n.textContent)).toEqual([
+        expect([...startNodes.flatMap(n => n.childNodes), ...endNodes.flatMap(n => n.childNodes)].map((n) => n.textContent)).toEqual([
             'item 1',
             'item 2',
             'item 3',
@@ -330,7 +329,7 @@ describe('syncNodes', () => {
             'item 10',
         ])
         
-        expect(reversedNodes.flatMap((t) => t.nodes.map((n) => n.textContent))).toEqual([
+        expect(reversedNodes.flatMap((t) => t.childNodes.map((n) => n.textContent))).toEqual([
             'item 10',
             'item 9',
             'item 8',
@@ -432,7 +431,7 @@ describe('syncNodes', () => {
             'item 10',
         ])
 
-        expect(shuffledNodes.flatMap(t => t.nodes.map((n) => n.textContent))).toEqual([
+        expect(shuffledNodes.flatMap(t => t.childNodes.map((n) => n.textContent))).toEqual([
             'item 9',
             'item 3',
             'item 4',
@@ -522,16 +521,16 @@ describe('syncNodes', () => {
         span4.render(parent)
         
         expect(parent.children).toHaveLength(3)
-        expect(parent.children[0]).toEqual(span1.nodes[0])
-        expect(parent.children[1]).toEqual(span2.nodes[0])
-        expect(parent.children[2]).toEqual(span4.nodes[0])
+        expect(parent.children[0]).toEqual(span1.childNodes[0])
+        expect(parent.children[1]).toEqual(span2.childNodes[0])
+        expect(parent.children[2]).toEqual(span4.childNodes[0])
         
         syncNodes([span1, span2], [span3, span2, span1], parent);
         
         expect(parent.children).toHaveLength(4)
-        expect(parent.children[0]).toEqual(span3.nodes[0])
-        expect(parent.children[1]).toEqual(span2.nodes[0])
-        expect(parent.children[2]).toEqual(span1.nodes[0])
-        expect(parent.children[3]).toEqual(span4.nodes[0])
+        expect(parent.children[0]).toEqual(span3.childNodes[0])
+        expect(parent.children[1]).toEqual(span2.childNodes[0])
+        expect(parent.children[2]).toEqual(span1.childNodes[0])
+        expect(parent.children[3]).toEqual(span4.childNodes[0])
     })
 })

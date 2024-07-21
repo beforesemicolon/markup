@@ -42,7 +42,7 @@ describe('ReactiveNode', () => {
 
         expect(document.body.innerHTML).toBe('<p>sample</p>')
         expect(node.parentNode).toBe(document.body)
-        expect(document.body.childNodes).toHaveLength(1)
+        expect(document.body.childNodes).toHaveLength(3)
     })
     
     it('should render array', () => {
@@ -50,7 +50,7 @@ describe('ReactiveNode', () => {
 
         expect(document.body.innerHTML).toBe('<p>sample</p>true')
         expect(node.parentNode).toBe(document.body)
-        expect(document.body.childNodes).toHaveLength(2)
+        expect(document.body.childNodes).toHaveLength(4)
     })
     
     it('should render state', () => {
@@ -74,13 +74,13 @@ describe('ReactiveNode', () => {
 
         expect(document.body.innerHTML).toBe('<p>sample</p>')
         expect(node.parentNode).toBe(document.body)
-        expect(document.body.childNodes).toHaveLength(1)
+        expect(document.body.childNodes).toHaveLength(3)
 
         updateValue('new value')
 
         expect(document.body.innerHTML).toBe('<p>new value</p>')
         expect(node.parentNode).toBe(document.body)
-        expect(document.body.childNodes).toHaveLength(1)
+        expect(document.body.childNodes).toHaveLength(3)
     })
     
     it('should render conditional content', () => {
@@ -95,19 +95,19 @@ describe('ReactiveNode', () => {
 
         expect(document.body.innerHTML).toBe('<p>sample</p>')
         expect(node.parentNode).toBe(document.body)
-        expect(document.body.childNodes).toHaveLength(1)
+        expect(document.body.childNodes).toHaveLength(3)
 
         updateValue(false)
 
         expect(document.body.innerHTML).toBe('<p>diff</p>')
         expect(node.parentNode).toBe(document.body)
-        expect(document.body.childNodes).toHaveLength(1)
+        expect(document.body.childNodes).toHaveLength(3)
 
         updateValue(true)
 
         expect(document.body.innerHTML).toBe('<p>sample</p>')
         expect(node.parentNode).toBe(document.body)
-        expect(document.body.childNodes).toHaveLength(1)
+        expect(document.body.childNodes).toHaveLength(3)
     })
     
     it('should render nested conditional content', () => {
@@ -196,7 +196,7 @@ describe('ReactiveNode', () => {
         updateTodos([])
 
         expect(document.body.innerHTML).toBe('')
-
+        
         updateTodos([
             html`<li>todo 1</li>`,
             html`<li>todo 2</li>`,
@@ -211,7 +211,7 @@ describe('ReactiveNode', () => {
         
         expect(document.body.innerHTML).toBe('<p>sample</p>')
         expect(node.parentNode).toBe(document.body)
-        expect(document.body.childNodes).toHaveLength(1)
+        expect(document.body.childNodes).toHaveLength(3)
         expect(node.refs).toEqual({text: [expect.any(HTMLParagraphElement)]})
     })
 })

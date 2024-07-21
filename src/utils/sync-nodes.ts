@@ -21,12 +21,11 @@ export const syncNodes = (
             item = nodeOrTemplate(item)
             if (item instanceof HtmlTemplate) item.unmount()
             else item?.parentNode?.removeChild(item)
-            renderedItems.push(item)
         }
     } else if (currentChildNodes.length === 0) {
         for (let item of newChildNodes) {
             item = nodeOrTemplate(item)
-            if (item instanceof HtmlTemplate) item.render(parent, true)
+            if (item instanceof HtmlTemplate) item.render(parent)
             else parent?.appendChild(item)
             renderedItems.push(item)
         }
@@ -39,7 +38,7 @@ export const syncNodes = (
             else if (currentChild instanceof HtmlTemplate) {
                 currentChild.parentNode?.insertBefore(
                     newChild,
-                    firstNode(currentChild.nodes)
+                    currentChild.__MARKERS__[0]
                 )
                 currentChild.unmount()
             } else
@@ -47,46 +46,40 @@ export const syncNodes = (
             renderedItems.push(newChild)
         }
     } else {
-        const currentChildNodesSet = new Set(currentChildNodes),
-            endAnchor = lastNode(currentChildNodes)?.nextSibling ?? null
-        let frag = document.createDocumentFragment()
+        const currentChildNodesSet = new Set(currentChildNodes)
+
+        const firstN = firstNode(currentChildNodes)
+        let prevNode = firstN.previousSibling as Node
+        let txt: Text | null = null
+
+        if (!prevNode) {
+            txt = document.createTextNode('')
+            firstN.parentNode?.insertBefore(txt, firstN)
+            prevNode = txt
+        }
 
         for (let i = 0; i < newChildNodes.length; i++) {
             const n = nodeOrTemplate(newChildNodes[i]),
-                moved = currentChildNodes[i] !== n
+                moved = currentChildNodes[i] !== n,
+                nIsTemplate = n instanceof HtmlTemplate
 
-            if (moved || !currentChildNodesSet.has(n)) {
-                if (n instanceof HtmlTemplate) {
-                    n.render(frag, true)
-                    n.updateParentReference(parent)
-                } else frag.appendChild(n)
-
-                if (moved) {
-                    currentChildNodesSet.delete(n)
+            if (moved) {
+                if (nIsTemplate) {
+                    const frag = document.createDocumentFragment()
+                    n.render(frag)
+                    insertNodeAfter(frag, prevNode)
+                } else {
+                    insertNodeAfter(n, prevNode)
                 }
-            } else {
-                if (frag.childNodes.length) {
-                    if (n instanceof HtmlTemplate) {
-                        const c = firstNode(n.nodes)
-                        c.parentNode?.insertBefore(frag as DocumentFragment, c)
-                    } else
-                        n.parentNode?.insertBefore(frag as DocumentFragment, n)
-                    frag = document.createDocumentFragment()
-                }
-
-                currentChildNodesSet.delete(n)
             }
 
+            prevNode = nIsTemplate ? n.__MARKERS__[1] : n
+
+            currentChildNodesSet.delete(n)
             renderedItems.push(n)
         }
 
-        if (frag.childNodes.length) {
-            if (endAnchor === null) {
-                parent?.appendChild(frag)
-            } else {
-                endAnchor.parentNode?.insertBefore(frag, endAnchor)
-            }
-        }
+        txt?.parentNode?.removeChild(txt)
 
         for (const c of currentChildNodesSet) {
             if (c instanceof HtmlTemplate) c.unmount()
@@ -107,15 +100,19 @@ function firstNode(nodes: Array<Node | HtmlTemplate>) {
         return nodes[0]
     }
 
-    return firstNode(nodes[0].nodes)
+    return nodes[0].__MARKERS__[0]
 }
 
-function lastNode(nodes: Array<Node | HtmlTemplate>): Node | null {
-    const last = nodes.at(-1) as Node | HtmlTemplate
-
-    if (last instanceof Node) {
-        return last
-    }
-
-    return last ? lastNode(last.nodes) : null
+function insertNodeAfter(newNode: Node, referenceNode: Node) {
+    if (referenceNode.nextSibling && referenceNode.nextSibling !== newNode)
+        referenceNode.parentNode?.insertBefore(
+            newNode,
+            referenceNode.nextSibling
+        )
+    else if (
+        referenceNode.parentNode?.childNodes[
+            referenceNode.parentNode?.childNodes.length - 1
+        ] !== newNode
+    )
+        referenceNode.parentNode?.appendChild(newNode)
 }

@@ -3,7 +3,6 @@ import { effect } from './state'
 import { syncNodes } from './utils/sync-nodes'
 import { EffectUnSubscriber } from './types'
 import { renderContent } from './utils/render-content'
-import { toNodes } from './utils/to-nodes'
 
 export class ReactiveNode {
     #result: Array<Node | HtmlTemplate> = []
@@ -13,12 +12,6 @@ export class ReactiveNode {
 
     get parentNode() {
         return this.#parent
-    }
-
-    get nodes(): Node[] {
-        // need to dynamically read nodes in case the HTMLTemplate changes
-        // due to having its own ReactiveNodes
-        return toNodes(this.#result)
     }
 
     get isConnected() {
@@ -55,9 +48,7 @@ export class ReactiveNode {
                     )
                     this.#updateSub?.()
                 } else {
-                    renderContent(res, parentNode, (item) => {
-                        this.#result.push(item)
-                    })
+                    this.#result = renderContent(res, parentNode)
                     init = true
                 }
             })
