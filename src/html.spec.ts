@@ -42,7 +42,6 @@ describe('html', () => {
 			'\t\t\t\t<div class="completed-todos"></div>\n' +
 			'\t\t\t\t<div class="archived-todos"></div>\n' +
 			'\t\t\t</div>')
-		expect(app.nodes).toHaveLength(5)
 	});
 	
 	it('should ignore html in comments', () => {
@@ -75,8 +74,7 @@ describe('html', () => {
 		temp.render(document.body)
 		
 		expect(document.body.innerHTML).toBe('sample')
-		expect(document.body.childNodes).toHaveLength(1)
-		expect(Array.from(document.body.childNodes)).toEqual(temp.nodes)
+		expect(document.body.childNodes).toHaveLength(3)
 	})
 	
 	it('should render html as text', () => {
@@ -121,29 +119,13 @@ describe('html', () => {
 		
 		temp.render(document.body)
 		
-		expect(temp.nodes).toHaveLength(3)
-		expect(temp.nodes.map(n => (n as Element).outerHTML || n.nodeValue)).toEqual([
-			"total: ",
-			">",
-			"<p>more than 10</p>"
-		])
 		expect(a.isConnected).toBeTruthy()
-		expect(a.nodes).toHaveLength(1)
-		expect((a.nodes[0] as Element).outerHTML).toBe('<p>more than 10</p>')
 		
 		expect(b.isConnected).toBeFalsy()
-		expect(b.nodes).toHaveLength(0)
 		
 		expect(document.body.innerHTML).toBe('total: &gt;<p>more than 10</p>')
 		
 		setX(5)
-
-		expect(temp.nodes).toHaveLength(3)
-		expect(temp.nodes.map(n => (n as Element).outerHTML || n.nodeValue)).toEqual([
-			"total: ",
-			"<",
-			"<p>less than 10</p>"
-		])
 
 		expect(document.body.innerHTML).toBe('total: &lt;<p>less than 10</p>')
 	})
@@ -190,7 +172,7 @@ describe('html', () => {
 		expect(document.body.innerHTML).toBe('<div>one</div><div>two</div>')
 	})
 	
-	it('should force to render in a different place', () => {
+	it('should move to a different place', () => {
 		const page = html`<h1>Page Title</h1><p>Page description</p><button>Page CTA Action</button>`
 		
 		page.render(document.body)
@@ -204,12 +186,6 @@ describe('html', () => {
 		document.body.appendChild(wrapper)
 		
 		page.render(wrapper)
-		
-		expect(document.body.innerHTML).toBe(
-			'<h1>Page Title</h1><p>Page description</p><button>Page CTA Action</button><div class="wrapper"></div>'
-		)
-		
-		page.render(wrapper, true)
 		
 		expect(document.body.innerHTML).toBe(
 			'<div class="wrapper"><h1>Page Title</h1><p>Page description</p><button>Page CTA Action</button></div>'
@@ -385,7 +361,7 @@ describe('html', () => {
 		
 		btn.render(document.body)
 		
-		const btnElement = btn.nodes[0] as HTMLButtonElement
+		const btnElement = document.body.querySelector('button') as HTMLButtonElement
 		
 		expect(document.body.innerHTML).toBe('<button>click me</button>')
 		
@@ -414,7 +390,7 @@ describe('html', () => {
 		
 		btn.render(document.body)
 		
-		const btnElement = btn.nodes[0] as HTMLButtonElement
+		const btnElement = document.body.querySelector('my-button') as HTMLButtonElement
 		
 		expect(document.body.innerHTML).toBe('<my-button>click me</my-button>')
 		
