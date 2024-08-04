@@ -27,19 +27,26 @@ export const syncNodes = (
     for (let i = 0; i < newChildNodes.length; i++) {
         const newNode = nodeOrTemplate(newChildNodes[i])
         const prevN = newChildNodes[i - 1] || prevCurrentFirstNode
+        const currentNode = currentChildNodes[i]
 
         if (prevN) {
-            if (newNode instanceof HtmlTemplate) {
-                newNode.insertAfter(prevN)
-            } else if (prevN instanceof HtmlTemplate) {
-                insertNodeAfter(newNode, prevN.__MARKERS__[1])
-            } else {
-                insertNodeAfter(newNode, prevN)
+            const currentPrevNode = currentChildNodes[i - 1]
+
+            if (!(currentNode === newNode && prevN === currentPrevNode)) {
+                if (newNode instanceof HtmlTemplate) {
+                    newNode.insertAfter(prevN)
+                } else if (prevN instanceof HtmlTemplate) {
+                    insertNodeAfter(newNode, prevN.__MARKERS__[1])
+                } else {
+                    insertNodeAfter(newNode, prevN)
+                }
             }
-        } else if (newNode instanceof HtmlTemplate) {
-            newNode.render(parent)
-        } else {
-            parent.appendChild(newNode)
+        } else if (currentNode !== newNode) {
+            if (newNode instanceof HtmlTemplate) {
+                newNode.render(parent)
+            } else {
+                parent.appendChild(newNode)
+            }
         }
 
         currentChildNodesSet.delete(newNode)
