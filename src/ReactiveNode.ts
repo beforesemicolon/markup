@@ -9,6 +9,7 @@ export class ReactiveNode {
     #unsubEffect: EffectUnSubscriber | null = null
     #parent: HTMLElement | Element | null = null
     #updateSub: (() => void) | undefined = undefined
+    #anchor = document.createTextNode('')
 
     get parentNode() {
         return this.#parent
@@ -37,6 +38,8 @@ export class ReactiveNode {
         if (parentNode) {
             this.#parent = parentNode
 
+            parentNode.appendChild(this.#anchor)
+
             this.#unsubEffect = effect(() => {
                 const res = action()
 
@@ -44,7 +47,8 @@ export class ReactiveNode {
                     this.#result = syncNodes(
                         this.#result,
                         Array.isArray(res) ? res : [res],
-                        this.parentNode as HTMLElement
+                        parentNode,
+                        this.#anchor
                     )
                     this.#updateSub?.()
                 } else {
@@ -58,12 +62,13 @@ export class ReactiveNode {
     unmount() {
         this.#unsubEffect?.()
         for (const item of this.#result) {
-            if (item instanceof Node) {
-                item.parentNode?.removeChild(item)
-            } else {
+            if (item instanceof HtmlTemplate) {
                 item.unmount()
+            } else {
+                item.parentNode?.removeChild(item)
             }
         }
+        this.#anchor.parentNode?.removeChild(this.#anchor)
         this.#parent = null
         this.#result = []
     }
