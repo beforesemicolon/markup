@@ -14,7 +14,7 @@ describe('ReactiveNode', () => {
 
         expect(document.body.innerHTML).toBe('sample')
         expect(node.parentNode).toBe(document.body)
-        expect(document.body.childNodes).toHaveLength(1)
+        expect(document.body.childNodes).toHaveLength(2)
     })
     
     it('should render primitive values', () => {
@@ -22,14 +22,14 @@ describe('ReactiveNode', () => {
 
         expect(document.body.innerHTML).toBe('12truevalue')
         expect(node.parentNode).toBe(document.body)
-        expect(document.body.childNodes).toHaveLength(3)
+        expect(document.body.childNodes).toHaveLength(4)
     })
     
     it('should handle removing', () => {
         const node = new ReactiveNode(() => 'sample',document.body)
 
         expect(document.body.innerHTML).toBe('sample')
-        expect(document.body.childNodes).toHaveLength(1)
+        expect(document.body.childNodes).toHaveLength(2)
 
         node.unmount()
 
@@ -42,7 +42,7 @@ describe('ReactiveNode', () => {
 
         expect(document.body.innerHTML).toBe('<p>sample</p>')
         expect(node.parentNode).toBe(document.body)
-        expect(document.body.childNodes).toHaveLength(3)
+        expect(document.body.childNodes).toHaveLength(4)
     })
     
     it('should render array', () => {
@@ -50,7 +50,7 @@ describe('ReactiveNode', () => {
 
         expect(document.body.innerHTML).toBe('<p>sample</p>true')
         expect(node.parentNode).toBe(document.body)
-        expect(document.body.childNodes).toHaveLength(4)
+        expect(document.body.childNodes).toHaveLength(5)
     })
     
     it('should render state', () => {
@@ -59,13 +59,13 @@ describe('ReactiveNode', () => {
 
         expect(document.body.innerHTML).toBe('sample')
         expect(node.parentNode).toBe(document.body)
-        expect(document.body.childNodes).toHaveLength(1)
+        expect(document.body.childNodes).toHaveLength(2)
 
         updateValue('new value')
 
         expect(document.body.innerHTML).toBe('new value')
         expect(node.parentNode).toBe(document.body)
-        expect(document.body.childNodes).toHaveLength(1)
+        expect(document.body.childNodes).toHaveLength(2)
     })
     
     it('should render template with state', () => {
@@ -74,13 +74,13 @@ describe('ReactiveNode', () => {
 
         expect(document.body.innerHTML).toBe('<p>sample</p>')
         expect(node.parentNode).toBe(document.body)
-        expect(document.body.childNodes).toHaveLength(3)
+        expect(document.body.childNodes).toHaveLength(4)
 
         updateValue('new value')
 
         expect(document.body.innerHTML).toBe('<p>new value</p>')
         expect(node.parentNode).toBe(document.body)
-        expect(document.body.childNodes).toHaveLength(3)
+        expect(document.body.childNodes).toHaveLength(4)
     })
     
     it('should render conditional content', () => {
@@ -95,19 +95,19 @@ describe('ReactiveNode', () => {
 
         expect(document.body.innerHTML).toBe('<p>sample</p>')
         expect(node.parentNode).toBe(document.body)
-        expect(document.body.childNodes).toHaveLength(3)
+        expect(document.body.childNodes).toHaveLength(4)
 
         updateValue(false)
 
         expect(document.body.innerHTML).toBe('<p>diff</p>')
         expect(node.parentNode).toBe(document.body)
-        expect(document.body.childNodes).toHaveLength(3)
+        expect(document.body.childNodes).toHaveLength(4)
 
         updateValue(true)
 
         expect(document.body.innerHTML).toBe('<p>sample</p>')
         expect(node.parentNode).toBe(document.body)
-        expect(document.body.childNodes).toHaveLength(3)
+        expect(document.body.childNodes).toHaveLength(4)
     })
     
     it('should render nested conditional content', () => {
@@ -155,7 +155,7 @@ describe('ReactiveNode', () => {
 
         expect(document.body.innerHTML).toBe('')
         expect(node.parentNode).toBe(document.body)
-        expect(document.body.childNodes).toHaveLength(0)
+        expect(document.body.childNodes).toHaveLength(1)
 
         updateTodos([
             html`
@@ -211,7 +211,7 @@ describe('ReactiveNode', () => {
         
         expect(document.body.innerHTML).toBe('<p>sample</p>')
         expect(node.parentNode).toBe(document.body)
-        expect(document.body.childNodes).toHaveLength(3)
+        expect(document.body.childNodes).toHaveLength(4)
         expect(node.refs).toEqual({text: [expect.any(HTMLParagraphElement)]})
     })
 })

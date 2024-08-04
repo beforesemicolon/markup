@@ -2,6 +2,7 @@ import { Doc } from './Doc'
 import { parse } from '@beforesemicolon/html-parser/dist/parse'
 import { EffectUnSubscriber } from './types'
 import { ReactiveNode } from './ReactiveNode'
+import { insertNodeAfter } from './utils/insert-node-after'
 
 export class HtmlTemplate {
     #htmlTemplate: string
@@ -109,6 +110,7 @@ export class HtmlTemplate {
                     ...this.childNodes,
                     this.#markers[1]
                 )
+                this.#setMounting()
             } else {
                 this.#init('render', elementToAttachNodesTo)
             }
@@ -156,6 +158,7 @@ export class HtmlTemplate {
                     this.#markers[1]
                 )
                 element?.parentNode?.replaceChild(frag, element as Node)
+                this.#setMounting()
             } else {
                 this.#init('replace', element as Node)
             }
@@ -163,7 +166,44 @@ export class HtmlTemplate {
             return this
         }
 
-        throw new Error(`Invalid replace target element. Received ${target}`)
+        throw new Error(`Invalid "replace" target element. Received ${target}`)
+    }
+
+    insertAfter(target: Node | HtmlTemplate) {
+        if (
+            target instanceof HtmlTemplate ||
+            (target instanceof Node &&
+                !(
+                    target instanceof ShadowRoot ||
+                    target instanceof HTMLBodyElement ||
+                    target instanceof HTMLHeadElement ||
+                    target instanceof HTMLHtmlElement
+                ))
+        ) {
+            const element =
+                target instanceof HtmlTemplate ? target.__MARKERS__[1] : target
+
+            if (this.isConnected) {
+                if (element.nextSibling !== this.#markers[0]) {
+                    const frag = document.createDocumentFragment()
+                    frag.append(
+                        this.#markers[0],
+                        ...this.childNodes,
+                        this.#markers[1]
+                    )
+                    insertNodeAfter(frag, element)
+                    this.#setMounting()
+                }
+            } else {
+                this.#init('after', element as Node)
+            }
+
+            return this
+        }
+
+        throw new Error(
+            `Invalid "insertAfter" target element. Received ${target}`
+        )
     }
 
     unmount() {
@@ -202,7 +242,7 @@ export class HtmlTemplate {
         return this
     }
 
-    #init(actionType: 'render' | 'replace', element: Node) {
+    #init(actionType: 'render' | 'replace' | 'after', element: Node) {
         const frag = parse(
             this.#htmlTemplate,
             // @ts-expect-error DocType not DocumentLike
@@ -243,10 +283,16 @@ export class HtmlTemplate {
 
         if (actionType === 'replace') {
             element?.parentNode?.replaceChild(realFrag, element)
+        } else if (actionType === 'after') {
+            insertNodeAfter(realFrag, element)
         } else {
             element.appendChild(realFrag)
         }
 
+        this.#setMounting()
+    }
+
+    #setMounting() {
         this.#mounted = true
         const res = this.#mountSub?.()
 

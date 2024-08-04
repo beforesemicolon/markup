@@ -74,7 +74,7 @@ describe('html', () => {
 		temp.render(document.body)
 		
 		expect(document.body.innerHTML).toBe('sample')
-		expect(document.body.childNodes).toHaveLength(3)
+		expect(document.body.childNodes).toHaveLength(4)
 	})
 	
 	it('should render html as text', () => {
@@ -332,8 +332,8 @@ describe('html', () => {
 
 		expect(document.body.innerHTML).toBe(
 			'<ul>\n' +
-			'\t\t\t\t\n' +
-			'\t\t\t<li>item-1</li><li>item-2</li><li>item-3</li></ul>'
+			'\t\t\t\t<li>item-1</li><li>item-2</li><li>item-3</li>\n' +
+			'\t\t\t</ul>'
 		)
 	})
 	
