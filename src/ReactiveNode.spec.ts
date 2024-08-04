@@ -1,8 +1,8 @@
 import { ReactiveNode } from './ReactiveNode'
 import { html, HtmlTemplate } from './html'
 import { state } from './state'
-import { is, when } from './helpers'
-import { render } from 'node-sass'
+import { is, when, repeat } from './helpers'
+import { syncNodes } from './utils/sync-nodes'
 
 describe('ReactiveNode', () => {
     beforeEach(() => {
@@ -213,5 +213,57 @@ describe('ReactiveNode', () => {
         expect(node.parentNode).toBe(document.body)
         expect(document.body.childNodes).toHaveLength(4)
         expect(node.refs).toEqual({text: [expect.any(HTMLParagraphElement)]})
+    })
+    
+    it('should swap second and before last items', () => {
+        const unmountMock = jest.fn();
+        const mountMock = jest.fn(() => unmountMock);
+        const nodeTemplates = Array.from({ length: 10 }, (_, i) => {
+            return html`<li>item ${i + 1}</li>`.onMount(mountMock)
+        });
+        const [list, updateList] = state(nodeTemplates);
+        
+        new ReactiveNode(list, document.body)
+        
+        expect(mountMock).toHaveBeenCalledTimes(10)
+        expect(document.body.innerHTML).toBe('<li>item 1</li>' +
+            '<li>item 2</li>' +
+            '<li>item 3</li>' +
+            '<li>item 4</li>' +
+            '<li>item 5</li>' +
+            '<li>item 6</li>' +
+            '<li>item 7</li>' +
+            '<li>item 8</li>' +
+            '<li>item 9</li>' +
+            '<li>item 10</li>')
+        
+        mountMock.mockClear()
+        
+        updateList([
+            nodeTemplates[0],
+            nodeTemplates[8],
+            nodeTemplates[2],
+            nodeTemplates[3],
+            nodeTemplates[4],
+            nodeTemplates[5],
+            nodeTemplates[6],
+            nodeTemplates[7],
+            nodeTemplates[1],
+            nodeTemplates[9],
+        ])
+        
+        expect(mountMock).toHaveBeenCalledTimes(3)
+        
+        expect(document.body.innerHTML).toBe('<li>item 1</li>' +
+            '<li>item 9</li>' +
+            '<li>item 3</li>' +
+            '<li>item 4</li>' +
+            '<li>item 5</li>' +
+            '<li>item 6</li>' +
+            '<li>item 7</li>' +
+            '<li>item 8</li>' +
+            '<li>item 2</li>' +
+            '<li>item 10</li>')
+
     })
 })

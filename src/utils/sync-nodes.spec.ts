@@ -571,4 +571,30 @@ describe('syncNodes', () => {
         expect(mountMock).toHaveBeenCalledTimes(3) // 1 added 2 moved
         expect(unmountMock).toHaveBeenCalledTimes(0)
     })
+    
+    it('should swap second and before last items', () => {
+        expect(ul.children).toHaveLength(0)
+        
+        syncNodes([], nodeTemplates, ul)
+        
+        expect(ul.children).toHaveLength(nodeTemplates.length)
+        expect(mountMock).toHaveBeenCalledTimes(10)
+        
+        mountMock.mockClear()
+        
+        syncNodes(nodeTemplates, [
+            nodeTemplates[0],
+            nodeTemplates[8],
+            nodeTemplates[2],
+            nodeTemplates[3],
+            nodeTemplates[4],
+            nodeTemplates[5],
+            nodeTemplates[6],
+            nodeTemplates[7],
+            nodeTemplates[1],
+            nodeTemplates[9],
+        ], ul)
+        
+        expect(mountMock).toHaveBeenCalledTimes(3)
+    })
 })
