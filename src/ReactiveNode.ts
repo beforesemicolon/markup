@@ -1,11 +1,12 @@
 import { HtmlTemplate } from './html'
 import { effect } from './state'
 import { syncNodes } from './utils/sync-nodes'
-import { EffectUnSubscriber } from './types'
+import { EffectUnSubscriber, RenderType } from './types'
 import { renderContent } from './utils/render-content'
+import { DoubleLinkedList } from './DoubleLinkedList'
 
 export class ReactiveNode {
-    #result: Array<Node | HtmlTemplate> = []
+    #result = new DoubleLinkedList<Node | HtmlTemplate>()
     #unsubEffect: EffectUnSubscriber | null = null
     #parent: HTMLElement | Element | null = null
     #updateSub: (() => void) | undefined = undefined
@@ -20,19 +21,21 @@ export class ReactiveNode {
     }
 
     get refs(): Record<string, Array<Element>> {
-        return this.#result.reduce((acc, item) => {
+        let acc = {}
+
+        for (const item of this.#result) {
             if (item instanceof HtmlTemplate) {
-                return {
+                acc = {
                     ...acc,
                     ...item.refs,
                 }
             }
+        }
 
-            return acc
-        }, {})
+        return acc
     }
 
-    constructor(action: () => unknown, parentNode: HTMLElement) {
+    constructor(action: (anchor: Node) => unknown, parentNode: HTMLElement) {
         let init = false
 
         if (parentNode) {
@@ -41,18 +44,21 @@ export class ReactiveNode {
             parentNode.appendChild(this.#anchor)
 
             this.#unsubEffect = effect(() => {
-                const res = action()
+                const res = action(this.#anchor)
+
+                if (res === RenderType.Skip) return
 
                 if (init) {
                     this.#result = syncNodes(
                         this.#result,
                         Array.isArray(res) ? res : [res],
-                        parentNode,
                         this.#anchor
                     )
                     this.#updateSub?.()
                 } else {
-                    this.#result = renderContent(res, parentNode)
+                    renderContent(res, parentNode, (item) =>
+                        this.#result.push(item)
+                    )
                     init = true
                 }
             })
@@ -70,7 +76,7 @@ export class ReactiveNode {
         }
         this.#anchor.parentNode?.removeChild(this.#anchor)
         this.#parent = null
-        this.#result = []
+        this.#result.clear()
     }
 
     onUpdate(cb: () => void) {

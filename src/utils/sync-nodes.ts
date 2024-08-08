@@ -1,5 +1,7 @@
 import { HtmlTemplate } from '../html'
 import { insertNodeAfter } from './insert-node-after'
+import { getNodeOrTemplate } from '../utils/get-node-or-template'
+import { DoubleLinkedList } from '../DoubleLinkedList'
 
 /**
  * this function is to move nodes around without the need to unmount and remount them
@@ -7,63 +9,70 @@ import { insertNodeAfter } from './insert-node-after'
  * position, they should remain untouched
  * @param currentChildNodes - list of parent node child nodes
  * @param newChildNodes - list of nodes of how the parent node child nodes should become
- * @param parent
- * @param prevNode
+ * @param anchorNode
  */
 export const syncNodes = (
-    currentChildNodes: Array<Node | HtmlTemplate>,
+    currentChildNodes: DoubleLinkedList<Node | HtmlTemplate>,
     newChildNodes: Array<Node | HtmlTemplate>,
-    parent: HTMLElement | Element | DocumentFragment | ShadowRoot,
-    prevNode?: Node
+    anchorNode: Node
 ) => {
-    // todo: optimize text nodes so it can find nodes based on text values to avoid creating new nodes with same nodeValue
-    const currentChildNodesSet = new Set(currentChildNodes)
-    const currentFirstNode = currentChildNodes[0]
-    const prevCurrentFirstNode =
-        (currentFirstNode instanceof HtmlTemplate
-            ? currentFirstNode.__MARKERS__[0].previousSibling
-            : currentFirstNode?.previousSibling) ?? prevNode
+    const ll = new DoubleLinkedList<Node | HtmlTemplate>()
 
-    for (let i = 0; i < newChildNodes.length; i++) {
-        const newNode = nodeOrTemplate(newChildNodes[i])
-        const prevN = newChildNodes[i - 1] || prevCurrentFirstNode
-        const currentNode = currentChildNodes[i]
+    if (newChildNodes.length) {
+        const newChildNodesSet = new Set(newChildNodes)
+        let prevN: Node | HtmlTemplate = anchorNode
+        let idx = 0
+        let currentN: Node | HtmlTemplate | null = currentChildNodes.head
 
-        if (prevN) {
-            const currentPrevNode = currentChildNodes[i - 1]
+        while (idx < newChildNodes.length || currentN) {
+            if (currentN && !newChildNodesSet.has(currentN)) {
+                removeNodeOrTemplate(currentN)
+                const nextN = currentChildNodes.getNextValueOf(currentN)
+                currentChildNodes.remove(currentN)
+                currentN = nextN
+                continue
+            }
 
-            if (!(currentNode === newNode && prevN === currentPrevNode)) {
+            const newNode = getNodeOrTemplate(newChildNodes[idx])
+
+            if (
+                newNode !== currentN &&
+                currentChildNodes.getPreviousValueOf(currentN) !== newNode
+            ) {
                 if (newNode instanceof HtmlTemplate) {
                     newNode.insertAfter(prevN)
-                } else if (prevN instanceof HtmlTemplate) {
-                    insertNodeAfter(newNode, prevN.__MARKERS__[1])
+                } else if (currentN instanceof HtmlTemplate) {
+                    insertNodeAfter(newNode, currentN.__MARKERS__[1])
                 } else {
-                    insertNodeAfter(newNode, prevN)
+                    insertNodeAfter(newNode, prevN as Node)
+                }
+
+                if (currentN) {
+                    currentChildNodes.insertValueBefore(newNode, currentN)
+                } else {
+                    currentChildNodes.push(newNode)
                 }
             }
-        } else if (currentNode !== newNode) {
-            if (newNode instanceof HtmlTemplate) {
-                newNode.render(parent)
-            } else {
-                parent.appendChild(newNode)
-            }
-        }
 
-        currentChildNodesSet.delete(newNode)
+            ll.push(newNode)
+            currentN = currentChildNodes.getNextValueOf(currentN)
+            prevN = newNode
+            idx++
+        }
+    } else {
+        for (const currentChildNode of currentChildNodes) {
+            removeNodeOrTemplate(currentChildNode)
+        }
+        currentChildNodes.clear()
     }
 
-    currentChildNodesSet.forEach((n) => {
-        if (n instanceof HtmlTemplate) {
-            n.unmount()
-        } else {
-            n.parentNode?.removeChild(n)
-        }
-    })
-
-    return newChildNodes
+    return ll
 }
 
-function nodeOrTemplate(value: unknown) {
-    if (value instanceof Node || value instanceof HtmlTemplate) return value
-    return document.createTextNode(String(value))
+function removeNodeOrTemplate(n: Node | HtmlTemplate) {
+    if (n instanceof HtmlTemplate) {
+        n.unmount()
+    } else {
+        n.parentNode?.removeChild(n)
+    }
 }

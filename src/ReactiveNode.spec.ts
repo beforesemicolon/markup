@@ -1,14 +1,10 @@
+import '../test.common'
 import { ReactiveNode } from './ReactiveNode'
 import { html, HtmlTemplate } from './html'
 import { state } from './state'
-import { is, when, repeat } from './helpers'
-import { syncNodes } from './utils/sync-nodes'
+import { is, when } from './helpers'
 
 describe('ReactiveNode', () => {
-    beforeEach(() => {
-        document.body.innerHTML = ''
-    })
-    
     it('should render text', () => {
         const node = new ReactiveNode(() => 'sample', document.body)
 
@@ -218,8 +214,9 @@ describe('ReactiveNode', () => {
     it('should swap second and before last items', () => {
         const unmountMock = jest.fn();
         const mountMock = jest.fn(() => unmountMock);
+        const moveMock = jest.fn();
         const nodeTemplates = Array.from({ length: 10 }, (_, i) => {
-            return html`<li>item ${i + 1}</li>`.onMount(mountMock)
+            return html`<li>item ${i + 1}</li>`.onMount(mountMock).onMove(moveMock)
         });
         const [list, updateList] = state(nodeTemplates);
         
@@ -252,7 +249,8 @@ describe('ReactiveNode', () => {
             nodeTemplates[9],
         ])
         
-        expect(mountMock).toHaveBeenCalledTimes(3)
+        expect(mountMock).toHaveBeenCalledTimes(0)
+        expect(moveMock).toHaveBeenCalledTimes(2)
         
         expect(document.body.innerHTML).toBe('<li>item 1</li>' +
             '<li>item 9</li>' +

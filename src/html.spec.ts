@@ -1,23 +1,10 @@
+import '../test.common';
 import {html, HtmlTemplate} from './html'
 import {state} from './state'
 import {when, repeat, oneOf, is} from './helpers'
-import { suspense } from './utils/suspense'
 import { element } from './utils/element'
 
 describe('html', () => {
-	beforeEach(() => {
-		jest.spyOn(window, 'requestAnimationFrame').mockImplementation(cb => {
-			const id = Math.random()
-			cb(id);
-			return id;
-		});
-		document.body.innerHTML = ''
-	})
-	
-	afterEach(() => {
-		(window.requestAnimationFrame as jest.Mock)?.mockRestore?.();
-	});
-	
 	it('should render correctly', () => {
 		const app = html`<h1>Todo Manager</h1>
 			<div class="action-bar">
