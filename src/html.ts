@@ -12,6 +12,7 @@ export class HtmlTemplate {
     #values: Array<unknown> = []
     #mounted = false
     #mountSub: (() => void | (() => void)) | undefined = undefined
+    #moveSub: (() => void | (() => void)) | undefined = undefined
     #unmountSub: (() => void) | undefined = undefined
     #updateSub: (() => void) | undefined = undefined
     #markers = [document.createTextNode(''), document.createTextNode('')]
@@ -110,7 +111,9 @@ export class HtmlTemplate {
                     ...this.childNodes,
                     this.#markers[1]
                 )
-                this.#setMounting()
+                if (!(elementToAttachNodesTo instanceof DocumentFragment)) {
+                    this.#moveSub?.()
+                }
             } else {
                 this.#init('render', elementToAttachNodesTo)
             }
@@ -158,7 +161,10 @@ export class HtmlTemplate {
                     this.#markers[1]
                 )
                 element?.parentNode?.replaceChild(frag, element as Node)
-                this.#setMounting()
+
+                if (!(target instanceof DocumentFragment)) {
+                    this.#moveSub?.()
+                }
             } else {
                 this.#init('replace', element as Node)
             }
@@ -192,7 +198,9 @@ export class HtmlTemplate {
                         this.#markers[1]
                     )
                     insertNodeAfter(frag, element)
-                    this.#setMounting()
+                    if (!(target instanceof DocumentFragment)) {
+                        this.#moveSub?.()
+                    }
                 }
             } else {
                 this.#init('after', element as Node)
@@ -239,6 +247,11 @@ export class HtmlTemplate {
 
     onUpdate(cb: () => void) {
         this.#updateSub = cb
+        return this
+    }
+
+    onMove(cb: () => void) {
+        this.#moveSub = cb
         return this
     }
 
@@ -289,10 +302,6 @@ export class HtmlTemplate {
             element.appendChild(realFrag)
         }
 
-        this.#setMounting()
-    }
-
-    #setMounting() {
         this.#mounted = true
         const res = this.#mountSub?.()
 

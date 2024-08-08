@@ -28,7 +28,7 @@ export const repeat = <T>(
     whenEmpty: () => unknown = () => ''
 ) => {
     const cache: Map<T, unknown> = new Map()
-    let prevList: unknown[] = []
+    let prevList: T[] = []
 
     const each = (d: T, i: number) => {
         if (prevList[i] !== undefined && d !== prevList[i]) {
@@ -47,14 +47,19 @@ export const repeat = <T>(
 
         if (list.length === 0) {
             prevList = []
+            cache.clear()
             return whenEmpty()
         }
 
+        const prevListSet = new Set(prevList)
         const renderedList = []
 
         for (let i = 0; i < list.length; i++) {
+            prevListSet.delete(list[i])
             renderedList.push(each(list[i], i))
         }
+
+        prevListSet.forEach((d) => cache.delete(d))
 
         prevList = list
 

@@ -5,7 +5,7 @@ export enum DynamicValueType {
     Event = 'event',
 }
 
-export type ObjectLiteral = Record<string | symbol | number, unknown>
+export type ObjectLiteral<T> = Record<string | symbol | number, T>
 
 export interface DynamicValue<T = unknown, D = unknown> {
     name: string // name of the node property or attribute to target when updating
@@ -35,4 +35,9 @@ export interface ElementOptions<A> {
     textContent?: string
     htmlContent?: string
     ns?: 'http://www.w3.org/1999/xhtml' | 'http://www.w3.org/2000/svg' | ''
+}
+
+export enum RenderType {
+    Skip = 'skip_render',
+    Default = 'default_render',
 }
