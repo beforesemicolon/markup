@@ -56,9 +56,9 @@ export class ReactiveNode {
                     )
                     this.#updateSub?.()
                 } else {
-                    renderContent(res, parentNode, (item) =>
-                        this.#result.push(item)
-                    )
+                    const frag = document.createDocumentFragment()
+                    renderContent(res, frag, (item) => this.#result.push(item))
+                    parentNode.appendChild(frag)
                     init = true
                 }
             })
