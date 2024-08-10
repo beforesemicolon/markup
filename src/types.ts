@@ -36,8 +36,3 @@ export interface ElementOptions<A> {
     htmlContent?: string
     ns?: 'http://www.w3.org/1999/xhtml' | 'http://www.w3.org/2000/svg' | ''
 }
-
-export enum RenderType {
-    Skip = 'skip_render',
-    Default = 'default_render',
-}
