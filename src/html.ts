@@ -4,6 +4,18 @@ import { EffectUnSubscriber } from './types'
 import { ReactiveNode } from './ReactiveNode'
 import { insertNodeAfter } from './utils/insert-node-after'
 
+const templateRegistry: Record<string, string> = {}
+
+function createTemplateId() {
+    let id = ''
+
+    while (templateRegistry.hasOwnProperty(id)) {
+        id = Math.floor(Math.random() * Date.now()).toString()
+    }
+
+    return id
+}
+
 export class HtmlTemplate {
     #htmlTemplate: string
     #mountables: Array<ReactiveNode | HtmlTemplate> = []
@@ -16,6 +28,7 @@ export class HtmlTemplate {
     #unmountSub: (() => void) | undefined = undefined
     #updateSub: (() => void) | undefined = undefined
     #markers = [document.createTextNode(''), document.createTextNode('')]
+    #tempId = createTemplateId()
 
     /**
      * the Element or ShadowRoot instance provided in the render method
@@ -78,12 +91,16 @@ export class HtmlTemplate {
 
     constructor(parts: TemplateStringsArray | string[], values: unknown[]) {
         this.#values = values
-        this.#htmlTemplate = parts
-            .map((s, i) => {
-                return i === parts.length - 1 ? s : s + `$val${i}`
-            })
-            .join('')
-            .trim()
+        this.#htmlTemplate =
+            templateRegistry[this.#tempId] ??
+            parts
+                .map((s, i) => {
+                    return i === parts.length - 1 ? s : s + `$val${i}`
+                })
+                .join('')
+                .trim()
+
+        templateRegistry[this.#tempId] = this.#htmlTemplate
     }
 
     /**
