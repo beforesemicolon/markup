@@ -1,7 +1,7 @@
 import { HtmlTemplate } from './html'
 import { effect } from './state'
 import { syncNodes } from './utils/sync-nodes'
-import { EffectUnSubscriber } from './types'
+import { EffectUnSubscriber, SkipRender } from './types'
 import { renderContent } from './utils/render-content'
 import { DoubleLinkedList } from './DoubleLinkedList'
 
@@ -45,6 +45,8 @@ export class ReactiveNode {
 
             this.#unsubEffect = effect(() => {
                 const res = action(this.#anchor)
+
+                if (res instanceof SkipRender) return
 
                 if (init) {
                     this.#result = syncNodes(
