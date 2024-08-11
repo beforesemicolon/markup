@@ -1,82 +1,88 @@
+import '../../test.common'
 import { repeat } from './repeat.helper'
-import { html, HtmlTemplate } from '../html'
+import { html } from '../html'
 
 describe('repeat', () => {
+    const anchor = document.createTextNode('');
+    
+    beforeEach(() => {
+        document.body.appendChild(anchor)
+    })
 
     it('should handle number', () => {
-        expect(repeat(3, (n: number) => n)()).toEqual([1, 2, 3])
-
+        repeat(3, (n: number) => n)(anchor);
+        
+        expect(document.body.innerHTML).toBe('123')
+    })
+    
+    it('should handle updates', () => {
         let count = 3
         const r = repeat<number>(
             () => count,
             (n: number) => html`sample-${n}`
         )
-
-        const res = r() as HtmlTemplate[]
-
+        
+        r(anchor)
+        
+        expect(document.body.innerHTML).toBe('sample-1sample-2sample-3')
+        
         count = 4
-
-        const res2 = r() as HtmlTemplate[]
-
-        expect(res).toHaveLength(3)
-        expect(res2).toHaveLength(4)
-
-        expect(res[0]).toEqual(res2[0])
-        expect(res[1]).toEqual(res2[1])
-        expect(res[2]).toEqual(res2[2])
+        
+        r(anchor)
+        
+        expect(document.body.innerHTML).toBe('sample-1sample-2sample-3sample-4')
     })
     
     it('should handle empty', () => {
-        expect(repeat([], (n) => n, () => 'no items')()).toEqual('no items')
-        expect(repeat(0, (n) => n, () => 'no items')()).toEqual('no items')
-        expect(repeat(0, (n) => n)()).toEqual([])
+        repeat([], (n) => n)(anchor)
+        repeat([], (n) => n, () => 'no items')(anchor)
+        
+        expect(document.body.innerHTML).toBe('no items')
     })
 
-    it('should handle array with unique values', () => {
+    it('should handle array with unique primitives', () => {
         const list = Array.from({ length: 3 }, (_, i) => i + 1)
-
-        expect(repeat(list, (n: number) => n + 1)()).toEqual([2, 3, 4])
-
+        
+        repeat(list, (n: number) => n + 1)(anchor)
+        
+        expect(document.body.innerHTML).toBe('234')
+    })
+    
+    it('should handle array with unique non-primitives', () => {
+        const list = Array.from({ length: 3 }, (_, i) => i + 1)
+        
         const r = repeat(
             () => list,
             (n: number) => html`sample-${n}`
         )
-
-        const res = r() as HtmlTemplate[]
-
+        
+        r(anchor)
+        
+        expect(document.body.innerHTML).toBe('sample-1sample-2sample-3')
+        
         list.push(4)
-
-        const res2 = r() as HtmlTemplate[]
-
-        expect(res).toHaveLength(3)
-        expect(res2).toHaveLength(4)
-
-        expect(res[0]).toEqual(res2[0])
-        expect(res[1]).toEqual(res2[1])
-        expect(res[2]).toEqual(res2[2])
+        
+        r(anchor)
+        
+        expect(document.body.innerHTML).toBe('sample-1sample-2sample-3sample-4')
     })
 
     it('should handle array with repeated values', () => {
-        const list = Array.from({ length: 3 }, () => '-')
-
-        expect(repeat(list, (n) => n)()).toEqual(['-', '-', '-'])
+        const list = Array.from({ length: 3 }, () => 1)
 
         const r = repeat(
             () => list,
             (n) => html`sample-${n}`
         )
 
-        const res = r() as HtmlTemplate[]
+        r(anchor)
+        
+        expect(document.body.innerHTML).toBe('sample-1')
 
-        list.push('--')
+        list.push(2)
 
-        const res2 = r() as HtmlTemplate[]
-
-        expect(res).toHaveLength(3)
-        expect(res2).toHaveLength(4)
-
-        expect(res[0]).toEqual(res2[0])
-        expect(res[1]).toEqual(res2[1])
-        expect(res[2]).toEqual(res2[2])
+        r(anchor)
+        
+        expect(document.body.innerHTML).toBe('sample-1sample-2')
     })
 })

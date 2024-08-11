@@ -1,4 +1,9 @@
 import { val } from '../utils/val'
+import { DoubleLinkedList } from '../DoubleLinkedList'
+import { HtmlTemplate } from '../html'
+import { SkipRender } from '../types'
+import { syncNodes } from '../utils/sync-nodes'
+import { getNodeOrTemplate } from '../utils/get-node-or-template'
 
 type DataGetter<T> = () => number | Array<T>
 
@@ -27,38 +32,54 @@ export const repeat = <T>(
     cb: (data: T, index: number) => unknown,
     whenEmpty?: () => unknown
 ) => {
-    const cache: Map<T, unknown> = new Map()
+    const cache: Map<T, Node | HtmlTemplate> = new Map()
+    let currentRenderedNodes = new DoubleLinkedList<Node | HtmlTemplate>()
     let prevList: T[] = []
 
     const each = (d: T, i: number) => {
         if (!cache.has(d)) {
-            cache.set(d, cb(d, i))
+            cache.set(d, getNodeOrTemplate(cb(d, i)))
         }
 
-        return cache.get(d)
+        return cache.get(d) as Node | HtmlTemplate
     }
 
-    return () => {
-        const list = getList(data)
+    return (anchor: Node) => {
+        const list = getList(data) as T[]
 
         if (list.length === 0) {
+            const res = whenEmpty?.() ?? []
+
+            currentRenderedNodes = syncNodes(
+                currentRenderedNodes,
+                Array.isArray(res) ? res : [res],
+                anchor
+            )
+
             prevList = []
             cache.clear()
-            return whenEmpty?.() ?? []
+        } else {
+            const prevListSet = new Set(prevList)
+            const renderedList: Array<Node | HtmlTemplate> = []
+
+            for (let i = 0; i < list.length; i++) {
+                const item = list[i]
+
+                prevListSet.delete(item)
+                renderedList.push(each(item, i))
+            }
+
+            prevListSet.forEach((d) => cache.delete(d))
+
+            prevList = list
+
+            currentRenderedNodes = syncNodes(
+                currentRenderedNodes,
+                renderedList,
+                anchor
+            )
         }
 
-        const prevListSet = new Set(prevList)
-        const renderedList = []
-
-        for (let i = 0; i < list.length; i++) {
-            prevListSet.delete(list[i])
-            renderedList.push(each(list[i], i))
-        }
-
-        prevListSet.forEach((d) => cache.delete(d))
-
-        prevList = list
-
-        return renderedList
+        return new SkipRender()
     }
 }
