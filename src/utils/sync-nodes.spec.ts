@@ -12,6 +12,8 @@ describe('syncNodes', () => {
     let nodeTemplates: HtmlTemplate[] = []
     const anchor = document.createTextNode('')
     
+    const matchesNewNodes = (nodesLL: DoubleLinkedList<unknown>, nodesArray: unknown[]) => [...nodesLL].every((node, i) => node === nodesArray[i])
+    
     beforeEach(() => {
         document.body.appendChild(anchor)
         ul.innerHTML = ''
@@ -31,7 +33,7 @@ describe('syncNodes', () => {
         ul.innerHTML = ''
         ul.appendChild(anchor)
 
-        syncNodes(new DoubleLinkedList(), nodes, anchor)
+        expect(matchesNewNodes(syncNodes(new DoubleLinkedList(), nodes, anchor), nodes)).toBeTruthy()
 
         expect(ul.children).toHaveLength(nodes.length)
         expect(ul.outerHTML).toBe('<ul>' +
@@ -49,7 +51,7 @@ describe('syncNodes', () => {
     })
     
     it('should add all new HTMLTemplates', () => {
-        syncNodes(new DoubleLinkedList(), nodeTemplates, anchor)
+        expect(matchesNewNodes(syncNodes(new DoubleLinkedList(), nodeTemplates, anchor), nodeTemplates)).toBeTruthy()
 
         expect(ul.children).toHaveLength(nodes.length)
         expect(mountMock).toHaveBeenCalledTimes(nodes.length)
@@ -73,7 +75,7 @@ describe('syncNodes', () => {
         ul.appendChild(nodes[0])
 
         const newNodes = [nodes[0], nodes[1]];
-        syncNodes(DoubleLinkedList.fromArray([nodes[0]]), newNodes, anchor)
+        expect(matchesNewNodes(syncNodes(DoubleLinkedList.fromArray([nodes[0]]), newNodes, anchor), newNodes)).toBeTruthy()
 
         expect(ul.outerHTML).toBe('<ul>' +
             '<li>item 1</li>' +
@@ -87,7 +89,7 @@ describe('syncNodes', () => {
         mountMock.mockClear()
 
         const newNodes = [nodeTemplates[0], nodeTemplates[1]]
-        syncNodes(DoubleLinkedList.fromArray([nodeTemplates[0]]), newNodes, anchor)
+        expect(matchesNewNodes(syncNodes(DoubleLinkedList.fromArray([nodeTemplates[0]]), newNodes, anchor), newNodes)).toBeTruthy()
 
         expect(ul.outerHTML).toBe('<ul>' +
             '<li>item 1</li>' +
@@ -100,8 +102,8 @@ describe('syncNodes', () => {
     it('should remove all new items', () => {
         ul.append(...nodes)
         expect(ul.children).toHaveLength(nodes.length)
-
-        syncNodes(DoubleLinkedList.fromArray(Array.from(ul.children)), [], anchor)
+        
+        expect(matchesNewNodes(syncNodes(DoubleLinkedList.fromArray(Array.from(ul.children)), [], anchor), [])).toBeTruthy()
 
         expect(ul.outerHTML).toBe('<ul></ul>')
     })
@@ -112,7 +114,7 @@ describe('syncNodes', () => {
         mountMock.mockClear()
         expect(ul.children).toHaveLength(nodeTemplates.length)
 
-        syncNodes(DoubleLinkedList.fromArray(nodeTemplates), [], anchor)
+        expect(matchesNewNodes(syncNodes(DoubleLinkedList.fromArray(nodeTemplates), [], anchor), [])).toBeTruthy()
 
         expect(ul.outerHTML).toBe('<ul></ul>')
         expect(mountMock).toHaveBeenCalledTimes(0)
@@ -131,15 +133,15 @@ describe('syncNodes', () => {
         ])
 
         const newNodes = nodes.slice(5)
-        syncNodes(DoubleLinkedList.fromArray(Array.from(ul.children)), newNodes, anchor)
+        expect(matchesNewNodes(syncNodes(DoubleLinkedList.fromArray(Array.from(ul.children)), newNodes, anchor), newNodes)).toBeTruthy()
 
-        expect(Array.from(ul.children, (n) => n.textContent)).toEqual([
-            'item 6',
-            'item 7',
-            'item 8',
-            'item 9',
-            'item 10',
-        ])
+        expect(ul.innerHTML).toBe(
+            '<li>item 6</li>' +
+            '<li>item 7</li>' +
+            '<li>item 8</li>' +
+            '<li>item 9</li>' +
+            '<li>item 10</li>'
+        )
         
     })
 
@@ -175,7 +177,10 @@ describe('syncNodes', () => {
         expect(ul.children).toHaveLength(nodes.length)
 
         const newNodes = nodes.slice(2)
-        syncNodes(DoubleLinkedList.fromArray(Array.from(ul.children)), newNodes, anchor)
+        expect(matchesNewNodes(
+            syncNodes(DoubleLinkedList.fromArray(Array.from(ul.children)), newNodes, anchor),
+            newNodes
+        )).toBeTruthy()
 
         expect(ul.outerHTML).toBe('<ul>' +
             '<li>item 3</li>' +
@@ -196,9 +201,13 @@ describe('syncNodes', () => {
         expect(anchor.parentNode).toEqual(ul)
 
         const newNodes = nodeTemplates.slice(2);
-        syncNodes(DoubleLinkedList.fromArray(nodeTemplates), newNodes, anchor)
+        
+        expect(matchesNewNodes(
+            syncNodes(DoubleLinkedList.fromArray(nodeTemplates), newNodes, anchor),
+            newNodes
+        )).toBeTruthy()
 
-        expect(ul.outerHTML).toBe('<ul>' +
+        expect(ul.innerHTML).toBe(
             '<li>item 3</li>' +
             '<li>item 4</li>' +
             '<li>item 5</li>' +
@@ -206,8 +215,7 @@ describe('syncNodes', () => {
             '<li>item 7</li>' +
             '<li>item 8</li>' +
             '<li>item 9</li>' +
-            '<li>item 10</li>' +
-            '</ul>')
+            '<li>item 10</li>')
         expect(mountMock).toHaveBeenCalledTimes(0)
         expect(moveMock).toHaveBeenCalledTimes(0)
         expect(unmountMock).toHaveBeenCalledTimes(2)
@@ -241,20 +249,24 @@ describe('syncNodes', () => {
         ])
 
         const newNodes = [...startNodes, ...endNodes]
-        syncNodes(
-            DoubleLinkedList.fromArray(Array.from(ul.children)),
-            newNodes,
-            anchor
-        )
+        
+        expect(matchesNewNodes(
+            syncNodes(
+                DoubleLinkedList.fromArray(Array.from(ul.children)),
+                newNodes,
+                anchor
+            ),
+            newNodes
+        )).toBeTruthy()
 
-        expect(Array.from(ul.children, (n) => n.textContent)).toEqual([
-            'item 1',
-            'item 2',
-            'item 3',
-            'item 8',
-            'item 9',
-            'item 10',
-        ])
+        expect(ul.innerHTML).toBe(
+            '<li>item 1</li>' +
+            '<li>item 2</li>' +
+            '<li>item 3</li>' +
+            '<li>item 8</li>' +
+            '<li>item 9</li>' +
+            '<li>item 10</li>'
+        )
     })
 
     it('should remove HTMLTemplates from the middle', () => {
@@ -286,20 +298,23 @@ describe('syncNodes', () => {
         ])
 
         const newNodes = [...startNodes, ...endNodes]
-        syncNodes(
-            DoubleLinkedList.fromArray(nodeTemplates),
-            newNodes,
-            anchor
-        )
+        
+        expect(matchesNewNodes(
+            syncNodes(
+                DoubleLinkedList.fromArray(nodeTemplates),
+                newNodes,
+                anchor
+            ),
+            newNodes
+        )).toBeTruthy()
 
-        expect(ul.outerHTML).toBe('<ul>' +
+        expect(ul.innerHTML).toBe(
             '<li>item 1</li>' +
             '<li>item 2</li>' +
             '<li>item 3</li>' +
             '<li>item 8</li>' +
             '<li>item 9</li>' +
-            '<li>item 10</li>' +
-            '</ul>')
+            '<li>item 10</li>')
         expect(mountMock).toHaveBeenCalledTimes(0)
         expect(moveMock).toHaveBeenCalledTimes(0)
         expect(unmountMock).toHaveBeenCalledTimes(4) // 4 middle nodes unmounted
@@ -310,13 +325,17 @@ describe('syncNodes', () => {
         expect(ul.children).toHaveLength(nodes.length)
 
         const newNodes = nodes.slice(0, -2)
-        syncNodes(
-            DoubleLinkedList.fromArray(Array.from(ul.children)),
-            newNodes,
-            anchor
-        )
+        
+        expect(matchesNewNodes(
+            syncNodes(
+                DoubleLinkedList.fromArray(Array.from(ul.children)),
+                newNodes,
+                anchor
+            ),
+            newNodes
+        )).toBeTruthy()
 
-        expect(ul.outerHTML).toBe('<ul>' +
+        expect(ul.innerHTML).toBe(
             '<li>item 1</li>' +
             '<li>item 2</li>' +
             '<li>item 3</li>' +
@@ -324,8 +343,7 @@ describe('syncNodes', () => {
             '<li>item 5</li>' +
             '<li>item 6</li>' +
             '<li>item 7</li>' +
-            '<li>item 8</li>' +
-            '</ul>')
+            '<li>item 8</li>' )
     })
 
     it('should remove HTMLTemplates from the end', () => {
@@ -334,11 +352,15 @@ describe('syncNodes', () => {
         expect(ul.children).toHaveLength(nodeTemplates.length)
 
         const newNodes = nodeTemplates.slice(0, -2)
-        syncNodes(
-            DoubleLinkedList.fromArray(nodeTemplates),
-            newNodes,
-            anchor
-        )
+       
+        expect(matchesNewNodes(
+            syncNodes(
+                DoubleLinkedList.fromArray(nodeTemplates),
+                newNodes,
+                anchor
+            ),
+            newNodes
+        )).toBeTruthy()
 
         expect(ul.outerHTML).toBe('<ul>' +
             '<li>item 1</li>' +
@@ -351,6 +373,7 @@ describe('syncNodes', () => {
             '<li>item 8</li>' +
             '</ul>')
         expect(mountMock).toHaveBeenCalledTimes(0)
+        expect(moveMock).toHaveBeenCalledTimes(0)
         expect(unmountMock).toHaveBeenCalledTimes(2)
     })
 
@@ -388,10 +411,13 @@ describe('syncNodes', () => {
             'item 2',
             'item 1',
         ])
+        
+        expect(matchesNewNodes(
+            syncNodes(DoubleLinkedList.fromArray(Array.from(ul.children)), reversedNodes, anchor),
+            reversedNodes
+        )).toBeTruthy()
 
-        syncNodes(DoubleLinkedList.fromArray(Array.from(ul.children)), reversedNodes, anchor)
-
-        expect(ul.outerHTML).toBe('<ul>' +
+        expect(ul.innerHTML).toBe(
             '<li>item 10</li>' +
             '<li>item 9</li>' +
             '<li>item 8</li>' +
@@ -401,8 +427,7 @@ describe('syncNodes', () => {
             '<li>item 4</li>' +
             '<li>item 3</li>' +
             '<li>item 2</li>' +
-            '<li>item 1</li>' +
-            '</ul>')
+            '<li>item 1</li>')
     })
 
     it('should reverse the HTMLTemplates', () => {
@@ -439,10 +464,13 @@ describe('syncNodes', () => {
             'item 2',
             'item 1',
         ])
+        
+        expect(matchesNewNodes(
+            syncNodes(DoubleLinkedList.fromArray(nodeTemplates), reversedNodes, anchor),
+            reversedNodes
+        )).toBeTruthy()
 
-        syncNodes(DoubleLinkedList.fromArray(nodeTemplates), reversedNodes, anchor)
-
-        expect(ul.outerHTML).toBe('<ul>' +
+        expect(ul.innerHTML).toBe(
             '<li>item 10</li>' +
             '<li>item 9</li>' +
             '<li>item 8</li>' +
@@ -452,8 +480,7 @@ describe('syncNodes', () => {
             '<li>item 4</li>' +
             '<li>item 3</li>' +
             '<li>item 2</li>' +
-            '<li>item 1</li>' +
-            '</ul>')
+            '<li>item 1</li>')
         expect(mountMock).toHaveBeenCalledTimes(0)
         expect(moveMock).toHaveBeenCalledTimes(9) // all but first node moved
         expect(unmountMock).toHaveBeenCalledTimes(0)
@@ -493,18 +520,20 @@ describe('syncNodes', () => {
             'item 1',
             'item 6',
         ])
+        
+        expect(matchesNewNodes(
+            syncNodes(DoubleLinkedList.fromArray(Array.from(ul.children)), shuffledNodes, anchor),
+            shuffledNodes
+        )).toBeTruthy()
 
-        syncNodes(DoubleLinkedList.fromArray(Array.from(ul.children)), shuffledNodes, anchor)
-
-        expect(ul.outerHTML).toBe('<ul>' +
+        expect(ul.innerHTML).toBe(
             '<li>item 9</li>' +
             '<li>item 3</li>' +
             '<li>item 4</li>' +
             '<li>item 2</li>' +
             '<li>item 10</li>' +
             '<li>item 1</li>' +
-            '<li>item 6</li>' +
-            '</ul>')
+            '<li>item 6</li>')
     })
 
     it('should shuffle HTMLTemplates', () => {
@@ -542,18 +571,20 @@ describe('syncNodes', () => {
             'item 1',
             'item 6',
         ])
+        
+        expect(matchesNewNodes(
+            syncNodes(DoubleLinkedList.fromArray(nodeTemplates), shuffledNodes, anchor),
+            shuffledNodes
+        )).toBeTruthy()
 
-        syncNodes(DoubleLinkedList.fromArray(nodeTemplates), shuffledNodes, anchor)
-
-        expect(ul.outerHTML).toBe('<ul>' +
+        expect(ul.innerHTML).toBe(
             '<li>item 9</li>' +
             '<li>item 3</li>' +
             '<li>item 4</li>' +
             '<li>item 2</li>' +
             '<li>item 10</li>' +
             '<li>item 1</li>' +
-            '<li>item 6</li>' +
-            '</ul>')
+            '<li>item 6</li>')
         expect(mountMock).toHaveBeenCalledTimes(0)
         expect(moveMock).toHaveBeenCalledTimes(5)
         expect(unmountMock).toHaveBeenCalledTimes(3) // 3 nodes not in the shuffled list removed
@@ -564,13 +595,23 @@ describe('syncNodes', () => {
         const edit = document.createElement('edit')
         const archive = document.createElement('archive')
 
-        syncNodes(new DoubleLinkedList(), [complete, edit, archive], anchor)
+        let newNodes = [complete, edit, archive];
+        
+        expect(matchesNewNodes(
+            syncNodes(new DoubleLinkedList(), newNodes, anchor),
+            newNodes
+        )).toBeTruthy()
 
         expect(ul.innerHTML).toBe(
             '<complete></complete><edit></edit><archive></archive>'
         )
-
-        syncNodes(DoubleLinkedList.fromArray([complete, edit, archive]), [archive], anchor)
+        
+        newNodes = [archive]
+        
+        expect(matchesNewNodes(
+            syncNodes(DoubleLinkedList.fromArray([complete, edit, archive]), newNodes, anchor),
+            newNodes
+        )).toBeTruthy()
 
         expect(ul.innerHTML).toBe('<archive></archive>')
     })
@@ -580,7 +621,13 @@ describe('syncNodes', () => {
         const edit = html`<edit></edit>`.onMount(mountMock)
         const archive = html`<archive></archive>`.onMount(mountMock)
 
-        syncNodes(new DoubleLinkedList(), [complete, edit, archive], anchor)
+        let newNodes = [complete, edit, archive];
+        
+        expect(matchesNewNodes(
+            syncNodes(new DoubleLinkedList(), newNodes, anchor),
+            newNodes
+        )).toBeTruthy()
+        
         expect(mountMock).toHaveBeenCalledTimes(3)
         expect(unmountMock).toHaveBeenCalledTimes(0)
         mountMock.mockClear()
@@ -588,8 +635,13 @@ describe('syncNodes', () => {
         expect(ul.innerHTML).toBe(
             '<complete></complete><edit></edit><archive></archive>'
         )
-
-        syncNodes(DoubleLinkedList.fromArray([complete, edit, archive]), [archive], anchor)
+        
+        newNodes = [archive]
+        
+        expect(matchesNewNodes(
+            syncNodes(DoubleLinkedList.fromArray([complete, edit, archive]), newNodes, anchor),
+            newNodes
+        )).toBeTruthy()
 
         expect(ul.innerHTML).toBe('<archive></archive>')
         expect(mountMock).toHaveBeenCalledTimes(0)
@@ -613,7 +665,12 @@ describe('syncNodes', () => {
         expect(parent.children[1]).toEqual(span2)
         expect(parent.children[2]).toEqual(span4)
 
-        syncNodes(DoubleLinkedList.fromArray([span1, span2]), [span3, span2, span1], anchor);
+        const newNodes = [span3, span2, span1];
+        
+        expect(matchesNewNodes(
+            syncNodes(DoubleLinkedList.fromArray([span1, span2]), newNodes, anchor),
+            newNodes
+        )).toBeTruthy()
 
         expect(parent.children).toHaveLength(4)
         expect(parent.children[0]).toEqual(span3)
@@ -625,37 +682,40 @@ describe('syncNodes', () => {
     it('should handle first HTMLTemplate moved with end anchor', () => {
         const parent = document.createElement('div');
         parent.appendChild(anchor)
-        const span1 = html`<span></span>`.onMount(mountMock);
-        const span2 = html`<span></span>`.onMount(mountMock);
-        const span3 = html`<span></span>`.onMount(mountMock);
-        const span4 = html`<span></span>`.onMount(mountMock);
+        const span1 = html`<span>1</span>`.onMount(mountMock).onMove(moveMock);
+        const span2 = html`<span>2</span>`.onMount(mountMock).onMove(moveMock);
+        const span3 = html`<span>3</span>`.onMount(mountMock).onMove(moveMock);
+        const span4 = html`<span>4</span>`.onMount(mountMock).onMove(moveMock);
         span1.render(parent)
         span2.render(parent)
         span4.render(parent)
         mountMock.mockClear()
+        
+        expect(parent.innerHTML).toBe('<span>1</span><span>2</span><span>4</span>')
 
-        expect(parent.children).toHaveLength(3)
-        expect(parent.children[0]).toEqual(span1.childNodes[0])
-        expect(parent.children[1]).toEqual(span2.childNodes[0])
-        expect(parent.children[2]).toEqual(span4.childNodes[0])
-
-        syncNodes(DoubleLinkedList.fromArray([span1, span2]), [span3, span2, span1], anchor);
-
-        expect(parent.children).toHaveLength(4)
-        expect(parent.children[0]).toEqual(span3.childNodes[0])
-        expect(parent.children[1]).toEqual(span2.childNodes[0])
-        expect(parent.children[2]).toEqual(span1.childNodes[0])
-        expect(parent.children[3]).toEqual(span4.childNodes[0])
+        const newNodes = [span3, span2, span1];
+        
+        expect(matchesNewNodes(
+            syncNodes(DoubleLinkedList.fromArray([span1, span2, span4]), newNodes, anchor),
+            newNodes
+        )).toBeTruthy()
+        
+        expect(parent.innerHTML).toBe('<span>3</span><span>2</span><span>1</span>')
 
         expect(mountMock).toHaveBeenCalledTimes(1)
-        expect(moveMock).toHaveBeenCalledTimes(0)
-        expect(unmountMock).toHaveBeenCalledTimes(0)
+        expect(moveMock).toHaveBeenCalledTimes(1)
+        expect(unmountMock).toHaveBeenCalledTimes(1)
     })
 
     it('should swap second and before last items', () => {
         expect(ul.children).toHaveLength(0)
-
-        syncNodes(new DoubleLinkedList(), nodeTemplates, anchor)
+        
+        const res = syncNodes(new DoubleLinkedList(), nodeTemplates, anchor)
+        
+        expect(matchesNewNodes(
+            res,
+            nodeTemplates
+        )).toBeTruthy()
 
         expect(ul.children).toHaveLength(nodeTemplates.length)
         expect(mountMock).toHaveBeenCalledTimes(10)
@@ -673,8 +733,8 @@ describe('syncNodes', () => {
             '<li>item 8</li>' +
             '<li>item 9</li>' +
             '<li>item 10</li>')
-
-        syncNodes(DoubleLinkedList.fromArray(nodeTemplates), [
+        
+        const newNodes = [
             nodeTemplates[0],
             nodeTemplates[8],
             nodeTemplates[2],
@@ -685,7 +745,12 @@ describe('syncNodes', () => {
             nodeTemplates[7],
             nodeTemplates[1],
             nodeTemplates[9],
-        ], anchor)
+        ]
+        
+        expect(matchesNewNodes(
+            syncNodes(res, newNodes, anchor),
+            newNodes
+        )).toBeTruthy()
 
         expect(ul.innerHTML).toBe(
             '<li>item 1</li>' +
@@ -702,4 +767,68 @@ describe('syncNodes', () => {
         expect(moveMock).toHaveBeenCalledTimes(2)
         expect(unmountMock).toHaveBeenCalledTimes(0)
     })
+    
+    it('should update every other node', () => {
+        expect(ul.children).toHaveLength(0)
+        
+        const res = syncNodes(new DoubleLinkedList(), nodeTemplates, anchor)
+        
+        expect(matchesNewNodes(
+            res,
+            nodeTemplates
+        )).toBeTruthy()
+        
+        expect(ul.children).toHaveLength(nodeTemplates.length)
+        expect(mountMock).toHaveBeenCalledTimes(10)
+        
+        mountMock.mockClear()
+        
+        expect(ul.innerHTML).toBe(
+            '<li>item 1</li>' +
+            '<li>item 2</li>' +
+            '<li>item 3</li>' +
+            '<li>item 4</li>' +
+            '<li>item 5</li>' +
+            '<li>item 6</li>' +
+            '<li>item 7</li>' +
+            '<li>item 8</li>' +
+            '<li>item 9</li>' +
+            '<li>item 10</li>')
+        
+        const newNodes = [
+            html`<li>item 1.1</li>`.onMount(mountMock).onMove(moveMock),
+            nodeTemplates[1],
+            html`<li>item 3.1</li>`.onMount(mountMock).onMove(moveMock),
+            nodeTemplates[3],
+            html`<li>item 5.1</li>`.onMount(mountMock).onMove(moveMock),
+            nodeTemplates[5],
+            html`<li>item 7.1</li>`.onMount(mountMock).onMove(moveMock),
+            nodeTemplates[7],
+            html`<li>item 9.1</li>`.onMount(mountMock).onMove(moveMock),
+            nodeTemplates[9],
+        ]
+        
+        expect(
+            matchesNewNodes(
+                syncNodes(res, newNodes, anchor),
+                newNodes
+            )
+        ).toBeTruthy()
+        
+        expect(ul.innerHTML).toBe(
+            '<li>item 1.1</li>' +
+            '<li>item 2</li>' +
+            '<li>item 3.1</li>' +
+            '<li>item 4</li>' +
+            '<li>item 5.1</li>' +
+            '<li>item 6</li>' +
+            '<li>item 7.1</li>' +
+            '<li>item 8</li>' +
+            '<li>item 9.1</li>' +
+            '<li>item 10</li>')
+        expect(mountMock).toHaveBeenCalledTimes(5)
+        expect(moveMock).toHaveBeenCalledTimes(0)
+        expect(unmountMock).toHaveBeenCalledTimes(5)
+    })
+    
 })

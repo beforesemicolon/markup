@@ -4,9 +4,11 @@ import { getNodeOrTemplate } from '../utils/get-node-or-template'
 import { DoubleLinkedList } from '../DoubleLinkedList'
 
 /**
- * this function is to move nodes around without the need to unmount and remount them
- * to avoid unnecessary DOM changes especially for components. If node was not moved from its
- * position, they should remain untouched
+ * syncNodes nodes updated the current nodes with new ones while ensuring no node in the DOM
+ * is moved or removed if dont have to using the currentChildNodes DoubleLinkedList as a representation
+ * of the current DOM manipulating instead of relying on the DOM which painting happens after the execution
+ * which means querying it would be inaccurate
+ *
  * @param currentChildNodes - list of parent node child nodes
  * @param newChildNodes - list of nodes of how the parent node child nodes should become
  * @param anchorNode
@@ -16,47 +18,77 @@ export const syncNodes = (
     newChildNodes: Array<Node | HtmlTemplate>,
     anchorNode: Node
 ) => {
-    const ll = new DoubleLinkedList<Node | HtmlTemplate>()
-
     if (newChildNodes.length) {
         const newChildNodesSet = new Set(newChildNodes)
         let prevN: Node | HtmlTemplate = anchorNode
         let idx = 0
-        let currentN: Node | HtmlTemplate | null = currentChildNodes.head
+        let currentNode: Node | HtmlTemplate | null = currentChildNodes.head
 
-        while (idx < newChildNodes.length || currentN) {
-            if (currentN && !newChildNodesSet.has(currentN)) {
-                removeNodeOrTemplate(currentN)
-                const nextN = currentChildNodes.getNextValueOf(currentN)
-                currentChildNodes.remove(currentN)
-                currentN = nextN
+        while (idx < newChildNodes.length || currentNode) {
+            const newNode = newChildNodes.hasOwnProperty(idx)
+                ? getNodeOrTemplate(newChildNodes[idx])
+                : null
+            const newAdded =
+                newNode &&
+                !currentChildNodes.has(newNode) &&
+                currentNode !== newNode
+            let currentReplaced = false
+            let currentRemoved = false
+            let currentMoved = false
+
+            if (!newNode && currentNode) {
+                currentRemoved = true
+            } else if (currentNode && newNode) {
+                currentRemoved = !newChildNodesSet.has(currentNode)
+                currentReplaced =
+                    currentRemoved && !currentChildNodes.has(newNode)
+                currentMoved =
+                    !currentRemoved &&
+                    !currentReplaced &&
+                    currentNode !== newNode
+            }
+
+            if (currentMoved && newNode) {
+                const nextCurrentNode =
+                    currentChildNodes.getNextValueOf(currentNode)
+
+                if (nextCurrentNode !== newNode) {
+                    currentChildNodes.insertValueBefore(
+                        newNode,
+                        currentNode as Node
+                    )
+                    insertAfter(newNode, prevN)
+                } else {
+                    currentChildNodes.remove(currentNode as Node)
+                    currentNode =
+                        currentChildNodes.getNextValueOf(nextCurrentNode)
+                }
+            } else if (currentReplaced && newNode) {
+                insertAfter(newNode, prevN)
+                removeNodeOrTemplate(currentNode as Node)
+                const nextCurrentNode =
+                    currentChildNodes.getNextValueOf(currentNode)
+                currentChildNodes.insertValueBefore(
+                    newNode,
+                    currentNode as Node
+                )
+                currentChildNodes.remove(currentNode as Node)
+                currentNode = nextCurrentNode
+            } else if (currentRemoved) {
+                removeNodeOrTemplate(currentNode as Node)
+                const nextCurrentNode =
+                    currentChildNodes.getNextValueOf(currentNode)
+                currentChildNodes.remove(currentNode as Node)
+                currentNode = nextCurrentNode
                 continue
+            } else if (newAdded) {
+                insertAfter(newNode, prevN)
+                currentChildNodes.push(newNode)
+            } else {
+                currentNode = currentChildNodes.getNextValueOf(currentNode)
             }
 
-            const newNode = getNodeOrTemplate(newChildNodes[idx])
-
-            if (
-                newNode !== currentN &&
-                currentChildNodes.getPreviousValueOf(currentN) !== newNode
-            ) {
-                if (newNode instanceof HtmlTemplate) {
-                    newNode.insertAfter(prevN)
-                } else if (currentN instanceof HtmlTemplate) {
-                    insertNodeAfter(newNode, currentN.__MARKERS__[1])
-                } else {
-                    insertNodeAfter(newNode, prevN as Node)
-                }
-
-                if (currentN) {
-                    currentChildNodes.insertValueBefore(newNode, currentN)
-                } else {
-                    currentChildNodes.push(newNode)
-                }
-            }
-
-            ll.push(newNode)
-            currentN = currentChildNodes.getNextValueOf(currentN)
-            prevN = newNode
+            if (newNode) prevN = newNode
             idx++
         }
     } else {
@@ -66,7 +98,7 @@ export const syncNodes = (
         currentChildNodes.clear()
     }
 
-    return ll
+    return currentChildNodes
 }
 
 function removeNodeOrTemplate(n: Node | HtmlTemplate) {
@@ -74,5 +106,15 @@ function removeNodeOrTemplate(n: Node | HtmlTemplate) {
         n.unmount()
     } else {
         n.parentNode?.removeChild(n)
+    }
+}
+
+function insertAfter(newNode: Node | HtmlTemplate, prevN: Node | HtmlTemplate) {
+    if (newNode instanceof HtmlTemplate) {
+        newNode.insertAfter(prevN)
+    } else if (prevN instanceof HtmlTemplate) {
+        insertNodeAfter(newNode, prevN.__MARKERS__[1])
+    } else {
+        insertNodeAfter(newNode, prevN as Node)
     }
 }

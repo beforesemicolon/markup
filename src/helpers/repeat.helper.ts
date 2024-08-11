@@ -25,16 +25,12 @@ const getList = (data: unknown) => {
 export const repeat = <T>(
     data: number | Array<T> | DataGetter<T>,
     cb: (data: T, index: number) => unknown,
-    whenEmpty: () => unknown = () => ''
+    whenEmpty?: () => unknown
 ) => {
     const cache: Map<T, unknown> = new Map()
     let prevList: T[] = []
 
     const each = (d: T, i: number) => {
-        if (prevList[i] !== undefined && d !== prevList[i]) {
-            cache.delete(d)
-        }
-
         if (!cache.has(d)) {
             cache.set(d, cb(d, i))
         }
@@ -48,7 +44,7 @@ export const repeat = <T>(
         if (list.length === 0) {
             prevList = []
             cache.clear()
-            return whenEmpty()
+            return whenEmpty?.() ?? []
         }
 
         const prevListSet = new Set(prevList)

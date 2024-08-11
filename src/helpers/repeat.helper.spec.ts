@@ -29,7 +29,7 @@ describe('repeat', () => {
     it('should handle empty', () => {
         expect(repeat([], (n) => n, () => 'no items')()).toEqual('no items')
         expect(repeat(0, (n) => n, () => 'no items')()).toEqual('no items')
-        expect(repeat(0, (n) => n)()).toEqual('')
+        expect(repeat(0, (n) => n)()).toEqual([])
     })
 
     it('should handle array with unique values', () => {
