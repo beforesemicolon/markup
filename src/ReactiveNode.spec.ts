@@ -2,7 +2,7 @@ import '../test.common'
 import { ReactiveNode } from './ReactiveNode'
 import { html, HtmlTemplate } from './html'
 import { state } from './state'
-import { is, when } from './helpers'
+import { is, when, repeat } from './helpers'
 
 describe('ReactiveNode', () => {
     it('should render text', () => {
@@ -215,12 +215,9 @@ describe('ReactiveNode', () => {
         const unmountMock = jest.fn();
         const mountMock = jest.fn(() => unmountMock);
         const moveMock = jest.fn();
-        const nodeTemplates = Array.from({ length: 10 }, (_, i) => {
-            return html`<li>item ${i + 1}</li>`.onMount(mountMock).onMove(moveMock)
-        });
-        const [list, updateList] = state(nodeTemplates);
+        const [list, updateList] = state(Array.from({ length: 10 }, (_, i) => i + 1));
         
-        new ReactiveNode(list, document.body)
+        new ReactiveNode(repeat(list, (n) => html`<li>item ${n}</li>`.onMount(mountMock).onMove(moveMock)), document.body)
         
         expect(mountMock).toHaveBeenCalledTimes(10)
         expect(document.body.innerHTML).toBe('<li>item 1</li>' +
@@ -237,20 +234,21 @@ describe('ReactiveNode', () => {
         mountMock.mockClear()
         
         updateList([
-            nodeTemplates[0],
-            nodeTemplates[8],
-            nodeTemplates[2],
-            nodeTemplates[3],
-            nodeTemplates[4],
-            nodeTemplates[5],
-            nodeTemplates[6],
-            nodeTemplates[7],
-            nodeTemplates[1],
-            nodeTemplates[9],
+            1,
+            9,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            2,
+            10
         ])
-        
+
         expect(mountMock).toHaveBeenCalledTimes(0)
         expect(moveMock).toHaveBeenCalledTimes(2)
+        expect(unmountMock).toHaveBeenCalledTimes(0)
         
         expect(document.body.innerHTML).toBe('<li>item 1</li>' +
             '<li>item 9</li>' +
@@ -263,5 +261,56 @@ describe('ReactiveNode', () => {
             '<li>item 2</li>' +
             '<li>item 10</li>')
 
+    })
+    
+    it('should update every other node', () => {
+        const unmountMock = jest.fn();
+        const mountMock = jest.fn(() => unmountMock);
+        const moveMock = jest.fn();
+        const [list, updateList] = state(Array.from({ length: 10 }, (_, i) => i + 1));
+        
+        new ReactiveNode(repeat(list, (n) => html`<li>item ${n}</li>`.onMount(mountMock).onMove(moveMock)), document.body)
+        
+        expect(mountMock).toHaveBeenCalledTimes(10)
+        expect(document.body.innerHTML).toBe('<li>item 1</li>' +
+            '<li>item 2</li>' +
+            '<li>item 3</li>' +
+            '<li>item 4</li>' +
+            '<li>item 5</li>' +
+            '<li>item 6</li>' +
+            '<li>item 7</li>' +
+            '<li>item 8</li>' +
+            '<li>item 9</li>' +
+            '<li>item 10</li>')
+        
+        mountMock.mockClear()
+        
+        updateList([
+            100,
+            2,
+            300,
+            4,
+            500,
+            6,
+            700,
+            8,
+            900,
+            10
+        ])
+        
+        expect(mountMock).toHaveBeenCalledTimes(5)
+        expect(moveMock).toHaveBeenCalledTimes(0)
+        expect(unmountMock).toHaveBeenCalledTimes(5)
+        
+        expect(document.body.innerHTML).toBe('<li>item 100</li>' +
+            '<li>item 2</li>' +
+            '<li>item 300</li>' +
+            '<li>item 4</li>' +
+            '<li>item 500</li>' +
+            '<li>item 6</li>' +
+            '<li>item 700</li>' +
+            '<li>item 8</li>' +
+            '<li>item 900</li>' +
+            '<li>item 10</li>')
     })
 })
