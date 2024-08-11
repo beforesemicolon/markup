@@ -19,77 +19,95 @@ export const syncNodes = (
     anchorNode: Node
 ) => {
     if (newChildNodes.length) {
-        const newChildNodesSet = new Set(newChildNodes)
-        let prevN: Node | HtmlTemplate = anchorNode
-        let idx = 0
-        let currentNode: Node | HtmlTemplate | null = currentChildNodes.head
+        if (currentChildNodes.size) {
+            const newChildNodesSet = new Set(newChildNodes)
+            let prevN: Node | HtmlTemplate = anchorNode
+            let idx = 0
+            let currentNode: Node | HtmlTemplate | null = currentChildNodes.head
 
-        while (idx < newChildNodes.length || currentNode) {
-            const newNode = newChildNodes.hasOwnProperty(idx)
-                ? getNodeOrTemplate(newChildNodes[idx])
-                : null
-            const newAdded =
-                newNode &&
-                !currentChildNodes.has(newNode) &&
-                currentNode !== newNode
-            let currentReplaced = false
-            let currentRemoved = false
-            let currentMoved = false
-
-            if (!newNode && currentNode) {
-                currentRemoved = true
-            } else if (currentNode && newNode) {
-                currentRemoved = !newChildNodesSet.has(currentNode)
-                currentReplaced =
-                    currentRemoved && !currentChildNodes.has(newNode)
-                currentMoved =
-                    !currentRemoved &&
-                    !currentReplaced &&
+            while (idx < newChildNodes.length || currentNode) {
+                const newNode = newChildNodes.hasOwnProperty(idx)
+                    ? getNodeOrTemplate(newChildNodes[idx])
+                    : null
+                const newAdded =
+                    newNode &&
+                    !currentChildNodes.has(newNode) &&
                     currentNode !== newNode
-            }
+                let currentReplaced = false
+                let currentRemoved = false
+                let currentMoved = false
 
-            if (currentMoved && newNode) {
-                const nextCurrentNode =
-                    currentChildNodes.getNextValueOf(currentNode)
+                if (!newNode && currentNode) {
+                    currentRemoved = true
+                } else if (currentNode && newNode) {
+                    currentRemoved = !newChildNodesSet.has(currentNode)
+                    currentReplaced =
+                        currentRemoved && !currentChildNodes.has(newNode)
+                    currentMoved =
+                        !currentRemoved &&
+                        !currentReplaced &&
+                        currentNode !== newNode
+                }
 
-                if (nextCurrentNode !== newNode) {
+                if (currentMoved && newNode) {
+                    const nextCurrentNode =
+                        currentChildNodes.getNextValueOf(currentNode)
+
+                    if (nextCurrentNode !== newNode) {
+                        currentChildNodes.insertValueBefore(
+                            newNode,
+                            currentNode as Node
+                        )
+                        insertAfter(newNode, prevN)
+                    } else {
+                        currentChildNodes.remove(currentNode as Node)
+                        currentNode =
+                            currentChildNodes.getNextValueOf(nextCurrentNode)
+                    }
+                } else if (currentReplaced && newNode) {
+                    insertAfter(newNode, prevN)
+                    removeNodeOrTemplate(currentNode as Node)
+                    const nextCurrentNode =
+                        currentChildNodes.getNextValueOf(currentNode)
                     currentChildNodes.insertValueBefore(
                         newNode,
                         currentNode as Node
                     )
-                    insertAfter(newNode, prevN)
-                } else {
                     currentChildNodes.remove(currentNode as Node)
-                    currentNode =
-                        currentChildNodes.getNextValueOf(nextCurrentNode)
+                    currentNode = nextCurrentNode
+                } else if (currentRemoved) {
+                    removeNodeOrTemplate(currentNode as Node)
+                    const nextCurrentNode =
+                        currentChildNodes.getNextValueOf(currentNode)
+                    currentChildNodes.remove(currentNode as Node)
+                    currentNode = nextCurrentNode
+                    continue
+                } else if (newAdded) {
+                    insertAfter(newNode, prevN)
+                    currentChildNodes.push(newNode)
+                } else {
+                    currentNode = currentChildNodes.getNextValueOf(currentNode)
                 }
-            } else if (currentReplaced && newNode) {
-                insertAfter(newNode, prevN)
-                removeNodeOrTemplate(currentNode as Node)
-                const nextCurrentNode =
-                    currentChildNodes.getNextValueOf(currentNode)
-                currentChildNodes.insertValueBefore(
-                    newNode,
-                    currentNode as Node
-                )
-                currentChildNodes.remove(currentNode as Node)
-                currentNode = nextCurrentNode
-            } else if (currentRemoved) {
-                removeNodeOrTemplate(currentNode as Node)
-                const nextCurrentNode =
-                    currentChildNodes.getNextValueOf(currentNode)
-                currentChildNodes.remove(currentNode as Node)
-                currentNode = nextCurrentNode
-                continue
-            } else if (newAdded) {
-                insertAfter(newNode, prevN)
-                currentChildNodes.push(newNode)
-            } else {
-                currentNode = currentChildNodes.getNextValueOf(currentNode)
+
+                if (newNode) prevN = newNode
+                idx++
+            }
+        } else {
+            const frag = document.createDocumentFragment()
+
+            for (const newNode of newChildNodes) {
+                const node = getNodeOrTemplate(newNode)
+
+                if (node instanceof HtmlTemplate) {
+                    node.render(frag)
+                } else {
+                    frag.appendChild(node)
+                }
+
+                currentChildNodes.push(node)
             }
 
-            if (newNode) prevN = newNode
-            idx++
+            insertAfter(frag, anchorNode)
         }
     } else {
         for (const currentChildNode of currentChildNodes) {
