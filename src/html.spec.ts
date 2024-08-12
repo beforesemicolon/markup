@@ -1,10 +1,11 @@
 import '../test.common';
-import {html, HtmlTemplate} from './html'
+import { html, HtmlTemplate } from './html'
 import {state} from './state'
 import {when, repeat, oneOf, is} from './helpers'
 import { element } from './utils/element'
 
 describe('html', () => {
+	
 	it('should render correctly', () => {
 		const app = html`<h1>Todo Manager</h1>
 			<div class="action-bar">
@@ -552,10 +553,7 @@ describe('html', () => {
 		it('should throw if injected with invalid attr', () => {
 			const disabled = 'disabled'
 			
-			const btn = html`
-			<button ${disabled}></button>`
-			
-			expect(() => btn.render(document.body)).toThrowError('Invalid attribute object provided: disabled')
+			expect(() => html`<button ${disabled}></button>`).toThrowError('Invalid attribute object provided: disabled')
 		})
 		
 		it('class name as value', () => {

@@ -1,23 +1,180 @@
-import { Doc } from './Doc'
+import { handleElementAttribute } from './utils/handle-element-attribute'
 import { parse } from '@beforesemicolon/html-parser/dist/parse'
 import { EffectUnSubscriber } from './types'
 import { ReactiveNode } from './ReactiveNode'
 import { insertNodeAfter } from './utils/insert-node-after'
+import { DocumentFragmentLike, ElementLike } from '@beforesemicolon/html-parser'
+import { parseDynamicRawValue } from './utils/parse-dynamic-raw-value'
+import { renderContent } from './utils/render-content'
 
-const templateRegistry: Record<string, string> = {}
+const templateRegistry: Record<string, Template> = {}
 
-function createTemplateId() {
-    let id = ''
+interface AttributeSlot {
+    type: 'attribute'
+    name: string
+    value: unknown
+    nodeSelector: string
+}
 
-    while (templateRegistry.hasOwnProperty(id)) {
-        id = Math.floor(Math.random() * Date.now()).toString()
+interface ContentSlot {
+    type: 'content'
+    value: string
+    nodeId: string
+}
+
+type TemplateSlot = AttributeSlot | ContentSlot
+
+interface Template {
+    template: DocumentFragment
+    slots: TemplateSlot[]
+}
+
+const createId = () => Math.floor(Math.random() * Date.now()).toString()
+
+function createTemplate(
+    parts: TemplateStringsArray | string[],
+    ...values: unknown[]
+) {
+    const templateString = parts
+        .map((s, i) => {
+            return i === parts.length - 1 ? s : s + `$val${i}`
+        })
+        .join('')
+        .trim()
+
+    if (templateRegistry[templateString]) {
+        return templateRegistry[templateString]
     }
 
-    return id
+    const slots: TemplateSlot[] = []
+
+    const handleTextNode = (
+        nodeValue: string,
+        el: DocumentFragment | Element
+    ) => {
+        if (/\$val([0-9]+)/.test(nodeValue)) {
+            const nodeId = createId()
+            const script = document.createElement('script')
+            script.id = nodeId
+
+            el.appendChild(script)
+
+            slots.push({
+                type: 'content',
+                value: nodeValue,
+                nodeId,
+            })
+
+            return true
+        }
+
+        return false
+    }
+
+    const temp = parse(templateString, {
+        createComment: (value) => document.createComment(value),
+        createTextNode: (value) => document.createTextNode(value),
+        createDocumentFragment: () => {
+            const __self__ = document.createDocumentFragment()
+
+            return {
+                __self__,
+                children: __self__.children,
+                appendChild: (node: Node & { __self__: Node }) => {
+                    const n = node.__self__ ?? node
+
+                    if (
+                        n instanceof Text &&
+                        handleTextNode(n.nodeValue ?? '', __self__)
+                    ) {
+                        return
+                    }
+
+                    __self__.appendChild(n)
+                },
+            } as unknown as DocumentFragmentLike
+        },
+        createElementNS: (namespace: string, tagName: string) => {
+            const id = createId()
+            const __self__ = document.createElementNS(namespace, tagName)
+
+            return {
+                __self__,
+                namespace,
+                tagName: __self__.tagName,
+                children: __self__.children,
+                attributes: __self__.attributes,
+                appendChild(node: Node & { __self__: Node }) {
+                    const n = node.__self__ ?? node
+
+                    if (
+                        n instanceof Text &&
+                        handleTextNode(n.nodeValue ?? '', __self__)
+                    ) {
+                        return
+                    }
+
+                    __self__.appendChild(n)
+                },
+                setAttribute(name: string, value: string) {
+                    const dynamicValue = name.match(/^val([0-9]+)$/)
+                    // should ignore dynamically set attribute name
+                    if (dynamicValue) {
+                        const idx = Number(dynamicValue[1])
+                        const attrs = values[idx]
+
+                        if (`${attrs}` === '[object Object]') {
+                            __self__.setAttribute('data-slot-id', id)
+
+                            for (const [key, v] of Object.entries(
+                                attrs as Record<string, string>
+                            )) {
+                                slots.push({
+                                    type: 'attribute',
+                                    name: key,
+                                    value: v,
+                                    nodeSelector: `[data-slot-id="${id}"]`,
+                                })
+                            }
+                            return
+                        }
+
+                        throw new Error(
+                            `Invalid attribute object provided: ${attrs}`
+                        )
+                    }
+
+                    if (name === 'ref' || /\$val([0-9]+)/.test(value)) {
+                        __self__.setAttribute('data-slot-id', id)
+                        slots.push({
+                            type: 'attribute',
+                            name,
+                            value,
+                            nodeSelector: `[data-slot-id="${id}"]`,
+                        })
+
+                        // skip setting attribute for Web Components as they can have non-primitive values
+                        // and will be handled by the "setElementAttribute" util
+                        if (tagName.includes('-')) return
+                    }
+
+                    name !== 'ref' && __self__.setAttribute(name, value)
+                },
+            } as unknown as ElementLike
+        },
+    })
+
+    templateRegistry[templateString] = {
+        // @ts-expect-error all elements have __self__
+        template: temp.__self__,
+        slots,
+    }
+
+    return templateRegistry[templateString]
 }
 
 export class HtmlTemplate {
-    #htmlTemplate: string
+    #template: Template
     #mountables: Array<ReactiveNode | HtmlTemplate> = []
     #refs: Record<string, Set<Element>> = {}
     #effectUnsubs: Set<EffectUnSubscriber> = new Set()
@@ -28,7 +185,6 @@ export class HtmlTemplate {
     #unmountSub: (() => void) | undefined = undefined
     #updateSub: (() => void) | undefined = undefined
     #markers = [document.createTextNode(''), document.createTextNode('')]
-    #tempId = createTemplateId()
 
     /**
      * the Element or ShadowRoot instance provided in the render method
@@ -91,16 +247,7 @@ export class HtmlTemplate {
 
     constructor(parts: TemplateStringsArray | string[], values: unknown[]) {
         this.#values = values
-        this.#htmlTemplate =
-            templateRegistry[this.#tempId] ??
-            parts
-                .map((s, i) => {
-                    return i === parts.length - 1 ? s : s + `$val${i}`
-                })
-                .join('')
-                .trim()
-
-        templateRegistry[this.#tempId] = this.#htmlTemplate
+        this.#template = createTemplate(parts, ...values)
     }
 
     /**
@@ -273,50 +420,81 @@ export class HtmlTemplate {
     }
 
     #init(actionType: 'render' | 'replace' | 'after', element: Node) {
-        const frag = parse(
-            this.#htmlTemplate,
-            // @ts-expect-error DocType not DocumentLike
-            Doc(this.#values, this.#refs, (item) => {
-                if (
-                    item instanceof ReactiveNode ||
-                    item instanceof HtmlTemplate
-                ) {
-                    this.#mountables.push(item)
+        const { template, slots } = this.#template
+        const frag = template.cloneNode(true) as DocumentFragment
+        const nodes: Record<string, HTMLElement> = {}
 
-                    // the root node will be a document fragment which means
-                    // item will be a direct child
-                    if (
-                        item instanceof ReactiveNode &&
-                        item.parentNode instanceof DocumentFragment
-                    ) {
-                        item.updateParentReference(element as HTMLElement)
-                    }
+        for (const slot of slots) {
+            if (slot.type === 'attribute') {
+                const node =
+                    nodes[slot.nodeSelector] ??
+                    frag.querySelector(slot.nodeSelector)
 
-                    // only subscribe to direct child ReactiveNode update
-                    // to update current nodes
-                    if (item instanceof ReactiveNode) {
-                        item.onUpdate(() => {
-                            this.#updateSub?.()
-                        })
-                    }
-                } else {
-                    this.#effectUnsubs.add(item)
+                if (node) {
+                    node.removeAttribute('data-slot-id')
+                    handleElementAttribute(
+                        node,
+                        slot.name,
+                        typeof slot.value === 'string' ? slot.value : `$val0`,
+                        this.#refs,
+                        typeof slot.value === 'string'
+                            ? this.#values
+                            : [slot.value],
+                        (item) => this.#effectUnsubs.add(item)
+                    )
+                    nodes[slot.nodeSelector] = node
                 }
-            })
-        )
+            } else {
+                const node =
+                    nodes[slot.nodeId] ?? frag.getElementById(slot.nodeId)
 
-        // @ts-expect-error DocumentFragLike real Node is available through __self__ property
-        const realFrag = frag.__self__ as DocumentFragment
+                if (node) {
+                    const parentNode = node.parentNode as HTMLElement
+                    const cont = document.createDocumentFragment()
 
-        realFrag.prepend(this.#markers[0])
-        realFrag.append(this.#markers[1])
+                    parseDynamicRawValue(slot.value, this.#values, (part) => {
+                        if (typeof part === 'function') {
+                            const rn = new ReactiveNode(
+                                part as () => unknown,
+                                cont
+                            )
+                            this.#mountables.push(rn)
+
+                            // the root node will be a document fragment which means
+                            // item will be a direct child
+                            if (parentNode instanceof DocumentFragment) {
+                                rn.updateParentReference(element as HTMLElement)
+                            } else {
+                                rn.updateParentReference(parentNode)
+                            }
+
+                            rn.onUpdate(() => {
+                                this.#updateSub?.()
+                            })
+                        } else {
+                            renderContent(part, cont, (item) => {
+                                if (item instanceof HtmlTemplate) {
+                                    this.#mountables.push(item)
+                                }
+                            })
+                        }
+                    })
+
+                    node.parentNode?.replaceChild(cont, node)
+                    nodes[slot.nodeId] = node
+                }
+            }
+        }
+
+        frag.prepend(this.#markers[0])
+        frag.append(this.#markers[1])
 
         if (actionType === 'replace') {
-            element?.parentNode?.replaceChild(realFrag, element)
+            element?.parentNode?.replaceChild(frag, element)
         } else if (actionType === 'after') {
-            insertNodeAfter(realFrag, element)
+            insertNodeAfter(frag, element)
         } else {
-            element.appendChild(realFrag)
+            element.appendChild(frag)
         }
 
         this.#mounted = true
