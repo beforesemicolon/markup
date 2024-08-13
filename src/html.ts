@@ -31,6 +31,37 @@ interface Template {
 
 const createId = () => Math.floor(Math.random() * Date.now()).toString()
 
+const handleTextNode = (nodeValue: string, el: DocumentFragment | Element) => {
+    if (/\$val([0-9]+)/.test(nodeValue)) {
+        const nodeId = createId()
+        const script = document.createElement('script')
+        script.id = nodeId
+
+        el.appendChild(script)
+
+        return {
+            type: 'content',
+            value: nodeValue,
+            nodeId,
+        } as ContentSlot
+    }
+}
+
+const handleAppendChild = (
+    n: Node,
+    parentNode: Element | DocumentFragment
+): ContentSlot | void => {
+    if (n instanceof Text) {
+        const res = handleTextNode(n.nodeValue ?? '', parentNode)
+
+        if (res) {
+            return res
+        }
+    }
+
+    parentNode.appendChild(n)
+}
+
 function createTemplate(
     parts: TemplateStringsArray | string[],
     ...values: unknown[]
@@ -48,29 +79,6 @@ function createTemplate(
 
     const slots: TemplateSlot[] = []
 
-    const handleTextNode = (
-        nodeValue: string,
-        el: DocumentFragment | Element
-    ) => {
-        if (/\$val([0-9]+)/.test(nodeValue)) {
-            const nodeId = createId()
-            const script = document.createElement('script')
-            script.id = nodeId
-
-            el.appendChild(script)
-
-            slots.push({
-                type: 'content',
-                value: nodeValue,
-                nodeId,
-            })
-
-            return true
-        }
-
-        return false
-    }
-
     const temp = parse(templateString, {
         createComment: (value) => document.createComment(value),
         createTextNode: (value) => document.createTextNode(value),
@@ -81,16 +89,11 @@ function createTemplate(
                 __self__,
                 children: __self__.children,
                 appendChild: (node: Node & { __self__: Node }) => {
-                    const n = node.__self__ ?? node
-
-                    if (
-                        n instanceof Text &&
-                        handleTextNode(n.nodeValue ?? '', __self__)
-                    ) {
-                        return
-                    }
-
-                    __self__.appendChild(n)
+                    const slot = handleAppendChild(
+                        node.__self__ ?? node,
+                        __self__
+                    )
+                    if (slot) slots.push(slot)
                 },
             } as unknown as DocumentFragmentLike
         },
@@ -105,16 +108,11 @@ function createTemplate(
                 children: __self__.children,
                 attributes: __self__.attributes,
                 appendChild(node: Node & { __self__: Node }) {
-                    const n = node.__self__ ?? node
-
-                    if (
-                        n instanceof Text &&
-                        handleTextNode(n.nodeValue ?? '', __self__)
-                    ) {
-                        return
-                    }
-
-                    __self__.appendChild(n)
+                    const slot = handleAppendChild(
+                        node.__self__ ?? node,
+                        __self__
+                    )
+                    if (slot) slots.push(slot)
                 },
                 setAttribute(name: string, value: string) {
                     const dynamicValue = name.match(/^val([0-9]+)$/)
