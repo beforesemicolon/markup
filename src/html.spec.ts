@@ -30,6 +30,7 @@ describe('html', () => {
 			'\t\t\t\t<div class="completed-todos"></div>\n' +
 			'\t\t\t\t<div class="archived-todos"></div>\n' +
 			'\t\t\t</div>')
+		expect(app.childNodes).toHaveLength(5)
 	});
 	
 	it('should ignore html in comments', () => {
@@ -835,6 +836,24 @@ describe('html', () => {
 	})
 
 	describe('should work with "repeat" helper', () => {
+		it('should render table rows', () => {
+			const [items, updateItems] = state<number[]>([]);
+			
+			html`<table><tbody>${repeat(items, item => html`<tr>item ${item}</tr>`)}</tbody></table>`
+				.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<table><tbody></tbody></table>')
+			
+			updateItems(Array.from({length: 5}, (_, i) => i + 1))
+			
+			expect(document.body.innerHTML).toBe('<table><tbody>' +
+				'<tr>item 1</tr>' +
+				'<tr>item 2</tr>' +
+				'<tr>item 3</tr>' +
+				'<tr>item 4</tr>' +
+				'<tr>item 5</tr>' +
+				'</tbody></table>')
+		})
 		it('with number value and primitive return', () => {
 			const el = html`${repeat(2, (n) => n)}`
 			
@@ -1403,22 +1422,14 @@ describe('html', () => {
 	describe('should handle lifecycles', () => {
 		
 		it('onMount', () => {
-		
-			const mountMock = jest.fn()
+			const unmountMock = jest.fn()
+			const mountMock = jest.fn(() => unmountMock)
 			
-			html`<span>sample</span>`
+			const temp = html`<span>sample</span>`
 				.onMount(mountMock)
 				.render(document.body)
 			
 			expect(mountMock).toHaveBeenCalledTimes(1)
-		});
-		
-		it('onUnmount', () => {
-			const unmountMock = jest.fn()
-			
-			const temp = html`<span>sample</span>`
-				.onMount(() => unmountMock)
-				.render(document.body)
 			
 			temp.unmount();
 			
@@ -1491,6 +1502,26 @@ describe('html', () => {
 			expect(updateMock).toHaveBeenCalledTimes(1)
 			
 			expect(document.body.innerHTML).toBe('<span>diff</span>')
+		});
+		
+		it('onMove', () => {
+			const moveMock = jest.fn();
+			const [list, updateList] = state([
+				html`one`.onMove(moveMock),
+				html`two`.onMove(moveMock),
+				html`three`.onMove(moveMock),
+			])
+			
+			html`${list}`.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('onetwothree')
+			
+			const three =  list()[2]
+			updateList([list()[2], list()[0], list()[1]])
+			
+			expect(document.body.innerHTML).toBe('threeonetwo')
+			
+			expect(moveMock).toHaveBeenCalledTimes(1)
 		});
 	})
 	
