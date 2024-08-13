@@ -1,5 +1,5 @@
-import { setElementAttribute } from './set-element-attribute'
-import { turnCamelToKebabCasing } from './turn-camel-to-kebab-casing'
+import { setElementAttribute } from '../utils/set-element-attribute'
+import { turnCamelToKebabCasing } from '../utils/turn-camel-to-kebab-casing'
 import { ElementOptions } from '../types'
 
 /**

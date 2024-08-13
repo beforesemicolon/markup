@@ -1,4 +1,3 @@
-import { handleElementAttribute } from './utils/handle-element-attribute'
 import { parse } from '@beforesemicolon/html-parser/dist/parse'
 import { EffectUnSubscriber } from './types'
 import { ReactiveNode } from './ReactiveNode'
@@ -6,6 +5,11 @@ import { insertNodeAfter } from './utils/insert-node-after'
 import { DocumentFragmentLike, ElementLike } from '@beforesemicolon/html-parser'
 import { parseDynamicRawValue } from './utils/parse-dynamic-raw-value'
 import { renderContent } from './utils/render-content'
+import { setNodeEventListener } from './utils/set-node-event-listener'
+import { booleanAttributes } from './utils/boolean-attributes'
+import { val } from './helpers'
+import { setElementAttribute } from './utils/set-element-attribute'
+import { effect } from './state'
 
 const templateRegistry: Record<string, Template> = {}
 
@@ -169,6 +173,121 @@ function createTemplate(
     }
 
     return templateRegistry[templateString]
+}
+
+function handleElementEventListener(
+    node: Element,
+    name: string,
+    value: string,
+    values: unknown[]
+) {
+    const comp = customElements.get(node.nodeName.toLowerCase())
+
+    if (
+        // @ts-expect-error observedAttributes is property of web component
+        (comp && !comp?.observedAttributes?.includes(name)) ||
+        (document.head &&
+            // @ts-expect-error check if know event name
+            typeof document.head[name] !== 'undefined')
+    ) {
+        const [fnString, optString] = value.split(',').map((p) => p.trim())
+        const [, idx] = fnString.match(/\$val([0-9]+)/) ?? []
+        const fn = values[Number(idx)]
+        let options: boolean | AddEventListenerOptions | undefined
+
+        if (optString) {
+            if (/^(true|false)$/.test(optString)) {
+                options = /^true$/.test(optString)
+            } else {
+                const [, oIdx] = optString.match(/\$val([0-9]+)/g) ?? []
+                options = values[Number(oIdx)] as AddEventListenerOptions
+            }
+        }
+
+        setNodeEventListener(node, name, fn as EventListener, options)
+        return true
+    }
+
+    return false
+}
+
+export function handleElementAttribute(
+    node: Element,
+    name: string,
+    value: string,
+    refs: Record<string, Set<Element>> = {},
+    values: unknown[],
+    cb: (item: EffectUnSubscriber) => void
+) {
+    const trimmedValue = value.trim()
+
+    if (trimmedValue) {
+        if (name === 'ref') {
+            if (!refs[trimmedValue]) {
+                refs[trimmedValue] = new Set()
+            }
+
+            refs[trimmedValue].add(node)
+            return
+        }
+
+        if (/^on[a-z]+/.test(name)) {
+            const set = handleElementEventListener(
+                node,
+                name,
+                trimmedValue,
+                values
+            )
+
+            if (set) {
+                node.removeAttribute(name)
+                return
+            }
+        }
+
+        let hasFunctionValue = false
+        const dvValue = parseDynamicRawValue(trimmedValue, values, (d) => {
+            hasFunctionValue = !hasFunctionValue && typeof d === 'function'
+        })
+
+        if (booleanAttributes[name.toLowerCase()]) {
+            const d = dvValue[0]
+
+            const setAttr = () => {
+                const v = val(d)
+                if (v) {
+                    setElementAttribute(node, name, v)
+                } else {
+                    ;(node as Element).removeAttribute(name)
+                }
+            }
+
+            if (typeof d === 'function') {
+                return cb(effect(setAttr))
+            }
+
+            return setAttr()
+        }
+
+        const setAttr = () =>
+            setElementAttribute(
+                node,
+                name,
+                dvValue.length === 1
+                    ? val(dvValue[0])
+                    : dvValue.map((d) => val(d)).join('')
+            )
+
+        if (hasFunctionValue) {
+            return cb(effect(setAttr))
+        }
+
+        return setAttr()
+    }
+
+    if (name !== 'ref') {
+        setElementAttribute(node as HTMLElement, name, trimmedValue)
+    }
 }
 
 export class HtmlTemplate {
