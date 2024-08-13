@@ -1,5 +1,5 @@
 import { StateGetter, AnythingButAFunction, HelperValueChecker } from '../types'
-import { val } from '../utils/val'
+import { val } from './val'
 
 /**
  * checks whether the state value is NOT equal to provided value or return value of the function checker

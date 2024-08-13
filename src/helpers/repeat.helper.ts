@@ -1,4 +1,4 @@
-import { val } from '../utils/val'
+import { val } from './val'
 import { DoubleLinkedList } from '../DoubleLinkedList'
 import { HtmlTemplate } from '../html'
 import { SkipRender } from '../types'

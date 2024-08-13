@@ -1,8 +1,7 @@
 import '../test.common';
 import { html, HtmlTemplate } from './html'
 import {state} from './state'
-import {when, repeat, oneOf, is} from './helpers'
-import { element } from './utils/element'
+import {when, repeat, oneOf, is, element} from './helpers'
 
 describe('html', () => {
 	
