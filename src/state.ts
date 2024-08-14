@@ -15,7 +15,7 @@ interface Resolver {
     clear: () => void
 }
 
-const currentResolvers: Resolver[] = []
+const currentResolvers = new DoubleLinkedList<Resolver>()
 
 export const state = <T>(
     value: T,
@@ -29,7 +29,7 @@ export const state = <T>(
 
     return Object.freeze([
         () => {
-            const currentResolver = currentResolvers.at(-1) as Resolver
+            const currentResolver = currentResolvers.tail
             if (
                 typeof currentResolver?.sub === 'function' &&
                 !subs.has(currentResolver?.sub)
@@ -65,7 +65,7 @@ export const effect = <T>(sub: EffectSubscriber<T>) => {
         let value: T | undefined
         const res: Resolver = {
             sub() {
-                const parent = currentResolvers.at(-1) as Resolver
+                const parent = currentResolvers.tail
 
                 if (parent && parent !== res) {
                     parent.children.push(res)
