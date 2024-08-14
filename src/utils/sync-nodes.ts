@@ -20,7 +20,7 @@ export const syncNodes = (
 ) => {
     if (newChildNodes.length) {
         if (currentChildNodes.size) {
-            const newChildNodesSet = new Set(newChildNodes)
+            const newChildNodesSet = DoubleLinkedList.fromArray(newChildNodes)
             let prevN: Node | HtmlTemplate = anchorNode
             let idx = 0
             let currentNode: Node | HtmlTemplate | null = currentChildNodes.head
