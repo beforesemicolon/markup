@@ -57,6 +57,12 @@ export class DoubleLinkedList<T> {
         }
     }
 
+    pop() {
+        if (this.#tail) {
+            this.remove(this.#tail.value)
+        }
+    }
+
     remove(value: T) {
         if (this.has(value)) {
             const element = this.#map.get(value)

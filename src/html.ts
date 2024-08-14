@@ -10,6 +10,7 @@ import { booleanAttributes } from './utils/boolean-attributes'
 import { val } from './helpers'
 import { setElementAttribute } from './utils/set-element-attribute'
 import { effect } from './state'
+import { DoubleLinkedList } from './DoubleLinkedList'
 
 const templateRegistry: Record<string, Template> = {}
 
@@ -30,7 +31,7 @@ type TemplateSlot = AttributeSlot | ContentSlot
 
 interface Template {
     template: DocumentFragment
-    slots: TemplateSlot[]
+    slots: DoubleLinkedList<TemplateSlot>
 }
 
 const createId = () => Math.floor(Math.random() * Date.now()).toString()
@@ -76,14 +77,16 @@ function createTemplate(
         return templateRegistry[tempId]
     }
 
-    const templateString = parts
-        .map((s, i) => {
-            return i === parts.length - 1 ? s : s + `$val${i}`
-        })
-        .join('')
-        .trim()
+    let templateString = ''
 
-    const slots: TemplateSlot[] = []
+    for (let i = 0; i < parts.length; i++) {
+        const p = parts[i]
+        templateString += i === parts.length - 1 ? p : p + `$val${i}`
+    }
+
+    templateString = templateString.trim()
+
+    const slots = new DoubleLinkedList<TemplateSlot>()
 
     const temp = parse(templateString, {
         createComment: (value) => document.createComment(value),
@@ -153,7 +156,7 @@ function createTemplate(
                         slots.push({
                             type: 'attribute',
                             name,
-                            value,
+                            value: value.trim(),
                             nodeSelector: `[data-slot-id="${id}"]`,
                         })
 
@@ -183,11 +186,10 @@ function handleElementEventListener(
     value: string,
     values: unknown[]
 ) {
-    const comp = customElements.get(node.nodeName.toLowerCase())
-
     if (
-        // @ts-expect-error observedAttributes is property of web component
-        (comp && !comp?.observedAttributes?.includes(name)) ||
+        (node.nodeName.includes('-') &&
+            // @ts-expect-error observedAttributes is property of web component
+            !node.constructor?.observedAttributes?.includes(name)) ||
         (document.head &&
             // @ts-expect-error check if know event name
             typeof document.head[name] !== 'undefined')
@@ -221,25 +223,18 @@ export function handleElementAttribute(
     values: unknown[],
     cb: (item: EffectUnSubscriber) => void
 ) {
-    const trimmedValue = value.trim()
-
-    if (trimmedValue) {
+    if (value) {
         if (name === 'ref') {
-            if (!refs[trimmedValue]) {
-                refs[trimmedValue] = new Set()
+            if (!refs[value]) {
+                refs[value] = new Set()
             }
 
-            refs[trimmedValue].add(node)
+            refs[value].add(node)
             return
         }
 
         if (/^on[a-z]+/.test(name)) {
-            const set = handleElementEventListener(
-                node,
-                name,
-                trimmedValue,
-                values
-            )
+            const set = handleElementEventListener(node, name, value, values)
 
             if (set) {
                 node.removeAttribute(name)
@@ -248,7 +243,7 @@ export function handleElementAttribute(
         }
 
         let hasFunctionValue = false
-        const dvValue = parseDynamicRawValue(trimmedValue, values, (d) => {
+        const dvValue = parseDynamicRawValue(value, values, (d) => {
             hasFunctionValue = !hasFunctionValue && typeof d === 'function'
         })
 
@@ -288,7 +283,7 @@ export function handleElementAttribute(
     }
 
     if (name !== 'ref') {
-        setElementAttribute(node as HTMLElement, name, trimmedValue)
+        setElementAttribute(node as HTMLElement, name, value)
     }
 }
 
