@@ -59,25 +59,33 @@ export const repeat = <T>(
             prevList = []
             cache.clear()
         } else {
-            const prevListSet = new Set(prevList)
-            const renderedList: Array<Node | HtmlTemplate> = []
-
-            for (let i = 0; i < list.length; i++) {
-                const item = list[i]
-
-                prevListSet.delete(item)
-                renderedList.push(each(item, i))
-            }
-
-            prevListSet.forEach((d) => cache.delete(d))
-
-            prevList = list
+            const prevListSet = DoubleLinkedList.fromArray(prevList)
 
             currentRenderedNodes = syncNodes(
                 currentRenderedNodes,
-                renderedList,
+                new Proxy(list, {
+                    get(_, prop) {
+                        if (typeof prop === 'string') {
+                            const idx = Number(prop)
+
+                            if (!isNaN(idx)) {
+                                const item = list[idx]
+                                prevListSet.remove(item)
+                                return each(item, idx)
+                            }
+                        }
+
+                        return Reflect.get(_, prop)
+                    },
+                }) as Array<Node | HtmlTemplate>,
                 anchor
             )
+
+            for (const d of prevListSet) {
+                cache.delete(d)
+            }
+
+            prevList = list
         }
 
         return new SkipRender()
