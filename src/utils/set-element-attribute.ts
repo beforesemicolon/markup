@@ -23,15 +23,16 @@ export const setElementAttribute = (
 
             if (descriptor?.writable || typeof descriptor?.set === 'function') {
                 // @ts-expect-error Cannot assign to X because it is a read-only property.
-                el[key] = value
+                if (el[key] !== value) el[key] = value
             } else {
-                el.setAttribute(key, jsonStringify(value))
+                const v = jsonStringify(value)
+                if (v !== el.getAttribute(key)) el.setAttribute(key, v)
             }
 
             return
         }
 
-        el.setAttribute(key, String(value))
+        if (value !== el.getAttribute(key)) el.setAttribute(key, String(value))
     } else {
         el.removeAttribute(key)
     }
