@@ -68,18 +68,20 @@ const handleAppendChild = (
 
 function createTemplate(
     parts: TemplateStringsArray | string[],
-    ...values: unknown[]
+    values: unknown[]
 ) {
+    const tempId = parts.toString()
+
+    if (templateRegistry[tempId]) {
+        return templateRegistry[tempId]
+    }
+
     const templateString = parts
         .map((s, i) => {
             return i === parts.length - 1 ? s : s + `$val${i}`
         })
         .join('')
         .trim()
-
-    if (templateRegistry[templateString]) {
-        return templateRegistry[templateString]
-    }
 
     const slots: TemplateSlot[] = []
 
@@ -166,13 +168,13 @@ function createTemplate(
         },
     })
 
-    templateRegistry[templateString] = {
+    templateRegistry[tempId] = {
         // @ts-expect-error all elements have __self__
         template: temp.__self__,
         slots,
     }
 
-    return templateRegistry[templateString]
+    return templateRegistry[tempId]
 }
 
 function handleElementEventListener(
@@ -326,14 +328,10 @@ export class HtmlTemplate {
      */
     get refs(): Record<string, Array<Element>> {
         const childRefs = this.#mountables.reduce((acc, item) => {
-            if (item instanceof HtmlTemplate || item instanceof ReactiveNode) {
-                return {
-                    ...acc,
-                    ...item.refs,
-                }
+            return {
+                ...acc,
+                ...item.refs,
             }
-
-            return acc
         }, {})
 
         return Object.freeze({
@@ -341,7 +339,7 @@ export class HtmlTemplate {
             ...Object.entries(this.#refs).reduce(
                 (acc, [key, set]) => ({
                     ...acc,
-                    [key]: Array.from(new Set(Array.from(set))),
+                    [key]: Array.from(set),
                 }),
                 {}
             ),
@@ -364,7 +362,7 @@ export class HtmlTemplate {
 
     constructor(parts: TemplateStringsArray | string[], values: unknown[]) {
         this.#values = values
-        this.#template = createTemplate(parts, ...values)
+        this.#template = createTemplate(parts, values)
     }
 
     /**

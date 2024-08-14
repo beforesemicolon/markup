@@ -6,11 +6,12 @@ import {
     StateSubscriber,
     StateUnSubscriber,
 } from './types'
+import { DoubleLinkedList } from './DoubleLinkedList'
 
 interface Resolver {
     sub: StateSubscriber
-    unsubs: Set<EffectUnSubscriber>
-    children: Set<Resolver>
+    unsubs: DoubleLinkedList<EffectUnSubscriber>
+    children: DoubleLinkedList<Resolver>
     clear: () => void
 }
 
@@ -20,10 +21,10 @@ export const state = <T>(
     value: T,
     sub?: StateSubscriber
 ): Readonly<[StateGetter<T>, StateSetter<T>, StateUnSubscriber]> => {
-    const subs: Set<StateSubscriber> = new Set()
+    const subs: DoubleLinkedList<StateSubscriber> = new DoubleLinkedList()
 
     if (typeof sub === 'function') {
-        subs.add(sub)
+        subs.push(sub)
     }
 
     return Object.freeze([
@@ -33,9 +34,9 @@ export const state = <T>(
                 typeof currentResolver?.sub === 'function' &&
                 !subs.has(currentResolver?.sub)
             ) {
-                subs.add(currentResolver.sub)
-                currentResolver.unsubs.add(() =>
-                    subs.delete(currentResolver?.sub)
+                subs.push(currentResolver.sub)
+                currentResolver.unsubs.push(() =>
+                    subs.remove(currentResolver?.sub)
                 )
             }
             return value
@@ -54,7 +55,7 @@ export const state = <T>(
             }
         },
         () => {
-            sub && subs.delete(sub)
+            sub && subs.remove(sub)
         },
     ])
 }
@@ -67,7 +68,7 @@ export const effect = <T>(sub: EffectSubscriber<T>) => {
                 const parent = currentResolvers.at(-1) as Resolver
 
                 if (parent && parent !== res) {
-                    parent.children.add(res)
+                    parent.children.push(res)
                 }
 
                 currentResolvers.push(res)
@@ -77,8 +78,8 @@ export const effect = <T>(sub: EffectSubscriber<T>) => {
                     currentResolvers.pop()
                 }
             },
-            unsubs: new Set(),
-            children: new Set(),
+            unsubs: new DoubleLinkedList(),
+            children: new DoubleLinkedList(),
             clear() {
                 for (const child of this.children) {
                     child.clear()
