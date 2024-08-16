@@ -19,15 +19,24 @@ interface AttributeSlot {
     name: string
     value: unknown
     nodeSelector: string
+    valueParts: Array<string | number>
+}
+
+interface PropSlot {
+    type: 'prop'
+    name: string
+    value: unknown
+    nodeSelector: string
 }
 
 interface ContentSlot {
     type: 'content'
     value: string
     nodeId: string
+    valueParts: Array<string | number>
 }
 
-type TemplateSlot = AttributeSlot | ContentSlot
+type TemplateSlot = AttributeSlot | ContentSlot | PropSlot
 
 interface Template {
     template: DocumentFragment
@@ -48,6 +57,7 @@ const handleTextNode = (nodeValue: string, el: DocumentFragment | Element) => {
             type: 'content',
             value: nodeValue,
             nodeId,
+            valueParts: parseDynamicRawValue(nodeValue),
         } as ContentSlot
     }
 }
@@ -137,7 +147,7 @@ function createTemplate(
                                 attrs as Record<string, string>
                             )) {
                                 slots.push({
-                                    type: 'attribute',
+                                    type: 'prop',
                                     name: key,
                                     value: v,
                                     nodeSelector: `[data-slot-id="${id}"]`,
@@ -153,11 +163,13 @@ function createTemplate(
 
                     if (name === 'ref' || /\$val([0-9]+)/.test(value)) {
                         __self__.setAttribute('data-slot-id', id)
+                        const v = value.trim()
                         slots.push({
                             type: 'attribute',
                             name,
-                            value: value.trim(),
+                            value: v,
                             nodeSelector: `[data-slot-id="${id}"]`,
+                            valueParts: parseDynamicRawValue(v),
                         })
 
                         // skip setting attribute for Web Components as they can have non-primitive values
@@ -183,7 +195,6 @@ function createTemplate(
 function handleElementEventListener(
     node: Element,
     name: string,
-    value: string,
     values: unknown[]
 ) {
     if (
@@ -194,21 +205,21 @@ function handleElementEventListener(
             // @ts-expect-error check if know event name
             typeof document.head[name] !== 'undefined')
     ) {
-        const [fnString, optString] = value.split(',').map((p) => p.trim())
-        const [, idx] = fnString.match(/\$val([0-9]+)/) ?? []
-        const fn = values[Number(idx)]
-        let options: boolean | AddEventListenerOptions | undefined
+        let fn
+        let options
 
-        if (optString) {
-            if (/^(true|false)$/.test(optString)) {
-                options = /^true$/.test(optString)
-            } else {
-                const [, oIdx] = optString.match(/\$val([0-9]+)/g) ?? []
-                options = values[Number(oIdx)] as AddEventListenerOptions
-            }
+        if (Array.isArray(values[0])) {
+            ;[fn, options] = values[0]
+        } else {
+            fn = values[0]
         }
 
-        setNodeEventListener(node, name, fn as EventListener, options)
+        setNodeEventListener(
+            node,
+            name,
+            fn as EventListener,
+            options as AddEventListenerOptions
+        )
         return true
     }
 
@@ -218,81 +229,59 @@ function handleElementEventListener(
 export function handleElementAttribute(
     node: Element,
     name: string,
-    value: string,
-    refs: Record<string, Set<Element>> = {},
     values: unknown[],
     cb: (item: EffectUnSubscriber) => void
 ) {
-    if (value) {
-        if (name === 'ref') {
-            if (!refs[value]) {
-                refs[value] = new Set()
-            }
+    if (
+        /^on[a-z]+/.test(name) &&
+        handleElementEventListener(node, name, values)
+    ) {
+        node.removeAttribute(name)
+        return
+    }
 
-            refs[value].add(node)
-            return
-        }
+    const hasFunctionValue = values.some((d) => typeof d === 'function')
 
-        if (/^on[a-z]+/.test(name)) {
-            const set = handleElementEventListener(node, name, value, values)
-
-            if (set) {
-                node.removeAttribute(name)
-                return
-            }
-        }
-
-        let hasFunctionValue = false
-        const dvValue = parseDynamicRawValue(value, values, (d) => {
-            hasFunctionValue = !hasFunctionValue && typeof d === 'function'
-        })
-
-        if (booleanAttributes[name.toLowerCase()]) {
-            const d = dvValue[0]
-
-            const setAttr = (prevValue?: unknown) => {
-                const newValue = val(d)
-
-                if (newValue !== prevValue) {
-                    if (newValue) {
-                        setElementAttribute(node, name, newValue)
-                    } else {
-                        ;(node as Element).removeAttribute(name)
-                    }
-                }
-
-                return newValue
-            }
-
-            if (typeof d === 'function') {
-                return cb(effect(setAttr))
-            }
-
-            return setAttr(false)
-        }
+    if (booleanAttributes[name.toLowerCase()]) {
+        const d = values[0]
 
         const setAttr = (prevValue?: unknown) => {
-            const newValue =
-                dvValue.length === 1
-                    ? val(dvValue[0])
-                    : dvValue.map((d) => val(d)).join('')
+            const newValue = val(d)
 
-            if (newValue !== prevValue)
-                setElementAttribute(node, name, newValue)
+            if (newValue !== prevValue) {
+                if (newValue) {
+                    setElementAttribute(node, name, newValue)
+                } else {
+                    ;(node as Element).removeAttribute(name)
+                }
+            }
 
             return newValue
         }
 
-        if (hasFunctionValue) {
+        if (typeof d === 'function') {
             return cb(effect(setAttr))
         }
 
-        return setAttr()
+        return setAttr(false)
     }
 
-    if (name !== 'ref') {
-        setElementAttribute(node as HTMLElement, name, value)
+    const setAttr = (prevValue?: unknown) => {
+        const newValue =
+            values.length === 1
+                ? val(values[0])
+                : values.map((d) => val(d)).join('')
+
+        if (newValue !== prevValue) setElementAttribute(node, name, newValue)
+
+        return newValue
     }
+
+    if (hasFunctionValue) {
+        return cb(effect(setAttr))
+    }
+
+    return setAttr()
 }
 
 export class HtmlTemplate {
@@ -543,22 +532,38 @@ export class HtmlTemplate {
         const nodes: Record<string, HTMLElement> = {}
 
         for (const slot of slots) {
-            if (slot.type === 'attribute') {
+            if (slot.type === 'attribute' || slot.type === 'prop') {
                 const node =
                     nodes[slot.nodeSelector] ??
                     frag.querySelector(slot.nodeSelector)
 
                 if (node) {
                     node.removeAttribute('data-slot-id')
-                    handleElementAttribute(
-                        node,
-                        slot.name,
-                        typeof slot.value === 'string' ? slot.value : `$val0`,
-                        this.#refs,
-                        typeof slot.value === 'string'
-                            ? this.#values
-                            : [slot.value],
-                        (item) => this.#effectUnsubs.add(item)
+                    let values = []
+
+                    if (slot.type === 'attribute') {
+                        for (const p of slot.valueParts) {
+                            values.push(
+                                typeof p === 'number' ? this.#values[p] : p
+                            )
+                        }
+
+                        if (slot.name === 'ref') {
+                            const name = String(slot.value)
+
+                            if (!this.#refs[name]) {
+                                this.#refs[name] = new Set()
+                            }
+
+                            this.#refs[name].add(node)
+                            continue
+                        }
+                    } else {
+                        values = [slot.value]
+                    }
+
+                    handleElementAttribute(node, slot.name, values, (item) =>
+                        this.#effectUnsubs.add(item)
                     )
                     nodes[slot.nodeSelector] = node
                 }
@@ -570,7 +575,9 @@ export class HtmlTemplate {
                     const parentNode = node.parentNode as HTMLElement
                     const cont = document.createDocumentFragment()
 
-                    parseDynamicRawValue(slot.value, this.#values, (part) => {
+                    for (const p of slot.valueParts) {
+                        const part = typeof p === 'number' ? this.#values[p] : p
+
                         if (typeof part === 'function') {
                             const rn = new ReactiveNode(
                                 part as () => unknown,
@@ -596,7 +603,7 @@ export class HtmlTemplate {
                                 }
                             })
                         }
-                    })
+                    }
 
                     node.parentNode?.replaceChild(cont, node)
                     nodes[slot.nodeId] = node

@@ -355,7 +355,7 @@ describe('html', () => {
 		const clickMock = jest.fn()
 		
 		const btn = html`
-			<button onclick="${clickMock}, true">click me</button>`
+			<button onclick="${[clickMock, { once: true }]}">click me</button>`
 		
 		btn.render(document.body)
 		
