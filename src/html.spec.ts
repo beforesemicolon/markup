@@ -1,6 +1,6 @@
 import '../test.common';
 import { html, HtmlTemplate } from './html'
-import {state} from './state'
+import { effect, state } from './state'
 import {when, repeat, oneOf, is, element} from './helpers'
 
 describe('html', () => {
@@ -1613,5 +1613,33 @@ describe('html', () => {
         
         expect(document.body.innerHTML).toBe('<button type="button">click me</button>')
     })
+	
+	it('should unsubscribe from state and effect', () => {
+		const stateUpdateMock =  jest.fn()
+		const [items, setItems] = state([1])
+		const [disabled, setDisabled] = state(false)
+		
+		const temp = html`${repeat(items, () => html`<button disabled="${disabled}">click me</button>`)}`
+			.render(document.body)
+		
+		effect(stateUpdateMock)
+		
+		setDisabled(true)
+		jest.advanceTimersToNextTimer()
+		
+		expect(stateUpdateMock).toHaveBeenCalledTimes(1)
+		
+		stateUpdateMock.mockClear()
+		
+		expect(document.body.innerHTML).toBe('<button disabled="true">click me</button>')
+		
+		setItems([])
+		setDisabled(false)
+		jest.advanceTimersToNextTimer()
+		
+		expect(document.body.innerHTML).toBe('')
+		
+		expect(stateUpdateMock).not.toHaveBeenCalled()
+	})
 	
 })

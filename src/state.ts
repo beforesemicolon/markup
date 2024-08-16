@@ -18,16 +18,27 @@ interface Resolver {
 const currentResolvers = new DoubleLinkedList<Resolver>()
 // will contain unique subscribers so if many states use the same subscribers
 // they will only be called once if all those states update at once
-const scheduledExecutions = new DoubleLinkedList<StateSubscriber>()
+// and it needs to be dynamic in case the sub lists are cleared due to unmount
+const scheduledExecutions = new DoubleLinkedList<
+    DoubleLinkedList<StateSubscriber>
+>()
 
 let executeTimer: NodeJS.Timeout
 
 const executeScheduled = () => {
     clearTimeout(executeTimer)
     executeTimer = setTimeout(() => {
-        for (const sub of scheduledExecutions) {
-            sub()
+        const visited = new DoubleLinkedList<StateSubscriber>()
+
+        for (const subs of scheduledExecutions) {
+            for (const sub of subs) {
+                if (!visited.has(sub)) {
+                    visited.push(sub)
+                    sub()
+                }
+            }
         }
+
         scheduledExecutions.clear()
     }, 0)
 }
@@ -42,6 +53,13 @@ export const state = <T>(
         subs.push(sub)
     }
 
+    const removeSub = (s?: StateSubscriber) => {
+        s && subs.remove(s)
+        if (!subs.size) {
+            scheduledExecutions.remove(subs)
+        }
+    }
+
     return Object.freeze([
         () => {
             const currentResolver = currentResolvers.tail
@@ -51,7 +69,7 @@ export const state = <T>(
             ) {
                 subs.push(currentResolver.sub)
                 currentResolver.unsubs.push(() =>
-                    subs.remove(currentResolver?.sub)
+                    removeSub(currentResolver?.sub)
                 )
             }
             return value
@@ -64,15 +82,11 @@ export const state = <T>(
 
             if (updatedValue !== value) {
                 value = updatedValue
-                for (const sub of subs) {
-                    scheduledExecutions.push(sub)
-                }
+                scheduledExecutions.push(subs)
                 executeScheduled()
             }
         },
-        () => {
-            sub && subs.remove(sub)
-        },
+        () => removeSub(sub),
     ])
 }
 
