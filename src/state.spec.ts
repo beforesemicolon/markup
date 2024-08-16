@@ -1,3 +1,4 @@
+import '../test.common';
 import { effect, state } from './state'
 
 describe('state', () => {
@@ -11,13 +12,27 @@ describe('state', () => {
         setCount(1)
         
         expect(count()).toBe(1)
+        jest.advanceTimersToNextTimer()
         expect(onUpdate).toBeCalledTimes(1)
         
+        onUpdate.mockClear()
         unsub()
         
         setCount(2)
-        
+        jest.advanceTimersToNextTimer()
         expect(count()).toBe(2)
+        expect(onUpdate).toBeCalledTimes(0)
+    })
+    
+    it('should batch update', () => {
+        const onUpdate = jest.fn()
+        const [, setCount]= state(0, onUpdate);
+        const [, setLimit]= state(0, onUpdate);
+        
+        setCount(2)
+        setLimit(10)
+        jest.advanceTimersToNextTimer()
+        
         expect(onUpdate).toBeCalledTimes(1)
     })
 })
@@ -35,6 +50,7 @@ describe('effect', () => {
         expect(valueSpy).toBeCalledWith(0)
         
         setCount(1)
+        jest.advanceTimersToNextTimer()
         
         expect(valueSpy).toBeCalledTimes(2)
         expect(valueSpy).toBeCalledWith(1)
@@ -43,6 +59,7 @@ describe('effect', () => {
         unsub()
         
         setCount(2)
+        jest.advanceTimersToNextTimer()
         
         expect(valueSpy).toBeCalledTimes(0)
     })
@@ -66,6 +83,7 @@ describe('effect', () => {
         expect(valueSpy2).toBeCalledWith(0)
 
         setCount(1)
+        jest.advanceTimersToNextTimer()
 
         expect(valueSpy1).toBeCalledTimes(2)
         expect(valueSpy1).toBeCalledWith(1)
@@ -77,11 +95,13 @@ describe('effect', () => {
         unsub()
 
         setCount(1)
+        jest.advanceTimersToNextTimer()
 
         expect(valueSpy1).toBeCalledTimes(0)
         expect(valueSpy2).toBeCalledTimes(0)
 
         setTotal(10)
+        jest.advanceTimersToNextTimer()
 
         expect(valueSpy1).toBeCalledTimes(0)
         expect(valueSpy2).toBeCalledTimes(0)
@@ -109,6 +129,7 @@ describe('effect', () => {
         
         valueSpy.mockClear()
         setCount(1)
+        jest.advanceTimersToNextTimer()
         
         expect(valueSpy).toHaveBeenCalledTimes(1)
         expect(valueSpy).toHaveBeenCalledWith(1)
@@ -116,8 +137,9 @@ describe('effect', () => {
         
         valueSpy.mockClear()
         setTotal(10)
+        jest.advanceTimersToNextTimer()
 
-        expect(valueSpy).toHaveBeenCalledTimes(2)
+        expect(valueSpy).toHaveBeenCalledTimes(1)
         expect(valueSpy).toHaveBeenCalledWith(1)
         expect(total()).toBe(1)
         
@@ -126,6 +148,7 @@ describe('effect', () => {
         valueSpy.mockClear()
         setTotal(20)
         setCount(2)
+        jest.advanceTimersToNextTimer()
 
         expect(valueSpy).toHaveBeenCalledTimes(0)
         expect(total()).toBe(20)

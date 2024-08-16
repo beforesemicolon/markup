@@ -94,6 +94,7 @@ describe('html', () => {
 		expect(document.body.innerHTML).toBe('more than 10')
 		
 		setX(5)
+		jest.advanceTimersToNextTimer()
 		
 		expect(document.body.innerHTML).toBe('less than 10')
 	})
@@ -114,6 +115,7 @@ describe('html', () => {
 		expect(document.body.innerHTML).toBe('total: &gt;<p>more than 10</p>')
 		
 		setX(5)
+		jest.advanceTimersToNextTimer()
 
 		expect(document.body.innerHTML).toBe('total: &lt;<p>less than 10</p>')
 	})
@@ -152,10 +154,12 @@ describe('html', () => {
 		expect(document.body.innerHTML).toBe('')
 		
 		updateList([html`<div>one</div>`])
+		jest.advanceTimersToNextTimer()
 		
 		expect(document.body.innerHTML).toBe('<div>one</div>')
 		
 		updateList(prev => [...prev, html`<div>two</div>`])
+		jest.advanceTimersToNextTimer()
 		
 		expect(document.body.innerHTML).toBe('<div>one</div><div>two</div>')
 	})
@@ -231,6 +235,7 @@ describe('html', () => {
 		)
 		
 		setType('submit')
+		jest.advanceTimersToNextTimer()
 		
 		expect(document.body.innerHTML).toBe(
 			'<button type="submit">click me</button>'
@@ -263,6 +268,7 @@ describe('html', () => {
 		expect(document.body.innerHTML).toBe('<p>sample</p>')
 		
 		setEdit(true)
+		jest.advanceTimersToNextTimer()
 		
 		expect(document.body.innerHTML).toBe(
 			'<input type="text" value="sample">'
@@ -297,12 +303,14 @@ describe('html', () => {
 		)
 		
 		updateItems([1])
+		jest.advanceTimersToNextTimer()
 
 		expect(document.body.innerHTML).toBe('<ul>\n' +
 			'\t\t\t\t<li>item-1</li>\n' +
 			'\t\t\t</ul>')
 
 		updateItems([1, 2])
+		jest.advanceTimersToNextTimer()
 
 		expect(document.body.innerHTML).toBe(
 			'<ul>\n' +
@@ -311,12 +319,14 @@ describe('html', () => {
 		)
 
 		updateItems([])
+		jest.advanceTimersToNextTimer()
 
 		expect(document.body.innerHTML).toBe('<ul>\n' +
 			'\t\t\t\t\n' +
 			'\t\t\t</ul>')
 
 		updateItems([1, 2, 3])
+		jest.advanceTimersToNextTimer()
 
 		expect(document.body.innerHTML).toBe(
 			'<ul>\n' +
@@ -535,6 +545,7 @@ describe('html', () => {
 			})
 			
 			setX(5)
+			jest.advanceTimersToNextTimer()
 
 			expect(document.body.innerHTML).toBe('<button><span>less than 10</span></button>')
 			
@@ -568,6 +579,7 @@ describe('html', () => {
 			)
 			
 			setLoading(false)
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<button class="">click me</button>')
 		})
@@ -592,6 +604,7 @@ describe('html', () => {
 			)
 			
 			setLoading(false)
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe(
 				'<button data-btn="true" data-loading="false">click me</button>'
@@ -608,6 +621,7 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('<button style="">click me</button>')
 			
 			setPointer(true)
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe(
 				'<button style="cursor: pointer;">click me</button>'
@@ -636,6 +650,7 @@ describe('html', () => {
 			)
 			
 			setDisabled(false)
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<button>click me</button>')
 		})
@@ -663,6 +678,7 @@ describe('html', () => {
 			)
 			
 			setHidden('')
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<button>click me</button>')
 		})
@@ -679,6 +695,7 @@ describe('html', () => {
 			)
 			
 			setDisabled(false)
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe(
 				'<button aria-disabled="false">click me</button>'
@@ -698,6 +715,7 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('<button class="">click me</button>')
 			
 			setDisabled(true);
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<button class="disabled" disabled="true">click me</button>')
 		});
@@ -844,6 +862,7 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('<table><tbody></tbody></table>')
 			
 			updateItems(Array.from({length: 5}, (_, i) => i + 1))
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<table><tbody>' +
 				'<tr>item 1</tr>' +
@@ -873,6 +892,7 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('<span>1</span><span>2</span>')
 			
 			setCount(3)
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe(
 				'<span>1</span><span>2</span><span>3</span>'
@@ -898,6 +918,7 @@ describe('html', () => {
 				{name: 'first'},
 				prev[1]
 			])
+			jest.advanceTimersToNextTimer()
 
 			expect(document.body.innerHTML).toBe(
 				'<span>first</span><span>two</span>'
@@ -908,6 +929,7 @@ describe('html', () => {
 				...prev,
 				{name: 'last'}
 			])
+			jest.advanceTimersToNextTimer()
 
 			expect(document.body.innerHTML).toBe(
 				'<span>first</span><span>two</span><span>last</span>'
@@ -947,6 +969,7 @@ describe('html', () => {
 				{name: 'first'},
 				prev[1]
 			])
+			jest.advanceTimersToNextTimer()
 			
 			expect(valMock).toHaveBeenCalledWith({name: 'first'})
 			
@@ -954,6 +977,7 @@ describe('html', () => {
 				...prev,
 				{name: 'last'}
 			])
+			jest.advanceTimersToNextTimer()
 			
 			expect(valMock).toHaveBeenCalledWith({name: 'last'})
 		})
@@ -1109,6 +1133,7 @@ describe('html', () => {
 				}
 				return [...prev];
 			})
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe(
 				'<todo-item name="sample" description="" status="completed"></todo-item>'
@@ -1151,6 +1176,7 @@ describe('html', () => {
 				}
 				return [...prev];
 			})
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe(
 				'<li>one: <span>1</span><span>2</span><span>3</span></li>'
@@ -1163,6 +1189,7 @@ describe('html', () => {
 				}
 				return [...prev];
 			})
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<li>one: <span>1</span></li>')
 		})
@@ -1183,12 +1210,14 @@ describe('html', () => {
 				'\t\t\t\t</ul>')
 			
 			setTodos((prev) => [...prev, 'first'])
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<ul>\n' +
 				'\t\t\t\t\t<li>first</li>\n' +
 				'\t\t\t\t</ul>')
 			
 			setTodos([])
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<ul>\n' +
 				'\t\t\t\t\t\n' +
@@ -1210,6 +1239,7 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('<div></div>')
 			
 			setTodos([{name: 'action 1', status: 'pending', id: 1}])
+			jest.advanceTimersToNextTimer()
 			
 			expect(updateMock).toHaveBeenCalled()
 			expect(todos()).toEqual([
@@ -1224,10 +1254,12 @@ describe('html', () => {
 			setTodos(prev => prev.map(t =>
 				t.id === 1 ? {...t, status: 'complete'} : t
 			))
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<div><div id="1">action 1 <span>complete</span></div></div>')
 			
 			setTodos(prev => [...prev, {name: 'action 2', status: 'pending', id: 2}])
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<div>' +
 				'<div id="1">action 1 <span>complete</span></div>' +
@@ -1283,10 +1315,12 @@ describe('html', () => {
 			const n = document.body.children[0]
 			
 			updateShouldRender(false)
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<span>false</span>')
 			
 			updateShouldRender(true)
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<span>true</span>')
 			expect(document.body.children[0]).toEqual(n) // same node should be rendered
@@ -1306,10 +1340,12 @@ describe('html', () => {
 			const n = document.body.children[0]
 			
 			setX(0)
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<span>Zero: 0</span>')
 			
 			setX(20)
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<span>Non Zero: 20</span>')
 			expect(document.body.children[0]).not.toEqual(n)
@@ -1330,10 +1366,12 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('<p>loading...</p>')
 			
 			setLoading(false)
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<p>no items</p>')
 			
 			updateList([1])
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<p>1 items</p>')
 		})
@@ -1370,25 +1408,31 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('')
 			
 			setEnded(true)
+			jest.advanceTimersToNextTimer()
 			expect(document.body.innerHTML).toBe('x won\n' +
 				'\t\t\t\t\t<button type="button">reset</button>')
 			
 			setCurrentPlayer('xy')
+			jest.advanceTimersToNextTimer()
 			expect(document.body.innerHTML).toBe('tie\n' +
 				'\t\t\t\t\t<button type="button">reset</button>')
 			
 			setEnded(false)
+			jest.advanceTimersToNextTimer()
 			expect(document.body.innerHTML).toBe('')
 			
 			setCurrentPlayer('x')
+			jest.advanceTimersToNextTimer()
 			expect(document.body.innerHTML).toBe('')
 			
 			setEnded(true)
+			jest.advanceTimersToNextTimer()
 			expect(document.body.innerHTML).toBe('x won\n' +
 				'\t\t\t\t\t<button type="button">reset</button>')
 			
 			setCurrentPlayer('x')
 			setEnded(false)
+			jest.advanceTimersToNextTimer()
 			expect(document.body.innerHTML).toBe('')
 		})
 	})
@@ -1408,12 +1452,14 @@ describe('html', () => {
 		const btn = document.querySelector('button') as HTMLButtonElement
 		
 		btn.click()
+		jest.advanceTimersToNextTimer()
 		
 		expect(document.body.innerHTML).toBe('<span>1</span><button>+</button>')
 		
 		counter.unmount()
 		
 		btn.click()
+		jest.advanceTimersToNextTimer()
 		
 		expect(document.body.innerHTML).toBe('')
 	})
@@ -1449,12 +1495,14 @@ describe('html', () => {
 			
 			const three =  list()[2]
 			updateList([list()[0]])
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('one')
 			
 			expect(unmountMock).toHaveBeenCalledTimes(2)
 			
 			updateList([three, list()[0]])
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('threeone')
 		});
@@ -1472,6 +1520,7 @@ describe('html', () => {
 			temp.unmount();
 			
 			setX(10);
+			jest.advanceTimersToNextTimer()
 			
 			temp.render(document.body)
 			
@@ -1480,6 +1529,7 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe("item 10")
 			
 			setX(20);
+			jest.advanceTimersToNextTimer()
 			
 			expect(mountMock).toHaveBeenCalled()
 			
@@ -1497,6 +1547,7 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('<span>sample</span>')
 			
 			setValue('diff')
+			jest.advanceTimersToNextTimer()
 			
 			expect(updateMock).toHaveBeenCalledTimes(1)
 			
@@ -1517,6 +1568,7 @@ describe('html', () => {
 			
 			const three =  list()[2]
 			updateList([list()[2], list()[0], list()[1]])
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('threeonetwo')
 			
