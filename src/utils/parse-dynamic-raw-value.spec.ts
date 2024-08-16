@@ -1,95 +1,77 @@
 import { parseDynamicRawValue } from "./parse-dynamic-raw-value";
 
 describe("parseDynamicRawValue", () => {
-  const cbMock = jest.fn();
-  
-  beforeEach(() => {
-    cbMock.mockClear();
-  });
   
   it("should return raw value if no placeholder preset", () => {
     expect(
       parseDynamicRawValue(
-        "just a simple straight up text",
-        [12, 45],
-          cbMock
+        "just a simple straight up text"
       )
     ).toEqual(["just a simple straight up text"]);
     
-    expect(cbMock).toHaveBeenCalledTimes(1)
   });
   
   it("should collect single value", () => {
     expect(
-      parseDynamicRawValue("$val0", [12, 45], cbMock)
-    ).toEqual([12]);
+      parseDynamicRawValue("$val0")
+    ).toEqual([0]);
     
-    expect(cbMock).toHaveBeenCalledTimes(1)
   });
   
   it("should collect single value mixed with other content", () => {
     expect(
       parseDynamicRawValue(
-        "$val0 in between $val1",
-        [12, 24, 36], cbMock
+        "$val0 in between $val1"
       )
     ).toEqual([
-      12,
+      0,
       " in between ",
-      24
+      1
     ]);
     
-    expect(cbMock).toHaveBeenCalledTimes(3)
   });
   
   it("should collect multiple values", () => {
     expect(
       parseDynamicRawValue(
-        "$val0 $val1",
-        [12, 24, 36], cbMock
+        "$val0 $val1"
       )
     ).toEqual([
-      12,
+      0,
       " ",
-      24
+      1
     ]);
     
-    expect(cbMock).toHaveBeenCalledTimes(3)
   });
   
   it("should collect multiple values mixed with other content", () => {
     expect(
       parseDynamicRawValue(
-        "heading $val0 middle $val1 tail text",
-        [12, 24, 36], cbMock
+        "heading $val0 middle $val1 tail text"
       )
     ).toEqual([
       "heading ",
-      12,
+      0,
       " middle ",
-      24,
+      1,
       " tail text"
     ]);
     
-    expect(cbMock).toHaveBeenCalledTimes(5)
   });
   
   it("should collect multiple dynamic values mixed with other content", () => {
     expect(
       parseDynamicRawValue(
-        "heading $val0 middle $val1 tail text $val2",
-        [() => 12, () => 24, 36],
-          cbMock
+        "heading $val0 middle $val1 tail text $val2"
       )
     ).toEqual([
       "heading ",
-      expect.any(Function),
+      0,
       " middle ",
-      expect.any(Function),
+      1,
       " tail text ",
-      36
+      2
     ]);
     
-    expect(cbMock).toHaveBeenCalledTimes(6)
   });
 });

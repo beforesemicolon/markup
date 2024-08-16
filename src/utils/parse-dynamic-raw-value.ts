@@ -1,28 +1,19 @@
-export const parseDynamicRawValue = (
-    str: string,
-    values: unknown[],
-    cb?: (part: unknown) => void
-) => {
+export const parseDynamicRawValue = (str: string) => {
     const pattern = /\$val([0-9]+)/g,
-        parts: unknown[] = []
+        parts: Array<string | number> = []
     let match: RegExpExecArray | null = null,
         lastIndex = 0
 
     while ((match = pattern.exec(str)) !== null) {
         const [, idxStr] = match,
             part = str.slice(lastIndex, match.index),
-            idx = Number(idxStr),
-            value = values[idx]
+            value = Number(idxStr)
 
         if (part) {
             parts.push(part)
-            cb?.(part)
         }
 
-        if (values.hasOwnProperty(idx)) {
-            parts.push(value)
-            cb?.(value)
-        }
+        parts.push(value)
 
         lastIndex = pattern.lastIndex
     }
@@ -32,11 +23,9 @@ export const parseDynamicRawValue = (
 
         if (lastPart) {
             parts.push(lastPart)
-            cb?.(lastPart)
         }
     } else if (str) {
         parts.push(str)
-        cb?.(str)
     }
 
     return parts
