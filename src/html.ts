@@ -250,30 +250,38 @@ export function handleElementAttribute(
         if (booleanAttributes[name.toLowerCase()]) {
             const d = dvValue[0]
 
-            const setAttr = () => {
-                const v = val(d)
-                if (v) {
-                    setElementAttribute(node, name, v)
-                } else {
-                    ;(node as Element).removeAttribute(name)
+            const setAttr = (prevValue?: unknown) => {
+                const newValue = val(d)
+
+                if (newValue !== prevValue) {
+                    if (newValue) {
+                        setElementAttribute(node, name, newValue)
+                    } else {
+                        ;(node as Element).removeAttribute(name)
+                    }
                 }
+
+                return newValue
             }
 
             if (typeof d === 'function') {
                 return cb(effect(setAttr))
             }
 
-            return setAttr()
+            return setAttr(false)
         }
 
-        const setAttr = () =>
-            setElementAttribute(
-                node,
-                name,
+        const setAttr = (prevValue?: unknown) => {
+            const newValue =
                 dvValue.length === 1
                     ? val(dvValue[0])
                     : dvValue.map((d) => val(d)).join('')
-            )
+
+            if (newValue !== prevValue)
+                setElementAttribute(node, name, newValue)
+
+            return newValue
+        }
 
         if (hasFunctionValue) {
             return cb(effect(setAttr))
