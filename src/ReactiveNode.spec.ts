@@ -58,6 +58,7 @@ describe('ReactiveNode', () => {
         expect(document.body.childNodes).toHaveLength(2)
 
         updateValue('new value')
+        jest.advanceTimersToNextTimer()
 
         expect(document.body.innerHTML).toBe('new value')
         expect(node.parentNode).toBe(document.body)
@@ -73,6 +74,7 @@ describe('ReactiveNode', () => {
         expect(document.body.childNodes).toHaveLength(4)
 
         updateValue('new value')
+        jest.advanceTimersToNextTimer()
 
         expect(document.body.innerHTML).toBe('<p>new value</p>')
         expect(node.parentNode).toBe(document.body)
@@ -94,12 +96,14 @@ describe('ReactiveNode', () => {
         expect(document.body.childNodes).toHaveLength(4)
 
         updateValue(false)
+        jest.advanceTimersToNextTimer()
 
         expect(document.body.innerHTML).toBe('<p>diff</p>')
         expect(node.parentNode).toBe(document.body)
         expect(document.body.childNodes).toHaveLength(4)
 
         updateValue(true)
+        jest.advanceTimersToNextTimer()
 
         expect(document.body.innerHTML).toBe('<p>sample</p>')
         expect(node.parentNode).toBe(document.body)
@@ -123,25 +127,31 @@ describe('ReactiveNode', () => {
         expect(document.body.innerHTML).toBe('')
 
         setEnded(true)
+        jest.advanceTimersToNextTimer()
         expect(document.body.innerHTML).toBe('x won\n' +
             '                <button type="button">reset</button>')
 
         setCurrentPlayer('xy')
+        jest.advanceTimersToNextTimer()
         expect(document.body.innerHTML).toBe('tie\n' +
             '                <button type="button">reset</button>')
 
         setEnded(false)
+        jest.advanceTimersToNextTimer()
         expect(document.body.innerHTML).toBe('')
 
         setCurrentPlayer('x')
+        jest.advanceTimersToNextTimer()
         expect(document.body.innerHTML).toBe('')
 
         setEnded(true)
+        jest.advanceTimersToNextTimer()
         expect(document.body.innerHTML).toBe('x won\n' +
             '                <button type="button">reset</button>')
 
         setCurrentPlayer('x')
         setEnded(false)
+        jest.advanceTimersToNextTimer()
         expect(document.body.innerHTML).toBe('')
     })
     
@@ -157,6 +167,7 @@ describe('ReactiveNode', () => {
             html`
                 <li>todo 1</li>`,
         ])
+        jest.advanceTimersToNextTimer()
 
         expect(document.body.innerHTML).toBe('<li>todo 1</li>')
 
@@ -165,6 +176,7 @@ describe('ReactiveNode', () => {
             ...todos(),
             html`<li>todo 3</li>`,
         ])
+        jest.advanceTimersToNextTimer()
 
         expect(document.body.innerHTML).toBe('<li>todo 2</li><li>todo 1</li><li>todo 3</li>')
 
@@ -173,6 +185,7 @@ describe('ReactiveNode', () => {
             todos()[0],
             todos()[1],
         ])
+        jest.advanceTimersToNextTimer()
 
         expect(document.body.innerHTML).toBe('<li>todo 3</li><li>todo 2</li><li>todo 1</li>')
 
@@ -180,16 +193,19 @@ describe('ReactiveNode', () => {
             todos()[0],
             todos()[2],
         ])
+        jest.advanceTimersToNextTimer()
 
         expect(document.body.innerHTML).toBe('<li>todo 3</li><li>todo 1</li>')
 
         updateTodos([
             todos()[1],
         ])
+        jest.advanceTimersToNextTimer()
 
         expect(document.body.innerHTML).toBe('<li>todo 1</li>')
 
         updateTodos([])
+        jest.advanceTimersToNextTimer()
 
         expect(document.body.innerHTML).toBe('')
         
@@ -198,6 +214,7 @@ describe('ReactiveNode', () => {
             html`<li>todo 2</li>`,
             html`<li>todo 3</li>`,
         ])
+        jest.advanceTimersToNextTimer()
 
         expect(document.body.innerHTML).toBe('<li>todo 1</li><li>todo 2</li><li>todo 3</li>')
     })
@@ -245,6 +262,7 @@ describe('ReactiveNode', () => {
             2,
             10
         ])
+        jest.advanceTimersToNextTimer()
 
         expect(mountMock).toHaveBeenCalledTimes(0)
         expect(moveMock).toHaveBeenCalledTimes(2)
@@ -297,6 +315,7 @@ describe('ReactiveNode', () => {
             900,
             10
         ])
+        jest.advanceTimersToNextTimer()
         
         expect(mountMock).toHaveBeenCalledTimes(5)
         expect(moveMock).toHaveBeenCalledTimes(0)

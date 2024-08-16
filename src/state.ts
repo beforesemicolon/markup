@@ -16,6 +16,21 @@ interface Resolver {
 }
 
 const currentResolvers = new DoubleLinkedList<Resolver>()
+// will contain unique subscribers so if many states use the same subscribers
+// they will only be called once if all those states update at once
+const scheduledExecutions = new DoubleLinkedList<StateSubscriber>()
+
+let executeTimer: NodeJS.Timeout
+
+const executeScheduled = () => {
+    clearTimeout(executeTimer)
+    executeTimer = setTimeout(() => {
+        for (const sub of scheduledExecutions) {
+            sub()
+        }
+        scheduledExecutions.clear()
+    }, 0)
+}
 
 export const state = <T>(
     value: T,
@@ -50,8 +65,9 @@ export const state = <T>(
             if (updatedValue !== value) {
                 value = updatedValue
                 for (const sub of subs) {
-                    sub()
+                    scheduledExecutions.push(sub)
                 }
+                executeScheduled()
             }
         },
         () => {
