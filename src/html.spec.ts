@@ -351,59 +351,6 @@ describe('html', () => {
 		)
 	})
 	
-	it('should handle event attribute with fn value and event options', () => {
-		const clickMock = jest.fn()
-		
-		const btn = html`
-			<button onclick="${[clickMock, { once: true }]}">click me</button>`
-		
-		btn.render(document.body)
-		
-		const btnElement = document.body.querySelector('button') as HTMLButtonElement
-		
-		expect(document.body.innerHTML).toBe('<button>click me</button>')
-		
-		btnElement.click()
-		
-		expect(clickMock).toHaveBeenCalled()
-	})
-	
-	it('should handle custom events attribute with web components', () => {
-		const clickMock = jest.fn()
-		
-		class MyButton extends HTMLElement {
-			constructor() {
-				super()
-				
-				this.addEventListener('click', () => {
-					this.dispatchEvent(new CustomEvent('active'))
-				})
-			}
-		}
-		
-		customElements.define('my-button', MyButton)
-		
-		const btn = html`
-			<my-button onactive="${clickMock}">click me</my-button>`
-		
-		btn.render(document.body)
-		
-		const btnElement = document.body.querySelector('my-button') as HTMLButtonElement
-		
-		expect(document.body.innerHTML).toBe('<my-button>click me</my-button>')
-		
-		btnElement.click()
-		
-		expect(clickMock).toHaveBeenCalled()
-	})
-	
-	it('should ignore event like prop for random tag', () => {
-		html`
-			<intl-plural zero="people" one="person" other="people" value="1"></intl-plural>`.render(document.body)
-		
-		expect(document.body.innerHTML).toBe('<intl-plural zero="people" one="person" other="people" value="1"></intl-plural>')
-	});
-	
 	it('should handle non-primitive value for web components', () => {
 		const updateMock = jest.fn();
 		const updateValMock = jest.fn();
@@ -430,63 +377,119 @@ describe('html', () => {
 		expect(updateValMock).toHaveBeenCalledWith(["book", "car", "jet"])
 	});
 	
-	it('should trow error if handle event attribute is not a function',     () => {
-		expect(
-			() => html`
+	describe("should handle event attributes", () => {
+		it('with change', () => {
+			const handleChange = jest.fn();
+			
+			const temp = html`
+				<input
+					ref="field"
+					type="search"
+					placeholder="Search..."
+					onchange="${handleChange}"
+				/>
+			`.render(document.body);
+			
+			const input = temp.refs.field[0] as HTMLInputElement;
+			
+			input.value = "test";
+			input.dispatchEvent(new Event("change"));
+			
+			expect(handleChange).toHaveBeenCalled()
+		})
+		
+		it('with fn value and event options', () => {
+			const clickMock = jest.fn()
+			
+			const btn = html`
+			<button onclick="${[clickMock, { once: true }]}">click me</button>`
+			
+			btn.render(document.body)
+			
+			const btnElement = document.body.querySelector('button') as HTMLButtonElement
+			
+			expect(document.body.innerHTML).toBe('<button>click me</button>')
+			
+			btnElement.click()
+			
+			expect(clickMock).toHaveBeenCalled()
+		})
+		
+		it('when custom events attribute with web components', () => {
+			const clickMock = jest.fn()
+			
+			class MyButton extends HTMLElement {
+				constructor() {
+					super()
+					
+					this.addEventListener('click', () => {
+						this.dispatchEvent(new CustomEvent('active'))
+					})
+				}
+			}
+			
+			customElements.define('my-button', MyButton)
+			
+			const btn = html`
+			<my-button onactive="${clickMock}">click me</my-button>`
+			
+			btn.render(document.body)
+			
+			const btnElement = document.body.querySelector('my-button') as HTMLButtonElement
+			
+			expect(document.body.innerHTML).toBe('<my-button>click me</my-button>')
+			
+			btnElement.click()
+			
+			expect(clickMock).toHaveBeenCalled()
+		})
+		
+		it('and ignore event like prop for random tag', () => {
+			html`
+			<intl-plural zero="people" one="person" other="people" value="1"></intl-plural>`.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<intl-plural zero="people" one="person" other="people" value="1"></intl-plural>')
+		});
+		
+		it('and trow error if handle event attribute is not a function',     () => {
+			expect(
+				() => html`
 				<button onclick="${2}">click me</button>`.render(document.body)
-		).toThrowError(
-			'Handler for event "onclick" is not a function. Found "2".'
-		)
-	})
-
-	it('should ignore inline event if its one of its prop', () => {
-		class OneTestComp extends HTMLElement {
-			static observedAttributes = ['one']
-		}
-
-		class TwoTestComp extends HTMLElement {
-		}
-
-		customElements.define('one-comp', OneTestComp)
-		customElements.define('two-comp', TwoTestComp)
-
-		expect(() => html`
+			).toThrowError(
+				'Handler for event "onclick" is not a function. Found "2".'
+			)
+		})
+		
+		it('and ignore inline event if its one of its prop', () => {
+			class OneTestComp extends HTMLElement {
+				static observedAttributes = ['one']
+			}
+			
+			class TwoTestComp extends HTMLElement {
+			}
+			
+			customElements.define('one-comp', OneTestComp)
+			customElements.define('two-comp', TwoTestComp)
+			
+			expect(() => html`
 			<one-comp one="${2}"></one-comp>`.render(document.body)).not.toThrowError()
-		expect(() => html`
+			expect(() => html`
 			<two-comp one="${2}"></two-comp>`.render(document.body)).toThrowError(
-			'Handler for event "one" is not a function. Found "2".'
-		)
-	})
-	
-	it('should handle ref directive', () => {
-		const btn = html`
-			<button ref="btn">
-				${html`
-					<div ref="div">
-						${html`<span ref="span">click me</span>`}
-					</div>`}
-			</button>`
-		
-		btn.render(document.body)
-		
-		const btnElement = btn.refs['btn'][0]
-		const spanElement = btn.refs['span'][0]
-		const divElement = btn.refs['div'][0]
-		
-		expect(btnElement).toBeInstanceOf(HTMLButtonElement)
-		expect(spanElement).toBeInstanceOf(HTMLSpanElement)
-		expect(divElement).toBeInstanceOf(HTMLDivElement)
-	})
-	
-	it('should handle empty ref directive', () => {
-		const btn = html`<button ref="">click me</button>`
-		
-		btn.render(document.body)
-		
-		expect(document.body.innerHTML).toBe('<button>click me</button>');
+				'Handler for event "one" is not a function. Found "2".'
+			)
+		})
 	})
 	
 	describe('should handle refs', () => {
+		
+		it('when empty', () => {
+			const btn = html`<button ref="">click me</button>`
+			
+			btn.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<button>click me</button>');
+		})
+		
 		it('when anywhere inside own template', () => {
 			const temp = html`<div ref="box">
 				<p ref="paragraph">some text <span ref="value">value</span></p>
@@ -557,6 +560,26 @@ describe('html', () => {
 					expect.any(HTMLSpanElement)
 				]
 			})
+		})
+		
+		it('when nested', () => {
+			const btn = html`
+			<button ref="btn">
+				${html`
+					<div ref="div">
+						${html`<span ref="span">click me</span>`}
+					</div>`}
+			</button>`
+			
+			btn.render(document.body)
+			
+			const btnElement = btn.refs['btn'][0]
+			const spanElement = btn.refs['span'][0]
+			const divElement = btn.refs['div'][0]
+			
+			expect(btnElement).toBeInstanceOf(HTMLButtonElement)
+			expect(spanElement).toBeInstanceOf(HTMLSpanElement)
+			expect(divElement).toBeInstanceOf(HTMLDivElement)
 		})
 	})
 	
