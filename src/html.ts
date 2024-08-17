@@ -5,7 +5,6 @@ import { insertNodeAfter } from './utils/insert-node-after'
 import { DocumentFragmentLike, ElementLike } from '@beforesemicolon/html-parser'
 import { parseDynamicRawValue } from './utils/parse-dynamic-raw-value'
 import { renderContent } from './utils/render-content'
-import { setNodeEventListener } from './utils/set-node-event-listener'
 import { booleanAttributes } from './utils/boolean-attributes'
 import { val } from './helpers'
 import { setElementAttribute } from './utils/set-element-attribute'
@@ -43,7 +42,7 @@ interface Template {
     slots: DoubleLinkedList<TemplateSlot>
 }
 
-const createId = () => Math.floor(Math.random() * Date.now()).toString()
+const createId = () => Math.floor(Math.random() * 1000).toString()
 
 const handleTextNode = (nodeValue: string, el: DocumentFragment | Element) => {
     if (/\$val([0-9]+)/.test(nodeValue)) {
@@ -148,7 +147,7 @@ function createTemplate(
                             )) {
                                 slots.push({
                                     type: 'prop',
-                                    name: key,
+                                    name: key.toLowerCase(),
                                     value: v,
                                     nodeSelector: `[data-slot-id="${id}"]`,
                                 })
@@ -166,7 +165,7 @@ function createTemplate(
                         const v = value.trim()
                         slots.push({
                             type: 'attribute',
-                            name,
+                            name: name.toLowerCase(),
                             value: v,
                             nodeSelector: `[data-slot-id="${id}"]`,
                             valueParts: parseDynamicRawValue(v),
@@ -201,9 +200,8 @@ function handleElementEventListener(
         (node.nodeName.includes('-') &&
             // @ts-expect-error observedAttributes is property of web component
             !node.constructor?.observedAttributes?.includes(name)) ||
-        (document.head &&
-            // @ts-expect-error check if know event name
-            typeof document.head[name] !== 'undefined')
+        // @ts-expect-error check if know event name
+        typeof (document.head ?? {})[name] !== 'undefined'
     ) {
         let fn
         let options
@@ -214,12 +212,14 @@ function handleElementEventListener(
             fn = values[0]
         }
 
-        setNodeEventListener(
-            node,
-            name,
-            fn as EventListener,
-            options as AddEventListenerOptions
-        )
+        if (typeof fn !== 'function') {
+            throw new Error(
+                `Handler for event "${name}" is not a function. Found "${fn}".`
+            )
+        }
+
+        node.addEventListener(name.slice(2), fn, options)
+
         return true
     }
 
@@ -233,7 +233,7 @@ export function handleElementAttribute(
     cb: (item: EffectUnSubscriber) => void
 ) {
     if (
-        /^on[a-z]+/.test(name) &&
+        name.slice(0, 2) === 'on' &&
         handleElementEventListener(node, name, values)
     ) {
         node.removeAttribute(name)
@@ -242,7 +242,7 @@ export function handleElementAttribute(
 
     const hasFunctionValue = values.some((d) => typeof d === 'function')
 
-    if (booleanAttributes[name.toLowerCase()]) {
+    if (booleanAttributes[name]) {
         const d = values[0]
 
         const setAttr = (prevValue?: unknown) => {
@@ -312,6 +312,7 @@ export class HtmlTemplate {
             nodes.push(node)
             node = node.nextSibling
         }
+
         return nodes
     }
 
@@ -487,6 +488,7 @@ export class HtmlTemplate {
 
     unmount() {
         if (this.isConnected) {
+            this.#mounted = false
             for (const effectUnsub of this.#effectUnsubs) {
                 effectUnsub()
             }
@@ -506,7 +508,9 @@ export class HtmlTemplate {
             this.#markers[0].remove()
             this.#markers[1].remove()
             this.#mountables = []
-            this.#mounted = false
+            this.#refs = {}
+            this.#effectUnsubs.clear()
+            this.#mountables = []
             this.#unmountSub?.()
         }
     }
