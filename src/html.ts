@@ -542,16 +542,11 @@ export class HtmlTemplate {
                     frag.querySelector(slot.nodeSelector)
 
                 if (node) {
+                    nodes[slot.nodeSelector] = node
                     node.removeAttribute('data-slot-id')
                     let values = []
 
                     if (slot.type === 'attribute') {
-                        for (const p of slot.valueParts) {
-                            values.push(
-                                typeof p === 'number' ? this.#values[p] : p
-                            )
-                        }
-
                         if (slot.name === 'ref') {
                             const name = String(slot.value)
 
@@ -562,6 +557,12 @@ export class HtmlTemplate {
                             this.#refs[name].add(node)
                             continue
                         }
+
+                        for (const p of slot.valueParts) {
+                            values.push(
+                                typeof p === 'number' ? this.#values[p] : p
+                            )
+                        }
                     } else {
                         values = [slot.value]
                     }
@@ -569,13 +570,13 @@ export class HtmlTemplate {
                     handleElementAttribute(node, slot.name, values, (item) =>
                         this.#effectUnsubs.add(item)
                     )
-                    nodes[slot.nodeSelector] = node
                 }
             } else {
                 const node =
                     nodes[slot.nodeId] ?? frag.getElementById(slot.nodeId)
 
                 if (node) {
+                    nodes[slot.nodeId] = node
                     const parentNode = node.parentNode as HTMLElement
                     const cont = document.createDocumentFragment()
 
@@ -610,7 +611,6 @@ export class HtmlTemplate {
                     }
 
                     node.parentNode?.replaceChild(cont, node)
-                    nodes[slot.nodeId] = node
                 }
             }
         }
