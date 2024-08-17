@@ -1,21 +1,24 @@
 import { HtmlTemplate } from '../html'
-import { createAndRenderTextNode } from './create-and-render-text-node'
+
+function createAndRenderTextNode(
+    value: unknown,
+    parentNode: HTMLElement | DocumentFragment | Element
+) {
+    const node = document.createTextNode(String(value))
+    parentNode.appendChild(node)
+    return node
+}
 
 export const renderContent = (
     content: unknown,
     parentNode: HTMLElement | DocumentFragment,
-    cb?: (item: HtmlTemplate | Node) => void
+    cb: (item: HtmlTemplate | Node) => void
 ) => {
-    if (content instanceof HtmlTemplate) {
-        content.render(parentNode)
-        return cb?.(content)
-    }
-
     if (Array.isArray(content)) {
         for (const item of content) {
+            // ensure only one level of the Array is rendered
             if (Array.isArray(item)) {
-                const text = createAndRenderTextNode(item, parentNode)
-                cb?.(text)
+                cb(createAndRenderTextNode(item, parentNode))
             } else {
                 renderContent(item, parentNode, cb)
             }
@@ -24,10 +27,15 @@ export const renderContent = (
         return
     }
 
-    if (content instanceof Node) {
-        parentNode.appendChild(content)
-        return cb?.(content)
+    if (content instanceof HtmlTemplate) {
+        content.render(parentNode)
+        return cb(content)
     }
 
-    cb?.(createAndRenderTextNode(content, parentNode))
+    if (content instanceof Node) {
+        parentNode.appendChild(content)
+        return cb(content)
+    }
+
+    cb(createAndRenderTextNode(content, parentNode))
 }

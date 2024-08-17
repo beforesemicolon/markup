@@ -1,6 +1,6 @@
 {
     "name": "@beforesemicolon/markup",
-    "version": "1.0.17-next",
+    "version": "1.0.18-next",
     "description": "Reactive HTML Templating System",
     "engines": {
         "node": ">=18.16.0"
@@ -20,7 +20,7 @@
         "docs:css": "node-sass docs-src/stylesheets -o docs/stylesheets --output-style compressed",
         "docs:watch": "rm -rf docs && nodemon --watch docs-src -e ts,json --exec 'NODE_ENV=development npm run docs:build'",
         "docs:build": "tsx docs-src/build.ts",
-        "local": "nodemon --watch src -e ts --exec 'npm run build:browser'",
+        "local": "nodemon --watch src -e ts --exec 'npm run build && npm pack && npm link'",
         "build:docs": "rm -rf docs && npm-run-all docs:build docs:css",
         "build:cjs-min": "esbuild `find src \\( -name '*.ts' ! -name '*.spec.ts' ! -name 'client.ts' \\)` --minify --outdir=dist/cjs --platform=node --format=cjs --keep-names --target=esnext",
         "build:esm-min": "esbuild `find src \\( -name '*.ts' ! -name '*.spec.ts' ! -name 'client.ts' \\)` --minify --outdir=dist/esm --platform=node --format=esm --keep-names --target=esnext",

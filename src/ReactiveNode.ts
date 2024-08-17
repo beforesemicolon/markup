@@ -7,9 +7,9 @@ import { DoubleLinkedList } from './DoubleLinkedList'
 
 export class ReactiveNode {
     #result = new DoubleLinkedList<Node | HtmlTemplate>()
-    #unsubEffect: EffectUnSubscriber | null = null
-    #parent: DocumentFragment | HTMLElement | Element | null = null
-    #updateSub: (() => void) | undefined = undefined
+    #unsubEffect?: EffectUnSubscriber
+    #parent?: DocumentFragment | HTMLElement | Element
+    #updateSub?: () => void
     #anchor = document.createTextNode('')
 
     get parentNode() {
@@ -78,8 +78,10 @@ export class ReactiveNode {
             }
         }
         this.#anchor.parentNode?.removeChild(this.#anchor)
-        this.#parent = null
+        this.#parent = undefined
         this.#result.clear()
+        this.#unsubEffect = undefined
+        this.#updateSub = undefined
     }
 
     onUpdate(cb: () => void) {
