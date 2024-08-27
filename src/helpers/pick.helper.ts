@@ -12,14 +12,17 @@ export const pick = <T extends Record<keyof T, T[keyof T]> | Array<unknown>, R>(
 ): (() => R) => {
     const keyParts = String(key).split('.').filter(Boolean)
 
-    const x = val(st)
+    return () => {
+        const x = val(st)
 
-    return () =>
-        (x
-            ? keyParts.reduce((acc, k) => {
-                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                  // @ts-ignore impossible to know the value
-                  return acc ? acc[k] : undefined
-              }, x)
-            : '') as R
+        return (
+            x
+                ? keyParts.reduce((acc, k) => {
+                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                      // @ts-ignore impossible to know the value
+                      return acc ? acc[k] : undefined
+                  }, x)
+                : ''
+        ) as R
+    }
 }
