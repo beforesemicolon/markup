@@ -8,7 +8,7 @@ import { html, HtmlTemplate } from '../html'
  * @param failed
  */
 export const suspense = (
-    asyncAction: () => Promise<HtmlTemplate>,
+    asyncAction: () => Promise<unknown>,
     loading = html`<p>loading...</p>`,
     failed = (err: Error) => html`<p style="color: red">${err.message}</p>`
 ) => {
@@ -17,11 +17,7 @@ export const suspense = (
             if (content instanceof HtmlTemplate) {
                 content.replace(loading)
             } else {
-                failed(
-                    new Error(
-                        'async action did not return a HTMLTemplate instance'
-                    )
-                ).replace(loading)
+                html`${content}`.replace(loading)
             }
         })
         .catch((err) => {

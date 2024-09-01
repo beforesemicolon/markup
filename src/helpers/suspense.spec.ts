@@ -31,12 +31,11 @@ describe('suspense', () => { // @ts-ignore
 		expect(document.body.innerHTML).toBe('<p>loading...</p>')
 	})
 	
-	it('should throw error return non-html result', (done) => {
+	it('should take anything', (done) => {
 		html`${suspense(() => new Promise((res, rej) => {
-			// @ts-ignore
 			res(null)
 			setTimeout(() => {
-				expect(document.body.innerHTML).toBe('<p style="color: red">async action did not return a HTMLTemplate instance</p>')
+				expect(document.body.innerHTML).toBe('null')
 				done()
 			}, 0)
 		}))}`.render(document.body)
