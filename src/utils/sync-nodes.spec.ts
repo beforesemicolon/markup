@@ -4,6 +4,7 @@ import { html, HtmlTemplate } from '../html'
 import { DoubleLinkedList } from '../DoubleLinkedList'
 
 describe('syncNodes', () => {
+    const temp = html``;
     const ul = document.createElement('ul')
     const moveMock = jest.fn();
     const unmountMock = jest.fn();
@@ -33,7 +34,7 @@ describe('syncNodes', () => {
         ul.innerHTML = ''
         ul.appendChild(anchor)
 
-        expect(matchesNewNodes(syncNodes(new DoubleLinkedList(), nodes, anchor), nodes)).toBeTruthy()
+        expect(matchesNewNodes(syncNodes(new DoubleLinkedList(), nodes, anchor, temp), nodes)).toBeTruthy()
 
         expect(ul.children).toHaveLength(nodes.length)
         expect(ul.outerHTML).toBe('<ul>' +
@@ -51,7 +52,7 @@ describe('syncNodes', () => {
     })
     
     it('should add all new HTMLTemplates', () => {
-        expect(matchesNewNodes(syncNodes(new DoubleLinkedList(), nodeTemplates, anchor), nodeTemplates)).toBeTruthy()
+        expect(matchesNewNodes(syncNodes(new DoubleLinkedList(), nodeTemplates, anchor, temp), nodeTemplates)).toBeTruthy()
 
         expect(ul.children).toHaveLength(nodes.length)
         expect(mountMock).toHaveBeenCalledTimes(nodes.length)
@@ -75,7 +76,7 @@ describe('syncNodes', () => {
         ul.appendChild(nodes[0])
 
         const newNodes = [nodes[0], nodes[1]];
-        expect(matchesNewNodes(syncNodes(DoubleLinkedList.fromArray([nodes[0]]), newNodes, anchor), newNodes)).toBeTruthy()
+        expect(matchesNewNodes(syncNodes(DoubleLinkedList.fromArray([nodes[0]]), newNodes, anchor, temp), newNodes)).toBeTruthy()
 
         expect(ul.outerHTML).toBe('<ul>' +
             '<li>item 1</li>' +
@@ -89,7 +90,7 @@ describe('syncNodes', () => {
         mountMock.mockClear()
 
         const newNodes = [nodeTemplates[0], nodeTemplates[1]]
-        expect(matchesNewNodes(syncNodes(DoubleLinkedList.fromArray([nodeTemplates[0]]), newNodes, anchor), newNodes)).toBeTruthy()
+        expect(matchesNewNodes(syncNodes(DoubleLinkedList.fromArray([nodeTemplates[0]]), newNodes, anchor, temp), newNodes)).toBeTruthy()
 
         expect(ul.outerHTML).toBe('<ul>' +
             '<li>item 1</li>' +
@@ -103,7 +104,7 @@ describe('syncNodes', () => {
         ul.append(...nodes)
         expect(ul.children).toHaveLength(nodes.length)
         
-        expect(matchesNewNodes(syncNodes(DoubleLinkedList.fromArray(Array.from(ul.children)), [], anchor), [])).toBeTruthy()
+        expect(matchesNewNodes(syncNodes(DoubleLinkedList.fromArray(Array.from(ul.children)), [], anchor, temp), [])).toBeTruthy()
 
         expect(ul.outerHTML).toBe('<ul></ul>')
     })
@@ -114,7 +115,7 @@ describe('syncNodes', () => {
         mountMock.mockClear()
         expect(ul.children).toHaveLength(nodeTemplates.length)
 
-        expect(matchesNewNodes(syncNodes(DoubleLinkedList.fromArray(nodeTemplates), [], anchor), [])).toBeTruthy()
+        expect(matchesNewNodes(syncNodes(DoubleLinkedList.fromArray(nodeTemplates), [], anchor, temp), [])).toBeTruthy()
 
         expect(ul.outerHTML).toBe('<ul></ul>')
         expect(mountMock).toHaveBeenCalledTimes(0)
@@ -133,7 +134,7 @@ describe('syncNodes', () => {
         ])
 
         const newNodes = nodes.slice(5)
-        expect(matchesNewNodes(syncNodes(DoubleLinkedList.fromArray(Array.from(ul.children)), newNodes, anchor), newNodes)).toBeTruthy()
+        expect(matchesNewNodes(syncNodes(DoubleLinkedList.fromArray(Array.from(ul.children)), newNodes, anchor, temp), newNodes)).toBeTruthy()
 
         expect(ul.innerHTML).toBe(
             '<li>item 6</li>' +
@@ -159,7 +160,7 @@ describe('syncNodes', () => {
         ])
 
         const newNodes = nodeTemplates.slice(5)
-        syncNodes(DoubleLinkedList.fromArray(rNodes), newNodes, anchor)
+        syncNodes(DoubleLinkedList.fromArray(rNodes), newNodes, anchor, temp)
 
         expect(Array.from(ul.children, (n) => n.textContent)).toEqual([
             'item 6',
@@ -178,7 +179,7 @@ describe('syncNodes', () => {
 
         const newNodes = nodes.slice(2)
         expect(matchesNewNodes(
-            syncNodes(DoubleLinkedList.fromArray(Array.from(ul.children)), newNodes, anchor),
+            syncNodes(DoubleLinkedList.fromArray(Array.from(ul.children)), newNodes, anchor, temp),
             newNodes
         )).toBeTruthy()
 
@@ -203,7 +204,7 @@ describe('syncNodes', () => {
         const newNodes = nodeTemplates.slice(2);
         
         expect(matchesNewNodes(
-            syncNodes(DoubleLinkedList.fromArray(nodeTemplates), newNodes, anchor),
+            syncNodes(DoubleLinkedList.fromArray(nodeTemplates), newNodes, anchor, temp),
             newNodes
         )).toBeTruthy()
 
@@ -254,7 +255,8 @@ describe('syncNodes', () => {
             syncNodes(
                 DoubleLinkedList.fromArray(Array.from(ul.children)),
                 newNodes,
-                anchor
+                anchor,
+                temp
             ),
             newNodes
         )).toBeTruthy()
@@ -303,7 +305,8 @@ describe('syncNodes', () => {
             syncNodes(
                 DoubleLinkedList.fromArray(nodeTemplates),
                 newNodes,
-                anchor
+                anchor,
+                temp
             ),
             newNodes
         )).toBeTruthy()
@@ -330,7 +333,8 @@ describe('syncNodes', () => {
             syncNodes(
                 DoubleLinkedList.fromArray(Array.from(ul.children)),
                 newNodes,
-                anchor
+                anchor,
+                temp
             ),
             newNodes
         )).toBeTruthy()
@@ -357,7 +361,8 @@ describe('syncNodes', () => {
             syncNodes(
                 DoubleLinkedList.fromArray(nodeTemplates),
                 newNodes,
-                anchor
+                anchor,
+                temp
             ),
             newNodes
         )).toBeTruthy()
@@ -413,7 +418,7 @@ describe('syncNodes', () => {
         ])
         
         expect(matchesNewNodes(
-            syncNodes(DoubleLinkedList.fromArray(Array.from(ul.children)), reversedNodes, anchor),
+            syncNodes(DoubleLinkedList.fromArray(Array.from(ul.children)), reversedNodes, anchor, temp),
             reversedNodes
         )).toBeTruthy()
 
@@ -466,7 +471,7 @@ describe('syncNodes', () => {
         ])
         
         expect(matchesNewNodes(
-            syncNodes(DoubleLinkedList.fromArray(nodeTemplates), reversedNodes, anchor),
+            syncNodes(DoubleLinkedList.fromArray(nodeTemplates), reversedNodes, anchor, temp),
             reversedNodes
         )).toBeTruthy()
 
@@ -522,7 +527,7 @@ describe('syncNodes', () => {
         ])
         
         expect(matchesNewNodes(
-            syncNodes(DoubleLinkedList.fromArray(Array.from(ul.children)), shuffledNodes, anchor),
+            syncNodes(DoubleLinkedList.fromArray(Array.from(ul.children)), shuffledNodes, anchor, temp),
             shuffledNodes
         )).toBeTruthy()
 
@@ -573,7 +578,7 @@ describe('syncNodes', () => {
         ])
         
         expect(matchesNewNodes(
-            syncNodes(DoubleLinkedList.fromArray(nodeTemplates), shuffledNodes, anchor),
+            syncNodes(DoubleLinkedList.fromArray(nodeTemplates), shuffledNodes, anchor, temp),
             shuffledNodes
         )).toBeTruthy()
 
@@ -598,7 +603,7 @@ describe('syncNodes', () => {
         let newNodes = [complete, edit, archive];
         
         expect(matchesNewNodes(
-            syncNodes(new DoubleLinkedList(), newNodes, anchor),
+            syncNodes(new DoubleLinkedList(), newNodes, anchor, temp),
             newNodes
         )).toBeTruthy()
 
@@ -609,7 +614,7 @@ describe('syncNodes', () => {
         newNodes = [archive]
         
         expect(matchesNewNodes(
-            syncNodes(DoubleLinkedList.fromArray([complete, edit, archive]), newNodes, anchor),
+            syncNodes(DoubleLinkedList.fromArray([complete, edit, archive]), newNodes, anchor, temp),
             newNodes
         )).toBeTruthy()
 
@@ -624,7 +629,7 @@ describe('syncNodes', () => {
         let newNodes = [complete, edit, archive];
         
         expect(matchesNewNodes(
-            syncNodes(new DoubleLinkedList(), newNodes, anchor),
+            syncNodes(new DoubleLinkedList(), newNodes, anchor, temp),
             newNodes
         )).toBeTruthy()
         
@@ -639,7 +644,7 @@ describe('syncNodes', () => {
         newNodes = [archive]
         
         expect(matchesNewNodes(
-            syncNodes(DoubleLinkedList.fromArray([complete, edit, archive]), newNodes, anchor),
+            syncNodes(DoubleLinkedList.fromArray([complete, edit, archive]), newNodes, anchor, temp),
             newNodes
         )).toBeTruthy()
 
@@ -668,7 +673,7 @@ describe('syncNodes', () => {
         const newNodes = [span3, span2, span1];
         
         expect(matchesNewNodes(
-            syncNodes(DoubleLinkedList.fromArray([span1, span2]), newNodes, anchor),
+            syncNodes(DoubleLinkedList.fromArray([span1, span2]), newNodes, anchor, temp),
             newNodes
         )).toBeTruthy()
 
@@ -696,7 +701,7 @@ describe('syncNodes', () => {
         const newNodes = [span3, span2, span1];
         
         expect(matchesNewNodes(
-            syncNodes(DoubleLinkedList.fromArray([span1, span2, span4]), newNodes, anchor),
+            syncNodes(DoubleLinkedList.fromArray([span1, span2, span4]), newNodes, anchor, temp),
             newNodes
         )).toBeTruthy()
         
@@ -710,7 +715,7 @@ describe('syncNodes', () => {
     it('should swap second and before last items', () => {
         expect(ul.children).toHaveLength(0)
         
-        const res = syncNodes(new DoubleLinkedList(), nodeTemplates, anchor)
+        const res = syncNodes(new DoubleLinkedList(), nodeTemplates, anchor, temp)
         
         expect(matchesNewNodes(
             res,
@@ -748,7 +753,7 @@ describe('syncNodes', () => {
         ]
         
         expect(matchesNewNodes(
-            syncNodes(res, newNodes, anchor),
+            syncNodes(res, newNodes, anchor, temp),
             newNodes
         )).toBeTruthy()
 
@@ -771,7 +776,7 @@ describe('syncNodes', () => {
     it('should update every other node', () => {
         expect(ul.children).toHaveLength(0)
         
-        const res = syncNodes(new DoubleLinkedList(), nodeTemplates, anchor)
+        const res = syncNodes(new DoubleLinkedList(), nodeTemplates, anchor, temp)
         
         expect(matchesNewNodes(
             res,
@@ -810,7 +815,7 @@ describe('syncNodes', () => {
         
         expect(
             matchesNewNodes(
-                syncNodes(res, newNodes, anchor),
+                syncNodes(res, newNodes, anchor, temp),
                 newNodes
             )
         ).toBeTruthy()

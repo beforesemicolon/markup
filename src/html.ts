@@ -286,7 +286,6 @@ export function handleElementAttribute(
 
 export class HtmlTemplate {
     #template: Template
-    #mountables: Array<ReactiveNode | HtmlTemplate> = []
     #refs: Record<string, Set<Element>> = {}
     #effectUnsubs: Set<EffectUnSubscriber> = new Set()
     #values: Array<unknown> = []
@@ -296,6 +295,8 @@ export class HtmlTemplate {
     #unmountSub: (() => void) | undefined = undefined
     #updateSub: (() => void) | undefined = undefined
     #markers = [document.createTextNode(''), document.createTextNode('')]
+    __PARENT__: HtmlTemplate | null = null
+    __CHILDREN__: Set<ReactiveNode | HtmlTemplate> = new Set()
 
     /**
      * the Element or ShadowRoot instance provided in the render method
@@ -320,7 +321,7 @@ export class HtmlTemplate {
      * map of DOM element references keyed by the name provided as the ref attribute value
      */
     get refs(): Record<string, Array<Element>> {
-        const childRefs = this.#mountables.reduce((acc, item) => {
+        const childRefs = Array.from(this.__CHILDREN__).reduce((acc, item) => {
             return {
                 ...acc,
                 ...item.refs,
@@ -417,6 +418,8 @@ export class HtmlTemplate {
                     element,
                     target.__MARKERS__[0]
                 )
+                this.__PARENT__ = target.__PARENT__
+                this.__PARENT__?.__CHILDREN__.add(this)
                 target.unmount()
             }
 
@@ -478,6 +481,11 @@ export class HtmlTemplate {
                 this.#init('after', element as Node)
             }
 
+            if (target instanceof HtmlTemplate) {
+                this.__PARENT__ = target.__PARENT__
+                this.__PARENT__?.__CHILDREN__.add(this)
+            }
+
             return this
         }
 
@@ -493,7 +501,7 @@ export class HtmlTemplate {
                 effectUnsub()
             }
 
-            for (const item of this.#mountables) {
+            for (const item of this.__CHILDREN__) {
                 item.unmount()
             }
 
@@ -507,10 +515,11 @@ export class HtmlTemplate {
 
             this.#markers[0].remove()
             this.#markers[1].remove()
-            this.#mountables = []
+            this.__PARENT__?.__CHILDREN__.delete(this)
+            this.__CHILDREN__.clear()
+            this.__PARENT__ = null
             this.#refs = {}
             this.#effectUnsubs.clear()
-            this.#mountables = []
             this.#unmountSub?.()
         }
     }
@@ -605,9 +614,9 @@ export class HtmlTemplate {
                         if (typeof part === 'function') {
                             const rn = new ReactiveNode(
                                 part as () => unknown,
-                                cont
+                                cont,
+                                this
                             )
-                            this.#mountables.push(rn)
 
                             // the root node will be a document fragment which means
                             // item will be a direct child
@@ -623,7 +632,8 @@ export class HtmlTemplate {
                         } else {
                             renderContent(part, cont, (item) => {
                                 if (item instanceof HtmlTemplate) {
-                                    this.#mountables.push(item)
+                                    item.__PARENT__ = this
+                                    this.__CHILDREN__.add(item)
                                 }
                             })
                         }

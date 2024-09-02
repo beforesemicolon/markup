@@ -1,7 +1,7 @@
 import '../test.common';
 import { html, HtmlTemplate } from './html'
 import { effect, state } from './state'
-import {when, repeat, oneOf, is, element} from './helpers'
+import {when, repeat, oneOf, is, element, suspense} from './helpers'
 
 describe('html', () => {
 	
@@ -1393,7 +1393,7 @@ describe('html', () => {
 			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<span>Non Zero: 20</span>')
-			expect(document.body.children[0]).not.toEqual(n)
+			expect(document.body.children[0]).toEqual(n)
 		})
 		
 		it('when nested', () => {

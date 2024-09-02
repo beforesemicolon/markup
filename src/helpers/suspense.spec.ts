@@ -19,6 +19,24 @@ describe('suspense', () => { // @ts-ignore
 		expect(document.body.innerHTML).toBe('<p>loading...</p>')
 	})
 	
+	it('should unmounted suspense render content', (done) => {
+		const unmountMock = jest.fn();
+		
+		const temp = html`${suspense(() => new Promise((res, rej) => {
+			res(html`done`.onMount(() => unmountMock))
+			setTimeout(() => {
+				expect(document.body.innerHTML).toBe('done')
+				temp.unmount()
+				expect(unmountMock).toHaveBeenCalledTimes(2)
+				done()
+			}, 1000)
+		}))}`
+			.onMount(() => unmountMock)
+			.render(document.body)
+		
+		expect(document.body.innerHTML).toBe('<p>loading...</p>')
+	})
+	
 	it('should throw error if action failed', (done) => {
 		html`${suspense(() => new Promise((res, rej) => {
 			rej(new Error('failed'))

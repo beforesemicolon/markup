@@ -44,7 +44,7 @@ export const repeat = <T>(
         return cache.get(d) as Node | HtmlTemplate
     }
 
-    return (anchor: Node) => {
+    return (anchor: Node, temp: HtmlTemplate) => {
         const list = getList(data) as T[]
 
         if (list.length === 0) {
@@ -53,7 +53,8 @@ export const repeat = <T>(
             currentRenderedNodes = syncNodes(
                 currentRenderedNodes,
                 Array.isArray(res) ? res : [res],
-                anchor
+                anchor,
+                temp
             )
 
             prevList = []
@@ -78,7 +79,8 @@ export const repeat = <T>(
                         return Reflect.get(_, prop)
                     },
                 }) as Array<Node | HtmlTemplate>,
-                anchor
+                anchor,
+                temp
             )
 
             for (const d of prevListSet) {

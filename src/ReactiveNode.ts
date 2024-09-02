@@ -36,8 +36,9 @@ export class ReactiveNode {
     }
 
     constructor(
-        action: (anchor: Node) => unknown,
-        parentNode: DocumentFragment | HTMLElement | Element
+        action: (anchor: Node, temp: HtmlTemplate) => unknown,
+        parentNode: DocumentFragment | HTMLElement | Element,
+        template: HtmlTemplate
     ) {
         let init = false
 
@@ -47,7 +48,7 @@ export class ReactiveNode {
             parentNode.appendChild(this.#anchor)
 
             this.#unsubEffect = effect(() => {
-                const res = action(this.#anchor)
+                const res = action(this.#anchor, template)
 
                 if (res instanceof SkipRender) return
 
@@ -55,12 +56,19 @@ export class ReactiveNode {
                     this.#result = syncNodes(
                         this.#result,
                         Array.isArray(res) ? res : [res],
-                        this.#anchor
+                        this.#anchor,
+                        template
                     )
                     this.#updateSub?.()
                 } else {
                     const frag = document.createDocumentFragment()
-                    renderContent(res, frag, (item) => this.#result.push(item))
+                    renderContent(res, frag, (item) => {
+                        this.#result.push(item)
+                        if (item instanceof HtmlTemplate) {
+                            item.__PARENT__ = template
+                            template.__CHILDREN__.add(item)
+                        }
+                    })
                     parentNode.appendChild(frag)
                     init = true
                 }

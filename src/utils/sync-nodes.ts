@@ -16,7 +16,8 @@ import { DoubleLinkedList } from '../DoubleLinkedList'
 export const syncNodes = (
     currentChildNodes: DoubleLinkedList<Node | HtmlTemplate>,
     newChildNodes: Array<Node | HtmlTemplate>,
-    anchorNode: Node
+    anchorNode: Node,
+    template: HtmlTemplate
 ) => {
     if (newChildNodes.length) {
         if (currentChildNodes.size) {
@@ -47,6 +48,11 @@ export const syncNodes = (
                         !currentRemoved &&
                         !currentReplaced &&
                         currentNode !== newNode
+                }
+
+                if (newNode instanceof HtmlTemplate) {
+                    newNode.__PARENT__ = template
+                    template.__CHILDREN__.add(newNode)
                 }
 
                 if (currentMoved && newNode) {
@@ -100,6 +106,8 @@ export const syncNodes = (
 
                 if (node instanceof HtmlTemplate) {
                     node.render(frag)
+                    node.__PARENT__ = template
+                    template.__CHILDREN__.add(node)
                 } else {
                     frag.appendChild(node)
                 }
