@@ -530,6 +530,25 @@ export class HtmlTemplate {
         return this
     }
 
+    toString() {
+        if (!this.#mounted) {
+            this.render(document.createElement('div'))
+            const str = this.childNodes
+                .map((node) =>
+                    node instanceof Element ? node.outerHTML : node.nodeValue
+                )
+                .join('')
+            this.unmount()
+            return str
+        }
+
+        return this.childNodes
+            .map((node) =>
+                node instanceof Element ? node.outerHTML : node.nodeValue
+            )
+            .join('')
+    }
+
     #init(actionType: 'render' | 'replace' | 'after', element: Node) {
         const { template, slots } = this.#template
         const frag = template.cloneNode(true) as DocumentFragment
