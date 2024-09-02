@@ -3,6 +3,7 @@ import { repeat } from './repeat.helper'
 import { html } from '../html'
 
 describe('repeat', () => {
+    const temp = html``;
     const anchor = document.createTextNode('');
     
     beforeEach(() => {
@@ -10,7 +11,7 @@ describe('repeat', () => {
     })
 
     it('should handle number', () => {
-        repeat(3, (n: number) => n)(anchor);
+        repeat(3, (n: number) => n)(anchor, temp);
         
         expect(document.body.innerHTML).toBe('123')
     })
@@ -22,20 +23,20 @@ describe('repeat', () => {
             (n: number) => html`sample-${n}`
         )
         
-        r(anchor)
+        r(anchor, temp)
         
         expect(document.body.innerHTML).toBe('sample-1sample-2sample-3')
         
         count = 4
         
-        r(anchor)
+        r(anchor, temp)
         
         expect(document.body.innerHTML).toBe('sample-1sample-2sample-3sample-4')
     })
     
     it('should handle empty', () => {
-        repeat([], (n) => n)(anchor)
-        repeat([], (n) => n, () => 'no items')(anchor)
+        repeat([], (n) => n)(anchor, temp)
+        repeat([], (n) => n, () => 'no items')(anchor, temp)
         
         expect(document.body.innerHTML).toBe('no items')
     })
@@ -43,7 +44,7 @@ describe('repeat', () => {
     it('should handle array with unique primitives', () => {
         const list = Array.from({ length: 3 }, (_, i) => i + 1)
         
-        repeat(list, (n: number) => n + 1)(anchor)
+        repeat(list, (n: number) => n + 1)(anchor, temp)
         
         expect(document.body.innerHTML).toBe('234')
     })
@@ -56,13 +57,13 @@ describe('repeat', () => {
             (n: number) => html`sample-${n}`
         )
         
-        r(anchor)
+        r(anchor, temp)
         
         expect(document.body.innerHTML).toBe('sample-1sample-2sample-3')
         
         list.push(4)
         
-        r(anchor)
+        r(anchor, temp)
         
         expect(document.body.innerHTML).toBe('sample-1sample-2sample-3sample-4')
     })
@@ -75,13 +76,13 @@ describe('repeat', () => {
             (n) => html`sample-${n}`
         )
 
-        r(anchor)
+        r(anchor, temp)
         
         expect(document.body.innerHTML).toBe('sample-1')
 
         list.push(2)
 
-        r(anchor)
+        r(anchor, temp)
         
         expect(document.body.innerHTML).toBe('sample-1sample-2')
     })

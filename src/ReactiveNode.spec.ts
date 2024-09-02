@@ -5,8 +5,10 @@ import { state } from './state'
 import { is, when, repeat } from './helpers'
 
 describe('ReactiveNode', () => {
+    const temp = html``;
+    
     it('should render text', () => {
-        const node = new ReactiveNode(() => 'sample', document.body)
+        const node = new ReactiveNode(() => 'sample', document.body, temp)
 
         expect(document.body.innerHTML).toBe('sample')
         expect(node.parentNode).toBe(document.body)
@@ -14,7 +16,7 @@ describe('ReactiveNode', () => {
     })
     
     it('should render primitive values', () => {
-        const node = new ReactiveNode(() => [12, true, 'value'],document.body)
+        const node = new ReactiveNode(() => [12, true, 'value'],document.body, temp)
 
         expect(document.body.innerHTML).toBe('12truevalue')
         expect(node.parentNode).toBe(document.body)
@@ -22,7 +24,7 @@ describe('ReactiveNode', () => {
     })
     
     it('should handle removing', () => {
-        const node = new ReactiveNode(() => 'sample',document.body)
+        const node = new ReactiveNode(() => 'sample',document.body, temp)
 
         expect(document.body.innerHTML).toBe('sample')
         expect(document.body.childNodes).toHaveLength(2)
@@ -34,7 +36,7 @@ describe('ReactiveNode', () => {
     })
     
     it('should render template', () => {
-        const node = new ReactiveNode(() => html`<p>sample</p>`, document.body)
+        const node = new ReactiveNode(() => html`<p>sample</p>`, document.body, temp)
 
         expect(document.body.innerHTML).toBe('<p>sample</p>')
         expect(node.parentNode).toBe(document.body)
@@ -42,7 +44,7 @@ describe('ReactiveNode', () => {
     })
     
     it('should render array', () => {
-        const node = new ReactiveNode(() => [html`<p>sample</p>`, true], document.body)
+        const node = new ReactiveNode(() => [html`<p>sample</p>`, true], document.body, temp)
 
         expect(document.body.innerHTML).toBe('<p>sample</p>true')
         expect(node.parentNode).toBe(document.body)
@@ -51,7 +53,7 @@ describe('ReactiveNode', () => {
     
     it('should render state', () => {
         const [value, updateValue] = state('sample')
-        const node = new ReactiveNode(value, document.body)
+        const node = new ReactiveNode(value, document.body, temp)
 
         expect(document.body.innerHTML).toBe('sample')
         expect(node.parentNode).toBe(document.body)
@@ -67,7 +69,7 @@ describe('ReactiveNode', () => {
     
     it('should render template with state', () => {
         const [value, updateValue] = state('sample')
-        const node = new ReactiveNode(() => html`<p>${value}</p>`, document.body)
+        const node = new ReactiveNode(() => html`<p>${value}</p>`, document.body, temp)
 
         expect(document.body.innerHTML).toBe('<p>sample</p>')
         expect(node.parentNode).toBe(document.body)
@@ -89,7 +91,7 @@ describe('ReactiveNode', () => {
             }
 
             return html`<p>diff</p>`
-        }, document.body)
+        }, document.body, temp)
 
         expect(document.body.innerHTML).toBe('<p>sample</p>')
         expect(node.parentNode).toBe(document.body)
@@ -122,7 +124,7 @@ describe('ReactiveNode', () => {
                 )}
                 <button type="button">reset</button>
             `)}
-        `, document.body)
+        `, document.body, temp)
 
         expect(document.body.innerHTML).toBe('')
 
@@ -157,7 +159,7 @@ describe('ReactiveNode', () => {
     
     it('should CRUD list of templates', () => {
         const [todos, updateTodos] = state<HtmlTemplate[]>([])
-        const node = new ReactiveNode(todos, document.body)
+        const node = new ReactiveNode(todos, document.body, temp)
 
         expect(document.body.innerHTML).toBe('')
         expect(node.parentNode).toBe(document.body)
@@ -220,7 +222,7 @@ describe('ReactiveNode', () => {
     })
     
     it('should handle refs', () => {
-        const node = new ReactiveNode(() => html`<p ref="text">sample</p>`, document.body)
+        const node = new ReactiveNode(() => html`<p ref="text">sample</p>`, document.body, temp)
         
         expect(document.body.innerHTML).toBe('<p>sample</p>')
         expect(node.parentNode).toBe(document.body)
@@ -234,7 +236,7 @@ describe('ReactiveNode', () => {
         const moveMock = jest.fn();
         const [list, updateList] = state(Array.from({ length: 10 }, (_, i) => i + 1));
         
-        new ReactiveNode(repeat(list, (n) => html`<li>item ${n}</li>`.onMount(mountMock).onMove(moveMock)), document.body)
+        new ReactiveNode(repeat(list, (n) => html`<li>item ${n}</li>`.onMount(mountMock).onMove(moveMock)), document.body, temp)
         
         expect(mountMock).toHaveBeenCalledTimes(10)
         expect(document.body.innerHTML).toBe('<li>item 1</li>' +
@@ -287,7 +289,7 @@ describe('ReactiveNode', () => {
         const moveMock = jest.fn();
         const [list, updateList] = state(Array.from({ length: 10 }, (_, i) => i + 1));
         
-        new ReactiveNode(repeat(list, (n) => html`<li>item ${n}</li>`.onMount(mountMock).onMove(moveMock)), document.body)
+        new ReactiveNode(repeat(list, (n) => html`<li>item ${n}</li>`.onMount(mountMock).onMove(moveMock)), document.body, temp)
         
         expect(mountMock).toHaveBeenCalledTimes(10)
         expect(document.body.innerHTML).toBe('<li>item 1</li>' +
