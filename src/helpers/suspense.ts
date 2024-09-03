@@ -12,17 +12,19 @@ export const suspense = (
     loading = html`<p>loading...</p>`,
     failed = (err: Error) => html`<p style="color: red">${err.message}</p>`
 ) => {
-    asyncAction()
-        .then((content) => {
-            if (content instanceof HtmlTemplate) {
-                content.replace(loading)
-            } else {
-                html`${content}`.replace(loading)
-            }
-        })
-        .catch((err) => {
-            failed(err).replace(loading)
-        })
+    return () => {
+        asyncAction()
+            .then((content) => {
+                if (content instanceof HtmlTemplate) {
+                    content.replace(loading)
+                } else {
+                    html`${content}`.replace(loading)
+                }
+            })
+            .catch((err) => {
+                failed(err).replace(loading)
+            })
 
-    return loading
+        return loading
+    }
 }

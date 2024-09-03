@@ -418,8 +418,8 @@ export class HtmlTemplate {
                     element,
                     target.__MARKERS__[0]
                 )
+                target.__PARENT__?.__CHILDREN__.add(this)
                 this.__PARENT__ = target.__PARENT__
-                this.__PARENT__?.__CHILDREN__.add(this)
                 target.unmount()
             }
 
