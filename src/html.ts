@@ -618,6 +618,8 @@ export class HtmlTemplate {
                                 this
                             )
 
+                            this.__CHILDREN__.add(rn)
+
                             // the root node will be a document fragment which means
                             // item will be a direct child
                             if (parentNode instanceof DocumentFragment) {

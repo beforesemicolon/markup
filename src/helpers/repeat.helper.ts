@@ -1,7 +1,6 @@
 import { val } from './val'
 import { DoubleLinkedList } from '../DoubleLinkedList'
 import { HtmlTemplate } from '../html'
-import { SkipRender } from '../types'
 import { syncNodes } from '../utils/sync-nodes'
 import { getNodeOrTemplate } from '../utils/get-node-or-template'
 
@@ -90,6 +89,6 @@ export const repeat = <T>(
             prevList = list
         }
 
-        return new SkipRender()
+        return currentRenderedNodes
     }
 }

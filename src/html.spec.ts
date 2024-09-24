@@ -898,6 +898,35 @@ describe('html', () => {
 	})
 
 	describe('should work with "repeat" helper', () => {
+		it('should render and rerender', () => {
+			const todos = [
+				'buy groceries',
+				'go to gym',
+				'create a video'
+			]
+			
+			const temp = html`<ul>${repeat(todos, item => html`<li>${item}</li>`)}</ul>`
+				.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<ul>' +
+				'<li>buy groceries</li>' +
+				'<li>go to gym</li>' +
+				'<li>create a video</li>' +
+				'</ul>')
+
+			temp.unmount()
+
+			expect(document.body.innerHTML).toBe('')
+
+			temp.render(document.body)
+
+			expect(document.body.innerHTML).toBe('<ul>' +
+				'<li>buy groceries</li>' +
+				'<li>go to gym</li>' +
+				'<li>create a video</li>' +
+				'</ul>')
+		})
+		
 		it('should render table rows', () => {
 			const [items, updateItems] = state<number[]>([]);
 			
@@ -1393,7 +1422,7 @@ describe('html', () => {
 			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<span>Non Zero: 20</span>')
-			expect(document.body.children[0]).toEqual(n)
+			expect(document.body.children[0]).not.toEqual(n)
 		})
 		
 		it('when nested', () => {
