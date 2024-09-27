@@ -33,6 +33,5 @@ jspm_packages/
 # Output of 'npm pack'
 *.tgz
 
-docs
 dist
 playground.html
