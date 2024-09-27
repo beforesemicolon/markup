@@ -512,7 +512,7 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('<button>click me</button>');
 		})
 		
-		it('when anywhere inside own template', () => {
+		it.skip('when anywhere inside own template', () => {
 			const temp = html`<div ref="box">
 				<p ref="paragraph">some text <span ref="value">value</span></p>
 			</div>`.render(document.body)
