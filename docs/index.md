@@ -1,3 +1,6 @@
+---
+layout: default
+---
 # Markup by Before Semicolon
 
 Markup is a reactive HTML Templating System to create Web User Interfaces.
