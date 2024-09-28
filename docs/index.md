@@ -1,3 +1,9 @@
+---
+title: Markup by Before Semicolon
+description: Reactive HTML Templating System to create Web User Interfaces.
+layout: landing
+---
+
 # Markup by Before Semicolon
 
 Markup is a reactive HTML Templating System to create Web User Interfaces.
