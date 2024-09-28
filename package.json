@@ -16,9 +16,9 @@
     "scripts": {
         "test": "jest --coverage",
         "test:watch": "jest --watch",
-        "docs:watch": "rm -rf website && nodemon --watch docs -e ts,css,md,json --exec 'npm run build:docs'",
+        "docs:watch": "rm -rf website && nodemon --watch docs -e ts,css,md,json --exec 'tsx build-scripts/docs/run.ts'",
         "local": "nodemon --watch src -e ts --exec 'npm run build && npm pack && npm link'",
-        "build:docs": "rm -rf website && tsx build-scripts/docs/run.ts",
+        "build:docs": "tsx build-scripts/docs/run.ts",
         "build:cjs-min": "esbuild `find src \\( -name '*.ts' ! -name '*.spec.ts' ! -name 'client.ts' \\)` --minify --outdir=dist/cjs --platform=node --format=cjs --keep-names --target=esnext",
         "build:esm-min": "esbuild `find src \\( -name '*.ts' ! -name '*.spec.ts' ! -name 'client.ts' \\)` --minify --outdir=dist/esm --platform=node --format=esm --keep-names --target=esnext",
         "build:browser": "tsx build-scripts/build-browser.ts",

@@ -1,19 +1,17 @@
 import { PageProps } from '../../build-scripts/docs/types'
+import meta from './_head-meta'
 
-export default ({ title, description, content }: PageProps) => `
+export default (props: PageProps) => `
 <!doctype html>
 <html lang="en">
     <head>
-        <meta charset="UTF-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0"
-        />
-        <meta name="description" content="${description}" />
-        <title>${title}</title>
+        ${meta(props)}
+        <link rel="stylesheet" href="./stylesheets/common.css">
+        <link rel="stylesheet" href="./stylesheets/hybrid.hightlighter.css">
     </head>
     <body>
-        ${content}
+        ${props.content}
+        </div>
     </body>
 </html>
 `
