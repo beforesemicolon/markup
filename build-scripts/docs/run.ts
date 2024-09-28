@@ -38,7 +38,7 @@ const traverseDirectory = async (dir: string) => {
 
         if (ext) {
             files.push(path.join(dir, item))
-        } else if (!/^[._]/.test(item)) {
+        } else if (!/^[._]/.test(item) && !/(stylesheets|assets)/.test(item)) {
             files.push(...(await traverseDirectory(path.join(dir, item))))
         }
     }
