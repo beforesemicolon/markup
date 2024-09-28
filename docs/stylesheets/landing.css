@@ -1,0 +1,60 @@
+@import 'common.css';
+
+/* .banner ------------------ */
+.banner {
+    padding: 100px 0 0;
+    text-align: center;
+}
+
+@media screen and (max-width: 680px) {
+    .banner {
+        text-align: left;
+    }
+}
+
+@media screen and (max-width: 560px) {
+    .banner {
+        padding: 80px 0 0;
+    }
+}
+
+.banner h2 {
+    font-size: 3rem;
+    margin: 0 0 5px;
+    padding: 15px 0 5px;
+}
+
+.banner p {
+    margin: 0;
+}
+
+.banner .actions {
+    display: flex;
+    gap: 35px;
+    justify-content: center;
+    margin: 50px 0;
+}
+
+.banner .actions a {
+    display: inline-flex;
+    padding: 8px 18px;
+    justify-content: center;
+    align-items: center;
+    text-transform: capitalize;
+    background: #d2ecff;
+    color: #000;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.banner .actions a:last-of-type {
+    background: none;
+    color: #d2ecff;
+    border: 1px solid #d2ecff;
+}
+
+@media screen and (max-width: 680px) {
+    .banner .actions {
+        justify-content: flex-start;
+    }
+}

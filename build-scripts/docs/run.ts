@@ -8,6 +8,7 @@ import hljs from 'highlight.js'
 import defaultTemp from './templates/default'
 import { CustomOptions, PageProps } from './types'
 import renderer from './renderer'
+import extensions, { walkTokens } from './extensions'
 
 const layouts: Map<string, (props: PageProps) => string> = new Map()
 
@@ -23,6 +24,15 @@ const marked = new Marked(
     })
 )
 
+marked.use({
+    extensions,
+    walkTokens: function (token) {
+        if (/box/.test(token.type)) {
+            console.log('-- token', token)
+            token.tokens = this.Lexer.lexInline(token.text)
+        }
+    },
+})
 marked.use({ renderer })
 
 const docsDir = path.resolve(process.cwd(), 'docs')
@@ -132,7 +142,11 @@ const traverseDirectory = async (dir: string) => {
                         },
                     },
                 })
-                .parse(content)
+                .parse(
+                    '--|.actions\n' +
+                        '[Documentation]() [Get Started]()\n' +
+                        '--$'
+                )
 
             await writeFile(
                 filePath.replace(docsDir, docsSiteDir).replace('.md', '.html'),
