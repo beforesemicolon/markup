@@ -30,8 +30,10 @@ body {
 .wrapper {
     padding-left: calc((100vw - 1024px) / 2);
     padding-right: calc((100vw - 1024px) / 2);
+}
 
-    @media screen and (max-width: 1024px) {
+@media screen and (max-width: 1024px) {
+    .wrapper {
         padding-left: 25px;
         padding-right: 25px;
     }
@@ -72,24 +74,6 @@ img {
     max-width: 100%;
 }
 
-.btn {
-    display: inline-flex;
-    padding: 8px 18px;
-    justify-content: center;
-    align-items: center;
-    text-transform: capitalize;
-    background: #d2ecff;
-    color: #000;
-    border-radius: 3px;
-    cursor: pointer;
-
-    &.outline {
-        background: none;
-        color: #d2ecff;
-        border: 1px solid #d2ecff;
-    }
-}
-
 p {
     font-weight: 100;
 }
@@ -100,55 +84,7 @@ ul {
     margin: 0;
 }
 
-.code-snippet {
-    background: #0d1112;
-    padding: 15px 5px 15px 10px;
-    border-radius: 3px;
-    position: relative;
-    border: 1px solid #101617;
-    margin: 5px 0 15px;
-
-    .content {
-        overflow: auto;
-    }
-
-    pre {
-        margin: 0;
-        font-size: 14px;
-        line-height: 135%;
-
-        code {
-            line-height: 130%;
-        }
-    }
-
-    .code-copy-btn {
-        all: unset;
-        padding: 3px 12px;
-        background: #151515;
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        border-top-left-radius: 5px;
-        font-size: 0.8rem;
-        letter-spacing: 0.1rem;
-        cursor: pointer;
-
-        &:hover {
-            background: #92c5ee;
-            color: #222;
-        }
-
-        &.copied {
-            background: #b6fffe;
-            color: #222;
-        }
-    }
-
-    .hljs {
-        background: none !important;
-    }
-}
+/* header ---------------- */
 
 header {
     padding: 20px 25px 15px;
@@ -160,46 +96,50 @@ header {
     position: sticky;
     top: 0;
     z-index: 10;
-
-    h1 {
-        margin: 0;
-        font-size: 16px;
-        letter-spacing: 0.09rem;
-        font-weight: 100;
-
-        em {
-            font-weight: 100;
-        }
-
-        strong {
-            font-weight: 900;
-        }
-
-        a {
-            text-decoration: none;
-        }
-    }
-
-    nav {
-        display: flex;
-        gap: 20px;
-        font-size: 0.9rem;
-
-        a {
-            text-decoration: none;
-            transition: color 0.15s ease;
-            font-weight: 900;
-
-            em {
-                font-weight: 100;
-            }
-        }
-    }
 }
+
+header h1 {
+    margin: 0;
+    font-size: 16px;
+    letter-spacing: 0.09rem;
+    font-weight: 100;
+}
+
+header h1 em {
+    font-weight: 100;
+}
+
+header h1 strong {
+    font-weight: 900;
+}
+
+header h1 a {
+    text-decoration: none;
+}
+
+header nav {
+    display: flex;
+    gap: 20px;
+    font-size: 0.9rem;
+}
+
+header nav a {
+    text-decoration: none;
+    transition: color 0.15s ease;
+    font-weight: 900;
+}
+
+header nav a em {
+    font-weight: 100;
+}
+
+/* main --------------------- */
 
 main {
     flex: 1;
 }
+
+/* footer ------------------- */
 
 footer {
     background: #f5f8ff;
@@ -210,78 +150,168 @@ footer {
     gap: 25px;
     flex-wrap: wrap;
     position: relative;
+}
 
-    #footer-markup-logo {
-        position: absolute;
-        top: 60px;
-        opacity: 0.4;
+footer #footer-markup-logo {
+    position: absolute;
+    top: 60px;
+    opacity: 0.4;
+}
+
+footer a {
+    color: #555;
+}
+
+footer h4 {
+    color: #222;
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+footer .learning-resources,
+footer .about-bfs {
+    width: 25%;
+}
+
+@media screen and (max-width: 1024px) {
+    footer .learning-resources,
+    footer .about-bfs {
+        width: 30%;
     }
+}
 
-    a {
-        color: #555;
-    }
-
-    h4 {
-        color: #222;
-        font-size: 1.2rem;
-        font-weight: 500;
-        margin-bottom: 10px;
-    }
-
-    .learning-resources,
-    .about-bfs {
-        width: 25%;
-
-        @media screen and (max-width: 1024px) {
-            width: 30%;
-        }
-
-        @media screen and (max-width: 760px) {
-            width: 45%;
-        }
-
-        @media screen and (max-width: 560px) {
-            width: 100%;
-        }
-
-        li {
-            padding: 8px 0;
-            font-size: 0.9rem;
-            font-weight: 300;
-
-            a {
-                &:hover {
-                    color: #002b4b;
-                }
-            }
-
-            address {
-                margin-top: 20px;
-                display: flex;
-                gap: 15px;
-            }
-        }
-    }
-
-    .copyright {
+@media screen and (max-width: 760px) {
+    footer .learning-resources,
+    footer .about-bfs {
         width: 45%;
-        color: #555;
-        text-align: right;
-        margin-top: 15px;
-
-        @media screen and (max-width: 1024px) {
-            width: 33%;
-        }
-
-        @media screen and (max-width: 760px) {
-            width: 100%;
-            text-align: left;
-            margin-top: 30px;
-        }
-
-        img {
-            height: 30px;
-            width: auto;
-        }
     }
+}
+
+@media screen and (max-width: 560px) {
+    footer .learning-resources,
+    footer .about-bfs {
+        width: 100%;
+    }
+}
+
+footer .learning-resources li,
+footer .about-bfs li {
+    padding: 8px 0;
+    font-size: 0.9rem;
+    font-weight: 300;
+}
+
+footer .learning-resources li a:hover,
+footer .about-bfs li a:hover {
+    color: #002b4b;
+}
+
+footer address {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+}
+
+footer .copyright {
+    width: 45%;
+    color: #555;
+    text-align: right;
+    margin-top: 15px;
+}
+
+@media screen and (max-width: 1024px) {
+    footer .copyright {
+        width: 33%;
+    }
+}
+
+@media screen and (max-width: 760px) {
+    footer .copyright {
+        width: 100%;
+        text-align: left;
+        margin-top: 30px;
+    }
+}
+
+footer .copyright img {
+    height: 30px;
+    width: auto;
+}
+
+/* .code-snippet ------------------- */
+
+.code-snippet {
+    background: #0d1117;
+    padding: 15px;
+    border-radius: 3px;
+    position: relative;
+    border: 1px solid #101617;
+    margin: 5px 0 15px;
+}
+
+.code-snippet .label {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 5px 10px;
+    background: #92c5ee;
+    color: #000;
+    font-size: 0.7rem;
+    letter-spacing: 0.06rem;
+    text-transform: capitalize;
+    opacity: 0.4;
+}
+
+.code-snippet .label:hover {
+    opacity: 1;
+}
+
+.code-snippet .label.javascript {
+    background: #d2ae1e;
+}
+
+.code-snippet .label.css {
+    background: #2680c7;
+}
+
+.code-snippet .label.html {
+    background: #23bf67;
+}
+
+.code-snippet .content {
+    overflow: auto;
+}
+
+.code-snippet pre {
+    margin: 0;
+    font-size: 14px;
+    display: inline-flex;
+}
+
+.code-snippet pre code {
+    line-height: 130%;
+}
+
+.code-snippet .code-copy-btn {
+    all: unset;
+    padding: 3px 12px;
+    background: #151515;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    border-top-left-radius: 5px;
+    font-size: 0.8rem;
+    letter-spacing: 0.1rem;
+    cursor: pointer;
+}
+
+.code-snippet .code-copy-btn:hover {
+    background: #92c5ee;
+    color: #222;
+}
+
+.code-snippet .code-copy-btn.copied {
+    background: #b6fffe;
+    color: #222;
 }

@@ -1,11 +1,6 @@
-export default function heading({
-    tokens,
-    depth,
-}: {
-    tokens: string
-    depth: string
-}) {
-    // @ts-expect-error this
+import { Tokens } from 'marked'
+
+export default function heading({ tokens, depth }: Tokens.Heading) {
     const text = this.parser.parseInline(tokens)
     const escapedText = text.toLowerCase().replace(/[^\w]+/g, '-')
 
