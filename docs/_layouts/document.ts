@@ -35,7 +35,8 @@ export default (props: PageProps) => {
                         v as SiteMap,
                         props.path
                     )}</ol>`
-            )}
+            )
+            .join('')}
     `
 
     return `
