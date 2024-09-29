@@ -14,7 +14,7 @@ body {
     font-family: 'Open Sans', sans-serif;
     background: linear-gradient(0deg, transparent, #050c13),
         linear-gradient(transparent, transparent),
-        linear-gradient(#000, #000, #000911);
+        linear-gradient(#004350, #000, #000911);
     color: #f2f2f2;
     letter-spacing: 0.05rem;
     display: flex;
@@ -28,11 +28,11 @@ body {
 }
 
 .wrapper {
-    padding-left: calc((100vw - 1024px) / 2);
-    padding-right: calc((100vw - 1024px) / 2);
+    padding-left: calc((100vw - 1200px) / 2);
+    padding-right: calc((100vw - 1200px) / 2);
 }
 
-@media screen and (max-width: 1024px) {
+@media screen and (max-width: 1200px) {
     .wrapper {
         padding-left: 25px;
         padding-right: 25px;
