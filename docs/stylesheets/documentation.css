@@ -37,7 +37,7 @@
 }
 
 #documentation nav li.active::after {
-    content: "";
+    content: '';
     display: inline-block;
     width: 10px;
     height: 10px;

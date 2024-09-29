@@ -93,7 +93,7 @@
 }
 
 #why-markup ul li::after {
-    content: "";
+    content: '';
     display: block;
     width: calc(100% + 1px);
     height: calc(100% + 1px);
@@ -102,12 +102,7 @@
     left: 0;
     padding: 1px;
     border-radius: 8px;
-    background: linear-gradient(
-      134deg,
-      transparent,
-      transparent,
-      #454545
-    );
+    background: linear-gradient(134deg, transparent, transparent, #454545);
     z-index: -1;
 }
 
@@ -136,7 +131,7 @@ section#quick-start {
     padding-bottom: 100px;
 }
 
-section#quick-start h3{
+section#quick-start h3 {
     font-size: 1.6rem;
 }
 
