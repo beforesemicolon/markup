@@ -14,7 +14,7 @@ A simple and lightweight solution to create stateful Web User Interfaces.
 
 <div class="actions">
 
-[Documentation](./documents/index.md) [Get Started](./documents/get-started.md)
+[Documentation](documentation/index.md) [Get Started](documentation/get-started.md)
 
 </div>
 
@@ -25,11 +25,11 @@ A simple and lightweight solution to create stateful Web User Interfaces.
 ### Why Markup?
 
 - **Reactive**
-    Use JavaScript template literals to create reactive DOM with state management and lifecycles to create powerful user interfaces.
+    Markup uses JavaScript template literals and Functions to allow you to create reative DOM with state management, render lyfecycles, and side effects controls.
 - **Small**
-    Markup allows you to do a lot with 9Kb compressed code (18Kb umcompressed). From prototyping to enterprise web applications, ship it to the client!
+    Markup allows you to do a lot with 9Kb compressed code (18Kb umcompressed). From prototyping to enterprise web applications, you can ship to the client confidently!
 - **Simple**
-    Markup is based on Web Standards and exposes 3 APIs that you need to enhance Web Components and working with DOM.
+    Markup is based on Web Standards and exposes 3 simple APIs you can use to enhance Web Components APIs, working with DOM, and building any Web User Interface.
 
 </section>
 

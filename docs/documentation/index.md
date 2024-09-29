@@ -1,6 +1,6 @@
 ---
 name: Markup Documentation
-path: /documents
+path: /documentation
 title: Documents - Markup by Before Semicolon
 description: Documents - What is Markup?
 layout: document

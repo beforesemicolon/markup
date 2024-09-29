@@ -10,11 +10,11 @@ export default ({ path }: PageProps) => `
         >
     </h1>
     <nav>
-        <a href="/documents/web-component" ${
-            path === '/documents/web-component' ? 'class="active"' : ''
+        <a href="/documentation/web-component" ${
+            path === '/documentation/web-component' ? 'class="active"' : ''
         }>Web Component</a>
-        <a href="/documents/router" ${
-            path === '/documents/router' ? 'class="active"' : ''
+        <a href="/documentation/router" ${
+            path === '/documentation/router' ? 'class="active"' : ''
         }>Router</a>
         <a href="https://www.npmjs.com/package/@beforesemicolon/markup"
             >v<em>${pkg.version}</em></a
