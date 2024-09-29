@@ -134,10 +134,16 @@ const traverseDirectory = async (dir: string) => {
                 })
                 .parse(content)
 
-            await writeFile(
-                filePath.replace(docsDir, docsSiteDir).replace('.md', '.html'),
-                contentMd
+            const fileWebsitePath = filePath
+                .replace(docsDir, docsSiteDir)
+                .replace('.md', '.html')
+            const fileDirWebsitePath = fileWebsitePath.replace(
+                path.basename(fileWebsitePath),
+                ''
             )
+
+            await mkdir(fileDirWebsitePath, { recursive: true })
+            await writeFile(fileWebsitePath, contentMd, { recursive: true })
         }
     }
 })()
