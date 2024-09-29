@@ -113,3 +113,13 @@
     display: block;
     margin-bottom: 20px;
 }
+
+@media screen and (max-width: 860px) {
+    #why-markup ul {
+        flex-direction: column;
+    }
+    
+    #why-markup ul li {
+        width: 100%;
+    }
+}

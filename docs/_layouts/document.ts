@@ -10,13 +10,15 @@ export default (props: PageProps) => {
 <html lang="en">
     <head>
         ${meta(props)}
-        <link rel="stylesheet" href="/stylesheets/landing.css">
+        <link rel="stylesheet" href="/stylesheets/document.css">
     </head>
     <body>
         ${header(props)}
         
-        <main class="wrapper">
-            ${props.content}
+        <main>
+            <article>
+                ${props.content}
+            </article>
         </main>
         
         ${footer()}
