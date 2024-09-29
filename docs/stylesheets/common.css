@@ -59,7 +59,6 @@ h6 {
     font-family: 'Exo 2.0', sans-serif;
     color: #ffff;
     font-weight: 900;
-    letter-spacing: 0.15rem;
 }
 
 p {
@@ -132,6 +131,7 @@ header nav a {
     border-bottom: 1px solid transparent;
 }
 
+header nav a.active,
 header nav a:hover {
     border-color: #ffffff;
 }

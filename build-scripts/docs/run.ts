@@ -51,6 +51,32 @@ const traverseDirectory = async (dir: string) => {
     return files
 }
 
+marked.use({
+    hooks: {
+        preprocess(markdown: string) {
+            const { attributes, body } = fm(markdown) as {
+                attributes: Partial<CustomOptions>
+                body: string
+            }
+
+            this.options = { ...this.options, ...attributes }
+            return body
+        },
+        postprocess(html: string) {
+            const { layout = 'default', ...options } = this
+                .options as CustomOptions
+
+            html = DOMPurify.sanitize(html)
+
+            return (
+                layouts.get(layout)?.({
+                    ...options,
+                    content: html,
+                }) || html
+            )
+        },
+    },
+})
 ;(async () => {
     // create website dir
     await mkdir(docsSiteDir, { recursive: true })
@@ -98,41 +124,7 @@ const traverseDirectory = async (dir: string) => {
     for (const filePath of filePaths) {
         if (filePath.endsWith('.md')) {
             const content = await readFile(filePath, 'utf-8')
-            let opt: CustomOptions = {
-                layout: 'default',
-                title: '',
-                description: '',
-                name: '',
-                path: '',
-            }
-            const contentMd = await marked
-                .use({
-                    hooks: {
-                        preprocess(markdown: string) {
-                            const { attributes, body } = fm(markdown) as {
-                                attributes: Partial<CustomOptions>
-                                body: string
-                            }
-
-                            opt = { ...opt, ...attributes }
-
-                            return body
-                        },
-                        postprocess(html: string) {
-                            const { layout = 'default', ...options } = opt
-
-                            html = DOMPurify.sanitize(html)
-
-                            return (
-                                layouts.get(layout)?.({
-                                    ...options,
-                                    content: html,
-                                }) || html
-                            )
-                        },
-                    },
-                })
-                .parse(content)
+            const contentMd = await marked.parse(content)
 
             const fileWebsitePath = filePath
                 .replace(docsDir, docsSiteDir)
