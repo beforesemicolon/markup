@@ -25,72 +25,43 @@ A simple and lightweight solution to create stateful Web User Interfaces.
 ### Why Markup?
 
 - **Reactive**
-    Markup uses JavaScript template literals and Functions to allow you to create reative DOM with state management, render lyfecycles, and side effects controls.
+    Markup uses JavaScript **[template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals)** and Functions to allow you to create reative DOM with state management, render lyfecycles, and side effects control.
 - **Small**
-    Markup allows you to do a lot with 9Kb compressed code (18Kb umcompressed). From prototyping to enterprise web applications, you can ship to the client confidently!
+    Markup allows you to do a lot with **9Kb compressed** code (***18Kb umcompressed***. From prototyping to enterprise web applications, you can ship it to the client confidently!
 - **Simple**
-    Markup is based on Web Standards and exposes 3 simple APIs you can use to enhance Web Components APIs, working with DOM, and building any Web User Interface.
+    Markup is **[based on Web Standards](https://www.w3.org/standards/)** and exposes 3 simple APIs you can use to enhance Web Components APIs, working with DOM, and building any Web User Interface.
+- **Plug & Play**
+    Markup requires no build, no parsing, no bundling. You can simply add it to your project and start using it. This is because it is based on web standards and looks super familiar.
+- **Web Component**
+    Markup enhances Web Component APIs with reactivity and by eliminating the need to perform DOM manipulations when creating components for your projects.
+- **Performance**
+    Markup is data aware and handles everything behind the scenes which allows the DOM to only be updated when ands where it is necessary.
 
 </section>
 
-<section id="reactive-dom">
+<section id="quick-start">
 
-#### Reactive DOM
+### Quick Start
 
-Markup offers a standalone way to give reactivity to the DOM. By using template literals, you can define what the DOM should look like, and with functions and state, you can allow the DOM to change whenever a value does.
+Install it in your project
 
-```javascript
-const [count, updateCount] = state(0);
-
-const button = document.createElement('button');
-
-effect(() => {
-  button.textContent = `count ${count()}`
-})
-
-button.onclick = () => {
-  updateCount(prev => prev + 1)
-}
-
-document.body.appendChild(button);
+```
+npm install @beforesemicolon/markup
 ```
 
-</section>
+or
 
-<section id="enhance-web-components">
+```
+yarn install @beforesemicolon/markup
+```
 
-#### Enhance Web Components
-
-Native Web Components APIs are powerful but still require DOM manipulation and state management. With Markup youu can continue to enjoy native web components with web standards while Markup handles all things DOM and state related.
+Or simply add the following script in the head of your document.
 
 ```html
-<input-field onchange="console.log(event.detail.value)"></input-field>
+<script src="https://unpkg.com/@beforesemicolon/markup/dist/client.js"></script>
 ```
 
-```javascript
-class InputField extends WebComponent {
-  static observedAttributes = ['value', 'type', 'placeholder'];
-  type = 'text'
-  value = ''
-  placeholder = 'Enter text'
-  
-  handleChange = (e) => {
-    this.dispatch('change', {
-      value: e.target.value
-    })
-  }
-  
-  render() {
-    return html`
-      <input type="${this.props.type}" 
-        value="${this.props.value}"
-        placeholder="${this.props.placeholder}"
-        oninput="${this.handleChange}"
-        />`
-  }
-}
-
-customElements.define('input-field', InputField)
-```
-
+[Try It!](https://stackblitz.com/edit/web-platform-lvonxr?file=app.js)
 </section>
+
+

@@ -2,7 +2,7 @@ import { Tokens } from 'marked'
 
 export default function code({ lang, text }: Tokens.Code) {
     return `<div class="code-snippet">
-        <div class="label ${lang.toLowerCase()}">${lang}</div>
+        ${lang ? `<div class="label ${lang.toLowerCase()}">${lang}</div>` : ''}
         <div class="content">
             <pre>
                 <code class="hljs language-javascript">${text}</code>
