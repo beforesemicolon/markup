@@ -1,6 +1,6 @@
 ---
 name: Markup Router
-path: /documentation/router
+path: /documentation/capabilities/router
 title: Router - Markup by Before Semicolon
 description: Web Component based Router with Markup by Before Semicolon
 layout: document

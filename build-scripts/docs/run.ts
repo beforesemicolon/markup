@@ -1,4 +1,4 @@
-import { Marked } from 'marked'
+import { marked, Marked, Lexer } from 'marked'
 import { mkdir, readdir, readFile, writeFile, cp } from 'fs/promises'
 import path from 'path'
 import fm from 'front-matter'
@@ -6,9 +6,10 @@ import DOMPurify from 'isomorphic-dompurify'
 import { markedHighlight } from 'marked-highlight'
 import hljs from 'highlight.js'
 import defaultTemp from './templates/default'
-import { CustomOptions, PageProps } from './types'
+import { CustomOptions, PageProps, SiteMap } from './types'
 import renderer from './renderer'
 
+const siteMap: SiteMap = {}
 const layouts: Map<string, (props: PageProps) => string> = new Map()
 
 layouts.set('default', defaultTemp)
@@ -68,10 +69,18 @@ marked.use({
 
             html = DOMPurify.sanitize(html)
 
+            const tableOfContent = [
+                ...html.matchAll(
+                    /<h[0-6]\sid="[^"]+".*?>.*?<a\s+href="([^"]+)".*?>([^<]+)<\/a>/gm
+                ),
+            ].map((m) => ({ path: m[1], label: m[2] }))
+
             return (
                 layouts.get(layout)?.({
                     ...options,
                     content: html,
+                    siteMap,
+                    tableOfContent,
                 }) || html
             )
         },
@@ -120,6 +129,34 @@ marked.use({
     }
 
     const filePaths = await traverseDirectory(docsDir)
+
+    filePaths
+        .map((p) =>
+            p
+                .replace(docsDir, '')
+                .replace(/\.md/, '.html')
+                .replace(/index\.html/, '')
+        )
+        .forEach((p) => {
+            const fileName = path.basename(p) || '/'
+            const dir = p.replace(fileName, '').replace(/\/$/, '')
+
+            let currentDir = siteMap
+
+            dir.split('/')
+                .filter(Boolean)
+                .forEach((d) => {
+                    if (!currentDir[d]) {
+                        currentDir[d] = {}
+                    }
+
+                    currentDir = currentDir[d]
+                })
+
+            if (!currentDir[fileName]) {
+                currentDir[fileName] = p
+            }
+        })
 
     for (const filePath of filePaths) {
         if (filePath.endsWith('.md')) {
