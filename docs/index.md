@@ -6,64 +6,91 @@ description: Reactive HTML Templating System to create Web User Interfaces.
 layout: landing
 ---
 
-<div role="banner" class="banner">
+<div role="banner" id="banner">
 
 ## Reactive Templating System
 
 A simple and lightweight solution to create stateful Web User Interfaces.
 
---|.actions
-[Documentation]() [Get Started]()
---$
+<div class="actions">
+
+[Documentation](./documents/index.md) [Get Started](./documents/get-started.md)
 
 </div>
 
+</div>
+
+<section id="why-markup">
+
+### Why Markup?
+
+- **Reactive**
+    Use JavaScript template literals to create reactive DOM with state management and lifecycles to create powerful user interfaces.
+- **Small**
+    Markup allows you to do a lot with 9Kb compressed code (18Kb umcompressed). From prototyping to enterprise web applications, ship it to the client!
+- **Simple**
+    Markup is based on Web Standards and exposes 3 APIs that you need to enhance Web Components and working with DOM.
+
+</section>
+
+<section id="reactive-dom">
+
+#### Reactive DOM
+
+Markup offers a standalone way to give reactivity to the DOM. By using template literals, you can define what the DOM should look like, and with functions and state, you can allow the DOM to change whenever a value does.
+
 ```javascript
-const [count, updateCount] = state(0)
+const [count, updateCount] = state(0);
+
+const button = document.createElement('button');
 
 effect(() => {
-    if(count() > 10) {
-        alert('Count exceeded max of 10')
-    }
+  button.textContent = `count ${count()}`
 })
 
-const heading = 'Hello World';
-
-const handleClick = () => {
-    updateCount((prev) => prev + 1)
+button.onclick = () => {
+  updateCount(prev => prev + 1)
 }
 
-const App = html`
-    <h1>${heading}</h1>
-    <button type="button" onclick="${handleClick}">${count}</button>
-`
-
-App.render(document.body)
+document.body.appendChild(button);
 ```
 
-<section class="why">
+</section>
 
-## Why Markup?
+<section id="enhance-web-components">
 
-### It is Simple!
+#### Enhance Web Components
 
-Markup comes with a low learning curve. Its pretty much HTML, CSS and JavaScript as you know with the addition of three APIs: `html`, `state`, and `effect`
+Native Web Components APIs are powerful but still require DOM manipulation and state management. With Markup youu can continue to enjoy native web components with web standards while Markup handles all things DOM and state related.
 
-- **html**
-    The `html` API allows you to define the template of what you want to render. It also offers methods you can use to [render]() in many ways, subscribe to the different [lyfecycle](), and tap into the [nodes]() of the template. [Learn more]();
-- **state**
-    The `state` API allows you to easily define a reactive data you want to use in the template or to perform side effects on. It can be used independent from `html` like a [state stores](), data subscription, and as content. [Learn more]();
-- **effect**
-    The `effect` API is tied to `state` and all it does it allow you to perform side effects on the states the callback you provide consumes. It is self-manageable and reacts to things just the the template. [Learn more]();
+```html
+<input-field onchange="console.log(event.detail.value)"></input-field>
+```
 
-### Small and Powerful!
+```javascript
+class InputField extends WebComponent {
+  static observedAttributes = ['value', 'type', 'placeholder'];
+  type = 'text'
+  value = ''
+  placeholder = 'Enter text'
+  
+  handleChange = (e) => {
+    this.dispatch('change', {
+      value: e.target.value
+    })
+  }
+  
+  render() {
+    return html`
+      <input type="${this.props.type}" 
+        value="${this.props.value}"
+        placeholder="${this.props.placeholder}"
+        oninput="${this.handleChange}"
+        />`
+  }
+}
 
-With just 8kb compressed, and 80kb uncompressed its incredible how much it allows you to do. You can confidently ship it to the client allowing you to make that vanilla JavaScript project reactive and efficient.
-
-Markup enhances the DOM by offering reactivity. Working with Web Components becomes a breeze as it handles all state and templating needed so you don't have to do DOM manipulations and tracks data and events.
-
-Its a perfect option for quick prototyping, and experiments as it requires no setup to be used. Its plug and play!
-
-Make no mistake, Markup can scale with your project allowing you to build complex and modular web applications that are efficient, lightweight and easy to maintain. On top of that, you can choose to render everything on the server and ship your static content to the browser. Its a no brainer.
+customElements.define('input-field', InputField)
+```
 
 </section>

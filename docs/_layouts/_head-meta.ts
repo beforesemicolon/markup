@@ -1,6 +1,7 @@
 import { PageProps } from '../../build-scripts/docs/types'
 
-export default ({ title, description, name, path }: PageProps) => `
+export default ({ title, description, name, path }: PageProps) => {
+    return `
 <meta charset="UTF-8" />
 <meta
     name="viewport"
@@ -62,5 +63,6 @@ export default ({ title, description, name, path }: PageProps) => `
     type="image/x-icon"
     href="/assets/favicon/favicon.ico"
 />
-
+<link rel="stylesheet" href="/stylesheets/github-dark.hightlighter.css">
 `
+}

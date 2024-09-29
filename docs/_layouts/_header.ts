@@ -9,6 +9,8 @@ export default () => `
         >
     </h1>
     <nav>
+        <a href="/documents/web-component">Web Component</a>
+        <a href="/documents/router">Router</a>
         <a href="https://www.npmjs.com/package/@beforesemicolon/markup"
             >v<em>${pkg.version}</em></a
         >
