@@ -2,7 +2,7 @@
 name: Markup Documentation
 path: /documentation
 title: Documents - Markup by Before Semicolon
-description: Documents - What is Markup?
+description: What is Markup?
 layout: document
 ---
 

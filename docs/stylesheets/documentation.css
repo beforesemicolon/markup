@@ -4,22 +4,19 @@
     display: flex;
     max-height: 100vh;
     overflow: auto;
-    margin-bottom: 50px;
-    padding-top: 50px;
-    padding-bottom: 50px;
 }
 
 /* nav ------------ */
 
 #documentation nav {
-    width: 200px;
+    width: 225px;
     position: sticky;
     top: 0;
     left: 0;
     overflow: auto;
     min-height: 100%;
-    border-right: 1px solid #444;
-    padding: 10px 0 30px 0;
+    border-right: 0.001rem solid coral;
+    padding: 50px 0 30px 0;
 }
 
 #documentation nav a {
@@ -27,15 +24,16 @@
 }
 
 #documentation nav li {
-    padding: 8px 10px;
+    padding: 6px 10px;
     text-transform: capitalize;
     letter-spacing: 0.05rem;
     position: relative;
+    font-size: 0.9rem;
 }
 
 #documentation nav li.active a,
 #documentation nav li:hover a {
-    text-decoration: underline;
+    color: coral;
 }
 
 #documentation nav li.active::after {
@@ -44,7 +42,7 @@
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: #fff;
+    background: coral;
     position: absolute;
     right: 0;
     top: 50%;
@@ -59,7 +57,7 @@
 
 #documentation nav ol > span {
     text-transform: capitalize;
-    font-size: 1.2rem;
+    font-size: 1rem;
     margin-bottom: 10px;
     display: inline-block;
     font-weight: 700;
@@ -71,7 +69,11 @@
 #documentation article {
     flex: 1;
     max-width: 1024px;
-    padding: 0 30px;
+    padding: 50px 30px;
+}
+
+#documentation article h2 {
+    font-size: 3rem;
 }
 
 /* #table-of-content ------------ */
@@ -83,8 +85,8 @@
     left: 0;
     overflow: auto;
     height: 100%;
-    border-left: 1px solid #aaa;
-    padding: 10px 0 30px 20px;
+    border-left: 1px solid #222;
+    padding: 50px 0 30px 20px;
 }
 
 #documentation #table-of-content li {
