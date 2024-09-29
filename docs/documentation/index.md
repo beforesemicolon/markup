@@ -7,4 +7,3 @@ layout: document
 ---
 
 ## What is Markup?
-
