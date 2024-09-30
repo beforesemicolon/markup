@@ -62,14 +62,16 @@ export default (props: PageProps) => {
                     props.path === '/documentation'
                         ? `${githubDocsPath}/index.md`
                         : `${githubDocsPath}.md`
-                }">edit this doc</a>
+                }" id="edit-doc">edit this doc</a>
             </article>
             <aside id="table-of-content">
                 <h4>Content</h4>
                 <ul>
-                    ${props.tableOfContent.map(
-                        (c) => `<li><a href="${c.path}">${c.label}</a></li>`
-                    )}
+                    ${props.tableOfContent
+                        .map(
+                            (c) => `<li><a href="${c.path}">${c.label}</a></li>`
+                        )
+                        .join('')}
                 </ul>
             </aside>
         </main>
