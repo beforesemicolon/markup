@@ -13,9 +13,25 @@
     position: sticky;
     top: 0;
     left: 0;
-    overflow: auto;
     min-height: 100%;
     border-right: 0.001rem solid coral;
+}
+
+#documentation nav::after {
+    content: '';
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100vw;
+    background: #09141d;
+    height: 100%;
+    z-index: -1;
+}
+
+#documentation nav ul {
+    height: 100%;
+    overflow: auto;
     padding: 50px 0 30px 0;
 }
 
@@ -68,7 +84,7 @@
 
 #documentation article {
     flex: 1;
-    max-width: 1024px;
+    max-width: 825px;
     padding: 50px 30px;
     color: #ddd;
 }
