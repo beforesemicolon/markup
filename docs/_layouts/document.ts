@@ -52,6 +52,9 @@ export default (props: PageProps) => {
         <main id="documentation" class="wrapper">
             <nav id="docs-nav">
                 <ul>
+                    <li ${
+                        props.path === '/documentation' ? 'class="active"' : ''
+                    }><a href="/documentation">What is Markup?</a></li>
                     ${docsMenu}
                 </ul>
             </nav>

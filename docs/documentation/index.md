@@ -31,7 +31,9 @@ We believe in a simple way to build the web without the jargon of a framework, c
 
 ### Why Markup?
 
-Markup focus on being intuitive by relying on whats familiar, being small and enhancing the web by doing things well and reliably. This can be broken down into 6 points:
+Markup focus on being intuitive by relying on whats familiar; on being small so you can confidently ship it to the client; and on enhancing the web by doing things well and in performant way. 
+
+This philosophy can be further broken down into six points:
 
 - **Reactive**:
     Markup uses JavaScript **[template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals)** and Functions to allow you to create reative DOM with state management, render lyfecycles, and side effects control.

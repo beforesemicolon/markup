@@ -33,6 +33,7 @@
     height: 100%;
     overflow: auto;
     padding: 50px 0 30px 0;
+    position: relative;
 }
 
 #documentation nav a {
@@ -55,14 +56,14 @@
 #documentation nav li.active::after {
     content: '';
     display: inline-block;
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     background: coral;
     position: absolute;
-    right: 0;
+    right: 10px;
     top: 50%;
-    transform: translate(50%, -50%);
+    transform: translate(0, -50%);
 }
 
 #documentation nav ol {
@@ -239,7 +240,7 @@
 #documentation article #edit-doc {
     margin: 30px 0 0;
     display: inline-block;
-    color: #009688;
+    color: coral;
 }
 
 /* #table-of-content ------------ */
