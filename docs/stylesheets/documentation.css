@@ -70,10 +70,160 @@
     flex: 1;
     max-width: 1024px;
     padding: 50px 30px;
+    color: #ddd;
+}
+
+#documentation article::after {
+    content: '';
+    display: block;
+    height: 50px;
 }
 
 #documentation article h2 {
     font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+#documentation article h3 {
+    font-weight: 500;
+    font-size: 1.8rem;
+    margin: 30px 0 15px;
+}
+
+#documentation article h4 {
+    font-weight: 300;
+    font-size: 1.2rem;
+    margin: 35px 0 20px;
+}
+
+#documentation article p {
+    margin: 20px 0 10px;
+    line-height: 140%;
+}
+
+#documentation article p a {
+    color: #0074d9;
+    border-bottom: 1px solid #013c6f;
+    font-weight: 500;
+}
+
+#documentation article p a:hover {
+    color: #078cff;
+}
+
+#documentation article .heading {
+    scroll-margin: 60px;
+}
+
+#documentation article .heading a {
+    text-decoration: none;
+    color: #ccc;
+    border: none;
+    position: relative;
+}
+
+#documentation article .heading a::before {
+    content: '#';
+    color: #777;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translate(calc(-100% - 5px), -50%);
+    font-size: 80%;
+    display: none;
+}
+
+#documentation article .heading a:hover::before {
+    display: inline-block;
+}
+
+#documentation article ul,
+#documentation article ol {
+    margin: 20px 0;
+    list-style: circle;
+    padding-left: 15px;
+}
+
+#documentation article ul li,
+#documentation article ol li {
+    margin: 15px 0;
+    line-height: 140%;
+}
+
+#documentation article ol {
+    list-style: decimal;
+}
+
+#documentation article code:not(.hljs) {
+    background: #161a1c;
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 2px;
+    line-height: 130%;
+    font-size: 0.9rem;
+}
+
+#documentation article div.warning,
+#documentation article div.info {
+    background: #f7e199;
+    color: #222;
+    padding: 20px;
+    border-radius: 2px;
+}
+
+#documentation article div.warning code,
+#documentation article div.info code {
+    background: #f5df90;
+}
+
+#documentation article div.info {
+    background: #99d0f7;
+}
+
+#documentation article div.info code {
+    background: #8cc9f4;
+}
+
+#documentation article details summary {
+    font-family: 'Exo 2.0', sans-serif;
+    font-weight: 500;
+    font-size: 1.8rem;
+    margin: 30px 0 15px;
+    cursor: pointer;
+}
+
+#documentation article dl  dt {
+    font-size: 1.2rem;
+    font-family: 'Exo 2.0', sans-serif;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+#documentation article dl  dd {
+    margin: 0 0 25px 10px;
+    line-height: 150%;
+}
+
+#documentation article .doc-prev-next-nav {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 0;
+    margin-top: 50px;
+    border-radius: 2px;
+    border-top: 1px solid #333;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+#documentation article .doc-prev-next-nav a {
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+#documentation article #edit-doc {
+    margin: 30px 0 0;
+    display: inline-block;
+    color: #009688;
 }
 
 /* #table-of-content ------------ */
@@ -91,6 +241,7 @@
 
 #documentation #table-of-content li {
     font-size: 0.8rem;
+    padding: 6px 2px;
 }
 
 #documentation #table-of-content li a {
