@@ -12,11 +12,7 @@ Markup does not ship with a dedicated component API. Components are simply funct
 
 ```javascript
 const MyButton = () => {
-  return html`
-    <button type="button">
-      click me
-    </button>
-  `;
+    return html` <button type="button">click me</button> `
 }
 ```
 
@@ -31,18 +27,10 @@ MyButton().render(document.body)
 Since its functions, you can take arguments and inject them directly into the template with proper defaults handling.
 
 ```javascript
-const Button = ({
-  content = "", 
-  disabled = false, 
-  type = "button"
-}) => {
-  return html`
-    <button 
-      type="${type}"
-      disabled="${disabled}"
-      >
-      ${content}
-    </button>`;
+const Button = ({ content = '', disabled = false, type = 'button' }) => {
+    return html` <button type="${type}" disabled="${disabled}">
+        ${content}
+    </button>`
 }
 ```
 
@@ -52,11 +40,11 @@ Templates can take raw values or functions that returns some value which can be 
 enum MyButtonType {
     Button = 'button',
     Reset = 'reset',
-    Submit = 'submit'
+    Submit = 'submit',
 }
 
 interface MyButtonProps {
-    content: unknown;
+    content: unknown
     disabled: boolean | StateGetter<boolean>
     type: MyButtonType | StateGetter<MyButtonType>
 }
@@ -71,31 +59,31 @@ You can take advantage of both [effect](../state/effect.md) and `html` [lifecycl
 ```javascript
 const ChatMessages = () => {
     const [messages, updateMessages] = state([])
-    
+
     onUpdate(() => {
         // todo: scroll to the bottom to show latest msg
     })
-    
+
     const onMount = () => {
         const controller = new AbortController();
         const signal = controller.signal;
-        
+
         fetch('...', { signal })
             .then((res) => {
                 if(!res.ok) throw new Error(res.statusText)
-                
+
                 return res.json()
             })
             .then((res) => updateMessages(res.messages))
             .catch(console.error);
-        
+
         // return a function to be called on unmount
         // where you can perform any clean ups
         return () => {
             controller.abort();
         }
     }
-    
+
     return html`
         <ul>
             ${repeat(messages, msg => html`<li>${msg}</li>
