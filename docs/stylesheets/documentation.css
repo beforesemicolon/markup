@@ -88,6 +88,7 @@
     max-width: 825px;
     padding: 50px 30px;
     color: #ddd;
+    line-height: 170%;
 }
 
 #documentation article::after {
@@ -98,13 +99,13 @@
 
 #documentation article h2 {
     font-size: 3rem;
-    margin-bottom: 15px;
+    margin-bottom: 30px;
 }
 
 #documentation article h3 {
     font-weight: 500;
     font-size: 1.8rem;
-    margin: 30px 0 15px;
+    margin: 50px 0 15px;
 }
 
 #documentation article h4 {
@@ -115,7 +116,6 @@
 
 #documentation article p {
     margin: 20px 0 10px;
-    line-height: 140%;
 }
 
 #documentation article p a {
@@ -164,7 +164,6 @@
 #documentation article ul li,
 #documentation article ol li {
     margin: 15px 0;
-    line-height: 140%;
 }
 
 #documentation article ol {

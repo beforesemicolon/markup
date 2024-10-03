@@ -277,6 +277,7 @@ footer .copyright img {
     letter-spacing: 0.06rem;
     text-transform: capitalize;
     opacity: 0.4;
+    line-height: 100%;
 }
 
 .code-snippet:hover .label {
@@ -310,7 +311,7 @@ footer .copyright img {
 }
 
 .code-snippet pre code {
-    line-height: 130%;
+    line-height: 150%;
 }
 
 .code-snippet .code-copy-btn {
