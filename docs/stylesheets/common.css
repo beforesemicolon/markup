@@ -287,6 +287,10 @@ footer .copyright img {
     background: #d2ae1e;
 }
 
+.code-snippet .label.typescript {
+    background: #496cff;
+}
+
 .code-snippet .label.css {
     background: #2680c7;
 }
