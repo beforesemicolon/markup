@@ -173,6 +173,7 @@
 
 #documentation article code:not(.hljs) {
     background: #161a1c;
+    color: #D2ECFF;
     display: inline-block;
     padding: 3px 8px;
     border-radius: 2px;
@@ -263,6 +264,8 @@
 
 #documentation #table-of-content li a {
     text-decoration: none;
+    text-underline-offset: 3px;
+    line-height: 130%;
 }
 
 #documentation #table-of-content li a:active,
