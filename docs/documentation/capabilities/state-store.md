@@ -22,17 +22,17 @@ Take for example this `todos` state store:
 type UUID = `${string}-${string}-${string}-${string}-${string}`
 
 export interface Todo {
-  id: UUID
-  name: string
-  description: string
-  status: "done" | "pending" | "removed"
-  dateCreated: Date
-  dateLastUpdated: Date
+    id: UUID
+    name: string
+    description: string
+    status: 'done' | 'pending' | 'removed'
+    dateCreated: Date
+    dateLastUpdated: Date
 }
 
-const [todos, updateTodos] = state<Todo[]>([]);
+const [todos, updateTodos] = state<Todo[]>([])
 
-export const todoList = todos;
+export const todoList = todos
 ```
 
 As you can see, we can create a file dedicated to manage a particular state we want to use in multiple places in our application.
@@ -45,10 +45,10 @@ We don't have to worry about subscription when it comes to rendering this data, 
 import {todoList} from "./stores/todos"
 
 const App = () => {
-    
+
     const renderTodo = () => {...}
-    
-    // html will handle all subscribing and 
+
+    // html will handle all subscribing and
     // unsubscribing from todoList state
     return html`
         <ul id="todos">
@@ -61,23 +61,23 @@ const App = () => {
 Easy enough, to perform something whenever this list changes, we can just use the [effect](../state/effect.md).
 
 ```javascript
-import {todoList} from "./stores/todos"
+import { todoList } from './stores/todos'
 
-const defaultTodosByStatus = {done: [], pending: [], removed: []};
+const defaultTodosByStatus = { done: [], pending: [], removed: [] }
 
 const [todosByStatus, updateTodosByStatus] = state(defaultTodosByStatus)
 
 // effect will handle subscribing to the todoList state
 const unsubFromEffect = effect(() => {
     updateTodosByStatus(
-        todoList().reduce((acc, todo)=> {
-            if(!acc[todo.status]) {
+        todoList().reduce((acc, todo) => {
+            if (!acc[todo.status]) {
                 acc[todo.status] = []
             }
-        
+
             acc[todo.status].push(todo)
-        
-            return acc;
+
+            return acc
         }, defaultTodosByStatus)
     )
 })
@@ -102,9 +102,9 @@ export const createTodo = (name: string) => {
     description: "",
     status: "pending",
     dateCreated,
-    dateLastUpdated: dateCreated 
+    dateLastUpdated: dateCreated
   }
-  
+
   updateTodos(prev => [...prev, todo])
 }
 
@@ -119,7 +119,7 @@ export const updateTodo = (id: UUID, data: Partial<Todo>) => {
                 dateLastUpdated: new Date()
             }
         }
-        
+
         return todo;
     }))
 }
@@ -136,12 +136,13 @@ export const clearTodos = () => {
 ```
 
 These actions can be whatever you want. They can
-- store data in `localstorage` or `indexedDB`;
-- be asynchronous;
-- call servers APIs to save data;
-- perform validations;
-- map the data;
-- etc
+
+-   store data in `localstorage` or `indexedDB`;
+-   be asynchronous;
+-   call servers APIs to save data;
+-   perform validations;
+-   map the data;
+-   etc
 
 Data storage and state management does not have to be complex and all you need from here is use the APIs readily available in the environment to do whatever you want.
 
