@@ -94,7 +94,9 @@ marked.use({
         await cp(docsAssetsDir, docsAssetsDir.replace(docsDir, docsSiteDir), {
             recursive: true,
         })
-    } catch (e) {}
+    } catch (e) {
+        // ignore
+    }
 
     try {
         await cp(
@@ -102,13 +104,17 @@ marked.use({
             docsStylesheetsDir.replace(docsDir, docsSiteDir),
             { recursive: true }
         )
-    } catch (e) {}
+    } catch (e) {
+        // ignore
+    }
 
     try {
         await cp(docsScriptsDir, docsScriptsDir.replace(docsDir, docsSiteDir), {
             recursive: true,
         })
-    } catch (e) {}
+    } catch (e) {
+        // ignore
+    }
 
     try {
         // import the layouts first

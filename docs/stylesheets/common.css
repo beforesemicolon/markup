@@ -312,6 +312,7 @@ footer .copyright img {
 
 .code-snippet pre code {
     line-height: 150%;
+    font-size: 0.8rem;
 }
 
 .code-snippet .code-copy-btn {
