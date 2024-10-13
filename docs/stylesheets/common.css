@@ -7,6 +7,8 @@ body {
     padding: 0;
     min-height: 100vh;
     min-width: 100vw;
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
 }
 
 body {
@@ -68,6 +70,31 @@ h4 a,
 h5 a,
 h6 a {
     text-decoration: none;
+    position: relative;
+}
+
+h1 a::before,
+h2 a::before,
+h3 a::before,
+h4 a::before,
+h5 a::before,
+h6 a::before {
+    content: '#';
+    opacity: 0;
+    font-size: 60%;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translate(calc(-100% - 5px), -40%);
+}
+
+h1 a:hover::before,
+h2 a:hover::before,
+h3 a:hover::before,
+h4 a:hover::before,
+h5 a:hover::before,
+h6 a:hover::before {
+    opacity: 0.3;
 }
 
 p {

@@ -4,6 +4,8 @@
     display: flex;
     max-height: 100vh;
     overflow: auto;
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
 }
 
 /* nav ------------ */
@@ -110,8 +112,8 @@
 
 #documentation article h4 {
     font-weight: 300;
-    font-size: 1.2rem;
-    margin: 35px 0 20px;
+    font-size: 1.6rem;
+    margin: 60px 0 15px;
 }
 
 #documentation article p {
