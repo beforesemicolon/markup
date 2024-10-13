@@ -64,7 +64,7 @@ describe('effect', () => {
         expect(valueSpy).toBeCalledTimes(0)
     })
     
-    it('should work correctly when nested', () => {
+    it('should work correctly when nested for different values', () => {
         const valueSpy1 = jest.fn()
         const valueSpy2 = jest.fn()
         const [count, setCount]= state(0);
@@ -81,7 +81,7 @@ describe('effect', () => {
         expect(valueSpy1).toBeCalledWith(0)
         expect(valueSpy2).toBeCalledTimes(1)
         expect(valueSpy2).toBeCalledWith(0)
-
+        
         setCount(1)
         jest.advanceTimersToNextTimer()
 
@@ -101,6 +101,42 @@ describe('effect', () => {
         expect(valueSpy2).toBeCalledTimes(0)
 
         setTotal(10)
+        jest.advanceTimersToNextTimer()
+
+        expect(valueSpy1).toBeCalledTimes(0)
+        expect(valueSpy2).toBeCalledTimes(0)
+    })
+    
+    it('should work correctly when nested for same values', () => {
+        const valueSpy1 = jest.fn()
+        const valueSpy2 = jest.fn()
+        const [count, setCount]= state(0);
+        
+        const unsub = effect(() => {
+            valueSpy1(count())
+            effect(() => {
+                valueSpy2(count())
+            })
+        })
+        
+        expect(valueSpy1).toBeCalledTimes(1)
+        expect(valueSpy1).toBeCalledWith(0)
+        expect(valueSpy2).toBeCalledTimes(1)
+        expect(valueSpy2).toBeCalledWith(0)
+        
+        setCount(1)
+        jest.advanceTimersToNextTimer()
+
+        expect(valueSpy1).toBeCalledTimes(2)
+        expect(valueSpy1).toBeCalledWith(1)
+        expect(valueSpy2).toBeCalledTimes(4)
+        expect(valueSpy2).toBeCalledWith(0)
+
+        valueSpy1.mockClear()
+        valueSpy2.mockClear()
+        unsub()
+
+        setCount(1)
         jest.advanceTimersToNextTimer()
 
         expect(valueSpy1).toBeCalledTimes(0)

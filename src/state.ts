@@ -104,6 +104,8 @@ export const effect = <T>(sub: EffectSubscriber<T>) => {
                 currentResolvers.push(res)
                 try {
                     value = sub(value)
+                } catch (e) {
+                    console.error(e)
                 } finally {
                     currentResolvers.pop()
                 }

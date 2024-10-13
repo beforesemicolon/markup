@@ -11,11 +11,8 @@ layout: document
 Markup exposes a standalone API to work with state called `state`.
 
 ```typescript
-state: <T>(initialValue: T, sub?: StateSubscriber) => readonly [
-    StateGetter<T>, 
-    StateSetter<T>, 
-    StateUnSubscriber
-];
+state: <T>(initialValue: T, sub?: StateSubscriber) =>
+    readonly[(StateGetter<T>, StateSetter<T>, StateUnSubscriber)]
 ```
 
 ### Input
@@ -62,13 +59,13 @@ The `StateSetter` is a function you call with the new value for the state or a f
 const [count, updateCount] = state(0)
 
 // provide a new value
-updateCount(10);
+updateCount(10)
 
 // use current value and perform a calculation
-updateCount(count() + 5);
+updateCount(count() + 5)
 
 // use the callback to update the value
-updateCount(prev => prev + 5)
+updateCount((prev) => prev + 5)
 ```
 
 #### StateUnSubscriber
@@ -80,21 +77,31 @@ const [count, updateCount, unsubscribeFromCount] = state(0, () => {
     // react to change
 })
 
-unsubscribeFromCount();
+unsubscribeFromCount()
 ```
+
+### How it works?
+
+The state is a synchronous value which means you can update it in one line and read it on the next.
+
+```javascript
+setCount(10)
+console.log(count()) // logs 10
+```
+
+Behind the scenes, `state` is just a self managed subscription that works seamlessly with `effect` and `html` APIs. 
 
 ### Examples
 
 Form input value and validation:
 
 ```javascript
-const [valid, setValid] = state(true);
+const [valid, setValid] = state(true)
 const [value, setValue] = state('', () => {
-    if(value().length > 8) {
+    if (value().length > 8) {
         setValid(false)
     }
-    
-    setValid(true)
-});
-```
 
+    setValid(true)
+})
+```
