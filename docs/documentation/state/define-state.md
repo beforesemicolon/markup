@@ -89,7 +89,7 @@ setCount(10)
 console.log(count()) // logs 10
 ```
 
-Behind the scenes, `state` is just a self managed subscription that works seamlessly with `effect` and `html` APIs. 
+Behind the scenes, `state` is just a self managed subscription that works seamlessly with `effect` and `html` APIs.
 
 ### Examples
 

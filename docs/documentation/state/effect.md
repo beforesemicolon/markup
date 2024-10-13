@@ -59,7 +59,7 @@ The effect calls the provided callback as soon as its declared so it becomes awa
 
 ```javascript
 effect(() => {
-  console.log(count()) // will log right away
+    console.log(count()) // will log right away
 })
 ```
 
@@ -67,26 +67,26 @@ The `effect` also batches updates which allows you to update multiple state at o
 
 ```javascript
 effect(() => {
-  console.log(count(), total()) 
-  // prints: 0 0 on initiation
-  // prints: 1 1 on update of both values
+    console.log(count(), total())
+    // prints: 0 0 on initiation
+    // prints: 1 1 on update of both values
 })
 
-setCount(prev => prev + 1)
-setTotal(prev => prev + 1)
+setCount((prev) => prev + 1)
+setTotal((prev) => prev + 1)
 ```
 
 The batch update is useful but the `effect` also understand initialization which allows you to make a bunch calculation on load and only have it run once after you are done.
 
 ```javascript
 effect(() => {
-  console.log(count())
-  // prints: 0 on initiation
-  // print: 100 after the while loop completes
+    console.log(count())
+    // prints: 0 on initiation
+    // print: 100 after the while loop completes
 })
 
-while(count() < 100) {
-  setCount(prev => prev + 1)
+while (count() < 100) {
+    setCount((prev) => prev + 1)
 }
 ```
 
@@ -123,10 +123,12 @@ However, callback you provide to the `effect` can be asynchronous if you really 
 ```javascript
 effect(async () => {
     try {
-        const res = await fetch(`https://randomuser.me/api/?page=${count()}&results=10&seed=markup`);
-        
+        const res = await fetch(
+            `https://randomuser.me/api/?page=${count()}&results=10&seed=markup`
+        )
+
         console.log(await res.json())
-    } catch(e) {
+    } catch (e) {
         console.error(e)
     }
 })
@@ -136,11 +138,11 @@ If you do so, the cached data will be the promise returned by the function and n
 
 ```javascript
 effect(async (res = Promise.resolve(0)) => {
-  const result = count() + (await res)
-  
-  console.log(result)
-  
-  return result
+    const result = count() + (await res)
+
+    console.log(result)
+
+    return result
 })
 ```
 
@@ -160,5 +162,3 @@ unsub() // clears all effects
 ```
 
 If you want to clear all effects, you can unsubscribe from the outer most `effect` and which will take care of all child `effect` for you. However, inner effects must be tracked by you as whenever the outer effect is called, a new inner effect will be created.
-
-
