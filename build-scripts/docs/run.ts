@@ -71,9 +71,9 @@ marked.use({
 
             const tableOfContent = [
                 ...html.matchAll(
-                    /<h[0-6]\sid="[^"]+".*?>.*?<a\s+href="([^"]+)".*?>([^<]+)<\/a>/gm
+                    /<h([0-6])\sid="[^"]+".*?>.*?<a\s+href="([^"]+)".*?>([^<]+)<\/a>/gm
                 ),
-            ].map((m) => ({ path: m[1], label: m[2] }))
+            ].map((m) => ({ path: m[2], label: m[3], level: m[1] }))
 
             return (
                 layouts.get(layout)?.({
