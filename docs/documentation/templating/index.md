@@ -79,6 +79,10 @@ The `replace` method is powerful especially when working with asynchronous rende
 
 #### insertAfter
 
+```typescript
+insertAfter(target: Node | HtmlTemplate): this;
+```
+
 The `insertAfter` method works exactly like the `render` method. The only difference is that it adds the template content after the target node provided.
 
 ```javascript

@@ -364,31 +364,25 @@ export class HtmlTemplate {
      * @param elementToAttachNodesTo
      * @param force
      */
-    render(
-        elementToAttachNodesTo:
-            | ShadowRoot
-            | HTMLElement
-            | Element
-            | DocumentFragment
-    ) {
+    render(target: ShadowRoot | HTMLElement | Element | DocumentFragment) {
         if (
-            elementToAttachNodesTo &&
-            elementToAttachNodesTo !== this.parentNode &&
-            (elementToAttachNodesTo instanceof ShadowRoot ||
-                elementToAttachNodesTo instanceof Element ||
-                elementToAttachNodesTo instanceof DocumentFragment)
+            target &&
+            target !== this.parentNode &&
+            (target instanceof ShadowRoot ||
+                target instanceof Element ||
+                target instanceof DocumentFragment)
         ) {
             if (this.mounted) {
-                elementToAttachNodesTo.append(
+                target.append(
                     this.#markers[0],
                     ...this.childNodes,
                     this.#markers[1]
                 )
-                if (!(elementToAttachNodesTo instanceof DocumentFragment)) {
+                if (!(target instanceof DocumentFragment)) {
                     this.#moveSub?.()
                 }
             } else {
-                this.#init('render', elementToAttachNodesTo)
+                this.#init('render', target)
             }
         }
 
