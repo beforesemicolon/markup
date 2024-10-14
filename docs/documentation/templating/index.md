@@ -134,7 +134,7 @@ The `childNodes` will give you and array of top level Nodes rendered by the temp
 const temp = html`
     Loose text
     <p>a paragraph</p>
-    <button> click me</button>
+    <button>click me</button>
     ending
 `.render(document.body)
 
@@ -155,12 +155,11 @@ The `unmount` should be the only way you go about removing the template from the
 
 Conveniently, you can get a string representation of your template in its current rendered state.
 
-
 ```javascript
 const temp = html`
     Loose text
     <p>a paragraph</p>
-    <button> click me</button>
+    <button>click me</button>
     ending
 `.render(document.body)
 
