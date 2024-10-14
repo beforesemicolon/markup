@@ -1,6 +1,6 @@
 ---
-name: Markup State Effect
-path: /documentation/state/effect
+name: Effect
+order: 5.1
 title: State Effect - Markup by Before Semicolon
 description: How to react to state in Markup by Before Semicolon
 layout: document
@@ -8,7 +8,7 @@ layout: document
 
 ## Effect
 
-The `effect` API complements the [state](./define-state.md) API by providing a better way to react to multiple state changes based on what you need to be executed.
+The `effect` API complements the [state](./index) API by providing a better way to react to multiple state changes based on what you need to be executed.
 
 ```typescript
 type EffectSubscriber<T> = (value: T | undefined) => undefined | T

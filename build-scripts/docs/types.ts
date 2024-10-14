@@ -1,10 +1,7 @@
-export interface SiteMap {
-    [key: string]: string | SiteMap
-}
-
 export interface PageProps {
     name: string
     path: string
+    order: number
     title: string
     description: string
     content: string
@@ -15,3 +12,5 @@ export interface PageProps {
 export interface CustomOptions extends Omit<PageProps, 'content'> {
     layout: string
 }
+
+export type SiteMap = Map<string, CustomOptions | SiteMap>
