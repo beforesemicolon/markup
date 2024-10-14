@@ -51,7 +51,7 @@ export default ({
 // 		}
 //
 // 		const onDrop = (e) => {
-// 			if(placeholder.isConnected) {
+// 			if(placeholder.mounted) {
 // 				placeholder.parentNode.replaceChild(draggingElement, placeholder)
 //
 // 				if(container) {

@@ -17,6 +17,7 @@
     left: 0;
     min-height: 100%;
     border-right: 0.001rem solid coral;
+    padding-bottom: 50px;
 }
 
 #documentation nav::after {

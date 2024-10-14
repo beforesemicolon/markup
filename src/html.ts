@@ -340,7 +340,7 @@ export class HtmlTemplate {
         })
     }
 
-    get isConnected() {
+    get mounted() {
         return this.#mounted
     }
 
@@ -378,7 +378,7 @@ export class HtmlTemplate {
                 elementToAttachNodesTo instanceof Element ||
                 elementToAttachNodesTo instanceof DocumentFragment)
         ) {
-            if (this.isConnected) {
+            if (this.mounted) {
                 elementToAttachNodesTo.append(
                     this.#markers[0],
                     ...this.childNodes,
@@ -424,24 +424,22 @@ export class HtmlTemplate {
             }
 
             // only try to replace elements that are actually rendered anywhere
-            if (!element) {
-                return
-            }
+            if (element?.parentNode) {
+                if (this.mounted) {
+                    const frag = document.createDocumentFragment()
+                    frag.append(
+                        this.#markers[0],
+                        ...this.childNodes,
+                        this.#markers[1]
+                    )
+                    element?.parentNode?.replaceChild(frag, element as Node)
 
-            if (this.isConnected) {
-                const frag = document.createDocumentFragment()
-                frag.append(
-                    this.#markers[0],
-                    ...this.childNodes,
-                    this.#markers[1]
-                )
-                element?.parentNode?.replaceChild(frag, element as Node)
-
-                if (!(target instanceof DocumentFragment)) {
-                    this.#moveSub?.()
+                    if (!(target instanceof DocumentFragment)) {
+                        this.#moveSub?.()
+                    }
+                } else {
+                    this.#init('replace', element as Node)
                 }
-            } else {
-                this.#init('replace', element as Node)
             }
 
             return this
@@ -464,7 +462,7 @@ export class HtmlTemplate {
             const element =
                 target instanceof HtmlTemplate ? target.__MARKERS__[1] : target
 
-            if (this.isConnected) {
+            if (this.mounted) {
                 if (element.nextSibling !== this.#markers[0]) {
                     const frag = document.createDocumentFragment()
                     frag.append(
@@ -495,7 +493,7 @@ export class HtmlTemplate {
     }
 
     unmount() {
-        if (this.isConnected) {
+        if (this.mounted) {
             this.#mounted = false
             for (const effectUnsub of this.#effectUnsubs) {
                 effectUnsub()
