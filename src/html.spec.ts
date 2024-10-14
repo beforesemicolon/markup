@@ -130,9 +130,9 @@ describe('html', () => {
 		
 		temp.render(document.body)
 		
-		expect(a.isConnected).toBeTruthy()
+		expect(a.mounted).toBeTruthy()
 		
-		expect(b.isConnected).toBeFalsy()
+		expect(b.mounted).toBeFalsy()
 		
 		expect(document.body.innerHTML).toBe('total: &gt;<p>more than 10</p>')
 		

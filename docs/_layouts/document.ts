@@ -15,10 +15,15 @@ const navCategoryToHTML = (docs: SiteMap, currentPath: string) =>
     Array.from(docs.entries())
         .map(([k, v]) => {
             if (k.endsWith('.html')) {
-                const href = (v as CustomOptions).path
+                const href = (v as CustomOptions).path.replace(
+                    /(index)?\.html/,
+                    ''
+                )
 
                 return `<li ${
-                    currentPath === href ? 'class="active"' : ''
+                    currentPath === (v as CustomOptions).path
+                        ? 'class="active"'
+                        : ''
                 }><a href="${href}">${(v as CustomOptions).name}</a></li>`
             }
 
