@@ -1,5 +1,6 @@
 ---
-name: Markup Documentation
+name: What is Markup?
+order: 1
 path: /documentation
 title: Documents - Markup by Before Semicolon
 description: What is Markup?

@@ -1,43 +1,37 @@
-import { PageProps, SiteMap } from '../../build-scripts/docs/types'
+import {
+    PageProps,
+    SiteMap,
+    CustomOptions,
+} from '../../build-scripts/docs/types'
 import meta from './_head-meta'
 import header from './_header'
 import footer from './_footer'
 import copyCode from './_copy-code'
-import path from 'path'
 
 const githubDocsPath =
     'https://github.com/beforesemicolon/markup/tree/main/docs/documentation'
 
 const navCategoryToHTML = (docs: SiteMap, currentPath: string) =>
-    Object.values(docs)
-        .filter((p) => typeof p === 'string')
-        .map((p) => {
-            const href = p.replace(/\.html/, '')
+    Array.from(docs.entries())
+        .map(([k, v]) => {
+            if (k.endsWith('.html')) {
+                const href = (v as CustomOptions).path
 
-            return `<li ${
-                currentPath === href ? 'class="active"' : ''
-            }><a href="${href}">${path
-                .basename(p)
-                .replace(/\.html/, '')
-                .replace(/-/g, ' ')}</a></li>`
+                return `<li ${
+                    currentPath === href ? 'class="active"' : ''
+                }><a href="${href}">${(v as CustomOptions).name}</a></li>`
+            }
+
+            return `<ol><span>${k}</span>${navCategoryToHTML(
+                v,
+                currentPath
+            )}</ol>`
         })
         .join('')
 
 export default (props: PageProps) => {
-    const docs = props.siteMap['documentation'] as SiteMap
-    const docsMenu = `
-        ${navCategoryToHTML(docs, props.path)}
-        ${Object.entries(docs)
-            .filter(([, v]) => typeof v !== 'string')
-            .map(
-                ([k, v]) =>
-                    `<ol><span>${k}</span>${navCategoryToHTML(
-                        v as SiteMap,
-                        props.path
-                    )}</ol>`
-            )
-            .join('')}
-    `
+    const docs = props.siteMap.get('documentation')
+    const docsMenu = `<ul>${navCategoryToHTML(docs, props.path)}</ul>`
 
     return `
 <!doctype html>
@@ -51,12 +45,7 @@ export default (props: PageProps) => {
         
         <main id="documentation" class="wrapper">
             <nav id="docs-nav">
-                <ul>
-                    <li ${
-                        props.path === '/documentation' ? 'class="active"' : ''
-                    }><a href="/documentation">What is Markup?</a></li>
-                    ${docsMenu}
-                </ul>
+                ${docsMenu}
             </nav>
             <article>
                 ${props.content}

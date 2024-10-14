@@ -1,6 +1,6 @@
 ---
-name: Markup Function Component
-path: /documentation/capabilities/function-component
+name: Function Component
+order: 7.1
 title: Function Component - Markup by Before Semicolon
 description: How to create Component using Functions
 layout: document

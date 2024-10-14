@@ -1,5 +1,5 @@
-import { marked, Marked, Lexer } from 'marked'
-import { mkdir, readdir, readFile, writeFile, cp } from 'fs/promises'
+import { Marked } from 'marked'
+import { cp, mkdir, readdir, readFile, writeFile } from 'fs/promises'
 import path from 'path'
 import fm from 'front-matter'
 import DOMPurify from 'isomorphic-dompurify'
@@ -9,15 +9,19 @@ import defaultTemp from './templates/default'
 import { CustomOptions, PageProps, SiteMap } from './types'
 import renderer from './renderer'
 
-const siteMap: SiteMap = {}
 const layouts: Map<string, (props: PageProps) => string> = new Map()
 
 layouts.set('default', defaultTemp)
 
+let currentFileMeta: {
+    attributes: CustomOptions
+    siteMap: SiteMap
+}
+
 const marked = new Marked(
     markedHighlight({
         langPrefix: 'hljs language-',
-        highlight(code, lang, info) {
+        highlight(code, lang) {
             const language = hljs.getLanguage(lang) ? lang : 'plaintext'
             return hljs.highlight(code, { language }).value
         },
@@ -54,18 +58,9 @@ const traverseDirectory = async (dir: string) => {
 
 marked.use({
     hooks: {
-        preprocess(markdown: string) {
-            const { attributes, body } = fm(markdown) as {
-                attributes: Partial<CustomOptions>
-                body: string
-            }
-
-            this.options = { ...this.options, ...attributes }
-            return body
-        },
         postprocess(html: string) {
-            const { layout = 'default', ...options } = this
-                .options as CustomOptions
+            const { layout = 'default', ...options } =
+                currentFileMeta.attributes
 
             html = DOMPurify.sanitize(html)
 
@@ -79,7 +74,7 @@ marked.use({
                 layouts.get(layout)?.({
                     ...options,
                     content: html,
-                    siteMap,
+                    siteMap: currentFileMeta.siteMap,
                     tableOfContent,
                 }) || html
             )
@@ -136,39 +131,29 @@ marked.use({
 
     const filePaths = await traverseDirectory(docsDir)
 
-    filePaths
-        .map((p) =>
-            p
+    const siteMap: SiteMap = new Map()
+
+    ;(
+        await Promise.all(
+            filePaths
+                .filter((filePath) => filePath.endsWith('.md'))
+                .map(async (filePath) => {
+                    const content = await readFile(filePath, 'utf-8')
+                    return {
+                        filePath,
+                        ...(fm(content) as {
+                            attributes: CustomOptions
+                            body: string
+                        }),
+                    }
+                })
+        )
+    )
+        .sort((a, b) => a.attributes.order - b.attributes.order)
+        .map(({ attributes, body, filePath }) => {
+            const pathname = filePath
                 .replace(docsDir, '')
                 .replace(/\.md/, '.html')
-                .replace(/index\.html/, '')
-        )
-        .forEach((p) => {
-            const fileName = path.basename(p) || '/'
-            const dir = p.replace(fileName, '').replace(/\/$/, '')
-
-            let currentDir = siteMap
-
-            dir.split('/')
-                .filter(Boolean)
-                .forEach((d) => {
-                    if (!currentDir[d]) {
-                        currentDir[d] = {}
-                    }
-
-                    currentDir = currentDir[d]
-                })
-
-            if (!currentDir[fileName]) {
-                currentDir[fileName] = p
-            }
-        })
-
-    for (const filePath of filePaths) {
-        if (filePath.endsWith('.md')) {
-            const content = await readFile(filePath, 'utf-8')
-            const contentMd = await marked.parse(content)
-
             const fileWebsitePath = filePath
                 .replace(docsDir, docsSiteDir)
                 .replace('.md', '.html')
@@ -177,8 +162,50 @@ marked.use({
                 ''
             )
 
-            await mkdir(fileDirWebsitePath, { recursive: true })
-            await writeFile(fileWebsitePath, contentMd, { recursive: true })
-        }
-    }
+            const fileName = path.basename(pathname) || '/'
+            const dir = pathname.replace(fileName, '').replace(/\/$/, '')
+
+            let currentDir = siteMap
+
+            dir.split('/')
+                .filter(Boolean)
+                .forEach((d) => {
+                    if (!currentDir.has(d)) {
+                        currentDir.set(d, new Map())
+                    }
+
+                    currentDir = currentDir.get(d)
+                })
+
+            const attrs = {
+                ...attributes,
+                path: pathname,
+            } as CustomOptions
+
+            if (!currentDir.has(fileName)) {
+                currentDir.set(fileName, attrs)
+            }
+
+            return {
+                attributes: attrs,
+                fileWebsitePath,
+                fileDirWebsitePath,
+                body,
+                siteMap,
+            }
+        })
+        .forEach(
+            async ({
+                attributes,
+                body,
+                fileDirWebsitePath,
+                fileWebsitePath,
+                siteMap,
+            }) => {
+                currentFileMeta = { attributes, siteMap }
+                const contentMd = await marked.parse(body)
+                await mkdir(fileDirWebsitePath, { recursive: true })
+                await writeFile(fileWebsitePath, contentMd, { recursive: true })
+            }
+        )
 })()

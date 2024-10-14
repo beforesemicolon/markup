@@ -1,6 +1,6 @@
 ---
-name: Markup State Store
-path: /documentation/capabilities/state-store
+name: State Store
+order: 7.4
 title: State Store - Markup by Before Semicolon
 description: How to use state to create a state store
 layout: document
@@ -8,7 +8,7 @@ layout: document
 
 ## State Store
 
-The great thing about Markup [state](../state/define-state.md) is the fact that it is a standalone API that works great witht the template itself.
+The great thing about Markup [state](../state/index) is the fact that it is a standalone API that works great witht the template itself.
 
 What this allows you to do is manage shared/global state away from the component and inject them directly into the template or perform side effects where needed. All that without worrying about subcriptions and cleanups.
 

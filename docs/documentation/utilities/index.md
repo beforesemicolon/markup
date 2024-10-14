@@ -1,7 +1,7 @@
 ---
-name: Element
-order: 6.1
-title: Element Utility - Markup by Before Semicolon
+name: Introduction
+order: 6
+title: Utility - Markup by Before Semicolon
 description: How Markup by Before Semicolon allows you to easily create DOM elements
 layout: document
 ---

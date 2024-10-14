@@ -1,6 +1,6 @@
 ---
 name: Markup
-path: /
+order: 0
 title: Markup by Before Semicolon
 description: Reactive HTML Templating System to create Web User Interfaces.
 layout: landing

@@ -1,6 +1,6 @@
 ---
-name: Markup Get Started
-path: /documentation/get-started
+name: Get Started
+order: 2
 title: Get Started - Markup by Before Semicolon
 description: How to start using Markup by Before Semicolon
 layout: document
