@@ -89,7 +89,7 @@ const temp = html`<p>${count}</p>`
     .onMount(() => {
         // handle mount
         console.log('mounted')
-        
+
         return () => {
             // handle unmount
             console.log('unmounted')
@@ -103,7 +103,6 @@ const temp = html`<p>${count}</p>`
         // handle move
         updateCount(10)
         console.log('moved', temp.parentNode)
-    
     })
     .render(document.body)
 
