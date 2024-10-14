@@ -11,7 +11,7 @@ layout: document
 Markup uses [tagged template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates) called `html` to describe the HTML you want to render.
 
 ```javascript
-const temp = html`<h1>Hello World</h1>`;
+const temp = html`<h1>Hello World</h1>`
 ```
 
 The `html` returns an `HTMLTemplate` instance containing methods and properties you can use to access or perform many actions.
@@ -20,6 +20,6 @@ The `html` returns an `HTMLTemplate` instance containing methods and properties 
 
 There are few ways to render a template after you define it:
 
-- `render`: Takes a DOM element to append the template to;
-- `replace`: Takes a DOM element or another HTML template to replace in the DOM;
-- `insertAfter`: Takes a DOM element to insert the template after;
+-   `render`: Takes a DOM element to append the template to;
+-   `replace`: Takes a DOM element or another HTML template to replace in the DOM;
+-   `insertAfter`: Takes a DOM element to insert the template after;
