@@ -69,6 +69,18 @@ html`
 
 HTML allows you to declare inline event attributes and they work the same with markup. No extra syntax is needed to add attach events but Markup does additional things in the background you can learn more about by reading the [events](./events.md) docs.
 
+```javascript
+const handleClick = (event) => {
+    console.log(event)
+}
+
+html`<button onclick="${handleClick}">click me</button>`
+```
+
 ### Reference attribute
 
 One thing that exists in Markup and not in HTML is the `ref` attribute that allows you to create a reference to an element you can use to access the rendered DOM element for whatever operation you need. You can read about [references](./ref.md) for more details.
+
+```javascript
+html`<button ref="btn">click me</button>`
+```
