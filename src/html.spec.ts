@@ -603,6 +603,27 @@ describe('html', () => {
 			expect(spanElement).toBeInstanceOf(HTMLSpanElement)
 			expect(divElement).toBeInstanceOf(HTMLDivElement)
 		})
+		
+		it('should collect nested refs', () => {
+			const items = [
+				html`<li ref="item">Buy groceries</li>`,
+				html`<li ref="item">Go to gym</li>`,
+				html`<li ref="item">Write a blog</li>`,
+			]
+			
+			const temp = html`
+			    <ul ref="list">${items}</ul>
+			    <p ref="item">sample</p>
+			`.render(document.body)
+			
+			expect(temp.refs['item']).toHaveLength(4)
+			expect(temp.refs['list']).toHaveLength(1)
+			
+			items[0].unmount();
+			
+			expect(temp.refs['item']).toHaveLength(3)
+			expect(temp.refs['list']).toHaveLength(1)
+		})
 	})
 	
 	describe('should handle attributes', () => {
