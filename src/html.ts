@@ -245,7 +245,7 @@ export function handleElementAttribute(
     if (booleanAttributes[name]) {
         const d = values[0]
 
-        const setAttr = (prevValue?: unknown) => {
+        const setAttr = (prevValue: unknown = Date.now()) => {
             const newValue = val(d)
 
             if (newValue !== prevValue) {
@@ -263,7 +263,7 @@ export function handleElementAttribute(
             return cb(effect(setAttr))
         }
 
-        return setAttr(false)
+        return setAttr()
     }
 
     const setAttr = (prevValue?: unknown) => {
