@@ -1,5 +1,7 @@
 import esbuild, { Plugin } from 'esbuild'
 
+// the Doc exported with @beforesemicolon/html-parser is not used so no need
+// to include it in the final package
 const emptyParserDoc = {
     name: 'empty-parser-Doc-plugin',
     setup(build) {
