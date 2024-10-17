@@ -772,6 +772,22 @@ describe('html', () => {
 			
 			expect(document.body.innerHTML).toBe('<slot name=""></slot><slot name="123"></slot>')
 		});
+		
+		it('should render boolean attributes', () => {
+			const hidden = false;
+			const disabled = true;
+			const checked = false;
+			
+			html`
+			    <p hidden="${hidden}">hidden text</p>
+			    <button disabled="${disabled}" >click me</button>
+			    <input type="checkbox" checked="${checked}" />
+			`.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<p>hidden text</p>\n' +
+				'\t\t\t    <button disabled="true">click me</button>\n' +
+				'\t\t\t    <input type="checkbox">')
+		})
 	})
 	
 	it('should handle primitive attribute value', () => {

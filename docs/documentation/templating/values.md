@@ -14,16 +14,14 @@ As you may already know, you can inject values into [template literals](https://
 
 Before we jump into specific values, lets talk about how Markup parses the HTML string in the template literals.
 
-Just because you can inject values anywhere in the string does not mean it will be parsed the way you want. Markup sees HTML in the template literals just like HTML written in `.html` files. 
+Just because you can inject values anywhere in the string does not mean it will be parsed the way you want. Markup sees HTML in the template literals just like HTML written in `.html` files.
 
 This means, you can only inject values around tags openings or as attribute value. For example, injecting a value for tag name will not result in parsed DOM elements.
-
 
 ```javascript
 const tag = 'p'
 
-const temp = html`<${tag}>hello world</${tag}>`
-    .render(document.body)
+const temp = html`<${tag}>hello world</${tag}>`.render(document.body)
 
 temp.render(document.getElementById('app'))
 // renders <p>hello world</p> as string
@@ -36,8 +34,7 @@ Similarly, you cannot have a string representation of attribute key value and in
 ```javascript
 const attrs = 'id="sample"'
 
-const temp = html`<p ${attrs}>hello world</p>`
-    .render(document.body)
+const temp = html`<p ${attrs}>hello world</p>`.render(document.body)
 
 temp.render(document.getElementById('app'))
 // throws: Invalid attribute object provided: id="sample"
@@ -48,8 +45,8 @@ There is a way to inject attributes you can learn about by reading the [attribut
 To conclude, write HTML as you know and inject value where you would write values in HTML. Those are, as attribute value between parenthesis, before, after, or inside a tag.
 
 ```javascript
-const label = 'click me';
-const type = 'button';
+const label = 'click me'
+const type = 'button'
 
 html`<button type="${type}">${label}</button>`
 ```
@@ -59,7 +56,7 @@ html`<button type="${type}">${label}</button>`
 Injected arrays will have their items rendered as they are. This makes it super easy to render lists in general and comes handy with data handling.
 
 ```javascript
-const fruits = ['apple', 'banana', 'orange', 'peach'];
+const fruits = ['apple', 'banana', 'orange', 'peach']
 
 html`Fruits: ${fruits}`.render(document.body)
 // Fruits: applebananaorangepeach
@@ -69,13 +66,18 @@ The list is rendered without space or commas. You can also collect a list of tem
 
 ```javascript
 const fruits = [
-    [html`<li>apple</li>`,
+    [
+        html`<li>apple</li>`,
         html`<li>banana</li>`,
         html`<li>orange</li>`,
-        html`<li>peach</li>`]
-];
+        html`<li>peach</li>`,
+    ],
+]
 
-html`Fruits: <ul>${fruits}</ul>`.render(document.body)
+html`Fruits:
+    <ul>
+        ${fruits}
+    </ul>`.render(document.body)
 // Fruits: <ul><li>apple</li><li>banana</li><li>orange</li><li>peach</li></ul>
 ```
 
@@ -87,11 +89,14 @@ const fruits = [
         html`<li>apple</li>`,
         html`<li>banana</li>`,
         html`<li>orange</li>`,
-        html`<li>peach</li>`
-    ]
-];
+        html`<li>peach</li>`,
+    ],
+]
 
-html`Fruits: <ul>${fruits}</ul>`.render(document.body)
+html`Fruits:
+    <ul>
+        ${fruits}
+    </ul>`.render(document.body)
 
 // Fruits: <ul>&lt;li&gt;apple&lt;/li&gt;,&lt;li&gt;banana&lt;/li&gt;,&lt;li&gt;orange&lt;/li&gt;,&lt;li&gt;peach&lt;/li&gt;</ul>
 ```
@@ -103,7 +108,7 @@ Functions are first class citizens in Markup. It is used for reactivity and lazy
 Every function injected in the template is called and its value is rendered and tracked accordingly.
 
 ```javascript
-const greeting = () => 'Hello World';
+const greeting = () => 'Hello World'
 
 html`<p>${greeting}</p>`.render(document.body)
 // <p>Hello World</p>
@@ -112,16 +117,15 @@ html`<p>${greeting}</p>`.render(document.body)
 When you learn about [state](../state/index.md) and [effect](../state/effect.md) you will notice that its all about functions and one thing that makes it more powerful is using functions that perform calculations with state.
 
 ```javascript
-const [count, setCount] = state(1);
+const [count, setCount] = state(1)
 
-const evenOddCount = () => count() % 2 === 0 ? 'Even' : 'Odd';
+const evenOddCount = () => (count() % 2 === 0 ? 'Even' : 'Odd')
 
 html`
-  <p>${evenOddCount}</p>
-  <button 
-    type="button" 
-    onclick="${() => setCount(prev => prev + 1)}"
-    >+</button>
+    <p>${evenOddCount}</p>
+    <button type="button" onclick="${() => setCount((prev) => prev + 1)}">
+        +
+    </button>
 `.render(document.body)
 ```
 
@@ -133,14 +137,9 @@ All injected primitives will be rendered as their string version.
 
 ```javascript
 html`
-    ${0}
-    ${true}
-    ${false}
-    ${34n}
-    ${'sample'}
-    ${undefined}
-    ${null}
-    ${Symbol('sample')}
+    ${0} ${true} ${false} ${34n} ${'sample'} ${undefined} ${null} ${Symbol(
+        'sample'
+    )}
 `.render(document.body)
 // 0 true false 34 sample undefined null Symbol(sample)
 ```
@@ -152,16 +151,12 @@ You need to be specifically carefull with nil values like `undefined` and `null`
 Array is the only non-primitive value that does not receive a special handling up to one level. Everything else will be render the same way as they would if stringified in JavaScript.
 
 ```javascript
-html`
-    ${{}}
-    ${new Object()}
-    ${new Map()}
-    ${new Set()}
-    ${new Date()}
-`.render(document.body)
-// [object Object] 
-// [object Object] 
-// [object Map] 
-// [object Set] 
+html` ${{}} ${new Object()} ${new Map()} ${new Set()} ${new Date()} `.render(
+    document.body
+)
+// [object Object]
+// [object Object]
+// [object Map]
+// [object Set]
 // Wed Oct 16 2024 18:55:38 GMT-0400 (Eastern Daylight Time)
 ```
