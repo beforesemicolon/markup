@@ -49,16 +49,18 @@ html`
 Markup is aware of value you inject in the template as attribute values and will track and update them accordingly. There is no extra syntax necessary to make this happen.
 
 ```javascript
-const type = 'button';
+const type = 'button'
 const active = 'active'
 const style = 'color: white; background: black'
 
 html`
-    <button 
-        type="${type}" 
-        class="btn ${active} common" 
+    <button
+        type="${type}"
+        class="btn ${active} common"
         style="border: none; ${style}"
-        >click me</button>
+    >
+        click me
+    </button>
 `.render(document.body)
 // <button type="button" class="btn active common" style="border: none; color: white; background: black">click me</button>
 ```
