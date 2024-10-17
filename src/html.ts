@@ -321,23 +321,31 @@ export class HtmlTemplate {
      * map of DOM element references keyed by the name provided as the ref attribute value
      */
     get refs(): Record<string, Array<Element>> {
-        const childRefs = Array.from(this.__CHILDREN__).reduce((acc, item) => {
-            return {
-                ...acc,
-                ...item.refs,
-            }
-        }, {})
-
-        return Object.freeze({
-            ...childRefs,
-            ...Object.entries(this.#refs).reduce(
+        const refs = [
+            ...Array.from(this.__CHILDREN__, (temp) => temp.refs),
+            Object.entries(this.#refs).reduce(
                 (acc, [key, set]) => ({
                     ...acc,
                     [key]: Array.from(set),
                 }),
                 {}
             ),
-        })
+        ] as Array<Record<string, Array<Element>>>
+
+        return refs.reduce(
+            (acc, item) => {
+                for (const [k, v] of Object.entries(item)) {
+                    if (!acc[k]) {
+                        acc[k] = []
+                    }
+
+                    acc[k] = Array.from(new Set([...acc[k], ...v]))
+                }
+
+                return acc
+            },
+            {} as Record<string, Element[]>
+        )
     }
 
     get mounted() {
