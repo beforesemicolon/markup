@@ -1,5 +1,4 @@
-import { helper } from '../Helper'
-import { val } from '../utils'
+import { val } from './val'
 import { StateGetter } from '../types'
 
 /**
@@ -8,37 +7,18 @@ import { StateGetter } from '../types'
  * @param thenThis
  * @param elseThat
  */
-export const when = helper(
-    <C, T, E>(condition: C | StateGetter<C>, thenThis: T, elseThat?: E) => {
-        let truthValue: T | null = null
-        let truthValueSet = false
-        let falseValue: E | null = null
-        let falseValueSet = false
+export const when = <C, T, E>(
+    condition: C | StateGetter<C>,
+    thenThis: T,
+    elseThat?: E
+) => {
+    return () => {
+        const shouldRender = val<C>(condition)
 
-        return () => {
-            const shouldRender = val<C>(condition)
-
-            if (shouldRender) {
-                if (!truthValueSet) {
-                    truthValue =
-                        typeof thenThis === 'function' ? thenThis() : thenThis
-                    truthValueSet = true
-                }
-
-                return val(truthValue)
-            }
-
-            if (!falseValueSet) {
-                falseValue =
-                    elseThat === undefined
-                        ? ''
-                        : typeof elseThat === 'function'
-                          ? elseThat()
-                          : elseThat
-                falseValueSet = true
-            }
-
-            return val(falseValue)
+        if (shouldRender) {
+            return val(val(thenThis))
         }
+
+        return val(val(elseThat)) ?? ''
     }
-)
+}

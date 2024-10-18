@@ -47,7 +47,7 @@ export default ({
                 in the DOM by checking the <code>isConnected</code> on the
                 <code>renderTarget</code>.
             </p>
-            ${CodeSnippet('temp.renderTarget.isConnected;', 'typescript')}
+            ${CodeSnippet('temp.renderTarget.mounted;', 'typescript')}
             ${Heading('onUnmount', 'h3')}
             <p>
                 The <code>onUnmount</code> lifecycle allows you to react to when

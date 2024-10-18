@@ -1,5 +1,8 @@
-import { helper } from '../Helper'
-import { val } from '../utils'
+import { val } from './val'
+import { DoubleLinkedList } from '../DoubleLinkedList'
+import { HtmlTemplate } from '../html'
+import { syncNodes } from '../utils/sync-nodes'
+import { getNodeOrTemplate } from '../utils/get-node-or-template'
 
 type DataGetter<T> = () => number | Array<T>
 
@@ -23,40 +26,69 @@ const getList = (data: unknown) => {
  * @param cb
  * @param whenEmpty
  */
-export const repeat = helper(
-    <T>(
-        data: number | Array<T> | DataGetter<T>,
-        cb: (data: T, index: number) => unknown,
-        whenEmpty: () => unknown = () => ''
-    ) => {
-        const cache: Map<T, unknown> = new Map()
-        let prevList: unknown[] = []
+export const repeat = <T>(
+    data: number | Array<T> | DataGetter<T>,
+    cb: (data: T, index: number) => unknown,
+    whenEmpty?: () => unknown
+) => {
+    const cache: Map<T, Node | HtmlTemplate> = new Map()
+    let currentRenderedNodes = new DoubleLinkedList<Node | HtmlTemplate>()
+    let prevList: T[] = []
 
-        const each = (d: T, i: number) => {
-            if (prevList[i] !== undefined && d !== prevList[i]) {
+    const each = (d: T, i: number) => {
+        if (!cache.has(d)) {
+            cache.set(d, getNodeOrTemplate(cb(d, i)))
+        }
+
+        return cache.get(d) as Node | HtmlTemplate
+    }
+
+    return (anchor: Node, temp: HtmlTemplate) => {
+        const list = getList(data) as T[]
+
+        if (list.length === 0) {
+            const res = whenEmpty?.() ?? []
+
+            currentRenderedNodes = syncNodes(
+                currentRenderedNodes,
+                Array.isArray(res) ? res : [res],
+                anchor,
+                temp
+            )
+
+            prevList = []
+            cache.clear()
+        } else {
+            const prevListSet = DoubleLinkedList.fromArray(prevList)
+
+            currentRenderedNodes = syncNodes(
+                currentRenderedNodes,
+                new Proxy(list, {
+                    get(_, prop) {
+                        if (typeof prop === 'string') {
+                            const idx = Number(prop)
+
+                            if (!isNaN(idx)) {
+                                const item = list[idx]
+                                prevListSet.remove(item)
+                                return each(item, idx)
+                            }
+                        }
+
+                        return Reflect.get(_, prop)
+                    },
+                }) as Array<Node | HtmlTemplate>,
+                anchor,
+                temp
+            )
+
+            for (const d of prevListSet) {
                 cache.delete(d)
             }
 
-            if (!cache.has(d)) {
-                cache.set(d, cb(d, i))
-            }
-
-            return cache.get(d)
-        }
-
-        return () => {
-            const list = getList(data)
-
-            if (list.length === 0) {
-                prevList = []
-                return whenEmpty()
-            }
-
-            const renderedList = (list as T[]).map(each)
-
             prevList = list
-
-            return renderedList
         }
+
+        return currentRenderedNodes
     }
-)
+}
