@@ -51,6 +51,34 @@ const type = 'button'
 html`<button type="${type}">${label}</button>`
 ```
 
+### Node
+
+Markup templates work seamlessly with DOM nodes and this ability allows you to migrate any vanilla JavaScript solution easily to Markup templates.
+
+You can inject any Node directly in the template and they will be rendered just fine.
+
+```javascript
+const button = document.createElement('button')
+button.textContent = 'click me'
+button.type = 'button'
+
+html`${button}`.render(document.body)
+```
+
+### HTMLTemplate
+
+Another thing you can inject in the templates for powerful compositions are the template instances themselves.
+
+```javascript
+const button = html`<button type="button">click me</button>`
+
+html`${button}`.render(document.body)
+```
+
+This simple capability allows you to declare, store, and move around templates like you would with any data. This behavior resembles working with nodes in vanilla JavaScript and makes it easier to share and compose templates to build complex views.
+
+Another benefits of composing templates is the fact that each template are tracked separately allowing only the part of the DOM to update when needed.
+
 ### Arrays
 
 Injected arrays will have their items rendered as they are. This makes it super easy to render lists in general and comes handy with data handling.

@@ -15,6 +15,10 @@ state: <T>(initialValue: T, sub?: StateSubscriber) =>
     readonly[(StateGetter<T>, StateSetter<T>, StateUnSubscriber)]
 ```
 
+State, when used in templates allow the DOM to only update where needed.
+
+Markup templates do no traverse the DOM to check for updates and the state itself will only notify the template after verifying that the data has changed with a shallow comparison. That allows the DOM to only update when and where necessary.
+
 ### Input
 
 You can provide an `initialValue` to start the state as well as a `StateSubscriber` which is function that will get called every time the state changes.

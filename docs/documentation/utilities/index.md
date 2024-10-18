@@ -38,7 +38,7 @@ Utilities are just functions that rendered in template and that need to be calle
 
 The power with working with states and template comes when you start defining your own utilities. Let's look at a quick example:
 
-We have a common scenario where we have a input value that uses state and we need to display a certain message whether the value is valid or not.
+We have a common scenario where we have a input field that uses state and we need to display a certain message whether the value is valid or not.
 
 ```javascript
 const [value, updateValue] = state(null)
@@ -67,7 +67,9 @@ html`
 `.render(document.body)
 ```
 
-Now I also realize that i want to mark the field red when the input is bad and that relies on the same logic. So, i can extract that logic into a function for reusability:
+This is not bad but logic in the template takes space and lots of them makes template hard to read.
+
+I realized that i want to mark the field red when the input is invalid and that relies on the same logic we have in the function. So, i can extract that logic into a function for reusability:
 
 ```javascript
 const [value, updateValue] = state(null)
@@ -117,9 +119,11 @@ html`
 `.render(document.body)
 ```
 
-This ability to just create and compose functions to handle everything is what further makes templating easy and fun to do.
+You can see that we have functions that handle different logic composing them for even more complex logic dependent on the state.
 
-We can further things up by introducing a utility for handling form values that we can use with multiple form fields at once.
+This ability to just create and compose functions to handle everything is what further makes templating easy and fun in Markup.
+
+We can further things up by wrapping everything in a reusable utility for handling form input values of any kind that we can use with multiple form fields.
 
 ```javascript
 const formFieldValue = (pattern) => {
@@ -163,7 +167,7 @@ html`
         style="color: ${name.color}"
     />
     ${when(
-        name.pristineOrValid,
+        name.isPristineOrValid,
         html`<p>Your name</p>`,
         html`<p style="color: ${name.color}">
             Name must be at least 3 characters
@@ -177,11 +181,11 @@ html`
         style="color: ${email.color}"
     />
     ${when(
-        email.pristineOrValid,
+        email.isPristineOrValid,
         html`<p>Your email</p>`,
         html`<p style="color: ${email.color}">Email is not valid</p>`
     )}
 `.render(document.body)
 ```
 
-As you can see, when it comes to reactivity, Markup relies heavily and solely on functions to get the job done. This function oriented nature makes templating simple and somehow familiar to anyone.
+As you can see, when it comes to reactivity, Markup relies heavily and solely on functions to get the job done. This function oriented nature makes templating simple and somehow familiar to anyone. Give it a try!
