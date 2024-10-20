@@ -50,11 +50,6 @@ export class ReactiveNode {
             this.#unsubEffect = effect(() => {
                 const res = action(this.#anchor, template)
 
-                if (res instanceof DoubleLinkedList) {
-                    this.#result = res
-                    return
-                }
-
                 if (init) {
                     this.#result = syncNodes(
                         this.#result,
