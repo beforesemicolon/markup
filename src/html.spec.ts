@@ -1098,7 +1098,7 @@ describe('html', () => {
 			
 			items.render(document.body)
 			
-			expect(document.body.innerHTML).toBe('item 1item 5item 3')
+			expect(document.body.innerHTML).toBe('item 1item 3item 5')
 		})
 		
 		it('with array containing repeated values as html instance', () => {
