@@ -1,5 +1,5 @@
 import { StateGetter, AnythingButAFunction, HelperValueChecker } from '../types'
-import { val } from './val'
+import { is } from './is.helper'
 
 /**
  * checks whether the state value is NOT equal to provided value or return value of the function checker
@@ -12,6 +12,4 @@ export const isNot =
         checker: HelperValueChecker<T> | AnythingButAFunction<T>
     ) =>
     () =>
-        typeof checker === 'function'
-            ? !(checker as HelperValueChecker<T>)(val(st))
-            : val(st) !== checker
+        !is(st, checker)()
