@@ -1,6 +1,6 @@
 {
     "name": "@beforesemicolon/markup",
-    "version": "1.1.6-next",
+    "version": "1.1.7-next",
     "description": "Reactive HTML Templating System",
     "engines": {
         "node": ">=18.16.0"
@@ -10,8 +10,7 @@
     "exports": {
         "import": "./dist/esm/index.js",
         "require": "./dist/cjs/index.js",
-        "default": "./dist/cjs/index.js",
-        "types": "./dist/types/index.d.ts"
+        "default": "./dist/cjs/index.js"
     },
     "scripts": {
         "test": "jest --coverage",
