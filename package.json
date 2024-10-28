@@ -10,7 +10,8 @@
     "exports": {
         "import": "./dist/esm/index.js",
         "require": "./dist/cjs/index.js",
-        "default": "./dist/cjs/index.js"
+        "default": "./dist/cjs/index.js",
+        "types": "./dist/types/index.d.ts"
     },
     "scripts": {
         "test": "jest --coverage",
@@ -80,6 +81,6 @@
         "typescript": "^5.3.3"
     },
     "dependencies": {
-        "@beforesemicolon/html-parser": "^0.4.0"
+        "@beforesemicolon/html-parser": "^0.6.0"
     }
 }

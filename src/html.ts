@@ -1,11 +1,11 @@
-import { parse } from '@beforesemicolon/html-parser/dist/parse.js'
+import {
+    parse,
+    DocumentFragmentLike,
+    ElementLike,
+} from '@beforesemicolon/html-parser'
 import { EffectUnSubscriber } from './types.ts'
 import { ReactiveNode } from './ReactiveNode.ts'
 import { insertNodeAfter } from './utils/insert-node-after.ts'
-import {
-    DocumentFragmentLike,
-    ElementLike,
-} from '@beforesemicolon/html-parser/dist/Doc.js'
 import { parseDynamicRawValue } from './utils/parse-dynamic-raw-value.ts'
 import { renderContent } from './utils/render-content.ts'
 import { booleanAttributes } from './utils/boolean-attributes.ts'
