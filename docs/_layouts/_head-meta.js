@@ -1,6 +1,4 @@
-import { PageProps } from '../../build-scripts/docs/types'
-
-export default ({ title, description, name, path }: PageProps) => {
+export default ({ title, description, name, path }) => {
     return `
 <meta charset="UTF-8" />
 <meta

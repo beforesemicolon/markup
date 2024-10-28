@@ -1,7 +1,4 @@
-export default ({
-    fill = '#D2ECFF',
-    width = '80px',
-}: { fill?: string; width?: string } = {}) => `
+export default ({ fill = '#D2ECFF', width = '80px' } = {}) => `
 <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 207.25 61.99"

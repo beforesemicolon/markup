@@ -107,7 +107,7 @@ describe('html', () => {
 	})
 	
 	it('should render dynamic text and update', () => {
-		let [x, setX] = state(15)
+		const [x, setX] = state(15)
 		
 		const temp = html`${() => (x() > 10 ? 'more than 10' : 'less than 10')}`
 		
@@ -122,7 +122,7 @@ describe('html', () => {
 	})
 	
 	it('should render dynamic HTML and update', () => {
-		let [x, setX] = state(15)
+		const [x, setX] = state(15)
 		const a = html`<p>more than 10</p>`
 		const b = html`<p>less than 10</p>`
 		
@@ -246,7 +246,7 @@ describe('html', () => {
 	})
 	
 	it('should render src with dynamic attr value', () => {
-		let [type, setType] = state('button')
+		const [type, setType] = state('button')
 		const button = html`
 			<button type="${type}">click me</button>`
 		
@@ -279,7 +279,7 @@ describe('html', () => {
 	
 	it('should render dynamic src', () => {
 		const value = 'sample'
-		let [edit, setEdit] = state(false)
+		const [edit, setEdit] = state(false)
 		const val = html`${() =>
 			edit()
 				? html`<input type="text" value="${value}"/>`
@@ -309,7 +309,7 @@ describe('html', () => {
 	})
 	
 	it('should render nested src 2 levels with dynamic inner level', () => {
-		let [items, updateItems] = state([1, 2, 3])
+		const [items, updateItems] = state([1, 2, 3])
 		const list = html`
 			<ul>
 				${() => items().map((i) => html`
@@ -550,7 +550,7 @@ describe('html', () => {
 		})
 		
 		it('when dynamic', () => {
-			let [x, setX] = state(15)
+			const [x, setX] = state(15)
 			const label = html`${when(
 				() => x() > 10,
 				html`<span ref="greater">greater than 10</span>`,
@@ -634,7 +634,7 @@ describe('html', () => {
 		})
 		
 		it('class name as value', () => {
-			let [loading, setLoading] = state(true)
+			const [loading, setLoading] = state(true)
 			const btn = html`
 				<button class="${when(loading, 'loading')}">click me</button>`
 			
@@ -659,7 +659,7 @@ describe('html', () => {
 		})
 		
 		it('data name', () => {
-			let [loading, setLoading] = state(true)
+			const [loading, setLoading] = state(true)
 			const btn = html`
 				<button data-btn="true" data-loading="${loading}">click me</button>`
 			
@@ -678,7 +678,7 @@ describe('html', () => {
 		})
 		
 		it('style property with flag', () => {
-			let [pointer, setPointer] = state(false)
+			const [pointer, setPointer] = state(false)
 			const btn = html`
 				<button style="${when(pointer, 'cursor: pointer;')}">click me</button>`
 			
@@ -705,7 +705,7 @@ describe('html', () => {
 		})
 		
 		it('any boolean attr', () => {
-			let [disabled, setDisabled] = state(true)
+			const [disabled, setDisabled] = state(true)
 			const btn = html`
 				<button disabled="${disabled}">click me</button>`
 			
@@ -733,7 +733,7 @@ describe('html', () => {
 		})
 		
 		it('any boolean attr with possible values', () => {
-			let [hidden, setHidden] = state('until-found')
+			const [hidden, setHidden] = state('until-found')
 			const btn = html`
 				<button hidden=" ${hidden}">click me</button>`
 			
@@ -750,7 +750,7 @@ describe('html', () => {
 		})
 		
 		it('any non-primitive-boolean attr', () => {
-			let [disabled, setDisabled] = state(true)
+			const [disabled, setDisabled] = state(true)
 			const btn = html`
 				<button aria-disabled="${disabled}">click me</button>`
 			
@@ -992,7 +992,7 @@ describe('html', () => {
 		})
 		
 		it('with number value and node return', () => {
-			let [count, setCount] = state(2)
+			const [count, setCount] = state(2)
 			const el = html`${repeat(
 				count,
 				(n) => html`<span>${n}</span>`
@@ -1379,7 +1379,7 @@ describe('html', () => {
 		})
 		
 		it('when nested', () => {
-			let count = 2
+			const count = 2
 			const el = html`${repeat<number>(
 				() => count,
 				(n) => html`
@@ -1397,7 +1397,7 @@ describe('html', () => {
 		})
 		
 		it('with helper list', () => {
-			let even = (list: () => number[]) => list().filter(n => n % 2 === 0)
+			const even = (list: () => number[]) => list().filter(n => n % 2 === 0)
 			const el = html`${repeat<number>(
 				even(() => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
 				(n) => html`<span>${n}</span>`
@@ -1416,7 +1416,7 @@ describe('html', () => {
 	
 	describe('should work with "when" helper', () => {
 		it('when both sides provided as static', () => {
-			let [shouldRender, updateShouldRender] = state(true)
+			const [shouldRender, updateShouldRender] = state(true)
 			const yes = html`<span>true</span>`
 			const no = html`<span>false</span>`
 			
@@ -1438,7 +1438,7 @@ describe('html', () => {
 		})
 		
 		it('when both sides provided as static with dynamic values', () => {
-			let [x, setX] = state(10)
+			const [x, setX] = state(10)
 			const total = () => x()
 			const yes = html`<span>Non Zero: ${total}</span>`
 			const no = html`<span>Zero: ${total}</span>`

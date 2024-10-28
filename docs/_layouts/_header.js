@@ -1,8 +1,7 @@
-import logo from './_logo'
-import pkg from '../../package.json'
-import { PageProps } from '../../build-scripts/docs/types'
+import logo from './_logo.js'
+import pkg from '../../package.json' with { type: 'json' }
 
-export default ({ path }: PageProps) => `
+export default ({ path }) => `
 <header class="wrapper">
     <h1>
         <a href="/" aria-label="markup logo home link"

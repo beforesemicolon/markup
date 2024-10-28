@@ -85,7 +85,7 @@ describe('DoubleLinkedList', () => {
         
         expect([...ll]).toEqual([1,2,3,4,5])
         
-        let c = ll.head;
+        const c = ll.head;
         
         [5, 4, 3, 2, 1].forEach(n => {
             c && n !== c && ll.insertValueBefore(n, c);

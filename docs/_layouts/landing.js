@@ -1,10 +1,9 @@
-import { PageProps } from '../../build-scripts/docs/types'
-import meta from './_head-meta'
-import header from './_header'
-import footer from './_footer'
-import copyCode from './_copy-code'
+import meta from './_head-meta.js'
+import header from './_header.js'
+import footer from './_footer.js'
+import copyCode from './_copy-code.js'
 
-export default (props: PageProps) => {
+export default (props) => {
     return `
 <!doctype html>
 <html lang="en">

@@ -1,30 +1,20 @@
-import {
-    PageProps,
-    SiteMap,
-    CustomOptions,
-} from '../../build-scripts/docs/types'
-import meta from './_head-meta'
-import header from './_header'
-import footer from './_footer'
-import copyCode from './_copy-code'
+import meta from './_head-meta.js'
+import header from './_header.js'
+import footer from './_footer.js'
+import copyCode from './_copy-code.js'
 
 const githubDocsPath =
     'https://github.com/beforesemicolon/markup/tree/main/docs/documentation'
 
-const navCategoryToHTML = (docs: SiteMap, currentPath: string) =>
+const navCategoryToHTML = (docs, currentPath) =>
     Array.from(docs.entries())
         .map(([k, v]) => {
             if (k.endsWith('.html')) {
-                const href = (v as CustomOptions).path.replace(
-                    /(index)?\.html/,
-                    ''
-                )
+                const href = v.path.replace(/(index)?\.html/, '')
 
                 return `<li ${
-                    currentPath === (v as CustomOptions).path
-                        ? 'class="active"'
-                        : ''
-                }><a href="${href}">${(v as CustomOptions).name}</a></li>`
+                    currentPath === v.path ? 'class="active"' : ''
+                }><a href="${href}">${v.name}</a></li>`
             }
 
             return `<ol><span>${k}</span>${navCategoryToHTML(
@@ -34,7 +24,7 @@ const navCategoryToHTML = (docs: SiteMap, currentPath: string) =>
         })
         .join('')
 
-export default (props: PageProps) => {
+export default (props) => {
     const docs = props.siteMap.get('documentation')
     const docsMenu = `<ul>${navCategoryToHTML(docs, props.path)}</ul>`
 
