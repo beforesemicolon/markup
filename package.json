@@ -15,11 +15,11 @@
     "scripts": {
         "test": "jest --coverage",
         "test:watch": "jest --watch",
-        "docs:watch": "rm -rf website && nodemon --watch docs -e ts,css,md,json --exec 'tsx build-scripts/docs/run.ts'",
+        "docs:watch": "rm -rf website && nodemon --watch docs -e ts,css,md,json --exec 'npm run build:docs'",
         "local": "nodemon --watch src -e ts --exec 'npm run build && npm pack && npm link'",
-        "build:docs": "tsx build-scripts/docs/run.ts",
-        "build:browser": "tsx build-scripts/build-browser.ts",
-        "build:modules": "tsx build-scripts/build-modules.ts",
+        "build:docs": "node node_modules/@beforesemicolon/builder/dist/docs/run.js",
+        "build:browser": "node node_modules/@beforesemicolon/builder/dist/build-browser.js",
+        "build:modules": "node node_modules/@beforesemicolon/builder/dist/build-modules.js",
         "build": "rm -rf dist && npm-run-all lint test && tsc --emitDeclarationOnly && npm-run-all build:modules build:browser",
         "lint": "eslint ./src && prettier --check .",
         "format": "eslint ./src --fix && prettier --write ."
@@ -41,6 +41,7 @@
         "type": "github"
     },
     "devDependencies": {
+        "@beforesemicolon/builder": "^1.0.0",
         "@gjsify/esbuild-plugin-transform-ext": "0.0.4",
         "@types/jest": "^29.5.11",
         "@types/jsdom": "^21.1.6",
