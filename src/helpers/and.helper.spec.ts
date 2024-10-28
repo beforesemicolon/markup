@@ -1,4 +1,4 @@
-import {and} from "./and.helper";
+import {and} from "./and.helper.ts";
 
 describe('and', () => {// @ts-ignore
 

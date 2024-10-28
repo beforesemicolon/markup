@@ -1,5 +1,5 @@
-import { val } from './val'
-import { ObjectLiteral, StateGetter } from '../types'
+import { val } from './val.ts'
+import { ObjectLiteral, StateGetter } from '../types.ts'
 
 type repeatData<T> = number | ObjectLiteral<T> | Iterable<T>
 

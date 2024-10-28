@@ -1,4 +1,4 @@
-import { isPrimitive } from './is-primitive'
+import { isPrimitive } from './is-primitive.ts'
 
 describe('isPrimitive', () => {
     it('should be primitive', () => {

@@ -1,4 +1,4 @@
-import { HtmlTemplate } from '../html'
+import { HtmlTemplate } from '../html.ts'
 
 function createAndRenderTextNode(
     value: unknown,

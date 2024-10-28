@@ -1,5 +1,5 @@
-import { isPrimitive } from './is-primitive'
-import { jsonStringify } from './json-stringify'
+import { isPrimitive } from './is-primitive.ts'
+import { jsonStringify } from './json-stringify.ts'
 
 /**
  * sets attribute on an element. Handles web component element properties as well

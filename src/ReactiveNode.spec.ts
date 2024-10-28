@@ -1,8 +1,8 @@
-import '../test.common'
-import { ReactiveNode } from './ReactiveNode'
-import { html, HtmlTemplate } from './html'
-import { state } from './state'
-import { is, when, repeat } from './helpers'
+import '../test.common.ts'
+import { ReactiveNode } from './ReactiveNode.ts'
+import { html, HtmlTemplate } from './html.ts'
+import { state } from './state.ts'
+import { is, when, repeat } from './helpers/index.ts'
 
 describe('ReactiveNode', () => {
     const temp = html``;

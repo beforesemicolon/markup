@@ -1,4 +1,4 @@
-import {isNot} from "./is-not.helper";
+import {isNot} from "./is-not.helper.ts";
 
 describe('isNot', () => { // @ts-ignore
 

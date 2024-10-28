@@ -1,4 +1,4 @@
-import {pick} from "./pick.helper";
+import {pick} from "./pick.helper.ts";
 
 describe('pick', () => { // @ts-ignore
 

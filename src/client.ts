@@ -1,5 +1,5 @@
-import { html, HtmlTemplate } from './html'
-import { state, effect } from './state'
+import { html, HtmlTemplate } from './html.ts'
+import { state, effect } from './state.ts'
 import {
     and,
     is,
@@ -12,7 +12,7 @@ import {
     element,
     suspense,
     val,
-} from './helpers'
+} from './helpers/index.ts'
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore

@@ -1,4 +1,4 @@
-import { DoubleLinkedList } from './DoubleLinkedList'
+import { DoubleLinkedList } from './DoubleLinkedList.ts'
 
 describe('DoubleLinkedList', () => {
     it('should push, remove, and clear values correctly', () => {

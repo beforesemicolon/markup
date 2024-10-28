@@ -1,5 +1,5 @@
-import { val } from './val'
-import { StateGetter } from '../types'
+import { val } from './val.ts'
+import { StateGetter } from '../types.ts'
 
 /**
  * conditionally render second and third argument value based on the first argument condition

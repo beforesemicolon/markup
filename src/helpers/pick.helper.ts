@@ -1,5 +1,5 @@
-import { StateGetter } from '../types'
-import { val } from './val'
+import { StateGetter } from '../types.ts'
+import { val } from './val.ts'
 
 /**
  * given a dot separated string key it will try to get deep value from an object literal or array

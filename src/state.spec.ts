@@ -1,5 +1,5 @@
-import '../test.common';
-import { effect, state } from './state'
+import '../test.common.ts';
+import { effect, state } from './state.ts'
 
 describe('state', () => {
     it('should work correctly', () => {

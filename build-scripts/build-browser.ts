@@ -21,13 +21,15 @@ const emptyParserDoc = {
     },
 } as Plugin
 
-await esbuild.build({
-    entryPoints: ['src/client.ts'],
-    outfile: 'dist/client.js',
-    bundle: true,
-    keepNames: true,
-    sourcemap: true,
-    target: 'esnext',
-    minify: true,
-    plugins: [emptyParserDoc],
-})
+esbuild
+    .build({
+        entryPoints: ['src/client.ts'],
+        outfile: 'dist/client.js',
+        bundle: true,
+        keepNames: true,
+        sourcemap: true,
+        target: 'esnext',
+        minify: true,
+        plugins: [emptyParserDoc],
+    })
+    .catch(console.error)

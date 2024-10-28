@@ -1,5 +1,5 @@
-import { StateGetter } from '../types'
-import { val } from './val'
+import { StateGetter } from '../types.ts'
+import { val } from './val.ts'
 
 /**
  * check if the state value is inside the provided list of options

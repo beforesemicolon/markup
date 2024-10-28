@@ -1,9 +1,9 @@
-import { HtmlTemplate } from './html'
-import { effect } from './state'
-import { syncNodes } from './utils/sync-nodes'
-import { EffectUnSubscriber } from './types'
-import { renderContent } from './utils/render-content'
-import { DoubleLinkedList } from './DoubleLinkedList'
+import { HtmlTemplate } from './html.ts'
+import { effect } from './state.ts'
+import { syncNodes } from './utils/sync-nodes.ts'
+import { EffectUnSubscriber } from './types.ts'
+import { renderContent } from './utils/render-content.ts'
+import { DoubleLinkedList } from './DoubleLinkedList.ts'
 
 export class ReactiveNode {
     #result = new DoubleLinkedList<Node | HtmlTemplate>()

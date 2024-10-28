@@ -1,7 +1,7 @@
-import { HtmlTemplate } from '../html'
-import { insertNodeAfter } from './insert-node-after'
-import { getNodeOrTemplate } from '../utils/get-node-or-template'
-import { DoubleLinkedList } from '../DoubleLinkedList'
+import { HtmlTemplate } from '../html.ts'
+import { insertNodeAfter } from './insert-node-after.ts'
+import { getNodeOrTemplate } from '../utils/get-node-or-template.ts'
+import { DoubleLinkedList } from '../DoubleLinkedList.ts'
 
 /**
  * syncNodes nodes updated the current nodes with new ones while ensuring no node in the DOM

@@ -1,6 +1,6 @@
 {
     "name": "@beforesemicolon/markup",
-    "version": "1.1.7-next",
+    "version": "1.1.8-next",
     "description": "Reactive HTML Templating System",
     "engines": {
         "node": ">=18.16.0"
@@ -18,10 +18,9 @@
         "docs:watch": "rm -rf website && nodemon --watch docs -e ts,css,md,json --exec 'tsx build-scripts/docs/run.ts'",
         "local": "nodemon --watch src -e ts --exec 'npm run build && npm pack && npm link'",
         "build:docs": "tsx build-scripts/docs/run.ts",
-        "build:cjs-min": "esbuild `find src \\( -name '*.ts' ! -name '*.spec.ts' ! -name 'client.ts' \\)` --minify --outdir=dist/cjs --platform=node --format=cjs --keep-names --target=esnext",
-        "build:esm-min": "esbuild `find src \\( -name '*.ts' ! -name '*.spec.ts' ! -name 'client.ts' \\)` --minify --outdir=dist/esm --platform=node --format=esm --keep-names --target=esnext",
         "build:browser": "tsx build-scripts/build-browser.ts",
-        "build": "rm -rf dist && npm-run-all lint test && tsc --emitDeclarationOnly && npm-run-all build:cjs-min build:esm-min build:browser",
+        "build:modules": "tsx build-scripts/build-modules.ts",
+        "build": "rm -rf dist && npm-run-all lint test && tsc --emitDeclarationOnly && npm-run-all build:modules build:browser",
         "lint": "eslint ./src && prettier --check .",
         "format": "eslint ./src --fix && prettier --write ."
     },
@@ -42,6 +41,7 @@
         "type": "github"
     },
     "devDependencies": {
+        "@gjsify/esbuild-plugin-transform-ext": "0.0.4",
         "@types/jest": "^29.5.11",
         "@types/jsdom": "^21.1.6",
         "@types/jsdom-global": "^3.0.7",

@@ -1,5 +1,9 @@
-import { StateGetter, AnythingButAFunction, HelperValueChecker } from '../types'
-import { val } from './val'
+import {
+    StateGetter,
+    AnythingButAFunction,
+    HelperValueChecker,
+} from '../types.ts'
+import { val } from './val.ts'
 
 /**
  * checks whether the state value is equal to provided value or return value of the function checker

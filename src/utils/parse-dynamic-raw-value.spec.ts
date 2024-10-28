@@ -1,4 +1,4 @@
-import { parseDynamicRawValue } from "./parse-dynamic-raw-value";
+import { parseDynamicRawValue } from "./parse-dynamic-raw-value.ts";
 
 describe("parseDynamicRawValue", () => {
   

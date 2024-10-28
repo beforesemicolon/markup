@@ -1,4 +1,4 @@
-import { element } from './element'
+import { element } from './element.ts'
 
 describe('element', () => {
     it('should create an element with name only', () => {

@@ -1,15 +1,18 @@
-import { parse } from '@beforesemicolon/html-parser/dist/parse'
-import { EffectUnSubscriber } from './types'
-import { ReactiveNode } from './ReactiveNode'
-import { insertNodeAfter } from './utils/insert-node-after'
-import { DocumentFragmentLike, ElementLike } from '@beforesemicolon/html-parser'
-import { parseDynamicRawValue } from './utils/parse-dynamic-raw-value'
-import { renderContent } from './utils/render-content'
-import { booleanAttributes } from './utils/boolean-attributes'
-import { val } from './helpers'
-import { setElementAttribute } from './utils/set-element-attribute'
-import { effect } from './state'
-import { DoubleLinkedList } from './DoubleLinkedList'
+import { parse } from '@beforesemicolon/html-parser/dist/parse.js'
+import { EffectUnSubscriber } from './types.ts'
+import { ReactiveNode } from './ReactiveNode.ts'
+import { insertNodeAfter } from './utils/insert-node-after.ts'
+import {
+    DocumentFragmentLike,
+    ElementLike,
+} from '@beforesemicolon/html-parser/dist/Doc.js'
+import { parseDynamicRawValue } from './utils/parse-dynamic-raw-value.ts'
+import { renderContent } from './utils/render-content.ts'
+import { booleanAttributes } from './utils/boolean-attributes.ts'
+import { val } from './helpers/index.ts'
+import { setElementAttribute } from './utils/set-element-attribute.ts'
+import { effect } from './state.ts'
+import { DoubleLinkedList } from './DoubleLinkedList.ts'
 
 const templateRegistry: Record<string, Template> = {}
 

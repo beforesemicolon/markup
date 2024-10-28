@@ -1,4 +1,4 @@
-import {is} from "./is.helper";
+import {is} from "./is.helper.ts";
 
 describe('is', () => { // @ts-ignore
 

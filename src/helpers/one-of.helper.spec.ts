@@ -1,4 +1,4 @@
-import {oneOf} from "./one-of.helper";
+import {oneOf} from "./one-of.helper.ts";
 
 describe('oneOf', () => {// @ts-ignore
 	it('should handle oneOf', () => {

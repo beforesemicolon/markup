@@ -1,5 +1,5 @@
-import {suspense} from "./suspense";
-import {html} from "../html";
+import {suspense} from "./suspense.ts";
+import {html} from "../html.ts";
 
 describe('suspense', () => { // @ts-ignore
 	

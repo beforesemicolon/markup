@@ -1,4 +1,4 @@
-import { html, HtmlTemplate } from '../html'
+import { html, HtmlTemplate } from '../html.ts'
 
 /**
  * will temporarily render the loading template while the

@@ -1,4 +1,4 @@
-import { when } from './when.helper'
+import { when } from './when.helper.ts'
 
 describe('when', () => {
 

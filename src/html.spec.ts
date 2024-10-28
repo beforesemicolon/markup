@@ -1,7 +1,7 @@
-import '../test.common';
-import { html, HtmlTemplate } from './html'
-import { effect, state } from './state'
-import {when, repeat, oneOf, is, element, suspense} from './helpers'
+import '../test.common.ts';
+import { html, HtmlTemplate } from './html.ts'
+import { effect, state } from './state.ts'
+import {when, repeat, oneOf, is, element, suspense} from './helpers/index.ts'
 
 describe('html', () => {
 	

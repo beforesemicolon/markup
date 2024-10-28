@@ -1,4 +1,4 @@
-import { isPrimitive } from './is-primitive'
+import { isPrimitive } from './is-primitive.ts'
 
 export function jsonStringify<T>(value: T): string {
     if (!isPrimitive(value)) {

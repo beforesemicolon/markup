@@ -1,4 +1,4 @@
-import { val } from './val'
+import { val } from './val.ts'
 
 /**
  * checks if at least one of the values is truthy

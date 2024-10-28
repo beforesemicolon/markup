@@ -5,8 +5,8 @@ import {
     StateSetter,
     StateSubscriber,
     StateUnSubscriber,
-} from './types'
-import { DoubleLinkedList } from './DoubleLinkedList'
+} from './types.ts'
+import { DoubleLinkedList } from './DoubleLinkedList.ts'
 
 interface Resolver {
     sub: StateSubscriber

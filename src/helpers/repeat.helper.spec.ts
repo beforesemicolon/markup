@@ -1,6 +1,6 @@
-import '../../test.common'
-import { repeat } from './repeat.helper'
-import { html } from '../html'
+import '../../test.common.ts'
+import { repeat } from './repeat.helper.ts'
+import { html } from '../html.ts'
 
 describe('repeat', () => {
     it('should handle number', () => {

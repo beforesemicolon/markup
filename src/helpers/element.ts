@@ -1,6 +1,6 @@
-import { setElementAttribute } from '../utils/set-element-attribute'
-import { turnCamelToKebabCasing } from '../utils/turn-camel-to-kebab-casing'
-import { ElementOptions } from '../types'
+import { setElementAttribute } from '../utils/set-element-attribute.ts'
+import { turnCamelToKebabCasing } from '../utils/turn-camel-to-kebab-casing.ts'
+import { ElementOptions } from '../types.ts'
 
 /**
  * creates HTML element based of provided details

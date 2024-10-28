@@ -1,4 +1,4 @@
-import { setElementAttribute } from "./set-element-attribute";
+import { setElementAttribute } from "./set-element-attribute.ts";
 
 describe("setElementAttribute", () => {
   it("should set the attribute value and remove it with null", () => {

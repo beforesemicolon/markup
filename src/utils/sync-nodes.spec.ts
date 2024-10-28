@@ -1,7 +1,7 @@
-import '../../test.common';
-import { syncNodes } from './sync-nodes'
-import { html, HtmlTemplate } from '../html'
-import { DoubleLinkedList } from '../DoubleLinkedList'
+import '../../test.common.ts';
+import { syncNodes } from './sync-nodes.ts'
+import { html, HtmlTemplate } from '../html.ts'
+import { DoubleLinkedList } from '../DoubleLinkedList.ts'
 
 describe('syncNodes', () => {
     const temp = html``;

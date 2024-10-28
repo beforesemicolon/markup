@@ -1,4 +1,4 @@
-import {or} from "./or.helper";
+import {or} from "./or.helper.ts";
 
 describe('or', () => {// @ts-ignore
 
