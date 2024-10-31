@@ -1,5 +1,9 @@
 @import 'common.css';
 
+body {
+    background: #000306;
+}
+
 #documentation {
     display: flex;
     max-height: 100vh;
@@ -27,7 +31,7 @@
     right: 0;
     top: 0;
     width: 100vw;
-    background: #09141d;
+    background: #050c13;
     height: 100%;
     z-index: -1;
 }
@@ -88,7 +92,7 @@
 
 #documentation article {
     flex: 1;
-    max-width: 825px;
+    max-width: 1025px;
     padding: 50px 30px;
     color: #ddd;
     line-height: 170%;

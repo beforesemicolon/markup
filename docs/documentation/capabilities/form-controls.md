@@ -267,13 +267,13 @@ class TextField extends WebComponent {
     static formAssociated = true
 
     stylesheet = `
-    input {
-      border: 1px solid #444;
-      padding: 8px 10px;
-      border-radius: 3px;
-      min-width: 150px;
-    }
-  `
+        input {
+          border: 1px solid #444;
+          padding: 8px 10px;
+          border-radius: 3px;
+          min-width: 150px;
+        }
+    `
 
     placeholder = ''
     value = ''

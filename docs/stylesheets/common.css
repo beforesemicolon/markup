@@ -30,11 +30,11 @@ body {
 }
 
 .wrapper {
-    padding-left: calc((100vw - 1200px) / 2);
-    padding-right: calc((100vw - 1200px) / 2);
+    padding-left: calc((100vw - 1400px) / 2);
+    padding-right: calc((100vw - 1400px) / 2);
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1400px) {
     .wrapper {
         padding-left: 25px;
         padding-right: 25px;

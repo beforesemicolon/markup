@@ -84,7 +84,7 @@
 }
 
 #why-markup ul li {
-    background: linear-gradient(320deg, #000b0e, #101618);
+    background: linear-gradient(320deg, #001114, #000000);
     padding: 25px;
     border-radius: 8px;
     min-width: calc((100% / 3) - 30px);
