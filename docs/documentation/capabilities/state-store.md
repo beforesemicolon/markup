@@ -1,6 +1,6 @@
 ---
 name: State Store
-order: 7.4
+order: 7.5
 title: State Store - Markup by Before Semicolon
 description: How to use state to create a state store
 layout: document

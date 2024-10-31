@@ -492,6 +492,8 @@ customElements.define('my-button', MyButton)
 
 WebComponent exposes the [ElementInternals](https://developer.mozilla.org/en-US/docs/Web/API/ElementInternals) via the readonly `internals` property that you can access for accessibility purposes.
 
+To learn about how to create web components that well integrate with forms check the docs on [form controls](./form-controls.md).
+
 ```javascript
 class TextField extends WebComponent {
     static formAssociated = true // add this to form-related components
