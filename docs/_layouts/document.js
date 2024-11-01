@@ -39,6 +39,7 @@ export default (props) => {
         ${header(props)}
         
         <main id="documentation" class="wrapper">
+            <input type="checkbox" id="mobile-menu-toggle" aria-label="toggle mobile menu">
             <nav id="docs-nav">
                 ${docsMenu}
             </nav>

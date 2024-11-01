@@ -155,9 +155,9 @@ class TextField extends WebComponent {
     ...
 
     handleChange = (value) => {
+        const validity = this.refs['input'][0].validity
+        this.internals.setValidity(validity, validity.valid ? undefined : 'Invalid field value');
         this.internals.setFormValue(value);
-        this.internals.setValidity(this.refs['input'][0].validity);
-
         this.dispatch('change', {value})
     }
 
@@ -273,6 +273,14 @@ class TextField extends WebComponent {
           border-radius: 3px;
           min-width: 150px;
         }
+        
+        input:user-valid {
+          border-color: #090;
+        }
+        
+        input:user-invalid {
+          border-color: #900;
+        }
     `
 
     placeholder = ''
@@ -302,9 +310,12 @@ class TextField extends WebComponent {
     }
 
     handleChange = (value) => {
+        const validity = this.refs['input'][0].validity
+        this.internals.setValidity(
+            validity,
+            validity.valid ? undefined : 'Invalid field value'
+        )
         this.internals.setFormValue(value)
-        this.internals.setValidity(this.refs['input'][0].validity)
-
         this.dispatch('change', { value })
     }
 
