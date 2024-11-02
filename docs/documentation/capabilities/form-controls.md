@@ -17,13 +17,20 @@ To illustrate that, lets look at a simple custom input field.
 ```javascript
 class TextField extends WebComponent {
     // define the attributes the component should react to
-    static observedAttributes = ['value', 'placeholder', 'pattern', 'required']
+    static observedAttributes = [
+        'value',
+        'placeholder',
+        'pattern',
+        'required',
+        'error',
+    ]
 
     // define attributes default values
     placeholder = ''
     value = ''
     pattern = ''
     required = false
+    error = 'Invalid field value.'
 
     handleChange = (value) => {
         // dispatch a change event with the input field value
@@ -56,8 +63,18 @@ With that we can render our custom text field inside a simple form with a reset 
 
 ```html
 <form id="sample-form" method="POST">
-    <text-field placeholder="Enter first name" name="firstName"></text-field>
-    <text-field placeholder="Enter last name" name="lastName"></text-field>
+    <text-field
+        placeholder="Enter first name"
+        name="firstName"
+        pattern="[a-z]+"
+        error="Invalid first name. May only contain letters and no space."
+    ></text-field>
+    <text-field
+        placeholder="Enter last name"
+        name="lastName"
+        pattern="[a-z\s]+"
+        error="Invalid last name. May only contain letters separated by space."
+    ></text-field>
     <button type="reset">reset</button>
     <button type="submit">submit</button>
 </form>
@@ -154,11 +171,16 @@ We can illustrate that by calling [setFormValue](https://developer.mozilla.org/e
 class TextField extends WebComponent {
     ...
 
-    handleChange = (value) => {
-        const validity = this.refs['input'][0].validity
-        this.internals.setValidity(validity, validity.valid ? undefined : 'Invalid field value');
+    handleChange = (value, report = true) => {
         this.internals.setFormValue(value);
-        this.dispatch('change', {value})
+
+        const [inputField] = this.refs['input'];
+
+        const validity = inputField.validity
+        this.internals.setValidity(validity, validity.valid ? undefined : this.props.error(), inputField);
+        report && this.internals.reportValidity();
+
+        this.dispatch('change', {value});
     }
 
     ...
@@ -259,11 +281,19 @@ class TextField extends WebComponent {
 
 #### Full example
 
-We can now see our `TextField` full code and as you can see, it was not much to create our custom input field that we can use in any HTML form.
+We can now see our `TextField` full code with additional improvements.
+
+As you will see, it was not much to create our custom input field that we can use in any HTML form.
 
 ```javascript
 class TextField extends WebComponent {
-    static observedAttributes = ['value', 'placeholder', 'pattern', 'required']
+    static observedAttributes = [
+        'value',
+        'placeholder',
+        'pattern',
+        'error',
+        'required',
+    ]
     static formAssociated = true
 
     stylesheet = `
@@ -287,9 +317,10 @@ class TextField extends WebComponent {
     value = ''
     pattern = ''
     required = false
+    error = 'Invalid field value'
 
     formAssociatedCallback(form) {
-        this.internals.setFormValue(this.props.value())
+        this.handleChange(this.props.value(), false)
     }
 
     formDisabledCallback(disabled) {
@@ -309,13 +340,19 @@ class TextField extends WebComponent {
         }
     }
 
-    handleChange = (value) => {
-        const validity = this.refs['input'][0].validity
+    handleChange = (value, report = true) => {
+        this.internals.setFormValue(value)
+
+        const [inputField] = this.refs['input']
+
+        const validity = inputField.validity
         this.internals.setValidity(
             validity,
-            validity.valid ? undefined : 'Invalid field value'
+            validity.valid ? undefined : this.props.error(),
+            inputField
         )
-        this.internals.setFormValue(value)
+        report && this.internals.reportValidity()
+
         this.dispatch('change', { value })
     }
 
