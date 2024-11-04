@@ -131,4 +131,42 @@ describe('element', () => {
         
         expect(valSetter).toHaveBeenCalledWith({"name": "x"})
     })
+    
+    it('should create with childNodes and htmlContent', () => {
+        expect(element('ul', {
+            attributes: {id: 'items-list'},
+            childNodes: [
+                element('li', {
+                    attributes: {class: 'list-item'},
+                    textContent: 'item 1'
+                }),
+                element('li', {
+                    attributes: {class: 'list-item'},
+                    textContent: 'item 2'
+                }),
+                element('li', {
+                    attributes: {class: 'list-item'},
+                    textContent: 'item 3'
+                })
+            ]
+        }).outerHTML).toBe('<ul id="items-list">' +
+            '<li class="list-item">item 1</li>' +
+            '<li class="list-item">item 2</li>' +
+            '<li class="list-item">item 3</li>' +
+            '</ul>')
+        
+        expect(element('ul', {
+            attributes: { id: 'items-list' },
+            htmlContent:
+                '<li class="list-item">item 1</li>' +
+                '<li class="list-item">item 2</li>' +
+                '<li class="list-item">item 3</li>',
+        }).outerHTML).toBe('<ul id="items-list">' +
+            '<li class="list-item">item 1</li>' +
+            '<li class="list-item">item 2</li>' +
+            '<li class="list-item">item 3</li>' +
+            '</ul>')
+        
+        
+    })
 })

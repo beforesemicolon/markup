@@ -13,6 +13,7 @@ interface ElementOptions<A> {
     attributes?: A
     textContent?: string
     htmlContent?: string
+    childNodes?: Node[]
     ns?: 'http://www.w3.org/1999/xhtml' | 'http://www.w3.org/2000/svg'
 }
 
@@ -48,6 +49,46 @@ const button = element('button', {
 ```
 
 The `element` uses `addEventListener` behind the scenes and handles non-primitive values for you by easily detecting web component elements.
+
+### childNodes and htmlContent
+
+The `childNodes` and `htmlContent` options allows you to component more complex elements easily depending on how you want to approach.
+
+Here is a example using the `childNodes` option:
+
+```javascript
+element('ul', {
+    attributes: { id: 'items-list' },
+    childNodes: [
+        element('li', {
+            attributes: { class: 'list-item' },
+            textContent: 'item 1',
+        }),
+        element('li', {
+            attributes: { class: 'list-item' },
+            textContent: 'item 2',
+        }),
+        element('li', {
+            attributes: { class: 'list-item' },
+            textContent: 'item 3',
+        }),
+    ],
+})
+```
+
+Now an example of the same thing using the `htmlContent` option:
+
+```javascript
+element('ul', {
+    attributes: { id: 'items-list' },
+    htmlContent:
+        '<li class="list-item">item 1</li>' +
+        '<li class="list-item">item 2</li>' +
+        '<li class="list-item">item 3</li>',
+})
+```
+
+The main difference here is the fact the using `childNodes` you can specify function and property values to attributes while the `htmlContent` only takes a static HTML you want to use.
 
 ### Web components
 

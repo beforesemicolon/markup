@@ -16,6 +16,7 @@ export const element = <A>(
         attributes = {} as A,
         htmlContent = '',
         textContent = '',
+        childNodes = [],
         ns = 'http://www.w3.org/1999/xhtml',
     }: ElementOptions<A> = {}
 ) => {
@@ -43,6 +44,8 @@ export const element = <A>(
             el.textContent = textContent
         } else if (htmlContent) {
             el.innerHTML = htmlContent
+        } else if (childNodes) {
+            el.append(...childNodes)
         }
 
         return el

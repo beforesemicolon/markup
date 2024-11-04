@@ -34,5 +34,6 @@ export interface ElementOptions<A> {
     attributes?: A
     textContent?: string
     htmlContent?: string
+    childNodes?: Node[]
     ns?: 'http://www.w3.org/1999/xhtml' | 'http://www.w3.org/2000/svg' | ''
 }
