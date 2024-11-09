@@ -17,3 +17,6 @@ playground
 docs
 docs-src
 scripts
+build-scripts
+.eslintrc.cjs
+jest.config.cjs
