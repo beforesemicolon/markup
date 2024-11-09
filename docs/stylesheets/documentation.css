@@ -77,7 +77,11 @@ body {
         rgba(255, 255, 255, 1) 80%
     );
     appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
     cursor: pointer;
+    border: none;
+    border-radius: 0;
 }
 
 @media screen and (max-width: 1400px) {
