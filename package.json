@@ -16,7 +16,7 @@
     "scripts": {
         "test": "jest --coverage",
         "test:watch": "jest --watch",
-        "docs:watch": "rm -rf website && nodemon --watch docs -e ts,css,md,json --exec 'node node_modules/@beforesemicolon/builder/dist/esm/docs/run.js'",
+        "docs:watch": "rm -rf website && nodemon --watch docs -e js,css,md,json --exec 'node node_modules/@beforesemicolon/builder/dist/esm/docs/run.js'",
         "local": "nodemon --watch src -e ts --exec 'npm run build && npm pack && npm link'",
         "build:docs": "node node_modules/@beforesemicolon/builder/dist/esm/docs/run.js",
         "build:browser": "node node_modules/@beforesemicolon/builder/dist/esm/build-browser.js",

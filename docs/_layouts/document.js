@@ -27,6 +27,18 @@ const navCategoryToHTML = (docs, currentPath) =>
 export default (props) => {
     const docs = props.siteMap.get('documentation')
     const docsMenu = `<ul>${navCategoryToHTML(docs, props.path)}</ul>`
+    const pages = [...docs.values()].flatMap((page) =>
+        page instanceof Map ? [...page.values()] : [page]
+    )
+
+    let nextPage, previousPage
+
+    for (let i = 0; i < pages.length; i++) {
+        if (pages[i].path === props.path) {
+            nextPage = pages[i + 1]
+            previousPage = pages[i - 1]
+        }
+    }
 
     return `
 <!doctype html>
@@ -47,6 +59,11 @@ export default (props) => {
             </nav>
             <article>
                 ${props.content}
+                
+                <div id="page-navigation">
+                    ${previousPage ? `<a href="${previousPage.path}" id="prev-doc">&lt;&lt; ${previousPage.name}</a>` : ''}
+                    ${nextPage ? `<a href="${nextPage.path}" id="next-doc">${nextPage.name} &gt;&gt;</a>` : ''}
+                </div>
                 
                 <a href="${
                     props.path === '/documentation'

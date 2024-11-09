@@ -323,10 +323,42 @@ body {
     font-size: 0.9rem;
 }
 
-#documentation article #edit-doc {
-    margin: 30px 0 0;
+/* #edit-doc */
+
+#edit-doc {
+    margin-top: 50px;
     display: inline-block;
     color: coral;
+    font-size: 0.8rem;
+    float: right;
+}
+
+/* #page-navigation */
+
+#page-navigation {
+    border-top: 1px solid #222;
+    padding: 20px 0;
+    margin-top: 30px;
+}
+
+#page-navigation::after {
+    clear: both;
+    display: table;
+    content: '';
+}
+
+#prev-doc,
+#next-doc {
+    text-decoration: none;
+    color: #92c5ee;
+}
+
+#prev-doc {
+    float: left;
+}
+
+#next-doc {
+    float: right;
 }
 
 /* #table-of-content ------------ */
