@@ -15,57 +15,25 @@ body {
 @media screen and (max-width: 860px) {
     #documentation {
         max-height: none;
+        flex-direction: column;
     }
 }
 
-/* nav ------------ */
-
-#documentation nav {
-    width: 225px;
-    position: sticky;
-    top: 0;
-    left: 0;
-    min-height: 100%;
-    border-right: 0.001rem solid coral;
-    padding-bottom: 20px;
-}
-
-#documentation nav::after {
-    content: '';
-    display: block;
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 100vw;
-    background: #050c13;
-    height: 100%;
-    z-index: -1;
-}
-
-#documentation nav ul {
-    height: 100%;
-    overflow: auto;
-    padding: 50px 0 30px 0;
-    position: relative;
-}
-
-#documentation nav a {
-    text-decoration: none;
-}
+/* #mobile-menu-toggle */
 
 #mobile-menu-toggle {
-    position: fixed;
-    left: 0;
-    top: 62px;
-    z-index: 99999999;
-    display: none;
-    width: 100vw;
     height: 40px;
     background: #111;
     padding: 10px 0 0 20px;
+    position: sticky;
+    top: 60px;
+    left: 0;
+    z-index: 9999;
+    display: none;
 }
 
-#mobile-menu-toggle input {
+#mobile-menu-toggle a {
+    display: inline-block;
     width: 25px;
     height: 12px;
     background: linear-gradient(
@@ -85,6 +53,39 @@ body {
 }
 
 @media screen and (max-width: 1400px) {
+    #mobile-menu-toggle {
+        display: inline-block;
+    }
+}
+
+/* nav ------------ */
+
+#documentation nav {
+    width: 225px;
+    position: sticky;
+    top: 0;
+    left: 0;
+    min-height: 100%;
+    border-right: 0.001rem solid coral;
+    padding-bottom: 20px;
+}
+
+#documentation nav ul {
+    height: 100%;
+    overflow: auto;
+    padding: 50px 0 30px 0;
+    position: relative;
+}
+
+#documentation nav a {
+    text-decoration: none;
+}
+
+#documentation nav .close-mobile-menu {
+    display: none;
+}
+
+@media screen and (max-width: 1400px) {
     #documentation nav {
         display: none;
         position: fixed;
@@ -97,26 +98,21 @@ body {
 
     #documentation nav ul {
         background: #050c13;
-        width: 250px;
+        width: 70vw;
+        max-width: 250px;
         border-right: 0.001rem solid coral;
+        flex: 1;
     }
 
-    #mobile-menu-toggle {
-        display: inline-block;
+    #documentation nav:target {
+        display: flex;
+        z-index: 99999;
     }
 
-    #mobile-menu-toggle:has(input:checked) {
-        left: 200px;
-        background: none;
-        padding: 10px 0 0 10px;
-    }
-
-    #mobile-menu-toggle:has(input:checked) + nav {
-        display: block;
-    }
-
-    #documentation nav::after {
+    #documentation nav .close-mobile-menu {
+        flex: 1;
         background: rgba(5, 12, 19, 0.8);
+        display: block;
     }
 }
 
@@ -173,7 +169,7 @@ body {
 
 @media screen and (max-width: 860px) {
     #documentation article {
-        padding: 50px 0;
+        padding: 10px 0;
     }
 }
 

@@ -50,12 +50,14 @@ export default (props) => {
     <body>
         ${header(props)}
         
+        <div id="mobile-menu-toggle">
+            <a href="#docs-nav" " aria-label="toggle mobile menu open"></a>
+        </div>
+        
         <main id="documentation" class="wrapper">
-            <div id="mobile-menu-toggle">
-                <input type="checkbox" aria-label="toggle mobile menu">
-            </div>
             <nav id="docs-nav">
                 ${docsMenu}
+                <a href="." class="close-mobile-menu" aria-label="toggle mobile menu close"></a>
             </nav>
             <article>
                 ${props.content}
