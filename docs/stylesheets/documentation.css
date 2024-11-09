@@ -12,6 +12,12 @@ body {
     scroll-padding-top: 6rem;
 }
 
+@media screen and (max-width: 860px) {
+    #documentation {
+        max-height: none;
+    }
+}
+
 /* nav ------------ */
 
 #documentation nav {
@@ -48,6 +54,18 @@ body {
 }
 
 #mobile-menu-toggle {
+    position: fixed;
+    left: 0;
+    top: 62px;
+    z-index: 99999999;
+    display: none;
+    width: 100vw;
+    height: 40px;
+    background: #111;
+    padding: 10px 0 0 20px;
+}
+
+#mobile-menu-toggle input {
     width: 25px;
     height: 12px;
     background: linear-gradient(
@@ -58,13 +76,8 @@ body {
         rgba(255, 255, 255, 0) 80%,
         rgba(255, 255, 255, 1) 80%
     );
-    position: fixed;
-    left: 15px;
-    top: 80px;
-    z-index: 99999999;
     appearance: none;
     cursor: pointer;
-    display: none;
 }
 
 @media screen and (max-width: 1400px) {
@@ -88,11 +101,13 @@ body {
         display: inline-block;
     }
 
-    #mobile-menu-toggle:checked {
+    #mobile-menu-toggle:has(input:checked) {
         left: 200px;
+        background: none;
+        padding: 10px 0 0 10px;
     }
 
-    #mobile-menu-toggle:checked + nav {
+    #mobile-menu-toggle:has(input:checked) + nav {
         display: block;
     }
 
@@ -150,6 +165,12 @@ body {
     padding: 50px 30px;
     color: #ddd;
     line-height: 170%;
+}
+
+@media screen and (max-width: 860px) {
+    #documentation article {
+        padding: 50px 0;
+    }
 }
 
 #documentation article::after {
