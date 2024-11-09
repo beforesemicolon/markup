@@ -1,6 +1,8 @@
-@import 'common.css';
+@import './common.css';
 
-/* #banner ------------------ */
+/* #banner ------------------
+
+*/
 #banner {
     padding: 100px 0 10px;
     text-align: center;

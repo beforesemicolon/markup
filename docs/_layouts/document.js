@@ -51,7 +51,7 @@ export default (props) => {
         ${header(props)}
         
         <div id="mobile-menu-toggle">
-            <a href="#docs-nav" " aria-label="toggle mobile menu open"></a>
+            <a href="#docs-nav" aria-label="toggle mobile menu open"></a>
         </div>
         
         <main id="documentation" class="wrapper">

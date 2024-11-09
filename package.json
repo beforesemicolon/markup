@@ -42,7 +42,7 @@
         "type": "github"
     },
     "devDependencies": {
-        "@beforesemicolon/builder": "^1.1.3",
+        "@beforesemicolon/builder": "^1.2.0",
         "@gjsify/esbuild-plugin-transform-ext": "0.0.4",
         "@types/jest": "^29.5.11",
         "@types/jsdom": "^21.1.6",
