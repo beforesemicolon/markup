@@ -165,8 +165,9 @@ All injected primitives will be rendered as their string version.
 
 ```javascript
 html`
-    ${0} ${true} ${false} ${34n} ${'sample'} ${undefined} ${null}
-    ${Symbol('sample')}
+    ${0} ${true} ${false} ${34n} ${'sample'} ${undefined} ${null} ${Symbol(
+        'sample'
+    )}
 `.render(document.body)
 // 0 true false 34 sample undefined null Symbol(sample)
 ```
