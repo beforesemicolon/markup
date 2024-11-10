@@ -102,6 +102,7 @@ body {
         max-width: 250px;
         border-right: 0.001rem solid coral;
         flex: 1;
+        padding-bottom: 80px;
     }
 
     #documentation nav:target {
