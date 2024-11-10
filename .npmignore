@@ -15,6 +15,5 @@ playground
 .eslintrc.cjs
 .eslintignore
 docs
-docs-src
 website
 test.common.ts
