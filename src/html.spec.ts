@@ -1753,4 +1753,32 @@ describe('html', () => {
 		expect(stateUpdateMock).not.toHaveBeenCalled()
 	})
 	
+	it('should render a switch with state', () => {
+		jest.useFakeTimers()
+		const [status, setStatus] = state(0);
+		
+		html`${() => {
+			switch (status()) {
+				case 0:
+					return 'idle'
+				case 1:
+					return 'loading'
+				default:
+					return 'done'
+			}
+		}}`.render(document.body)
+		
+		expect(document.body.innerHTML).toBe('idle')
+		
+		setStatus(1)
+		jest.advanceTimersToNextTimer()
+
+		expect(document.body.innerHTML).toBe('loading')
+		
+		setStatus(2)
+		jest.advanceTimersToNextTimer()
+		
+		expect(document.body.innerHTML).toBe('done')
+	})
+	
 })

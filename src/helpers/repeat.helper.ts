@@ -37,19 +37,17 @@ export const repeat = <T>(
     let map = new Map()
 
     return () => {
-        const list = getList(val(data)) as T[]
-
-        if (list.length === 0) {
-            map = new Map()
-
-            return whenEmpty?.() ?? []
-        }
-
-        map = list.reduce((acc, item, idx) => {
+        map = (getList(val(data)) as T[]).reduce((acc, item, idx) => {
             acc.set(item, map.get(item) ?? cb(item, idx))
             return acc
         }, new Map())
 
-        return Array.from(map.values())
+        const list = Array.from(map.values())
+
+        if (list.length === 0) {
+            return whenEmpty?.() ?? []
+        }
+
+        return list
     }
 }

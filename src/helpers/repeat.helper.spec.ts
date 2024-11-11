@@ -25,6 +25,9 @@ describe('repeat', () => {
 
     it('should handle empty', () => {
         expect(repeat([], (n) => n, () => 'no items')()).toEqual('no items')
+        expect(repeat({}, (n) => n, () => 'no items')()).toEqual('no items')
+        expect(repeat(new Set(), (n) => n, () => 'no items')()).toEqual('no items')
+        expect(repeat(new Map(), (n) => n, () => 'no items')()).toEqual('no items')
     })
 
     it('should handle array with unique primitives', () => {

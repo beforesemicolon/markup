@@ -7,3 +7,48 @@ layout: document
 ---
 
 ## Router
+
+-   Components
+-   Routing APIs
+
+## Examples
+
+## Installation
+
+## Components
+
+### Page route
+
+### Page route query
+
+### Page redirect
+
+### Page link
+
+### Page data
+
+## Routing APIs
+
+### onPageChange
+
+### goToPage
+
+### replacePage
+
+### previousPage
+
+### nextPage
+
+### getPageData
+
+### updateSearchQuery
+
+### getSearchParams
+
+### registerRoute
+
+### isRegisteredRoute
+
+### getPageParams
+
+### parsePathname
