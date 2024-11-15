@@ -85,6 +85,8 @@ export const state = <T>(
                 scheduledExecutions.push(subs)
                 executeScheduled()
             }
+
+            return updatedValue
         },
         () => removeSub(sub),
     ])

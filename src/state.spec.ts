@@ -9,18 +9,19 @@ describe('state', () => {
         
         expect(count()).toBe(0)
         
-        setCount(1)
+        let newValue = setCount(1)
         
-        expect(count()).toBe(1)
+        expect(count()).toBe(newValue)
         jest.advanceTimersToNextTimer()
         expect(onUpdate).toBeCalledTimes(1)
         
         onUpdate.mockClear()
         unsub()
         
-        setCount(2)
+        newValue = setCount(2)
+        
         jest.advanceTimersToNextTimer()
-        expect(count()).toBe(2)
+        expect(count()).toBe(newValue)
         expect(onUpdate).toBeCalledTimes(0)
     })
     
