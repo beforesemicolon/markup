@@ -30,5 +30,6 @@ Here are more examples you can draw inspiration from:
 -   [ToDo App with State Management](https://stackblitz.com/edit/web-platform-lvonxr)
 -   [Tic Tac Toe app](https://codepen.io/beforesemicolon/pen/eYqyreO?editors=0010)
 -   [Calculator app](https://codepen.io/beforesemicolon/pen/abeEGMB)
+-   [SPA (Router) app](https://stackblitz.com/edit/vitejs-vite-4jvsfp?file=index.html)
 -   [Counter App](https://stackblitz.com/edit/web-platform-ixypdh)
 -   [Timer App](https://codepen.io/beforesemicolon/pen/yLQzQZV)
