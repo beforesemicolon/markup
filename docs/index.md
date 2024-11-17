@@ -10,7 +10,7 @@ layout: landing
 
 ## Reactive Templating System
 
-A simple and lightweight solution to create stateful Web User Interfaces.
+Because building Web Applications should be simple.
 
 <div class="actions">
 
@@ -20,9 +20,13 @@ A simple and lightweight solution to create stateful Web User Interfaces.
 
 </div>
 
-<section id="why-markup">
+<section id="why-markup-block">
 
 ### Why Markup?
+
+You dont need a verbose web frameworks to build complex Web Applications. Web Standards and existing Web APIs alongside modern JavaScript is all you need.
+
+Markup simply allows you to avoid the complexity of dealing with the DOM by providing you with a simple and reactive way to define your app structure and content. **The rest is up to your creativity and web capabilities.**
 
 -   **Reactive**
     Markup uses JavaScript **[template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals)** and Functions to allow you to create reative DOM with state management, render lyfecycles, and side effects control.

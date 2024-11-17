@@ -66,26 +66,37 @@
     }
 }
 
-/* #why-markup ----------------- */
+/* #why-markup-block ----------------- */
 
-#why-markup {
+#why-markup-block {
     margin: 80px 0 0;
 }
 
-#why-markup h3 {
+#why-markup-block h3 {
     font-size: 1.8rem;
     font-weight: 700;
     letter-spacing: 0.15rem;
+    margin-bottom: 20px;
 }
 
-#why-markup ul {
+#why-markup-block h3 ~ p {
+    width: 80%;
+}
+
+@media screen and (max-width: 1024px) {
+    #why-markup-block h3 ~ p {
+        width: 100%;
+    }
+}
+
+#why-markup-block ul {
     margin: 30px 0 50px;
     display: flex;
     flex-wrap: wrap;
     gap: 30px;
 }
 
-#why-markup ul li {
+#why-markup-block ul li {
     background: linear-gradient(320deg, #001114, #000000);
     padding: 25px;
     border-radius: 8px;
@@ -96,7 +107,7 @@
     position: relative;
 }
 
-#why-markup ul li::after {
+#why-markup-block ul li::after {
     content: '';
     display: block;
     width: calc(100% + 1px);
@@ -110,7 +121,7 @@
     z-index: -1;
 }
 
-#why-markup ul li > strong:first-of-type {
+#why-markup-block ul li > strong:first-of-type {
     font-size: 1.6rem;
     font-weight: 500;
     display: block;
@@ -118,13 +129,13 @@
 }
 
 @media screen and (max-width: 860px) {
-    #why-markup ul li {
+    #why-markup-block ul li {
         min-width: calc((100% / 2) - 30px);
     }
 }
 
 @media screen and (max-width: 675px) {
-    #why-markup ul li {
+    #why-markup-block ul li {
         min-width: 100%;
     }
 }
