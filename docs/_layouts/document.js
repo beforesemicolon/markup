@@ -4,7 +4,7 @@ import footer from './_footer.js'
 import copyCode from './_copy-code.js'
 
 const githubDocsPath =
-    'https://github.com/beforesemicolon/markup/tree/main/docs/documentation'
+    'https://github.com/beforesemicolon/markup/tree/main/docs'
 
 const navCategoryToHTML = (docs, currentPath) =>
     Array.from(docs.entries())
@@ -67,11 +67,7 @@ export default (props) => {
                     ${nextPage ? `<a href="${nextPage.path}" id="next-doc">${nextPage.name} &gt;&gt;</a>` : ''}
                 </div>
                 
-                <a href="${
-                    props.path === '/documentation'
-                        ? `${githubDocsPath}/index.md`
-                        : `${githubDocsPath}.md`
-                }" id="edit-doc">edit this doc</a>
+                <a href="${`${githubDocsPath}${props.path.replace('.html', '')}.md`}" id="edit-doc">edit this doc</a>
             </article>
             <aside id="table-of-content">
                 <h4>Content</h4>
