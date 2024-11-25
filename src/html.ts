@@ -13,6 +13,8 @@ import { val } from './helpers/index.ts'
 import { setElementAttribute } from './utils/set-element-attribute.ts'
 import { effect } from './state.ts'
 import { DoubleLinkedList } from './DoubleLinkedList.ts'
+import { turnCamelToKebabCasing } from './utils/turn-camel-to-kebab-casing.ts'
+import { isObjectLiteral } from './utils/is-object-literal.ts'
 
 const templateRegistry: Record<string, Template> = {}
 
@@ -24,13 +26,6 @@ interface AttributeSlot {
     valueParts: Array<string | number>
 }
 
-interface PropSlot {
-    type: 'prop'
-    name: string
-    value: unknown
-    nodeSelector: string
-}
-
 interface ContentSlot {
     type: 'content'
     value: string
@@ -38,7 +33,7 @@ interface ContentSlot {
     valueParts: Array<string | number>
 }
 
-type TemplateSlot = AttributeSlot | ContentSlot | PropSlot
+type TemplateSlot = AttributeSlot | ContentSlot
 
 interface Template {
     template: DocumentFragment
@@ -99,6 +94,7 @@ function createTemplate(
     templateString = templateString.trim()
 
     const slots = new DoubleLinkedList<TemplateSlot>()
+    const attrSlots: Record<string, AttributeSlot> = {}
 
     const temp = parse(templateString, {
         createComment: (value) => document.createComment(value),
@@ -142,19 +138,35 @@ function createTemplate(
                         const idx = Number(dynamicValue[1])
                         const attrs = values[idx]
 
-                        if (`${attrs}` === '[object Object]') {
-                            __self__.setAttribute('data-slot-id', id)
+                        if (isObjectLiteral(attrs)) {
+                            let markSlot = false
 
                             for (const [key, v] of Object.entries(
                                 attrs as Record<string, string>
                             )) {
-                                slots.push({
-                                    type: 'prop',
-                                    name: key.toLowerCase(),
-                                    value: v,
-                                    nodeSelector: `[data-slot-id="${id}"]`,
-                                })
+                                const n = turnCamelToKebabCasing(key)
+                                const isRef = key === 'ref'
+
+                                // only need slots for refs and function values
+                                if (isRef || typeof v === 'function') {
+                                    attrSlots[n] = {
+                                        type: 'attribute',
+                                        name: n,
+                                        value: v,
+                                        nodeSelector: `[data-slot-id="${id}"]`,
+                                        valueParts: [v],
+                                    }
+                                    slots.push(attrSlots[n])
+                                    markSlot = true
+                                } else {
+                                    setElementAttribute(__self__, n, v)
+                                }
                             }
+
+                            if (markSlot) {
+                                __self__.setAttribute('data-slot-id', id)
+                            }
+
                             return
                         }
 
@@ -163,15 +175,17 @@ function createTemplate(
                         )
                     }
 
-                    if (name === 'ref' || /\$val([0-9]+)/.test(value)) {
+                    const isRef = name === 'ref'
+
+                    if (isRef || /\$val([0-9]+)/.test(value)) {
                         __self__.setAttribute('data-slot-id', id)
                         const v = value.trim()
                         slots.push({
                             type: 'attribute',
-                            name: name.toLowerCase(),
+                            name,
                             value: v,
                             nodeSelector: `[data-slot-id="${id}"]`,
-                            valueParts: parseDynamicRawValue(v),
+                            valueParts: isRef ? [v] : parseDynamicRawValue(v),
                         })
 
                         // skip setting attribute for Web Components as they can have non-primitive values
@@ -179,7 +193,10 @@ function createTemplate(
                         if (tagName.includes('-')) return
                     }
 
-                    name !== 'ref' && __self__.setAttribute(name, value)
+                    !isRef && setElementAttribute(__self__, name, value)
+
+                    // ensure object attributes do not override inline attributes
+                    slots.remove(attrSlots[name])
                 },
             } as unknown as ElementLike
         },
@@ -567,7 +584,7 @@ export class HtmlTemplate {
         const nodes: Record<string, HTMLElement> = {}
 
         for (const slot of slots) {
-            if (slot.type === 'attribute' || slot.type === 'prop') {
+            if (slot.type === 'attribute') {
                 const node =
                     nodes[slot.nodeSelector] ??
                     frag.querySelector(slot.nodeSelector)
@@ -575,27 +592,21 @@ export class HtmlTemplate {
                 if (node) {
                     nodes[slot.nodeSelector] = node
                     node.removeAttribute('data-slot-id')
-                    let values = []
+                    const values = []
 
-                    if (slot.type === 'attribute') {
-                        if (slot.name === 'ref') {
-                            const name = String(slot.value)
+                    if (slot.name === 'ref') {
+                        const name = String(slot.value)
 
-                            if (!this.#refs[name]) {
-                                this.#refs[name] = new Set()
-                            }
-
-                            this.#refs[name].add(node)
-                            continue
+                        if (!this.#refs[name]) {
+                            this.#refs[name] = new Set()
                         }
 
-                        for (const p of slot.valueParts) {
-                            values.push(
-                                typeof p === 'number' ? this.#values[p] : p
-                            )
-                        }
-                    } else {
-                        values = [slot.value]
+                        this.#refs[name].add(node)
+                        continue
+                    }
+
+                    for (const p of slot.valueParts) {
+                        values.push(typeof p === 'number' ? this.#values[p] : p)
                     }
 
                     handleElementAttribute(node, slot.name, values, (item) =>

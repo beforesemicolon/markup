@@ -789,7 +789,7 @@ describe('html', () => {
 		it('should handle slot name', () => {
 			const slotName = '123'
 			
-			html`<slot ${{name: ''}}></slot><slot  ${{name: slotName}}></slot>`.render(document.body)
+			html`<slot ${{name: ''}}></slot><slot ${{name: slotName}}></slot>`.render(document.body)
 			
 			expect(document.body.innerHTML).toBe('<slot name=""></slot><slot name="123"></slot>')
 		});
@@ -808,6 +808,22 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('<p>hidden text</p>\n' +
 				'\t\t\t    <button disabled="true">click me</button>\n' +
 				'\t\t\t    <input type="checkbox">')
+		})
+		
+		it('should handle object attributes', () => {
+			const countUpSpy = jest.fn()
+			
+			const button = ({text = 'click me', ...props}) => html`<button ${props} type="button">${text}</button>`
+			
+			const temp = html`${button({text: '+', ariaLabel: 'count up button', onClick: countUpSpy, type: 'submit', ref: 'btn'})}`.render(document.body);
+			
+			expect(document.body.innerHTML).toBe('<button aria-label="count up button" type="button">+</button>');
+			
+			const btn = temp.refs['btn'][0] as HTMLButtonElement;
+			
+			btn.click();
+			
+			expect(countUpSpy).toHaveBeenCalled();
 		})
 	})
 	
