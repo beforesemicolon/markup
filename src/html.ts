@@ -16,6 +16,11 @@ import { DoubleLinkedList } from './DoubleLinkedList.ts'
 import { turnCamelToKebabCasing } from './utils/turn-camel-to-kebab-casing.ts'
 import { isObjectLiteral } from './utils/is-object-literal.ts'
 
+// if its a known html event name the value will be null or a function
+// otherwise undefined
+const isKnownHTMLEventName = (name: string) =>
+    typeof (document ?? {})[name as keyof Document] !== 'undefined'
+
 const templateRegistry: Record<string, Template> = {}
 
 interface AttributeSlot {
@@ -144,8 +149,12 @@ function createTemplate(
                             for (const [key, v] of Object.entries(
                                 attrs as Record<string, string>
                             )) {
-                                const n = turnCamelToKebabCasing(key)
-                                const isRef = key === 'ref'
+                                const keyLower = key.toLowerCase()
+                                const isRef = keyLower === 'ref'
+                                const n =
+                                    isRef || isKnownHTMLEventName(keyLower)
+                                        ? keyLower
+                                        : turnCamelToKebabCasing(key)
 
                                 // only need slots for refs and function values
                                 if (isRef || typeof v === 'function') {
@@ -220,8 +229,7 @@ function handleElementEventListener(
         (node.nodeName.includes('-') &&
             // @ts-expect-error observedAttributes is property of web component
             !node.constructor?.observedAttributes?.includes(name)) ||
-        // @ts-expect-error check if know event name
-        typeof (document.head ?? {})[name] !== 'undefined'
+        isKnownHTMLEventName(name)
     ) {
         let fn
         let options

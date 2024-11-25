@@ -821,9 +821,12 @@ describe('html', () => {
 			
 			const btn = temp.refs['btn'][0] as HTMLButtonElement;
 			
+			expect(btn.outerHTML).toBe('<button aria-label="count up button" type="button">+</button>')
+			
 			btn.click();
 			
-			expect(countUpSpy).toHaveBeenCalled();
+			expect(countUpSpy).toHaveBeenCalledTimes(1);
+			expect(countUpSpy).toHaveBeenCalledWith(expect.any(Event));
 		})
 	})
 	
