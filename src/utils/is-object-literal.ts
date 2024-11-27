@@ -1,7 +1,7 @@
 export const isObjectLiteral = (val: unknown) => {
-    return (
+    return Boolean(
         val &&
-        typeof val === 'object' &&
-        Object.getPrototypeOf(val) === Object.prototype
+            typeof val === 'object' &&
+            Object.getPrototypeOf(val) === Object.prototype
     )
 }

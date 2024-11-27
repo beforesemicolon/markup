@@ -268,8 +268,6 @@ export function handleElementAttribute(
         return
     }
 
-    const hasFunctionValue = values.some((d) => typeof d === 'function')
-
     if (booleanAttributes[name]) {
         const d = values[0]
 
@@ -305,7 +303,7 @@ export function handleElementAttribute(
         return newValue
     }
 
-    if (hasFunctionValue) {
+    if (values.some((d) => typeof d === 'function')) {
         return cb(effect(setAttr))
     }
 
