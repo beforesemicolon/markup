@@ -8,7 +8,7 @@ layout: document
 
 ## Installation
 
-Markup is a plug-and-play package that does not need to be built. There is no need to any additional setup or requirements to get started. Simply add it to your project and proceed.
+Markup is a plug-and-play package that does not need to be built. There is no need to any additional setup or requirements to get started. Simply add it to your project and start writing your code.
 
 ### Via CDN
 
@@ -57,4 +57,4 @@ yarn add @beforesemicolon/markup
 
 ### Typescript
 
-This package was built using typescript. You don't need to install a separate types package for it. All types are exported with it.
+This package was built using typescript. You don't need to install a separate "types" package for it.

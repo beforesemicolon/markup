@@ -10,7 +10,7 @@ layout: landing
 
 ## Reactive Templating System
 
-Because building Web Applications should be simple.
+Reactive DOM, no build required to develop the Web!
 
 <div class="actions">
 
@@ -24,22 +24,20 @@ Because building Web Applications should be simple.
 
 ### Why Markup?
 
-You dont need a verbose web frameworks to build complex Web Applications. Web Standards and existing Web APIs alongside modern JavaScript is all you need.
-
-Markup simply allows you to avoid the complexity of dealing with the DOM by providing you with a simple and reactive way to define your app structure and content. **The rest is up to your creativity and web capabilities.**
+**_We believe that Web Standards, Web APIs, and modern JavaScript are all you need to build any web based project_**. Markup only exists to provide you with all the reactivity and a simpler way to represent your HTML in JavaScript to build anything - _No build required!_
 
 -   **Reactive**
-    Markup uses JavaScript **[template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals)** and Functions to allow you to create reative DOM with state management, render lyfecycles, and side effects control.
+    Markup uses JavaScript [template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) and [Functions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions) to allow you to create reactive DOM with state management, render lifecycles, side effects control, and more.
 -   **Small**
-    Markup allows you to do a lot with **9Kb compressed** code (**_18Kb umcompressed_**. From prototyping to enterprise web applications, you can ship it to the client confidently!
+    Markup allows you to do a lot with **9Kb compressed** code (**_18Kb umcompressed_**). From prototyping to enterprise web applications, ship it with confidence!
 -   **Simple**
     Markup is **[based on Web Standards](https://www.w3.org/standards/)** and exposes 3 simple APIs you can use to enhance Web Components APIs, working with DOM, and building any Web User Interface.
 -   **Plug & Play**
-    Markup requires no build, no parsing, no bundling. You can simply add it to your project and start using it. This is because it is based on web standards and looks super familiar.
+    Markup requires no build and no parsing. You can simply add it to your project and start using it. It is just an extension of the familiar _HTML + CSS + JavaScript_ we love.
 -   **Web Component**
     Markup enhances Web Component APIs with reactivity and by eliminating the need to perform DOM manipulations when creating components for your projects.
 -   **Performance**
-    Markup is data aware and handles everything behind the scenes which allows the DOM to only be updated when ands where it is necessary.
+    Markup is data driven and handles everything behind the scenes which allows the DOM to only be updated when and where it is necessary.
 
 </section>
 
@@ -47,24 +45,24 @@ Markup simply allows you to avoid the complexity of dealing with the DOM by prov
 
 ### Quick Start
 
-Install it in your project
-
-```
-npm install @beforesemicolon/markup
-```
-
-or
-
-```
-yarn install @beforesemicolon/markup
-```
-
-Or simply add the following script in the head of your document.
+Add it to your HTML
 
 ```html
 <script src="https://unpkg.com/@beforesemicolon/markup/dist/client.js"></script>
 ```
 
-[Try It!](https://stackblitz.com/edit/web-platform-lvonxr?file=app.js)
+Or install it in your project with npm
+
+```
+npm install @beforesemicolon/markup
+```
+
+or yarn
+
+```
+yarn install @beforesemicolon/markup
+```
+
+[Get Started](documentation/get-started.md)
 
 </section>

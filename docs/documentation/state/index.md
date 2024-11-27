@@ -1,5 +1,5 @@
 ---
-name: Introduction
+name: Intro to States
 order: 5
 title: State - Markup by Before Semicolon
 description: How to handle state in Markup by Before Semicolon
@@ -8,20 +8,44 @@ layout: document
 
 ## State
 
-Markup exposes a standalone API to work with state called `state`.
+Something that is truly missing in web APIs is reactivity, the ability to react to changes instead of listening to events. A big promise is the [tc39 proposal](https://github.com/tc39/proposal-signals) which is attempting to bring signals to JavaScript.
 
-```typescript
-state: <T>(initialValue: T, sub?: StateSubscriber) =>
-    readonly[(StateGetter<T>, StateSetter<T>, StateUnSubscriber)]
+Until then, Markup exposes a standalone API that gives you that capability called `state`.
+
+The state API can be used with or without templates allowing you to create [state stores](../capabilities/state-store.md), enhance Web Components, and even provide reactivity with raw DOM manipulation.
+
+```javascript
+const [count, setCount] = state(0)
+
+const btn = document.createElement('button')
+btn.type = 'button'
+
+btn.addEventListener('click', () => {
+    setCount((prev) => prev + 1)
+})
+
+effect(() => {
+    btn.textContent = `count: ${count()}`
+})
+
+document.body.append(btn)
 ```
 
-State, when used in templates allow the DOM to only update where needed.
+The best part is when you combine state and templates to render DOM nodes that react to updates as they happen without having to manipulate the DOM yourself.
 
-Markup templates do no traverse the DOM to check for updates and the state itself will only notify the template after verifying that the data has changed with a shallow comparison. That allows the DOM to only update when and where necessary.
+```javascript
+const handleClick = () => {
+    setCount((prev) => prev + 1)
+}
+
+html`<button type="button" onclick="${handleClick}">count: ${count}</button>`
+```
+
+Markup templates do not traverse the DOM to check for updates. Instead, it creates [render effects](./effect.md) in place to update the DOM exactly where and when needed.
 
 ### Input
 
-You can provide an `initialValue` to start the state as well as a `StateSubscriber` which is function that will get called every time the state changes.
+To initialize a state, you can optionally provide an `initialValue` as well as a `StateSubscriber` which is a function that will be called every time the state changes.
 
 ```typescript
 const [count] = state<number>(0, () => {
@@ -29,11 +53,11 @@ const [count] = state<number>(0, () => {
 })
 ```
 
-No input is required and the default value is an empty string.
+When no input value provided, the default value is an empty string.
 
 ### Return
 
-The `state` function will recturn and array with three functions, a `StateGetter`, `StateSetter`, and a `StateUnSubscriber`.
+The `state` function will return and array with three functions, a `StateGetter`, `StateSetter`, and a `StateUnSubscriber`.
 
 ```javascript
 const [count, updateCount, unsubscribe] = state(0, () => {
@@ -70,6 +94,20 @@ updateCount(count() + 5)
 
 // use the callback to update the value
 updateCount((prev) => prev + 5)
+```
+
+Calling the `StateSetter` with same value will not cause the subscribers to be called. A shallow comparison is made before updating the current value which prevents unnecessary updates.
+
+```javascript
+const [count, updateCount] = state(0, () => {
+    // this will never get called
+    // given the setInterval update bellow
+    console.log(count())
+})
+
+setInterval(() => {
+    updateCount(0)
+}, 1000)
 ```
 
 #### StateUnSubscriber

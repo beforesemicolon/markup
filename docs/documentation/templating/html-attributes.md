@@ -8,11 +8,11 @@ layout: document
 
 ## HTML Attributes
 
-HTML attributes in Markup templates work and look just like normal HTML attributes. One specific behavior change is related to [boolean attributes](https://developer.mozilla.org/en-US/docs/Glossary/Boolean/HTML) and besides that, your knowledge about HTML attributes transfer as is.
+HTML attributes in Markup templates are just HTML attributes. One specific behavior change is related to [boolean attributes](https://developer.mozilla.org/en-US/docs/Glossary/Boolean/HTML) and besides that, your knowledge about HTML attributes transfer as is.
 
 ### Boolean attributes
 
-Boolean attributes in HTML are attributes that represent true or false values.
+Boolean attributes in HTML are attributes that represent `true` or `false` values.
 
 ```javascript
 html`
@@ -25,7 +25,7 @@ html`
 // <input type="checkbox" checked="false">  <- still checked
 ```
 
-The issue with boolean attributes in HTML is that giving them the value of `false` does not stop their effect on the element. If they are present in the tag they work as having the value of `true`.
+The issue with boolean attributes in HTML is that giving them the value of `false` does not stop their effect on the element. If they are present in the tag they work as having the value of `true` no matter their value.
 
 Markup honors the `true` or `false` values and allows you to add or remove these attributes just by specifying their boolean values.
 
@@ -84,3 +84,33 @@ One thing that exists in Markup and not in HTML is the `ref` attribute that allo
 ```javascript
 html`<button ref="btn">click me</button>`
 ```
+
+### Attributes as object
+
+It is good to know all the possible attributes in advance but sometimes that's not possible. For that, you can collect attributes as objects and just inject them as is overriding as needed.
+
+```javascript
+const [count, setCount] = state(0)
+
+const btn = ({ text = 'click me', ...props }) =>
+    html` <button ${props} type="button">${text}</button>`
+
+const countUp = () => {
+    setCount((prev) => prev + 1)
+}
+
+const temp = html`
+    <p>${count}</p>
+    ${button({ text: '+', ariaLabel: 'count up button', onClick: countUp })}
+`
+/* renders:
+<p>0</p>
+<button type="button" aria-label="count up button">+</button>
+*/
+
+temp.render(document.body)
+```
+
+Any attribute you set after injecting the attribute object will override the object attribute name value. In the example above, we ensure that the `type` of the button is always `button` by setting it after injecting the `props` object.
+
+Also, you can use camelcase attribute name to changed to kebab-case. In the example above `ariaLabel` will become `aria-label` when the button renders. The `onClick` will change to `onclick` and handled like an [event attributes](#event-attributes).

@@ -6,7 +6,7 @@ description: How to create and render a templates in Markup by Before Semicolon
 layout: document
 ---
 
-## Templates
+## Templating
 
 Markup uses [tagged template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates) called `html` to describe the HTML you want to render.
 
@@ -20,17 +20,13 @@ The `html` returns an `HTMLTemplate` instance containing methods and properties 
 
 There are few ways to render a template after you define it:
 
--   `render`: Takes a DOM element to append the template to;
--   `replace`: Takes a DOM element or another HTML template to replace in the DOM;
--   `insertAfter`: Takes a DOM element to insert the template after;
+-   `render`: Takes a HTMLElement to append the template to;
+-   `replace`: Takes any Node or another `HTMLTemplate` instance to replace in the DOM;
+-   `insertAfter`: Takes any Node or another `HTMLTemplate` instance to insert the template after;
 
 #### render
 
-```typescript
-render(target: ShadowRoot | HTMLElement | Element | DocumentFragment): this;
-```
-
-The `render` method will take a `ShadowRoot`, `HTMLElement`, or `DocumentFragment` to append the content to.
+The `render` method will take either a `ShadowRoot`, `HTMLElement`, or `DocumentFragment` to append the content to.
 
 ```javascript
 temp.render(document.body)
@@ -49,41 +45,31 @@ temp.render(document.getElementById('app')) // will move content to #app
 
 #### replace
 
-```typescript
-replace(target: Node | HtmlTemplate): this;
-```
-
-The `replace` method takes any `HTMLTemplate` or [Node](https://developer.mozilla.org/en-US/docs/Web/API/Node) as long as it is not `ShadowRoot`, `HTMLBodyElement`, `HTMLHeadElement`, or `HTMLHtmlElement` to replace in the DOM.
+The `replace` method takes any `HTMLTemplate` or [Node](https://developer.mozilla.org/en-US/docs/Web/API/Node) as long as it is not a `ShadowRoot`, `HTMLBodyElement`, `HTMLHeadElement`, or `HTMLHtmlElement` to replace in the DOM.
 
 ```javascript
 temp.replace(document.getElementById('app'))
 ```
 
-As long as the target node has a parent node, the replace it and similar to `render` method, it will only parse content once.
+Similar to `render` method, it will only parse content once.
 
 ```javascript
-const loading = html`<p>loading...</p>
-    <p></p>`
+const loading = html`<p>loading...</p>`
 
 html`${loading}`.render(document.body)
 
-doSomething().then(() => {
-    const done = html`<p>Done</p>
-        <p></p>`
+doSomethingAsync().then(() => {
+    const done = html`<p>Done</p>`
 
     done.replace(loading)
 })
 ```
 
-The `replace` method is powerful especially when working with asynchronous rendering when you need to render something temporarily and replace it later. This is what [suspense](../utilities/suspense.md) utility does.
+The `replace` method is powerful especially when working with asynchronous rendering you can render something temporarily like a loading indicator and then replace it later once you have your data. This is exactly what [suspense](../utilities/suspense.md) utility does.
 
 #### insertAfter
 
-```typescript
-insertAfter(target: Node | HtmlTemplate): this;
-```
-
-The `insertAfter` method works exactly like the `render` method. The only difference is that it adds the template content after the target node provided.
+The `insertAfter` method works exactly like the `render` method. The only difference is that it adds the template content after the provided target node.
 
 ```javascript
 temp.insertAfter(document.getElementById('app'))
@@ -102,7 +88,7 @@ html`<ul>
     ${items}
 </ul>`.render(document.body)
 
-html`<li>Read a book</li>`.insertAfter(items.at(-1))
+html`<li>Read a book</li>`.insertAfter(items[1])
 ```
 
 #### parentNode
@@ -113,7 +99,7 @@ The `parentNode` property will tell you where the template was rendered. It will
 
 After you render your template, you can use the `mounted` property to check if your template was added to the target as you wanted.
 
-The `mounted` method will not tell you if the template is actually attached to a document. For that, you can use the `parentNode?.isConnected`.
+The `mounted` property will not tell you if the template is actually attached to a document. For that, you can use the `parentNode?.isConnected`.
 
 ```javascript
 const temp1 = html`one`.render(document.createDocumentFragment())
@@ -132,7 +118,7 @@ console.log(
 
 #### childNodes
 
-The `childNodes` will give you and array of top level Nodes rendered by the template.
+The `childNodes` will give you an array of top level Nodes rendered by the template.
 
 ```javascript
 const temp = html`
@@ -153,7 +139,9 @@ To remove your template from the target, you can use the `unmount` method.
 temp.unmount()
 ```
 
-The `unmount` should be the only way you go about removing the template from the DOM. This is because it also unsubscribes from any state recursively. This means that even when you nest templates, the `unmount` will be called for all of them.
+The `unmount` should be the ONLY way you go about removing the template from the DOM. This is because it also unsubscribes from any state recursively. This means that even when you nest templates, the `unmount` will be called for all of them.
+
+Directly manipulating the DOM may have undesired results.
 
 #### toString
 
@@ -170,12 +158,12 @@ const temp = html`
 console.log(temp.toString())
 /* 
 Loose text
-    <p>a paragraph</p>
-    <button> click me</button>
-    ending
+<p>a paragraph</p>
+<button> click me</button>
+ending
  */
 ```
 
 #### Livecycles
 
-There are additional methods available for livecycles purpose. You can learn more by checking the [livecycles](./lifecycles.md) document.
+There are additional methods available for lifecycle purpose. You can learn more by checking the [lifecycle](./lifecycles.md) document.

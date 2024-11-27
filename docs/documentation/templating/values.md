@@ -1,14 +1,14 @@
 ---
-name: Injected values
+name: Values
 order: 4.2
 title: Template Values - Markup by Before Semicolon
 description: How to inject and render values in templates in Markup by Before Semicolon
 layout: document
 ---
 
-## Injected values
+## Values
 
-As you may already know, you can inject values into [template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) in JavaScript. Since markup templates are just template literals, you can inject whatever you want and Markup will handle each value for you.
+If you ever worked with JavaScript [template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) you may already know you can inject values. Since markup templates are just template literals, you can inject whatever you want and Markup will handle each value for you.
 
 ### Parsing
 
@@ -27,7 +27,7 @@ temp.render(document.getElementById('app'))
 // renders <p>hello world</p> as string
 ```
 
-The above will simple result in `<p>hello world</p>` string and not the paragraph element with "hello world" text inside.
+The above will simply result in `<p>hello world</p>` string and not the paragraph element with "hello world" text inside.
 
 Similarly, you cannot have a string representation of attribute key value and inject it in the body of the tag to be interpreted. The example bellow will throw an error:
 
@@ -40,9 +40,9 @@ temp.render(document.getElementById('app'))
 // throws: Invalid attribute object provided: id="sample"
 ```
 
-There is a way to inject attributes you can learn about by reading the [attributes](./html-attributes.md) doc.
+There is a way to inject attribute objects you can learn about by reading the [attributes](./html-attributes.md#attributes-as-object) doc.
 
-To conclude, write HTML as you know and inject value where you would write values in HTML. Those are, as attribute value between parenthesis, before, after, or inside a tag.
+To conclude, write HTML as you know and inject value where you would write values in HTML. Those are, as attribute value (between parenthesis), before, after, or inside a tag.
 
 ```javascript
 const label = 'click me'
@@ -53,9 +53,9 @@ html`<button type="${type}">${label}</button>`
 
 ### Node
 
-Markup templates work seamlessly with DOM nodes and this ability allows you to migrate any vanilla JavaScript solution easily to Markup templates.
+Markup templates work seamlessly with DOM nodes and this ability is what allows you to migrate any vanilla JavaScript solution easily to Markup templates.
 
-You can inject any Node directly in the template and they will be rendered just fine.
+You can inject any Node directly in the template and they will be rendered as so.
 
 ```javascript
 const button = document.createElement('button')
@@ -65,23 +65,27 @@ button.type = 'button'
 html`${button}`.render(document.body)
 ```
 
+If you want a better and quicker way to create `HTMLElement` we suggest taking a look at the [element utility](../utilities/element.md).
+
 ### HTMLTemplate
 
-Another thing you can inject in the templates for powerful compositions are the template instances themselves.
+The best thing about Markup templates is the ability to nest them to compose more complex views while each template maintaining their lifecycles, and tracking which allows for more performant updates and a granular way to track each part of the view.
 
 ```javascript
-const button = html`<button type="button">click me</button>`
+const fieldLabel = html`<span>Enter name</span>`
+const field = html`<input type="text" placeholder="name" />`
 
-html`${button}`.render(document.body)
+html` <label aria-label="name field"> ${fieldLabel} ${field} </label> `.render(
+    document.body
+)
 ```
 
-This simple capability allows you to declare, store, and move around templates like you would with any data. This behavior resembles working with nodes in vanilla JavaScript and makes it easier to share and compose templates to build complex views.
-
-Another benefits of composing templates is the fact that each template are tracked separately allowing only the part of the DOM to update when needed.
+This capability resembles the native DOM node instead. The difference is, instead of tracking individual nodes, you can track a meaningful collection of them that makes sense together.
 
 ### Arrays
 
-Injected arrays will have their items rendered as they are. This makes it super easy to render lists in general and comes handy with data handling.
+Injecting arrays in templates is a powerful way to quickly render a collection of things quickly that needs to be tracked and updated together.
+Arrays will have their items rendered as they are. This makes it super easy to render lists in general and comes handy with data handling.
 
 ```javascript
 const fruits = ['apple', 'banana', 'orange', 'peach']
@@ -94,18 +98,16 @@ The list is rendered without space or commas. You can also collect a list of tem
 
 ```javascript
 const fruits = [
-    [
-        html`<li>apple</li>`,
-        html`<li>banana</li>`,
-        html`<li>orange</li>`,
-        html`<li>peach</li>`,
-    ],
+    html`<li>apple</li>`,
+    html`<li>banana</li>`,
+    html`<li>orange</li>`,
+    html`<li>peach</li>`,
 ]
 
 html`Fruits:
     <ul>
         ${fruits}
-    </ul>`.render(document.body)
+    </ul> `.render(document.body)
 // Fruits: <ul><li>apple</li><li>banana</li><li>orange</li><li>peach</li></ul>
 ```
 
@@ -124,14 +126,14 @@ const fruits = [
 html`Fruits:
     <ul>
         ${fruits}
-    </ul>`.render(document.body)
+    </ul> `.render(document.body)
 
 // Fruits: <ul>&lt;li&gt;apple&lt;/li&gt;,&lt;li&gt;banana&lt;/li&gt;,&lt;li&gt;orange&lt;/li&gt;,&lt;li&gt;peach&lt;/li&gt;</ul>
 ```
 
 ### Functions
 
-Functions are first class citizens in Markup. It is used for reactivity and lazy evaluations and it is pretty much the secret behind Markup.
+Functions are first class citizens in Markup. It is used for reactivity and lazy evaluations and they are pretty much the secret behind Markup.
 
 Every function injected in the template is called and its value is rendered and tracked accordingly.
 
@@ -161,7 +163,7 @@ Markup understands that functions may contain states that change and will evalua
 
 ### Primitives
 
-All injected primitives will be rendered as their string version.
+When you inject primitive value, they will all be rendered as their string version.
 
 ```javascript
 html`
@@ -171,14 +173,14 @@ html`
 // 0 true false 34 sample undefined null Symbol(sample)
 ```
 
-You need to be specifically carefull with nil values like `undefined` and `null` resulting of accesing values not there. They are rendered and may not be something you want. If you wish to render nothing, always use an empty string.
+You need to be specifically careful with nil values like `undefined` and `null` resulting of accessing values not there. They are rendered and may not be what you want. If you wish to render nothing, always use an empty string.
 
 ### Non-Primitives
 
-Array is the only non-primitive value that does not receive a special handling up to one level. Everything else will be render the same way as they would if stringified in JavaScript.
+Array, Functions, Nodes, and HTMLTemplate are the only non-primitive values that do not receive a special handling. Everything else will be render the same way as they would if stringified in JavaScript.
 
 ```javascript
-html` ${{}} ${new Object()} ${new Map()} ${new Set()} ${new Date()} `.render(
+html`${{}} ${new Object()} ${new Map()} ${new Set()} ${new Date()}`.render(
     document.body
 )
 // [object Object]

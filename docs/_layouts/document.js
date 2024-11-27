@@ -57,7 +57,7 @@ export default (props) => {
         <main id="documentation" class="wrapper">
             <nav id="docs-nav">
                 ${docsMenu}
-                <a href="." class="close-mobile-menu" aria-label="toggle mobile menu close"></a>
+                <a href="${props.path}" class="close-mobile-menu" aria-label="toggle mobile menu close"></a>
             </nav>
             <article>
                 ${props.content}
