@@ -7,70 +7,82 @@ Reactive HTML Templating System
 ![npm](https://img.shields.io/npm/l/%40beforesemicolon%2Fmarkup)
 [![Test](https://github.com/beforesemicolon/html/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/beforesemicolon/html/actions/workflows/test.yml)
 
-Markup is a plug-and-play template system for those who need the bare minimal yet powerful
-way to build user interface. Its small size and ready-to-go nature makes it perfect for quick prototypes,
-UI components library, browser extensions, and side projects. But make no mistake, it has all the templating
-features for a big project and serves as a perfect start to build any UI framework or library.
+Markup is a JavaScript reactive templating system built to simplify how you build Web user interfaces using web standards with minimal enhancements to the native web APIs as possible.
+
+It consists of 3 main APIs with additional utilities to simplify things even further:
+
+-   `html`: A JavaScript tagged function that allows you to represent the DOM using template literal string;
+-   `state`: A simple state tracking API that allows you to define reactive data as you wish;
+-   `effect`: A straight forward way to define things that need to happen when certain states change;
 
 ### Motivation
 
-Most UI libraries need too much setup and require build with a steep learning curve. If you find a good templating system
-its either not powerful enough or requires extra things to make it work by itself.
+JavaScript, Web Standards and APIs give you everything you need to build any web project you want. What is often painful to deal with is the DOM and reactivity, especially as the project gets bigger or require multiple people collaboration.
 
-This templating system is standalone system. You don't need anything else to start rendering and reacting to changes.
+Markup was created to give you all the reactivity you need while making it simple to define your HTML in JavaScript without introducing a new syntax, or requiring a build, or a big library you need to ship to the client.
 
-It requires **no build**, **its tiny**, and the API is literally **2 main things to learn**, and you are ready to go.
-It is pretty much HTML and Javascript so the learning curve is extremely small.
+From this:
 
-### Example
+```javascript
+let count = 0
 
-Below is a simple todo app and as you can see, its pretty much HTML and Javascript.
+// tedious DOM definition and manipulation
+const p = document.createElement('p')
+p.textContent = `count: ${count}`
 
-```ts
-import { html, state, repeat } from '@beforesemicolon/markup'
+const btn = document.createElement('button')
+btn.type = 'button'
+btn.textContent = 'count up'
 
-interface TodoItem {
-    name: string
-    description: string
-    id: string
-}
+// limiting event driven
+btn.addEventListener('onclick', () => {
+    count += 1
+    p.textContent = `count: ${count}`
 
-const [todos, updateTodos] = state<Array<TodoItem>>([])
-
-const createTodo = () => {
-    const name = window.prompt('Enter todo name')
-    const description = window.prompt('Enter todo description') ?? ''
-
-    if (name) {
-        updateTodos((prev) => [
-            ...prev,
-            { name, description, id: crypto.randomUUID() },
-        ])
+    if (count > 10) {
+        alert('You counted passed 10!')
     }
-}
+})
 
-const deleteTodo = (id) => {
-    updateTodos((prev) => prev.filter((todo) => todo.id !== id))
-}
-
-const TodoItem = ({ name, description, id }: TodoItem) => html`
-    <div class="todo-item">
-        <h3>${name}</h3>
-        <p>${description}</p>
-        <button type="button" onclick="${() => deleteTodo(id)}">delete</button>
-    </div>
-`
-
-const TodoApp = html`
-    <h2>Todo App</h2>
-    <button type="button" onclick="${createTodo}">add new</button>
-    <div class="todo-list">${repeat(todos, TodoItem)}</div>
-`
-
-TodoApp.render(document.body)
+document.body.append(p, btn)
 ```
 
-#### More examples
+To this:
+
+```javascript
+// reactive data
+const [count, updateCount] = state(0)
+
+// data driven
+effect(() => {
+    if (count() > 10) {
+        alert('You counted passed 10!')
+    }
+})
+
+const countUp = () => {
+    updateCount((prev) => prev + 1)
+}
+
+// reactive DOM/templates
+html`
+    <p>count: ${count}</p>
+    <button type="button" onclick="${countUp}">count up</button>
+`.render(document.body)
+```
+
+### How does it work?
+
+Markup uses [template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) and [Functions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions) to do everything.
+
+-   **Functions**: JavaScript functions are perfect for lazy evaluations which makes it perfect for reactivity. Markup uses functions everywhere, from internals, defining state, effects, utilities, etc.
+-   **Template Literals**: The template literal is used to represent HTML in JavaScript and to avoid to reinvent the wheel. Everything else is enforced by web standards.
+
+Literally everything else is how you know it to be in plain HTML, CSS and JavaScript.
+
+We believe in a simple way to build the web without the jargon of a framework, complex project setups, new syntax, all to spit out HTML, CSS and JavaScript at the end.
+
+#### Examples
 
 This is a simple example of a button, but you can check:
 
@@ -113,7 +125,7 @@ This library requires no build or parsing. The CDN package is one digit killobyt
 <div id="app"></div>
 
 <script>
-    const { html } = BFS.MARKUP
+    const { html, state, effect } = BFS.MARKUP
 
     html`<h1>Hello World</h1>`.render(document.getElementById('app'))
 </script>

@@ -80,7 +80,7 @@ Markup uses [template literals](https://developer.mozilla.org/en-US/docs/Web/Jav
 -   **Functions**: JavaScript functions are perfect for lazy evaluations which makes it perfect for reactivity. Markup uses functions everywhere, from internals, defining state, effects, utilities, etc.
 -   **Template Literals**: The template literal is used to represent HTML in JavaScript and to avoid to reinvent the wheel. Everything else is enforced by web standards.
 
-Literally everything else is you know it to be in plain HTML, CSS and JavaScript.
+Literally everything else is how you know it to be in plain HTML, CSS and JavaScript.
 
 We believe in a simple way to build the web without the jargon of a framework, complex project setups, new syntax, all to spit out HTML, CSS and JavaScript at the end.
 
