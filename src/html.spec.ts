@@ -1,12 +1,9 @@
-import {html, HtmlTemplate, state} from './html'
-import {when, repeat, oneOf, is} from './helpers'
-import { element, suspense } from './utils'
-import {helper} from "./Helper";
+import '../test.common.ts';
+import { html, HtmlTemplate } from './html.ts'
+import { effect, state } from './state.ts'
+import {when, repeat, oneOf, is, element, suspense} from './helpers/index.ts'
 
 describe('html', () => {
-	beforeEach(() => {
-		document.body.innerHTML = ''
-	})
 	
 	it('should render correctly', () => {
 		const app = html`<h1>Todo Manager</h1>
@@ -20,6 +17,17 @@ describe('html', () => {
 				<div class="archived-todos"></div>
 			</div>`
 		
+		expect(app.toString()).toBe('<h1>Todo Manager</h1>\n' +
+			'\t\t\t<div class="action-bar">\n' +
+			'\t\t\t\t<input type="search" placeholder="Search...">\n' +
+			'\t\t\t</div>\n' +
+			'\t\t\t<div class="todo-container">\n' +
+			'\t\t\t\t<div class="pending-todos"></div>\n' +
+			'\t\t\t\t<div class="in-progress-todos"></div>\n' +
+			'\t\t\t\t<div class="completed-todos"></div>\n' +
+			'\t\t\t\t<div class="archived-todos"></div>\n' +
+			'\t\t\t</div>')
+		
 		app.render(document.body)
 		
 		expect(document.body.innerHTML).toBe('<h1>Todo Manager</h1>\n' +
@@ -32,7 +40,18 @@ describe('html', () => {
 			'\t\t\t\t<div class="completed-todos"></div>\n' +
 			'\t\t\t\t<div class="archived-todos"></div>\n' +
 			'\t\t\t</div>')
-		expect(app.nodes).toHaveLength(5)
+		expect(app.childNodes).toHaveLength(5)
+		
+		expect(app.toString()).toBe('<h1>Todo Manager</h1>\n' +
+			'\t\t\t<div class="action-bar">\n' +
+			'\t\t\t\t<input type="search" placeholder="Search...">\n' +
+			'\t\t\t</div>\n' +
+			'\t\t\t<div class="todo-container">\n' +
+			'\t\t\t\t<div class="pending-todos"></div>\n' +
+			'\t\t\t\t<div class="in-progress-todos"></div>\n' +
+			'\t\t\t\t<div class="completed-todos"></div>\n' +
+			'\t\t\t\t<div class="archived-todos"></div>\n' +
+			'\t\t\t</div>')
 	});
 	
 	it('should ignore html in comments', () => {
@@ -65,8 +84,7 @@ describe('html', () => {
 		temp.render(document.body)
 		
 		expect(document.body.innerHTML).toBe('sample')
-		expect(document.body.childNodes).toHaveLength(1)
-		expect(Array.from(document.body.childNodes)).toEqual(temp.nodes)
+		expect(document.body.childNodes).toHaveLength(4)
 	})
 	
 	it('should render html as text', () => {
@@ -89,55 +107,37 @@ describe('html', () => {
 	})
 	
 	it('should render dynamic text and update', () => {
-		let x = 15
+		const [x, setX] = state(15)
 		
-		const temp = html`${() => (x > 10 ? 'more than 10' : 'less than 10')}`
+		const temp = html`${() => (x() > 10 ? 'more than 10' : 'less than 10')}`
 		
 		temp.render(document.body)
 		
 		expect(document.body.innerHTML).toBe('more than 10')
 		
-		x = 5
-		
-		temp.update()
+		setX(5)
+		jest.advanceTimersToNextTimer()
 		
 		expect(document.body.innerHTML).toBe('less than 10')
 	})
 	
 	it('should render dynamic HTML and update', () => {
-		let x = 15
+		const [x, setX] = state(15)
 		const a = html`<p>more than 10</p>`
 		const b = html`<p>less than 10</p>`
 		
-		const temp = html`total: ${() => (x > 10 ? html`>${a}` : html`<${b}`)}`
+		const temp = html`total: ${() => (x() > 10 ? html`>${a}` : html`<${b}`)}`
 		
 		temp.render(document.body)
 		
-		expect(temp.nodes).toHaveLength(3)
-		expect(temp.nodes.map(n => (n as Element).outerHTML || n.nodeValue)).toEqual([
-			"total: ",
-			">",
-			"<p>more than 10</p>"
-		])
 		expect(a.mounted).toBeTruthy()
-		expect(a.nodes).toHaveLength(1)
-		expect((a.nodes[0] as Element).outerHTML).toBe('<p>more than 10</p>')
 		
 		expect(b.mounted).toBeFalsy()
-		expect(b.nodes).toHaveLength(0)
 		
 		expect(document.body.innerHTML).toBe('total: &gt;<p>more than 10</p>')
 		
-		x = 5
-
-		temp.update()
-
-		expect(temp.nodes).toHaveLength(3)
-		expect(temp.nodes.map(n => (n as Element).outerHTML || n.nodeValue)).toEqual([
-			"total: ",
-			"<",
-			"<p>less than 10</p>"
-		])
+		setX(5)
+		jest.advanceTimersToNextTimer()
 
 		expect(document.body.innerHTML).toBe('total: &lt;<p>less than 10</p>')
 	})
@@ -169,30 +169,24 @@ describe('html', () => {
 	})
 	
 	it('should render a growing list of items', () => {
-		const list: HtmlTemplate[] = []
+		const [list, updateList] = state<HtmlTemplate[]>([])
 		
-		const app = html`${() => list}`
-		
-		app.render(document.body)
+		html`${list}`.render(document.body)
 		
 		expect(document.body.innerHTML).toBe('')
 		
-		list.push(html`
-			<div>one</div>`)
-		
-		app.update()
+		updateList([html`<div>one</div>`])
+		jest.advanceTimersToNextTimer()
 		
 		expect(document.body.innerHTML).toBe('<div>one</div>')
 		
-		list.push(html`
-			<div>two</div>`)
-		
-		app.update()
+		updateList(prev => [...prev, html`<div>two</div>`])
+		jest.advanceTimersToNextTimer()
 		
 		expect(document.body.innerHTML).toBe('<div>one</div><div>two</div>')
 	})
 	
-	it('should force to render in a different place', () => {
+	it('should move to a different place', () => {
 		const page = html`<h1>Page Title</h1><p>Page description</p><button>Page CTA Action</button>`
 		
 		page.render(document.body)
@@ -206,12 +200,6 @@ describe('html', () => {
 		document.body.appendChild(wrapper)
 		
 		page.render(wrapper)
-		
-		expect(document.body.innerHTML).toBe(
-			'<h1>Page Title</h1><p>Page description</p><button>Page CTA Action</button><div class="wrapper"></div>'
-		)
-		
-		page.render(wrapper, true)
 		
 		expect(document.body.innerHTML).toBe(
 			'<div class="wrapper"><h1>Page Title</h1><p>Page description</p><button>Page CTA Action</button></div>'
@@ -248,22 +236,6 @@ describe('html', () => {
 		expect(document.body.innerHTML).toBe('<button>Page CTA Action</button>')
 	})
 	
-	it('should replace async html template', (done) => {
-		const cont = html`${suspense(() => {
-			return new Promise((res, rej) => {
-				res(html`done`)
-				setTimeout(() => {
-					expect(document.body.innerHTML).toBe('done')
-					done();
-				}, 0)
-			})
-		}, html`...`)}`
-		
-		cont.render(document.body)
-		
-		expect(document.body.innerHTML).toBe('...')
-	});
-	
 	it('should render src', () => {
 		const button = html`
 			<button>click me</button>`
@@ -274,9 +246,9 @@ describe('html', () => {
 	})
 	
 	it('should render src with dynamic attr value', () => {
-		let type = 'button'
+		const [type, setType] = state('button')
 		const button = html`
-			<button type="${() => type}">click me</button>`
+			<button type="${type}">click me</button>`
 		
 		button.render(document.body)
 		
@@ -284,9 +256,8 @@ describe('html', () => {
 			'<button type="button">click me</button>'
 		)
 		
-		type = 'submit'
-		
-		button.update()
+		setType('submit')
+		jest.advanceTimersToNextTimer()
 		
 		expect(document.body.innerHTML).toBe(
 			'<button type="submit">click me</button>'
@@ -308,9 +279,9 @@ describe('html', () => {
 	
 	it('should render dynamic src', () => {
 		const value = 'sample'
-		let edit = false
+		const [edit, setEdit] = state(false)
 		const val = html`${() =>
-			edit
+			edit()
 				? html`<input type="text" value="${value}"/>`
 				: html`<p>${value}</p>`}`
 		
@@ -318,9 +289,8 @@ describe('html', () => {
 		
 		expect(document.body.innerHTML).toBe('<p>sample</p>')
 		
-		edit = true
-		
-		val.update()
+		setEdit(true)
+		jest.advanceTimersToNextTimer()
 		
 		expect(document.body.innerHTML).toBe(
 			'<input type="text" value="sample">'
@@ -339,10 +309,10 @@ describe('html', () => {
 	})
 	
 	it('should render nested src 2 levels with dynamic inner level', () => {
-		let items = [1, 2, 3]
+		const [items, updateItems] = state([1, 2, 3])
 		const list = html`
 			<ul>
-				${() => items.map((i) => html`
+				${() => items().map((i) => html`
 					<li>item-${i}</li>`)}
 			</ul>`
 		
@@ -354,36 +324,32 @@ describe('html', () => {
 			'\t\t\t</ul>'
 		)
 		
-		items = [1]
-		
-		list.update()
-		
+		updateItems([1])
+		jest.advanceTimersToNextTimer()
+
 		expect(document.body.innerHTML).toBe('<ul>\n' +
 			'\t\t\t\t<li>item-1</li>\n' +
 			'\t\t\t</ul>')
-		
-		items = [1, 2]
-		
-		list.update()
-		
+
+		updateItems([1, 2])
+		jest.advanceTimersToNextTimer()
+
 		expect(document.body.innerHTML).toBe(
 			'<ul>\n' +
 			'\t\t\t\t<li>item-1</li><li>item-2</li>\n' +
 			'\t\t\t</ul>'
 		)
-		
-		items = []
-		
-		list.update()
-		
+
+		updateItems([])
+		jest.advanceTimersToNextTimer()
+
 		expect(document.body.innerHTML).toBe('<ul>\n' +
 			'\t\t\t\t\n' +
 			'\t\t\t</ul>')
-		
-		items = [1, 2, 3]
-		
-		list.update()
-		
+
+		updateItems([1, 2, 3])
+		jest.advanceTimersToNextTimer()
+
 		expect(document.body.innerHTML).toBe(
 			'<ul>\n' +
 			'\t\t\t\t<li>item-1</li><li>item-2</li><li>item-3</li>\n' +
@@ -407,59 +373,6 @@ describe('html', () => {
 		)
 	})
 	
-	it('should handle event attribute with fn value and event options', () => {
-		const clickMock = jest.fn()
-		
-		const btn = html`
-			<button onclick="${clickMock}, true">click me</button>`
-		
-		btn.render(document.body)
-		
-		const btnElement = btn.nodes[0] as HTMLButtonElement
-		
-		expect(document.body.innerHTML).toBe('<button>click me</button>')
-		
-		btnElement.click()
-		
-		expect(clickMock).toHaveBeenCalled()
-	})
-	
-	it('should handle custom events attribute with web components', () => {
-		const clickMock = jest.fn()
-		
-		class MyButton extends HTMLElement {
-			constructor() {
-				super()
-				
-				this.addEventListener('click', () => {
-					this.dispatchEvent(new CustomEvent('active'))
-				})
-			}
-		}
-		
-		customElements.define('my-button', MyButton)
-		
-		const btn = html`
-			<my-button onactive="${clickMock}">click me</my-button>`
-		
-		btn.render(document.body)
-		
-		const btnElement = btn.nodes[0] as HTMLButtonElement
-		
-		expect(document.body.innerHTML).toBe('<my-button>click me</my-button>')
-		
-		btnElement.click()
-		
-		expect(clickMock).toHaveBeenCalled()
-	})
-	
-	it('should ignore event like prop for random tag', () => {
-		html`
-			<intl-plural zero="people" one="person" other="people" value="1"></intl-plural>`.render(document.body)
-		
-		expect(document.body.innerHTML).toBe('<intl-plural zero="people" one="person" other="people" value="1"></intl-plural>')
-	});
-	
 	it('should handle non-primitive value for web components', () => {
 		const updateMock = jest.fn();
 		const updateValMock = jest.fn();
@@ -481,143 +394,249 @@ describe('html', () => {
 		html`<intl-list items="${["book", "car", "jet"]}"></intl-list>`
 			.render(document.body)
 		
-		expect(document.body.innerHTML).toBe('<intl-list items="[&quot;book&quot;,&quot;car&quot;,&quot;jet&quot;]"></intl-list>')
-		expect(updateMock).toHaveBeenCalledWith("items", null, '["book","car","jet"]', null)
+		expect(document.body.innerHTML).toBe('<intl-list></intl-list>')
+		expect(updateMock).not.toHaveBeenCalled()
 		expect(updateValMock).toHaveBeenCalledWith(["book", "car", "jet"])
 	});
 	
-	it('should trow error if handle event attribute is not a function', () => {
-		expect(
-			() => html`
+	describe("should handle event attributes", () => {
+		it('with change', () => {
+			const handleChange = jest.fn();
+			
+			const temp = html`
+				<input
+					ref="field"
+					type="search"
+					placeholder="Search..."
+					onchange="${handleChange}"
+				/>
+			`.render(document.body);
+			
+			const input = temp.refs.field[0] as HTMLInputElement;
+			
+			input.value = "test";
+			input.dispatchEvent(new Event("change"));
+			
+			expect(handleChange).toHaveBeenCalled()
+		})
+		
+		it('with fn value and event options', () => {
+			const clickMock = jest.fn()
+			
+			const btn = html`
+			<button onclick="${[clickMock, { once: true }]}">click me</button>`
+			
+			btn.render(document.body)
+			
+			const btnElement = document.body.querySelector('button') as HTMLButtonElement
+			
+			expect(document.body.innerHTML).toBe('<button>click me</button>')
+			
+			btnElement.click()
+			
+			expect(clickMock).toHaveBeenCalled()
+		})
+		
+		it('when custom events attribute with web components', () => {
+			const clickMock = jest.fn()
+			
+			class MyButton extends HTMLElement {
+				constructor() {
+					super()
+					
+					this.addEventListener('click', () => {
+						this.dispatchEvent(new CustomEvent('active'))
+					})
+				}
+			}
+			
+			customElements.define('my-button', MyButton)
+			
+			const btn = html`
+			<my-button onactive="${clickMock}">click me</my-button>`
+			
+			btn.render(document.body)
+			
+			const btnElement = document.body.querySelector('my-button') as HTMLButtonElement
+			
+			expect(document.body.innerHTML).toBe('<my-button>click me</my-button>')
+			
+			btnElement.click()
+			
+			expect(clickMock).toHaveBeenCalled()
+		})
+		
+		it('and ignore event like prop for random tag', () => {
+			html`
+			<intl-plural zero="people" one="person" other="people" value="1"></intl-plural>`.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<intl-plural zero="people" one="person" other="people" value="1"></intl-plural>')
+		});
+		
+		it('and trow error if handle event attribute is not a function',     () => {
+			expect(
+				() => html`
 				<button onclick="${2}">click me</button>`.render(document.body)
-		).toThrowError(
-			'handler for event "onclick" is not a function. Found "2".'
-		)
-	})
-	
-	it('should ignore inline event if its one of its prop', () => {
-		class OneTestComp extends HTMLElement {
-			static observedAttributes = ['one']
-		}
+			).toThrowError(
+				'Handler for event "onclick" is not a function. Found "2".'
+			)
+		})
 		
-		class TwoTestComp extends HTMLElement {
-		}
-		
-		customElements.define('one-comp', OneTestComp)
-		customElements.define('two-comp', TwoTestComp)
-		
-		expect(() => html`
+		it('and ignore inline event if its one of its prop', () => {
+			class OneTestComp extends HTMLElement {
+				static observedAttributes = ['one']
+			}
+			
+			class TwoTestComp extends HTMLElement {
+			}
+			
+			customElements.define('one-comp', OneTestComp)
+			customElements.define('two-comp', TwoTestComp)
+			
+			expect(() => html`
 			<one-comp one="${2}"></one-comp>`.render(document.body)).not.toThrowError()
-		expect(() => html`
+			expect(() => html`
 			<two-comp one="${2}"></two-comp>`.render(document.body)).toThrowError(
-			'handler for event "one" is not a function. Found "2".'
-		)
+				'Handler for event "one" is not a function. Found "2".'
+			)
+		})
 	})
 	
-	it('should handle ref directive', () => {
-		const btn = html`
+	describe('should handle refs', () => {
+		
+		it('when empty', () => {
+			const btn = html`<button ref="">click me</button>`
+			
+			btn.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<button>click me</button>');
+		})
+		
+		it.skip('when anywhere inside own template', () => {
+			const temp = html`<div ref="box">
+				<p ref="paragraph">some text <span ref="value">value</span></p>
+			</div>`.render(document.body)
+			
+			expect(temp.refs).toEqual({
+				"box": [
+					expect.any(HTMLDivElement)
+				],
+				"paragraph": [
+					expect.any(HTMLParagraphElement)
+				],
+				"value": [
+					expect.any(HTMLSpanElement)
+				]
+			})
+		})
+		
+		it('when in a nested template', () => {
+			const p = html`<p ref="paragraph">some text <span ref="value">value</span></p>`
+			const temp = html`<div ref="box">
+				${p}
+			</div>`.render(document.body)
+			
+			expect(temp.refs).toEqual({
+				"box": [
+					expect.any(HTMLDivElement)
+				],
+				"paragraph": [
+					expect.any(HTMLParagraphElement)
+				],
+				"value": [
+					expect.any(HTMLSpanElement)
+				]
+			})
+		})
+		
+		it('when dynamic', () => {
+			const [x, setX] = state(15)
+			const label = html`${when(
+				() => x() > 10,
+				html`<span ref="greater">greater than 10</span>`,
+				html`<span ref="less">less than 10</span>`
+			)}`
+			const btn = html`<button ref="btn">${label}</button>`
+			
+			btn.render(document.body)
+			
+			expect(btn.refs).toEqual({
+				"btn": [
+					expect.any(HTMLButtonElement)
+				],
+				"greater": [
+					expect.any(HTMLSpanElement)
+				]
+			})
+			
+			setX(5)
+			jest.advanceTimersToNextTimer()
+
+			expect(document.body.innerHTML).toBe('<button><span>less than 10</span></button>')
+			
+			expect(btn.refs).toEqual({
+				"btn": [
+					expect.any(HTMLButtonElement)
+				],
+				"less": [
+					expect.any(HTMLSpanElement)
+				]
+			})
+		})
+		
+		it('when nested', () => {
+			const btn = html`
 			<button ref="btn">
 				${html`
 					<div ref="div">
 						${html`<span ref="span">click me</span>`}
 					</div>`}
 			</button>`
-		
-		btn.render(document.body)
-		
-		const btnElement = btn.refs['btn'][0]
-		const spanElement = btn.refs['span'][0]
-		const divElement = btn.refs['div'][0]
-		
-		expect(btnElement).toBeInstanceOf(HTMLButtonElement)
-		expect(spanElement).toBeInstanceOf(HTMLSpanElement)
-		expect(divElement).toBeInstanceOf(HTMLDivElement)
-	})
-	
-	it('should handle empty ref directive', () => {
-		const btn = html`<button ref="">click me</button>`
-		
-		btn.render(document.body)
-		
-		expect(document.body.innerHTML).toBe('<button>click me</button>');
-	})
-	
-	it('should handle ref directive on dynamic elements', () => {
-		let x = 15
-		const label = html`${when(
-			() => x > 10,
-			html`<span ref="greater">greater than 10</span>`,
-			html`<span ref="less">less than 10</span>`
-		)}`
-		const btn = html`
-			<button ref="btn">${label}</button>`
-		
-		expect(btn.refs['btn']).toBeUndefined()
-		expect(btn.refs['greater']).toBeUndefined()
-		expect(btn.refs['less']).toBeUndefined()
-		
-		btn.render(document.body)
-		
-		expect(document.body.innerHTML).toBe('<button><span>greater than 10</span></button>')
-		expect(btn.refs['btn'][0]).toBeInstanceOf(HTMLButtonElement)
-		expect(btn.refs['greater'][0]).toBeInstanceOf(HTMLSpanElement)
-		expect(btn.refs['less']).toBeUndefined()
-		
-		x = 5
-		
-		btn.update()
-		
-		expect(document.body.innerHTML).toBe('<button><span>less than 10</span></button>')
-		expect(btn.refs['btn'][0]).toBeInstanceOf(HTMLButtonElement)
-		expect(btn.refs['greater'][0]).toBeInstanceOf(HTMLSpanElement)
-		expect(btn.refs['less'][0]).toBeInstanceOf(HTMLSpanElement)
-	})
-	
-	describe('should handle attr directive', () => {
-		it('class name as property', () => {
-			let loading = true
-			const btn = html`
-				<button attr.class.loading="${() => loading}" attr.class.btn="true">click me</button>`
 			
 			btn.render(document.body)
 			
-			expect(document.body.innerHTML).toBe(
-				'<button class="btn loading">click me</button>'
-			)
+			const btnElement = btn.refs['btn'][0]
+			const spanElement = btn.refs['span'][0]
+			const divElement = btn.refs['div'][0]
 			
-			loading = false
-
-			btn.update()
-
-			expect(document.body.innerHTML).toBe(
-				'<button class="btn">click me</button>'
-			)
+			expect(btnElement).toBeInstanceOf(HTMLButtonElement)
+			expect(spanElement).toBeInstanceOf(HTMLSpanElement)
+			expect(divElement).toBeInstanceOf(HTMLDivElement)
 		})
 		
-		it('class name as property without attr.', () => {
-			let loading = true
-			const btn = html`
-				<button class.loading="${() => loading}" class.btn="true">click me</button>`
+		it('should collect nested refs', () => {
+			const items = [
+				html`<li ref="item">Buy groceries</li>`,
+				html`<li ref="item">Go to gym</li>`,
+				html`<li ref="item">Write a blog</li>`,
+			]
 			
-			btn.render(document.body)
+			const temp = html`
+			    <ul ref="list">${items}</ul>
+			    <p ref="item">sample</p>
+			`.render(document.body)
 			
-			expect(document.body.innerHTML).toBe(
-				'<button class="btn loading">click me</button>'
-			)
+			expect(temp.refs['item']).toHaveLength(4)
+			expect(temp.refs['list']).toHaveLength(1)
 			
-			loading = false
+			items[0].unmount();
 			
-			btn.update()
+			expect(temp.refs['item']).toHaveLength(3)
+			expect(temp.refs['list']).toHaveLength(1)
+		})
+	})
+	
+	describe('should handle attributes', () => {
+		it('should throw if injected with invalid attr', () => {
+			const disabled = 'disabled'
 			
-			expect(document.body.innerHTML).toBe(
-				'<button class="btn">click me</button>'
-			)
+			expect(() => html`<button ${disabled}></button>`).toThrowError('Invalid attribute object provided: disabled')
 		})
 		
 		it('class name as value', () => {
-			let loading = true
+			const [loading, setLoading] = state(true)
 			const btn = html`
-				<button attr.class="loading | ${() => loading}">click me</button>`
+				<button class="${when(loading, 'loading')}">click me</button>`
 			
 			btn.render(document.body)
 			
@@ -625,43 +644,24 @@ describe('html', () => {
 				'<button class="loading">click me</button>'
 			)
 			
-			loading = false
+			setLoading(false)
+			jest.advanceTimersToNextTimer()
 			
-			btn.update()
-			
-			expect(document.body.innerHTML).toBe('<button>click me</button>')
-		})
-		
-		it('class name as value without attr.', () => {
-			let loading = true
-			const btn = html`
-				<button class="loading | ${() => loading}">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button class="loading">click me</button>'
-			)
-			
-			loading = false
-			
-			btn.update()
-			
-			expect(document.body.innerHTML).toBe('<button>click me</button>')
+			expect(document.body.innerHTML).toBe('<button class="">click me</button>')
 		})
 		
 		it('empty class should be ignored', () => {
-			const btn = html`<button attr.class="" class.sample="">click me</button>`
+			const btn = html`<button class="">click me</button>`
 			
 			btn.render(document.body)
 			
-			expect(document.body.innerHTML).toBe('<button>click me</button>');
+			expect(document.body.innerHTML).toBe('<button class="">click me</button>');
 		})
 		
-		it('data name as property', () => {
-			let loading = true
+		it('data name', () => {
+			const [loading, setLoading] = state(true)
 			const btn = html`
-				<button attr.data.loading="${() => loading}" attr.data.btn="true">click me</button>`
+				<button data-btn="true" data-loading="${loading}">click me</button>`
 			
 			btn.render(document.body)
 			
@@ -669,230 +669,34 @@ describe('html', () => {
 				'<button data-btn="true" data-loading="true">click me</button>'
 			)
 			
-			loading = false
-			
-			btn.update()
-			
-			expect(document.body.innerHTML).toBe(
-				'<button data-btn="true">click me</button>'
-			)
-		})
-		
-		it('data name as property without attr.', () => {
-			let loading = true
-			const btn = html`
-				<button data.loading="${() => loading}" data.btn="true">click me</button>`
-			
-			btn.render(document.body)
+			setLoading(false)
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe(
-				'<button data-btn="true" data-loading="true">click me</button>'
-			)
-			
-			loading = false
-			
-			btn.update()
-			
-			expect(document.body.innerHTML).toBe(
-				'<button data-btn="true">click me</button>'
-			)
-		})
-		
-		it('data name as property without dot notation', () => {
-			let loading = true
-			const btn = html`
-				<button attr.data-loading="${() => loading}" attr.data-btn="true">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button data-btn="true" data-loading="true">click me</button>'
-			)
-			
-			loading = false
-			
-			btn.update()
-			
-			expect(document.body.innerHTML).toBe(
-				'<button data-btn="true">click me</button>'
-			)
-		})
-		
-		it('data name as property without attr. and dot notation', () => {
-			let loading = true
-			const btn = html`
-				<button data-loading="${() => loading}" data-btn="true">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button data-btn="true" data-loading="true">click me</button>'
-			)
-			
-			loading = false
-			
-			btn.update()
-			
-			expect(document.body.innerHTML).toBe(
-				'<button data-btn="true">click me</button>'
-			)
-		})
-		
-		it('data name as value wont work', () => {
-			const loading = true
-			const btn = html`
-				<button attr.data="loading, ${() => loading}">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe('<button>click me</button>')
-		})
-		
-		it('data name as value wont work without attr.', () => {
-			const loading = true
-			const btn = html`
-				<button data="loading, ${() => loading}">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe('<button>click me</button>')
-		})
-		
-		it('empty data should be ignored', () => {
-			const btn = html`<button attr.data="" data.sample="">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe('<button>click me</button>');
-		})
-		
-		it('style property without flag', () => {
-			const btn = html`
-				<button attr.style.cursor="pointer">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button style="cursor: pointer;">click me</button>'
-			)
-		})
-		
-		it('style property without flag without attr.', () => {
-			const btn = html`
-				<button style.cursor="pointer">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button style="cursor: pointer;">click me</button>'
-			)
-		})
-		
-		it('style value without flag', () => {
-			const btn = html`
-				<button attr.style="cursor: pointer">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button style="cursor: pointer;">click me</button>'
-			)
-		})
-		
-		it('style value without flag without attr.', () => {
-			const btn = html`
-				<button style="cursor: pointer">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button style="cursor: pointer;">click me</button>'
+				'<button data-btn="true" data-loading="false">click me</button>'
 			)
 		})
 		
 		it('style property with flag', () => {
-			let pointer = false
+			const [pointer, setPointer] = state(false)
 			const btn = html`
-				<button attr.style.cursor="pointer | ${() => pointer}">click me</button>`
+				<button style="${when(pointer, 'cursor: pointer;')}">click me</button>`
 			
 			btn.render(document.body)
 			
-			expect(document.body.innerHTML).toBe('<button>click me</button>')
+			expect(document.body.innerHTML).toBe('<button style="">click me</button>')
 			
-			pointer = true
-			
-			btn.update()
+			setPointer(true)
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe(
 				'<button style="cursor: pointer;">click me</button>'
 			)
-		})
-		
-		it('style property with flag without attr.', () => {
-			let pointer = false
-			const btn = html`
-				<button style.cursor="pointer | ${() => pointer}">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe('<button>click me</button>')
-			
-			pointer = true
-			
-			btn.update()
-			
-			expect(document.body.innerHTML).toBe(
-				'<button style="cursor: pointer;">click me</button>'
-			)
-		})
-		
-		it('style value with flag', () => {
-			let pointer = false
-			const btn = html`
-				<button attr.style="cursor: pointer | ${() => pointer}">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe('<button>click me</button>')
-			
-			pointer = true
-			
-			btn.update()
-			
-			expect(document.body.innerHTML).toBe(
-				'<button style="cursor: pointer;">click me</button>'
-			)
-		})
-		
-		it('style value with flag without attr.', () => {
-			let pointer = false
-			const btn = html`
-				<button style="cursor: pointer | ${() => pointer}">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe('<button>click me</button>')
-			
-			pointer = true
-			
-			btn.update()
-			
-			expect(document.body.innerHTML).toBe(
-				'<button style="cursor: pointer;">click me</button>'
-			)
-		})
-		
-		it('empty style should be ignored', () => {
-			const btn = html`<button attr.style="" style.color="">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe('<button>click me</button>');
 		})
 		
 		it('should accept style in a variable', () => {
 			const bg = 'red'
-			const style = `background: ${bg}`
+			const style = `background: ${bg};`
 			const btn = html`<button style="${style}">click me</button>`
 			
 			btn.render(document.body)
@@ -901,9 +705,9 @@ describe('html', () => {
 		})
 		
 		it('any boolean attr', () => {
-			let disabled = true
+			const [disabled, setDisabled] = state(true)
 			const btn = html`
-				<button attr.disabled="${() => disabled}">click me</button>`
+				<button disabled="${disabled}">click me</button>`
 			
 			btn.render(document.body)
 			
@@ -911,55 +715,13 @@ describe('html', () => {
 				'<button disabled="true">click me</button>'
 			)
 			
-			disabled = false
-			
-			btn.update()
+			setDisabled(false)
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<button>click me</button>')
 		})
 		
-		it('any boolean attr without attr.', () => {
-			let disabled = false
-			const btn = html`
-				<button disabled="${() => disabled}">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button>click me</button>'
-			)
-			
-			disabled = true
-			
-			btn.update()
-			
-			expect(document.body.innerHTML).toBe('<button disabled="true">click me</button>')
-		})
-		
-		it('any boolean attr without attr. and no value', () => {
-			let disabled = false
-			const btn = html`
-				<button disabled>click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button disabled="">click me</button>'
-			)
-		})
-		
 		it('any boolean attr with nil value', () => {
-			const btn = html`
-				<button attr.disabled="${undefined}">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button>click me</button>'
-			)
-		})
-		
-		it('any boolean attr with nil value without attr.', () => {
 			const btn = html`
 				<button disabled="${undefined}">click me</button>`
 			
@@ -971,9 +733,9 @@ describe('html', () => {
 		})
 		
 		it('any boolean attr with possible values', () => {
-			let hidden = true
+			const [hidden, setHidden] = state('until-found')
 			const btn = html`
-				<button attr.hidden="until-found | ${() => hidden}">click me</button>`
+				<button hidden=" ${hidden}">click me</button>`
 			
 			btn.render(document.body)
 			
@@ -981,35 +743,16 @@ describe('html', () => {
 				'<button hidden="until-found">click me</button>'
 			)
 			
-			hidden = false
-			
-			btn.update()
-			
-			expect(document.body.innerHTML).toBe('<button>click me</button>')
-		})
-		
-		it('any boolean attr with possible values without attr.', () => {
-			let hidden = true
-			const btn = html`
-				<button hidden="until-found | ${() => hidden}">click me</button>`
-			
-			btn.render(document.body)
-			
-			expect(document.body.innerHTML).toBe(
-				'<button hidden="until-found">click me</button>'
-			)
-			
-			hidden = false
-			
-			btn.update()
+			setHidden('')
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<button>click me</button>')
 		})
 		
 		it('any non-primitive-boolean attr', () => {
-			let disabled = true
+			const [disabled, setDisabled] = state(true)
 			const btn = html`
-				<button attr.aria-disabled="${() => disabled}">click me</button>`
+				<button aria-disabled="${disabled}">click me</button>`
 			
 			btn.render(document.body)
 			
@@ -1017,86 +760,74 @@ describe('html', () => {
 				'<button aria-disabled="true">click me</button>'
 			)
 			
-			disabled = false
-			
-			btn.update()
+			setDisabled(false)
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe(
-				'<button>click me</button>'
+				'<button aria-disabled="false">click me</button>'
 			)
 		})
 		
-		it('any key-value pair', () => {
-			let pattern = ''
-			const field = html`<input attr.pattern="${() => pattern} | ${() => pattern}"/>`
-			
-			field.render(document.body)
-			
-			expect(document.body.innerHTML).toBe('<input>')
-			
-			pattern = '[a-z]'
-			
-			field.update()
-			
-			expect(document.body.innerHTML).toBe('<input pattern="[a-z]">')
-		})
-		
-		it('any key-value pair without .attr', () => {
-			let pattern = ''
-			const field = html`<input pattern="${() => pattern} | ${() => pattern}"/>`
-			
-			field.render(document.body)
-			
-			expect(document.body.innerHTML).toBe('<input>')
-			
-			pattern = '[a-z]'
-			
-			field.update()
-			
-			expect(document.body.innerHTML).toBe('<input pattern="[a-z]">')
-		})
-		
-		it('should work with helper value', () => {
-			const is = helper(<T>(st: () => T, val: unknown) => st() === val);
+		it('should work with helper value',  () => {
 			const [disabled, setDisabled] = state(false);
 			
-			html`<button attr.disabled="${is(disabled, true)}" attr.class="disabled | ${is(disabled, true)}">click me</button>`.render(document.body)
+			const attrs = {
+				disabled: is(disabled, true),
+				class: when(is(disabled, true), 'disabled')
+			}
 			
-			expect(document.body.innerHTML).toBe('<button>click me</button>')
+			html`<button ${attrs}>click me</button>`.render(document.body)
 			
-			setDisabled(true);
-			
-			expect(document.body.innerHTML).toBe('<button disabled="true" class="disabled">click me</button>')
-		});
-		
-		it('should work with helper value without attr.', () => {
-			const is = helper(<T>(st: () => T, val: unknown) => st() === val);
-			const [disabled, setDisabled] = state(false);
-			
-			html`<button disabled="${is(disabled, true)}" class="disabled | ${is(disabled, true)}">click me</button>`.render(document.body)
-			
-			expect(document.body.innerHTML).toBe('<button>click me</button>')
+			expect(document.body.innerHTML).toBe('<button class="">click me</button>')
 			
 			setDisabled(true);
+			jest.advanceTimersToNextTimer()
 			
-			expect(document.body.innerHTML).toBe('<button disabled="true" class="disabled">click me</button>')
+			expect(document.body.innerHTML).toBe('<button class="disabled" disabled="true">click me</button>')
 		});
 		
 		it('should handle slot name', () => {
 			const slotName = '123'
 			
-			html`<slot attr.name="${slotName} | ${false}"></slot><slot attr.name="${slotName} | ${true}"></slot>`.render(document.body)
+			html`<slot ${{name: ''}}></slot><slot ${{name: slotName}}></slot>`.render(document.body)
 			
-			expect(document.body.innerHTML).toBe('<slot></slot><slot name="123"></slot>')
+			expect(document.body.innerHTML).toBe('<slot name=""></slot><slot name="123"></slot>')
 		});
 		
-		it('should handle slot name without attr.', () => {
-			const slotName = '123'
+		it('should render boolean attributes', () => {
+			const hidden = false;
+			const disabled = true;
+			const checked = false;
 			
-			html`<slot name="${slotName} | ${false}"></slot><slot name="${slotName} | ${true}"></slot>`.render(document.body)
+			html`
+			    <p hidden="${hidden}">hidden text</p>
+			    <button disabled="${disabled}" >click me</button>
+			    <input type="checkbox" checked="${checked}" />
+			`.render(document.body)
 			
-			expect(document.body.innerHTML).toBe('<slot></slot><slot name="123"></slot>')
-		});
+			expect(document.body.innerHTML).toBe('<p>hidden text</p>\n' +
+				'\t\t\t    <button disabled="true">click me</button>\n' +
+				'\t\t\t    <input type="checkbox">')
+		})
+		
+		it('should handle object attributes', () => {
+			const countUpSpy = jest.fn()
+			
+			const button = ({text = 'click me', ...props}) => html`<button ${props} type="button">${text}</button>`
+			
+			const temp = html`${button({text: '+', ariaLabel: 'count up button', onClick: countUpSpy, type: 'submit', ref: 'btn'})}`.render(document.body);
+			
+			expect(document.body.innerHTML).toBe('<button aria-label="count up button" type="button">+</button>');
+			
+			const btn = temp.refs['btn'][0] as HTMLButtonElement;
+			
+			expect(btn.outerHTML).toBe('<button aria-label="count up button" type="button">+</button>')
+			
+			btn.click();
+			
+			expect(countUpSpy).toHaveBeenCalledTimes(1);
+			expect(countUpSpy).toHaveBeenCalledWith(expect.any(Event));
+		})
 	})
 	
 	it('should handle primitive attribute value', () => {
@@ -1123,7 +854,7 @@ describe('html', () => {
 		el.render(document.body)
 		
 		expect(document.body.innerHTML).toBe(
-			'<div data-test-map="{}" data-test-val="{&quot;val&quot;:12}"></div>'
+			'<div data-test-map="[object Map]" data-test-val="[object Object]"></div>'
 		)
 	})
 	
@@ -1158,36 +889,36 @@ describe('html', () => {
 		el.render(document.body)
 		
 		expect(document.body.innerHTML).toBe(
-			'<sample-comp map="{}" val="{&quot;val&quot;:12}"></sample-comp>'
+			'<sample-comp></sample-comp>'
 		)
 		expect(mapMock).toHaveBeenCalledWith(expect.any(Map))
 		expect(valMock).toHaveBeenCalledWith({val: 12})
-		
-		expect(updateMock).toHaveBeenCalledTimes(2)
-		expect(updateMock).toHaveBeenCalledWith('map', null, '{}', null)
-		expect(updateMock).toHaveBeenCalledWith('val', null, '{"val":12}', null)
+		expect(updateMock).not.toHaveBeenCalled()
 	})
 
-	it('should handle non-primitive attribute value in conditionally rendered WC', () => {
-		jest.useFakeTimers();
+	it('should handle non-primitive attribute value in conditionally rendered WC',  () => {
+		jest.useFakeTimers()
 		type obj = { sample: { x: 12} | null }
 
 		class ObjValue extends HTMLElement {
 			static observedAttributes = ['sample'];
-			#sample: any;
+			#sample = (() => {
+				const [value, updateValue] = state<any>(null)
+				
+				return {value, updateValue}
+			})();
 			temp: HtmlTemplate | undefined;
 
 			get sample() {
-				return this.#sample;
+				return this.#sample.value;
 			}
 
 			set sample(val) {
-				this.#sample = val;
-				this.temp?.update()
+				this.#sample.updateValue(val);
 			}
 
 			connectedCallback() {
-				this.temp = html`${() => this.sample?.x}`;
+				this.temp = html`${() => this.sample()?.x}`;
 
 				this.temp.render(this)
 			}
@@ -1212,15 +943,65 @@ describe('html', () => {
 		const el = html`<main-app></main-app>`
 
 		el.render(document.body)
-
+		
 		expect(document.body.innerHTML).toBe('<main-app></main-app>')
+		
+		jest.advanceTimersByTime(1200);
 
-		jest.advanceTimersByTime(1000)
-
-		expect(document.body.innerHTML).toBe('<main-app><obj-value sample="{&quot;x&quot;:12}">12</obj-value></main-app>')
+		expect(document.body.innerHTML).toBe('<main-app><obj-value>12</obj-value></main-app>')
+		
+		jest.useRealTimers()
 	})
 
 	describe('should work with "repeat" helper', () => {
+		it('should render and rerender', () => {
+			const todos = [
+				'buy groceries',
+				'go to gym',
+				'create a video'
+			]
+			
+			const temp = html`<ul>${repeat(todos, item => html`<li>${item}</li>`)}</ul>`
+				.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<ul>' +
+				'<li>buy groceries</li>' +
+				'<li>go to gym</li>' +
+				'<li>create a video</li>' +
+				'</ul>')
+
+			temp.unmount()
+
+			expect(document.body.innerHTML).toBe('')
+
+			temp.render(document.body)
+
+			expect(document.body.innerHTML).toBe('<ul>' +
+				'<li>buy groceries</li>' +
+				'<li>go to gym</li>' +
+				'<li>create a video</li>' +
+				'</ul>')
+		})
+		
+		it('should render table rows', () => {
+			const [items, updateItems] = state<number[]>([]);
+			
+			html`<table><tbody>${repeat(items, item => html`<tr>item ${item}</tr>`)}</tbody></table>`
+				.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<table><tbody></tbody></table>')
+			
+			updateItems(Array.from({length: 5}, (_, i) => i + 1))
+			jest.advanceTimersToNextTimer()
+			
+			expect(document.body.innerHTML).toBe('<table><tbody>' +
+				'<tr>item 1</tr>' +
+				'<tr>item 2</tr>' +
+				'<tr>item 3</tr>' +
+				'<tr>item 4</tr>' +
+				'<tr>item 5</tr>' +
+				'</tbody></table>')
+		})
 		it('with number value and primitive return', () => {
 			const el = html`${repeat(2, (n) => n)}`
 			
@@ -1230,9 +1011,9 @@ describe('html', () => {
 		})
 		
 		it('with number value and node return', () => {
-			let count = 2
+			const [count, setCount] = state(2)
 			const el = html`${repeat(
-				() => count,
+				count,
 				(n) => html`<span>${n}</span>`
 			)}`
 			
@@ -1240,9 +1021,8 @@ describe('html', () => {
 			
 			expect(document.body.innerHTML).toBe('<span>1</span><span>2</span>')
 			
-			count = 3
-			
-			el.update()
+			setCount(3)
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe(
 				'<span>1</span><span>2</span><span>3</span>'
@@ -1250,9 +1030,9 @@ describe('html', () => {
 		})
 		
 		it('with object value and node return', () => {
-			const items = [{name: 'one'}, {name: 'two'}]
+			const [items, updateItems] = state([{name: 'one'}, {name: 'two'}])
 			const el = html`${repeat(
-				() => items,
+				items,
 				(n) => html`<span>${n.name}</span>`
 			)}`
 			
@@ -1264,19 +1044,23 @@ describe('html', () => {
 			const n1 = document.body.children[0]
 			const n2 = document.body.children[1]
 			
-			items[0] = {name: 'first'}
-			
-			el.update()
-			
+			updateItems(prev => [
+				{name: 'first'},
+				prev[1]
+			])
+			jest.advanceTimersToNextTimer()
+
 			expect(document.body.innerHTML).toBe(
 				'<span>first</span><span>two</span>'
 			)
 			expect(n1).not.toEqual(document.body.children[0])
-			
-			items.push({name: 'last'})
-			
-			el.update()
-			
+
+			updateItems(prev => [
+				...prev,
+				{name: 'last'}
+			])
+			jest.advanceTimersToNextTimer()
+
 			expect(document.body.innerHTML).toBe(
 				'<span>first</span><span>two</span><span>last</span>'
 			)
@@ -1294,9 +1078,9 @@ describe('html', () => {
 			
 			customElements.define('test-component', TestComponent)
 			
-			const items = [{name: 'one'}, {name: 'two'}]
+			const [items, updateItems] = state([{name: 'one'}, {name: 'two'}])
 			const el = html`${repeat(
-				() => items,
+				items,
 				(n) => html`
 					<test-component val="${n}"></test-component>`
 			)}`
@@ -1304,22 +1088,26 @@ describe('html', () => {
 			el.render(document.body)
 			
 			expect(document.body.innerHTML).toBe(
-				'<test-component val="{&quot;name&quot;:&quot;one&quot;}"></test-component><test-component val="{&quot;name&quot;:&quot;two&quot;}"></test-component>'
+				'<test-component></test-component><test-component></test-component>'
 			)
 			
 			expect(valMock).toHaveBeenCalledTimes(2)
 			expect(valMock).toHaveBeenCalledWith({name: 'one'})
 			expect(valMock).toHaveBeenCalledWith({name: 'two'})
 			
-			items[0] = {name: 'first'}
-			
-			el.update()
+			updateItems(prev => [
+				{name: 'first'},
+				prev[1]
+			])
+			jest.advanceTimersToNextTimer()
 			
 			expect(valMock).toHaveBeenCalledWith({name: 'first'})
 			
-			items.push({name: 'last'})
-			
-			el.update()
+			updateItems(prev => [
+				...prev,
+				{name: 'last'}
+			])
+			jest.advanceTimersToNextTimer()
 			
 			expect(valMock).toHaveBeenCalledWith({name: 'last'})
 		})
@@ -1329,7 +1117,7 @@ describe('html', () => {
 			
 			items.render(document.body)
 			
-			expect(document.body.innerHTML).toBe('item 1item 3item 5item 3')
+			expect(document.body.innerHTML).toBe('item 1item 3item 5')
 		})
 		
 		it('with array containing repeated values as html instance', () => {
@@ -1341,17 +1129,26 @@ describe('html', () => {
 			items.render(document.body)
 			
 			expect(document.body.innerHTML).toBe(
-				'<span>item 1</span><span>item 5</span><span>item 3</span>'
+				'<span>item 1</span><span>item 3</span><span>item 5</span>'
 			)
 		})
 		
 		it('with array of values as html instance based on object', () => {
+			
 			class TodoItem extends HTMLElement {
 				temp: any
 				static observedAttributes = ['name', 'description', 'status']
-				#status = ''
-				#description = ''
-				#name = ''
+				state = (() => {
+					const [name, updateName] = state('');
+					const [description, updateDescription] = state('');
+					const [status, updateStatus] = state('pending');
+					
+					return {
+						name, updateName,
+						description, updateDescription,
+						status, updateStatus
+					}
+				})()
 				
 				constructor() {
 					super()
@@ -1378,23 +1175,23 @@ describe('html', () => {
 					this.temp = html`
 						<div class="todo-item">
 							<div class="details">
-								<h3>${this.#name}</h3>
+								<h3>${this.state.name}</h3>
 								${when(
-									this.#description,
-									() => html`<p>${this.#description}</p>`
+									this.state.description,
+									() => html`<p>${this.state.description}</p>`
 								)}
 							</div>
 							<div class="todo-actions">
 								${when(
-									() => this.#status === 'pending',
+									is(this.state.status, 'pending'),
 									html`${completeBtn}${editBtn}`
 								)}
 								${when(
-									oneOf(this.#status, ['completed', 'pending']),
+									oneOf(this.state.status, ['completed', 'pending']),
 									archiveBtn
 								)}
 								${when(
-									() => this.#status === 'archived',
+									is(this.state.status, 'archived'),
 									html`${progressBtn}${deleteBtn}`
 								)}
 							</div>
@@ -1410,36 +1207,32 @@ describe('html', () => {
 				) {
 					switch (name) {
 						case 'name':
-							this.#name = newValue
+							this.state.updateName(newValue)
 							break
 						case 'description':
-							this.#description = newValue
+							this.state.updateDescription(newValue)
 							break
 						case 'status':
-							this.#status = newValue
+							this.state.updateStatus(newValue)
 							break
-					}
-					
-					if (this.isConnected) {
-						this.temp.update()
 					}
 				}
 			}
 			
 			customElements.define('todo-item', TodoItem)
 			
-			const todoList = [
+			const [todoList, updateTodoList] = state([
 				{name: 'sample', description: '', status: 'pending'},
-			]
+			])
 			
 			const todos = html`${repeat(
-				() => todoList,
-				(item: any) =>
+				todoList,
+				(item) =>
 					html`
 						<todo-item
-							name="${() => item.name}"
-							description="${() => item.description}"
-							status="${() => item.status}"
+							name="${item.name}"
+							description="${item.description}"
+							status="${item.status}"
 						></todo-item>`
 			)}`
 			
@@ -1449,7 +1242,7 @@ describe('html', () => {
 				'<todo-item name="sample" description="" status="pending"></todo-item>'
 			)
 			
-			const todo = document.querySelector('todo-item') as HTMLElement
+			let todo = document.querySelector('todo-item') as HTMLElement
 			
 			expect(todo.shadowRoot?.innerHTML).toBe('<div class="todo-item">\n' +
 				'\t\t\t\t\t\t\t<div class="details">\n' +
@@ -1463,13 +1256,22 @@ describe('html', () => {
 				'\t\t\t\t\t\t\t</div>\n' +
 				'\t\t\t\t\t\t</div>')
 			
-			todoList[0].status = 'completed'
-			
-			todos.update()
+			updateTodoList(prev => {
+				prev[0] = {
+					...prev[0],
+					status: 'completed'
+				}
+				return [...prev];
+			})
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe(
 				'<todo-item name="sample" description="" status="completed"></todo-item>'
 			)
+			
+			// need to query the node again because a new instance will be created
+			todo = document.querySelector('todo-item') as HTMLElement
+			
 			expect(todo.shadowRoot?.innerHTML).toBe('<div class="todo-item">\n' +
 				'\t\t\t\t\t\t\t<div class="details">\n' +
 				'\t\t\t\t\t\t\t\t<h3>sample</h3>\n' +
@@ -1485,11 +1287,11 @@ describe('html', () => {
 		})
 		
 		it('should handle nested repeat by changing data in place', () => {
-			const data: any[] = [{name: 'one', subs: [1, 2]}]
+			const [data, setData] = state([{name: 'one', subs: [1, 2]}])
 			const item = ({name, subs}: any) =>
 				html`
 					<li>${name}: ${repeat(() => subs, (sub: any) => html`<span>${sub}</span>`)}</li>`
-			const list = html`${repeat(() => data, item)}`
+			const list = html`${repeat(data, item)}`
 			
 			list.render(document.body)
 			
@@ -1497,23 +1299,32 @@ describe('html', () => {
 				'<li>one: <span>1</span><span>2</span></li>'
 			)
 			
-			data[0].subs.push(3)
-			
-			list.update()
+			setData(prev => {
+				prev[0] = {
+					...prev[0],
+					subs: prev[0].subs.concat([3])
+				}
+				return [...prev];
+			})
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe(
 				'<li>one: <span>1</span><span>2</span><span>3</span></li>'
 			)
 			
-			data[0].subs.pop()
-			data[0].subs.pop()
-			
-			list.update()
+			setData(prev => {
+				prev[0] = {
+					...prev[0],
+					subs: [prev[0].subs[0]]
+				}
+				return [...prev];
+			})
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<li>one: <span>1</span></li>')
 		})
 		
-		it('with state', () => {
+		it('with state',  () => {
 			const [todos, setTodos] = state<Array<string>>([])
 			
 			const Todo = html`
@@ -1529,19 +1340,21 @@ describe('html', () => {
 				'\t\t\t\t</ul>')
 			
 			setTodos((prev) => [...prev, 'first'])
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<ul>\n' +
 				'\t\t\t\t\t<li>first</li>\n' +
 				'\t\t\t\t</ul>')
 			
 			setTodos([])
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<ul>\n' +
 				'\t\t\t\t\t\n' +
 				'\t\t\t\t</ul>')
 		})
 		
-		it('when item changes', () => {
+		it('when item changes', async () => {
 			const updateMock = jest.fn()
 			const [todos, setTodos] = state<
 				Array<{ name: string; status: string; id: number }>
@@ -1556,6 +1369,7 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('<div></div>')
 			
 			setTodos([{name: 'action 1', status: 'pending', id: 1}])
+			jest.advanceTimersToNextTimer()
 			
 			expect(updateMock).toHaveBeenCalled()
 			expect(todos()).toEqual([
@@ -1570,10 +1384,12 @@ describe('html', () => {
 			setTodos(prev => prev.map(t =>
 				t.id === 1 ? {...t, status: 'complete'} : t
 			))
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<div><div id="1">action 1 <span>complete</span></div></div>')
 			
 			setTodos(prev => [...prev, {name: 'action 2', status: 'pending', id: 2}])
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<div>' +
 				'<div id="1">action 1 <span>complete</span></div>' +
@@ -1582,7 +1398,7 @@ describe('html', () => {
 		})
 		
 		it('when nested', () => {
-			let count = 2
+			const count = 2
 			const el = html`${repeat<number>(
 				() => count,
 				(n) => html`
@@ -1600,7 +1416,7 @@ describe('html', () => {
 		})
 		
 		it('with helper list', () => {
-			let even = helper((list: () => number[]) => list().filter(n => n % 2 === 0))
+			const even = (list: () => number[]) => list().filter(n => n % 2 === 0)
 			const el = html`${repeat<number>(
 				even(() => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
 				(n) => html`<span>${n}</span>`
@@ -1619,34 +1435,30 @@ describe('html', () => {
 	
 	describe('should work with "when" helper', () => {
 		it('when both sides provided as static', () => {
-			let shouldRender = true
+			const [shouldRender, updateShouldRender] = state(true)
 			const yes = html`<span>true</span>`
 			const no = html`<span>false</span>`
 			
-			const el = html`${when(() => shouldRender, yes, no)}`
-			
-			el.render(document.body)
+			html`${when(shouldRender, yes, no)}`.render(document.body)
 			
 			expect(document.body.innerHTML).toBe('<span>true</span>')
 			const n = document.body.children[0]
 			
-			shouldRender = false
-			
-			el.update()
+			updateShouldRender(false)
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<span>false</span>')
 			
-			shouldRender = true
-			
-			el.update()
+			updateShouldRender(true)
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<span>true</span>')
 			expect(document.body.children[0]).toEqual(n) // same node should be rendered
 		})
 		
 		it('when both sides provided as static with dynamic values', () => {
-			let x = 10
-			const total = () => x
+			const [x, setX] = state(10)
+			const total = () => x()
 			const yes = html`<span>Non Zero: ${total}</span>`
 			const no = html`<span>Zero: ${total}</span>`
 			
@@ -1657,43 +1469,39 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('<span>Non Zero: 10</span>')
 			const n = document.body.children[0]
 			
-			x = 0
-			
-			el.update()
+			setX(0)
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<span>Zero: 0</span>')
 			
-			x = 20
-			
-			el.update()
+			setX(20)
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<span>Non Zero: 20</span>')
-			expect(document.body.children[0]).not.toEqual(n) // node should be re-created
+			expect(document.body.children[0]).not.toEqual(n)
 		})
 		
 		it('when nested', () => {
-			const list = [];
-			let loading = true;
+			const [list, updateList] = state<number[]>([]);
+			const [loading, setLoading] = state(true);
 			
 			const el = html`${when(
-				() => loading,
+				loading,
 				html`<p>loading...</p>`,
-				when(() => list.length, html`<p>${() => list.length} items</p>`, html`<p>no items</p>`)
+				when(() => list().length, html`<p>${() => list().length} items</p>`, html`<p>no items</p>`)
 			)}`;
 			
 			el.render(document.body)
 			
 			expect(document.body.innerHTML).toBe('<p>loading...</p>')
 			
-			loading = false;
-			
-			el.update();
+			setLoading(false)
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<p>no items</p>')
 			
-			list.push(1)
-			
-			el.update();
+			updateList([1])
+			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<p>1 items</p>')
 		})
@@ -1701,7 +1509,7 @@ describe('html', () => {
 		it('when helper as condition', () => {
 			const list: any[] = [];
 			
-			const isEmpty = helper((lis: () => any[]) => lis().length === 0)
+			const isEmpty = (lis: () => any[]) => lis().length === 0
 			
 			const el = html`${when(
 				isEmpty(() => list),
@@ -1713,7 +1521,7 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('<p>no items</p>')
 		});
 		
-		it('when nested with dependent logic', () => {
+		it('when nested with dependent logic',  () => {
 			const [currentPlayer, setCurrentPlayer] = state("x")
 			const [ended, setEnded] = state(false)
 			
@@ -1730,30 +1538,36 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('')
 			
 			setEnded(true)
+			jest.advanceTimersToNextTimer()
 			expect(document.body.innerHTML).toBe('x won\n' +
 				'\t\t\t\t\t<button type="button">reset</button>')
 			
 			setCurrentPlayer('xy')
+			jest.advanceTimersToNextTimer()
 			expect(document.body.innerHTML).toBe('tie\n' +
 				'\t\t\t\t\t<button type="button">reset</button>')
 			
 			setEnded(false)
+			jest.advanceTimersToNextTimer()
 			expect(document.body.innerHTML).toBe('')
 			
 			setCurrentPlayer('x')
+			jest.advanceTimersToNextTimer()
 			expect(document.body.innerHTML).toBe('')
 			
 			setEnded(true)
+			jest.advanceTimersToNextTimer()
 			expect(document.body.innerHTML).toBe('x won\n' +
 				'\t\t\t\t\t<button type="button">reset</button>')
 			
 			setCurrentPlayer('x')
 			setEnded(false)
+			jest.advanceTimersToNextTimer()
 			expect(document.body.innerHTML).toBe('')
 		})
 	})
 	
-	it('should work with state helper', () => {
+	it('should work with state helper',  () => {
 		const [count, setCount] = state<number>(0)
 		const countUp = () => {
 			setCount((prev: number) => prev + 1)
@@ -1768,130 +1582,67 @@ describe('html', () => {
 		const btn = document.querySelector('button') as HTMLButtonElement
 		
 		btn.click()
+		jest.advanceTimersToNextTimer()
 		
 		expect(document.body.innerHTML).toBe('<span>1</span><button>+</button>')
 		
 		counter.unmount()
 		
 		btn.click()
+		jest.advanceTimersToNextTimer()
 		
 		expect(document.body.innerHTML).toBe('')
 	})
 	
-	it('should unsubscribe from state', () => {
-		const [count, setCount] = state<number>(0)
-		const countUp = () => {
-			setCount((prev: number) => prev + 1)
-		}
-		
-		const counter = html`<span>${count}</span><button onclick="${countUp}">+</button>`
-		
-		counter.render(document.body)
-		
-		expect(document.body.innerHTML).toBe('<span>0</span><button>+</button>')
-		
-		const btn = document.querySelector('button') as HTMLButtonElement
-		
-		btn.click()
-		
-		expect(document.body.innerHTML).toBe('<span>1</span><button>+</button>')
-		
-		counter.unsubscribeFromStates()
-		
-		btn.click()
-		
-		expect(document.body.innerHTML).toBe('<span>1</span><button>+</button>')
-	});
-	
 	describe('should handle lifecycles', () => {
-		beforeEach(() => {
-			jest.useFakeTimers()
-		})
-		
-		it('onUpdate', () => {
-			const [count, setCount] = state<number>(0)
-			const updateMock = jest.fn()
-			
-			const counter = html`<span>${count}</span>`
-			counter.onUpdate(updateMock)
-			counter.render(document.body)
-			
-			expect(document.body.innerHTML).toBe('<span>0</span>')
-			
-			setCount((prev) => prev + 1)
-			
-			jest.advanceTimersByTime(100);
-			
-			expect(updateMock).toHaveBeenCalledTimes(1)
-			
-			expect(document.body.innerHTML).toBe('<span>1</span>')
-		})
 		
 		it('onMount', () => {
-		
-			const mountMock = jest.fn()
+			const unmountMock = jest.fn()
+			const mountMock = jest.fn(() => unmountMock)
 			
-			html`<span>sample</span>`
+			const temp = html`<span>sample</span>`
 				.onMount(mountMock)
 				.render(document.body)
 			
-			jest.advanceTimersByTime(100);
-			
 			expect(mountMock).toHaveBeenCalledTimes(1)
-		});
-		
-		it('onUnmount', () => {
-			const unmountMock = jest.fn()
-			
-			const temp = html`<span>sample</span>`
-				.onUnmount(unmountMock)
-				.render(document.body)
 			
 			temp.unmount();
-			
-			jest.advanceTimersByTime(100);
 			
 			expect(unmountMock).toHaveBeenCalledTimes(1)
 		});
 		
 		it('onUnmount on removed item', () => {
 			const unmountMock = jest.fn();
-			const list = [
-				html`one`.onUnmount(unmountMock),
-				html`two`.onUnmount(unmountMock),
-				html`three`.onUnmount(unmountMock),
-			]
+			const [list, updateList] = state([
+				html`one`.onMount(() => unmountMock),
+				html`two`.onMount(() => unmountMock),
+				html`three`.onMount(() => unmountMock),
+			])
 
-			const temp = html`${() => list}`
-				.render(document.body)
+			html`${list}`.render(document.body)
 
 			expect(document.body.innerHTML).toBe('onetwothree')
-
-			list.splice(1, 1);
-			const three = list.splice(1, 1);
-
-			temp.update();
-
+			
+			const three =  list()[2]
+			updateList([list()[0]])
+			jest.advanceTimersToNextTimer()
+			
 			expect(document.body.innerHTML).toBe('one')
 			
-			jest.advanceTimersByTime(100);
-
 			expect(unmountMock).toHaveBeenCalledTimes(2)
-
-			list.unshift(...three);
-
-			temp.update();
-
+			
+			updateList([three, list()[0]])
+			jest.advanceTimersToNextTimer()
+			
 			expect(document.body.innerHTML).toBe('threeone')
 		});
 		
 		it('unmount and resume on mount', () => {
-			jest.useFakeTimers()
-			const updateMock = jest.fn();
+			const mountMock = jest.fn();
 			const [x, setX] = state(5);
 			
 			const temp = html`item ${x}`
-				.onUpdate(updateMock)
+				.onMount(mountMock)
 				.render(document.body);
 			
 			expect(document.body.innerHTML).toBe("item 5")
@@ -1899,34 +1650,60 @@ describe('html', () => {
 			temp.unmount();
 			
 			setX(10);
+			jest.advanceTimersToNextTimer()
 			
 			temp.render(document.body)
 			
-			expect(updateMock).not.toHaveBeenCalled()
+			expect(mountMock).toHaveBeenCalledTimes(2)
 			
 			expect(document.body.innerHTML).toBe("item 10")
 			
 			setX(20);
+			jest.advanceTimersToNextTimer()
 			
-			jest.advanceTimersByTime(1000)
-			
-			expect(updateMock).toHaveBeenCalled()
+			expect(mountMock).toHaveBeenCalled()
 			
 			expect(document.body.innerHTML).toBe("item 20")
-			
-			jest.useRealTimers()
 		})
-	})
-	
-	it('should ignore values between tag and attribute', () => {
-		const disabled = 'disabled'
 		
-		const btn = html`
-			<button ${disabled}></button>`
+		it('onUpdate', () => {
+			const updateMock = jest.fn()
+			const [value, setValue] = state('sample');
+			
+			html`<span>${value}</span>`
+				.onUpdate(updateMock)
+				.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<span>sample</span>')
+			
+			setValue('diff')
+			jest.advanceTimersToNextTimer()
+			
+			expect(updateMock).toHaveBeenCalledTimes(1)
+			
+			expect(document.body.innerHTML).toBe('<span>diff</span>')
+		});
 		
-		btn.render(document.body)
-		
-		expect(document.body.innerHTML).toBe('<button></button>')
+		it('onMove', () => {
+			const moveMock = jest.fn();
+			const [list, updateList] = state([
+				html`one`.onMove(moveMock),
+				html`two`.onMove(moveMock),
+				html`three`.onMove(moveMock),
+			])
+			
+			html`${list}`.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('onetwothree')
+			
+			const three =  list()[2]
+			updateList([list()[2], list()[0], list()[1]])
+			jest.advanceTimersToNextTimer()
+			
+			expect(document.body.innerHTML).toBe('threeonetwo')
+			
+			expect(moveMock).toHaveBeenCalledTimes(1)
+		});
 	})
 	
 	it('should parse script injected value', () => {
@@ -1966,5 +1743,61 @@ describe('html', () => {
         
         expect(document.body.innerHTML).toBe('<button type="button">click me</button>')
     })
+	
+	it('should unsubscribe from state and effect', () => {
+		const stateUpdateMock =  jest.fn()
+		const [items, setItems] = state([1])
+		const [disabled, setDisabled] = state(false)
+		
+		const temp = html`${repeat(items, () => html`<button disabled="${disabled}">click me</button>`)}`
+			.render(document.body)
+		
+		effect(stateUpdateMock)
+		
+		setDisabled(true)
+		jest.advanceTimersToNextTimer()
+		
+		expect(stateUpdateMock).toHaveBeenCalledTimes(1)
+		
+		stateUpdateMock.mockClear()
+		
+		expect(document.body.innerHTML).toBe('<button disabled="true">click me</button>')
+		
+		setItems([])
+		setDisabled(false)
+		jest.advanceTimersToNextTimer()
+		
+		expect(document.body.innerHTML).toBe('')
+		
+		expect(stateUpdateMock).not.toHaveBeenCalled()
+	})
+	
+	it('should render a switch with state', () => {
+		jest.useFakeTimers()
+		const [status, setStatus] = state(0);
+		
+		html`${() => {
+			switch (status()) {
+				case 0:
+					return 'idle'
+				case 1:
+					return 'loading'
+				default:
+					return 'done'
+			}
+		}}`.render(document.body)
+		
+		expect(document.body.innerHTML).toBe('idle')
+		
+		setStatus(1)
+		jest.advanceTimersToNextTimer()
+
+		expect(document.body.innerHTML).toBe('loading')
+		
+		setStatus(2)
+		jest.advanceTimersToNextTimer()
+		
+		expect(document.body.innerHTML).toBe('done')
+	})
 	
 })

@@ -1,10 +1,9 @@
-import {isNot} from "./is-not.helper";
+import {isNot} from "./is-not.helper.ts";
 
 describe('isNot', () => { // @ts-ignore
-	const I = isNot().handler
-	
+
 	it('should handle isNot', () => {
-		expect(I(() => true, true)).toBe(false)
-		expect(I(() => true, () => false)).toBe(true)
+		expect(isNot(() => true, true)()).toBe(false)
+		expect(isNot(() => true, () => false)()).toBe(true)
 	})
 })

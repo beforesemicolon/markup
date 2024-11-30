@@ -1,12 +1,10 @@
-import {oneOf} from "./one-of.helper";
+import {oneOf} from "./one-of.helper.ts";
 
 describe('oneOf', () => {// @ts-ignore
-	const O = oneOf().handler
-	
 	it('should handle oneOf', () => {
-		expect(O('one', [])).toBe(false)
-		expect(O('one', ['one'])).toBe(true)
-		expect(O(() => 'one', ['one', 'two', 'three'])).toBe(true)
-		expect(O(() => 'four', ['one', 'two', 'three'])).toBe(false)
+		expect(oneOf('one', [])()).toBe(false)
+		expect(oneOf('one', ['one'])()).toBe(true)
+		expect(oneOf(() => 'one', ['one', 'two', 'three'])()).toBe(true)
+		expect(oneOf(() => 'four', ['one', 'two', 'three'])()).toBe(false)
 	})
 })

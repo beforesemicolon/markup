@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "target": "ESNEXT",
-        "module": "esnext",
+        "module": "nodenext",
         "lib": ["dom", "es2015.proxy", "es2021.weakref"],
         "declaration": true,
         "declarationMap": false,
@@ -13,9 +13,10 @@
         "alwaysStrict": true,
         "resolveJsonModule": true,
         "allowSyntheticDefaultImports": true,
-        "moduleResolution": "node",
+        "moduleResolution": "nodenext",
         "esModuleInterop": true,
         "skipLibCheck": true,
+        "allowImportingTsExtensions": true,
         "forceConsistentCasingInFileNames": true,
         "allowJs": true,
         "paths": {

@@ -1,62 +1,53 @@
-import { helper } from '../Helper'
-import { val } from '../utils'
+import { val } from './val.ts'
+import { ObjectLiteral, StateGetter } from '../types.ts'
 
-type DataGetter<T> = () => number | Array<T>
+type repeatData<T> = number | ObjectLiteral<T> | Iterable<T>
 
 const getList = (data: unknown) => {
-    data = val(data)
+    if (data) {
+        if (typeof data === 'number') {
+            return Array.from({ length: data }, (_, i) => i + 1)
+        }
 
-    if (Array.isArray(data)) {
-        return data
-    }
+        if (
+            typeof (data as Iterable<unknown>)[Symbol.iterator] === 'function'
+        ) {
+            return Array.from(data as Iterable<unknown>)
+        }
 
-    if (typeof data === 'number') {
-        return Array.from({ length: data }, (_, i) => i + 1)
+        if (data instanceof Object) {
+            return Object.entries(data)
+        }
     }
 
     return []
 }
 
 /**
- * renders things repeatedly based on first argument list or number
+ * renders things repeatedly based on first argument iterable or number
  * @param data
  * @param cb
  * @param whenEmpty
  */
-export const repeat = helper(
-    <T>(
-        data: number | Array<T> | DataGetter<T>,
-        cb: (data: T, index: number) => unknown,
-        whenEmpty: () => unknown = () => ''
-    ) => {
-        const cache: Map<T, unknown> = new Map()
-        let prevList: unknown[] = []
+export const repeat = <T>(
+    data: repeatData<T> | StateGetter<repeatData<T>>,
+    cb: (data: T, index: number) => unknown,
+    whenEmpty?: () => unknown
+) => {
+    let map = new Map()
 
-        const each = (d: T, i: number) => {
-            if (prevList[i] !== undefined && d !== prevList[i]) {
-                cache.delete(d)
-            }
+    return () => {
+        map = (getList(val(data)) as T[]).reduce((acc, item, idx) => {
+            acc.set(item, map.get(item) ?? cb(item, idx))
+            return acc
+        }, new Map())
 
-            if (!cache.has(d)) {
-                cache.set(d, cb(d, i))
-            }
+        const list = Array.from(map.values())
 
-            return cache.get(d)
+        if (list.length === 0) {
+            return whenEmpty?.() ?? []
         }
 
-        return () => {
-            const list = getList(data)
-
-            if (list.length === 0) {
-                prevList = []
-                return whenEmpty()
-            }
-
-            const renderedList = (list as T[]).map(each)
-
-            prevList = list
-
-            return renderedList
-        }
+        return list
     }
-)
+}

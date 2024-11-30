@@ -1,84 +1,85 @@
-import { repeat } from './repeat.helper'
-import { html } from '../html'
+import '../../test.common.ts'
+import { repeat } from './repeat.helper.ts'
+import { html } from '../html.ts'
 
 describe('repeat', () => {
-    // @ts-ignore
-    const R = repeat().handler
-
     it('should handle number', () => {
-        expect(R(3, (n: number) => n)()).toEqual([1, 2, 3])
+        expect(repeat(3, (n: number) => n)()).toEqual([1, 2, 3])
+    })
 
+    it('should handle updates', () => {
         let count = 3
-        const r = R(
+        const r = repeat<number>(
             () => count,
             (n: number) => html`sample-${n}`
         )
 
-        const res = r()
+        r()
+
+        expect(r()).toHaveLength(3)
 
         count = 4
-
-        const res2 = r()
-
-        expect(res).toHaveLength(3)
-        expect(res2).toHaveLength(4)
-
-        expect(res[0]).toEqual(res2[0])
-        expect(res[1]).toEqual(res2[1])
-        expect(res[2]).toEqual(res2[2])
+        
+        expect(r()).toHaveLength(4)
     })
-    
+
     it('should handle empty', () => {
-        expect(R([], (n: number) => n, () => 'no items')()).toEqual('no items')
-        expect(R(null, (n: number) => n, () => 'no items')()).toEqual('no items')
-        expect(R(null, (n: number) => n)()).toEqual('')
+        expect(repeat([], (n) => n, () => 'no items')()).toEqual('no items')
+        expect(repeat({}, (n) => n, () => 'no items')()).toEqual('no items')
+        expect(repeat(new Set(), (n) => n, () => 'no items')()).toEqual('no items')
+        expect(repeat(new Map(), (n) => n, () => 'no items')()).toEqual('no items')
     })
 
-    it('should handle array with unique values', () => {
+    it('should handle array with unique primitives', () => {
         const list = Array.from({ length: 3 }, (_, i) => i + 1)
 
-        expect(R(list, (n: number) => n + 1)()).toEqual([2, 3, 4])
+        expect(repeat(list, (n: number) => n + 1)()).toEqual([2, 3, 4])
+    })
 
-        const r = R(
+    it('should handle array with unique non-primitives', () => {
+        const list = Array.from({ length: 3 }, (_, i) => i + 1)
+
+        const r = repeat(
             () => list,
             (n: number) => html`sample-${n}`
         )
-
-        const res = r()
+        
+        expect(r()).toHaveLength(3)
 
         list.push(4)
-
-        const res2 = r()
-
-        expect(res).toHaveLength(3)
-        expect(res2).toHaveLength(4)
-
-        expect(res[0]).toEqual(res2[0])
-        expect(res[1]).toEqual(res2[1])
-        expect(res[2]).toEqual(res2[2])
+        
+        expect(r()).toHaveLength(4)
     })
 
     it('should handle array with repeated values', () => {
-        const list = Array.from({ length: 3 }, () => '-')
+        const list = Array.from({ length: 3 }, () => 1)
 
-        expect(R(list, (n: number) => n)()).toEqual(['-', '-', '-'])
-
-        const r = R(
+        const r = repeat(
             () => list,
-            (n: number) => html`sample-${n}`
+            (n) => html`sample-${n}`
         )
+        
+        expect(r()).toHaveLength(1)
 
-        const res = r()
-
-        list.push('--')
-
-        const res2 = r()
-
-        expect(res).toHaveLength(3)
-        expect(res2).toHaveLength(4)
-
-        expect(res[0]).toEqual(res2[0])
-        expect(res[1]).toEqual(res2[1])
-        expect(res[2]).toEqual(res2[2])
+        list.push(2)
+        
+        expect(r()).toHaveLength(2)
+    })
+    
+    it('should handle iterables', () => {
+        const iterable = {};
+        
+        // @ts-ignore
+        iterable[Symbol.iterator] = function* () {
+            yield 1;
+            yield 2;
+            yield 3;
+        };
+        
+        expect(repeat(new Set([1, 2, 3]), (n) => n)()).toEqual([1, 2, 3])
+        expect(repeat(new Map([['a', 'b']]), (n) => n)()).toEqual([['a', 'b']])
+        expect(repeat({sample: 12}, (n) => n)()).toEqual([['sample', 12]])
+        expect(repeat('sample', (n) => n)()).toEqual(['s', 'a', 'm', 'p', 'l', 'e'])
+        expect(repeat(iterable, (n) => n)()).toEqual([1, 2, 3])
     })
 })
