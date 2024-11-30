@@ -1,6 +1,6 @@
 ---
 name: Server Side Rendering
-order: 7.6
+order: 4.6
 title: Server Side Rendering - Markup by Before Semicolon
 description: How to render markup templates on the server
 layout: document

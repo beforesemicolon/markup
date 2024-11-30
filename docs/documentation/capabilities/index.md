@@ -1,6 +1,6 @@
 ---
 name: What's possible?
-order: 7
+order: 4
 title: Capabilities - Markup by Before Semicolon
 description: How to use Markup to create web patterns
 layout: document

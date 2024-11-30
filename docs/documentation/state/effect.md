@@ -1,6 +1,6 @@
 ---
 name: Effect
-order: 5.1
+order: 6.1
 title: State Effect - Markup by Before Semicolon
 description: How to react to state in Markup by Before Semicolon
 layout: document

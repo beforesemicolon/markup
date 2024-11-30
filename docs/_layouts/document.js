@@ -63,8 +63,8 @@ export default (props) => {
                 ${props.content}
                 
                 <div id="page-navigation">
-                    ${previousPage ? `<a href="${previousPage.path}" id="prev-doc">&lt;&lt; ${previousPage.name}</a>` : ''}
-                    ${nextPage ? `<a href="${nextPage.path}" id="next-doc">${nextPage.name} &gt;&gt;</a>` : ''}
+                    ${previousPage ? `<a href="${previousPage.path.replace('.html', '')}" id="prev-doc">&lt;&lt; ${previousPage.name}</a>` : ''}
+                    ${nextPage ? `<a href="${nextPage.path.replace('.html', '')}" id="next-doc">${nextPage.name} &gt;&gt;</a>` : ''}
                 </div>
                 
                 <a href="${`${githubDocsPath}${props.path.replace('.html', '')}.md`}" id="edit-doc">edit this doc</a>

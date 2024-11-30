@@ -1,6 +1,6 @@
 ---
 name: Function Component
-order: 7.1
+order: 4.1
 title: Function Component - Markup by Before Semicolon
 description: How to create Component using Functions
 layout: document

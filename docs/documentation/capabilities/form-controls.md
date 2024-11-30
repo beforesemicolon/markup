@@ -1,6 +1,6 @@
 ---
 name: Form Control
-order: 7.3
+order: 4.3
 title: Form Control - Markup by Before Semicolon
 description: Form Control with Markup Web Component
 layout: document
