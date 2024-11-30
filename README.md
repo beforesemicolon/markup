@@ -2,7 +2,8 @@
 
 Reactive HTML Templating System
 
-[![Static Badge](https://img.shields.io/badge/docs-markup.beforesemicolon.com-blue)](https://markup.beforesemicolon.com)
+[![Static Badge](https://img.shields.io/badge/Website-blue)](https://markup.beforesemicolon.com)
+[![MD Docs](https://img.shields.io/badge/MD_docs-blue)](https://github.com/beforesemicolon/markup/blob/main/docs/index.md)
 [![npm](https://img.shields.io/npm/v/%40beforesemicolon%2Fmarkup)](https://www.npmjs.com/package/@beforesemicolon/markup)
 ![npm](https://img.shields.io/npm/l/%40beforesemicolon%2Fmarkup)
 [![Test](https://github.com/beforesemicolon/html/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/beforesemicolon/html/actions/workflows/test.yml)
