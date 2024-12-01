@@ -1,3 +1,5 @@
+const isDev = process.env.NODE_ENV === 'development'
+
 export default ({ title, description, name, path }) => {
     return `
 <meta charset="UTF-8" />
@@ -62,5 +64,18 @@ export default ({ title, description, name, path }) => {
     href="/assets/favicon/favicon.ico"
 />
 <link rel="stylesheet" href="/stylesheets/github-dark.hightlighter.css">
+${
+    isDev
+        ? ''
+        : `<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-N3MXGDP5PS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-N3MXGDP5PS');
+</script>`
+}
 `
 }
