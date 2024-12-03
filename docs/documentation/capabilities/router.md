@@ -53,7 +53,7 @@ The best part is that it uses simple APIs and Web Component tags you can use to 
                 Tab One content
             </page-route-query>
 
-            <page-route-query key="tab" value="one">
+            <page-route-query key="tab" value="two">
                 Tab Two content
             </page-route-query>
         </div>
