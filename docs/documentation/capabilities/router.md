@@ -277,7 +277,8 @@ The `page-link` component allow you to navigate around targeting specific pathna
 
 -   `path`: The location `pathname` to navigate to;
 -   `search`: The location `search` value to update the url with;
--   `keep-current-search`: Whether to keep current url search value when updating it with a new one;
+-   `keep-current-search`: Whether to keep current url search value when updating it with a new one. (Default: `False`);
+-   `exact`: Controls whether the link is marked as active based on exact match of the current location pathname. (Default: `True`);
 -   `title`: The new document title value for when the url changes;
 -   `payload`: The location `state` value to pass to the new page and it must be an object literal;
 
@@ -326,19 +327,36 @@ Furthermore, you can choose to keep whatever current location search value is wi
 <!-- takes you to location.pathname + location.search + tab=one -->
 ```
 
-The `page-link` itself will gain the `active` attribute whenever the location matches the link `path` value and styling it is super straight forward allowing you to even target link states.
+The `page-link` itself will gain the `active` attribute whenever the location matches the link `path` value.
+
+You can control how the match is done by providing the `exact` attribute. By default, it will only mark the link as active with an exact match.
+
+Let's say you have a link to a `/todos` page and you want to highlight the link for all the child page of `/todos` as well. To do that, just set `exact` to `false` and it will remain in active state as long as the URL pathname starts with `/todos`.
+
+```html
+<!--
+location: /todos/94orisf7snrxiyin8n3kjdiu
+-->
+
+<!-- will not be in active state -->
+<page-link path="/todos">Todos</page-link>
+
+<!-- will be in active state -->
+<page-link path="/todos" exact="false">Todos</page-link>
+```
+
+You may also use this attribute for styling the link accordingly.
 
 ```css
-/* the actual page-link tag */
-page-link {
-    ...
-}
-
 /* target its active state */
 page-link[active] {
     ...
 }
+```
 
+You can go even further and reach out inside the `page-link` tag to style the `a` tag to style according to its state.
+
+```css
 /* target the anchor tag inside */
 page-link::part(anchor) {
     text-decoration: none;
@@ -477,10 +495,11 @@ Anything you add inside the `page-data` tags will be used as fall back in case t
 Additionally, the router itself exposes a collection of functions that support the [web components](#web-components) in what they do. Yoou can use these APIs to create your own solutions or extend the functionality of this library:
 
 -   [onPageChange](#onpagechange): A function to subscribe to page changes whether they happened via link interactions or browser navigation.
+-   [isOnPage](#isonpage): A function that tells you whether a provided location is the current location in the browser
 -   [goToPage](#gotopage): A function to add a new entry to the browser history;
 -   [previousPage](#previouspage): A function to go to the previous entry in the browser history;
 -   [previousPage](#nextpage): A function to go to the next entry in the browser history;
--   [replacePage](#replacepage): A function to update location by replacinng the last entry in the browser history;
+-   [replacePage](#replacepage): A function to update location by replacing the last entry in the browser history;
 -   [getPageParams](#getpageparams): A function to get any name location pathname parameter;
 -   [getSearchParams](#getsearchparams): A function that gets you the search query as an object literal;
 -   [getPageData](#getpagedata): A function that gets you the current history entry state data;
@@ -500,6 +519,41 @@ The `onPageChange` function allows you to quickly subscribe to the page location
 onPageChange((pathname, searchParams, pageData) => {
     // react to the change
 })
+```
+
+### isOnPage
+
+The `isOnPage` utility is a powerful function to let you know if certain `pathname` is the current location in the browser. It takes the following arguments:
+
+-   `pathname`: the new location pathname;
+-   `exact`: whether to do an exact match check. When set to `false` child paths will also trigger the link to match and be active. (Default: `True`);
+
+It will check for both `pathname` and `search` value of the current location. When the `exact` value is set to `false` it will check if the `pathname` and `search` starts with the current location values.
+
+```javascript
+// current location: /todos/94835jrijwirufft
+
+isOnPage('/todos') // false
+isOnPage('/todos', false) // true ('/todos/94835jrijwirufft' is a child page of '/todos')
+
+isOnPage('/todos/94835jrijwirufft') // true
+isOnPage('/todos/94835jrijwirufft', false) // true
+
+isOnPage('/todos/94835jrijwirufft?sample=true') // false
+isOnPage('/todos/94835jrijwirufft?sample=true', false) // false
+```
+
+Unless the `pathname` value you provide includes the `search` value, it will not use it to compare things. Also, the `search` value is checked left to right so, even if the search includes all the keys and exact values but you specify it in a different order it will still considered to not be a match.
+
+```javascript
+// current location: /sample/?page=one&tab=two
+
+isOnPage('/sample') // true
+isOnPage('/sample/?page=one&tab=two') // true
+isOnPage('/sample/?page=one') // false
+isOnPage('/sample/?page=one', false) // true
+isOnPage('/sample/?tab=two&page=one') // false
+isOnPage('/sample/?tab=two&page=one', false) // false
 ```
 
 ### goToPage
