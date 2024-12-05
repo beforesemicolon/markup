@@ -181,7 +181,7 @@ class MyButton extends WebComponent {
 customElements.define('my-button', MyButton)
 ```
 
-In the render method you can return a string, a DOM element, a [Markup template](../templating/index.md), or nothing at all. Some components can just handle some internal logic.
+In the render method you can return anything: a string, a [DOM Node](https://developer.mozilla.org/en-US/docs/Web/API/Node), a [Markup template](../templating/index.md), a `null` value, or nothing at all. Some components can just handle some internal logic and dont need to render anything but their tags.
 
 ### Stylesheet
 
