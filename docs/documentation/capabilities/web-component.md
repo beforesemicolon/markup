@@ -359,6 +359,12 @@ class MyButton extends WebComponent {
 customElements.define('my-button', MyButton)
 ```
 
+This `dispatch` method also takes a second argument which can be the data you want to expose with the event.
+
+```javascript
+this.dispatch('change', { value })
+```
+
 ### Lifecycles
 
 You could consider the constructor and render method as some type of "lifecycle" where anything inside the constructor happen when the component is instantiated and everything in the `render` method happens before the `onMount`.

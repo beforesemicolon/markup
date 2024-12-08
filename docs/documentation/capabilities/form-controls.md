@@ -226,7 +226,7 @@ We can use this to directly disable the input field and handle anything in our c
 class TextField extends WebComponent {
     ...
 
-    formAssociatedCallback(form) {
+    formDisabledCallback(disabled) {
         this.refs['input'][0].disabled = disabled;
     }
 
@@ -258,9 +258,9 @@ class TextField extends WebComponent {
 This lifecycle is called in one of two circumstances:
 
 -   When the browser restores the state of the element (for example, after a navigation, or when the browser restarts). The mode argument is "restore" in this case.
--   When the browser's input-assist features such as form autofilling sets a value. The mode argument is "autocomplete" in this case.
+-   When the browser's input-assist features such as form auto-filling sets a value. The mode argument is "autocomplete" in this case.
 
-We can use this in our `TextField` example to grab the value the form was restored with to update the form value and validity of our componenent.
+We can use this in our `TextField` example to grab the value the form was restored with to update the form value and validity of our component.
 
 ```javascript
 class TextField extends WebComponent {
