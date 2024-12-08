@@ -3,7 +3,7 @@ import {
     DocumentFragmentLike,
     ElementLike,
 } from '@beforesemicolon/html-parser'
-import { EffectUnSubscriber } from './types.ts'
+import { EffectUnSubscriber, ObjectLiteral } from './types.ts'
 import { ReactiveNode } from './ReactiveNode.ts'
 import { insertNodeAfter } from './utils/insert-node-after.ts'
 import { parseDynamicRawValue } from './utils/parse-dynamic-raw-value.ts'
@@ -26,6 +26,7 @@ const templateRegistry: Record<string, Template> = {}
 interface AttributeSlot {
     type: 'attribute'
     name: string
+    prop?: string
     value: unknown
     nodeSelector: string
     valueParts: Array<string | number>
@@ -161,9 +162,10 @@ function createTemplate(
                                     attrSlots[n] = {
                                         type: 'attribute',
                                         name: n,
-                                        value: v,
+                                        prop: key,
+                                        value: isRef ? v : undefined,
                                         nodeSelector: `[data-slot-id="${id}"]`,
-                                        valueParts: [v],
+                                        valueParts: [idx],
                                     }
                                     slots.push(attrSlots[n])
                                     markSlot = true
@@ -612,7 +614,13 @@ export class HtmlTemplate {
                     }
 
                     for (const p of slot.valueParts) {
-                        values.push(typeof p === 'number' ? this.#values[p] : p)
+                        let value = typeof p === 'number' ? this.#values[p] : p
+
+                        if (slot.prop && isObjectLiteral(value)) {
+                            value = (value as ObjectLiteral<unknown>)[slot.prop]
+                        }
+
+                        values.push(value)
                     }
 
                     handleElementAttribute(node, slot.name, values, (item) =>
