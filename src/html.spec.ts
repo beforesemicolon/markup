@@ -1704,6 +1704,35 @@ describe('html', () => {
 			
 			expect(moveMock).toHaveBeenCalledTimes(1)
 		});
+		
+		it('should trigger update when attr changes', () => {
+			const [value, setValue] = state("");
+			const [disabled, setDisabled] = state(false);
+			
+			const mountMock = jest.fn();
+			const updateMock = jest.fn();
+			
+			const props = {value, disabled}
+			
+			const temp = html`
+			  <input type="text" ${props}></input>
+			`.onMount(mountMock)
+				.onUpdate(updateMock);
+			
+			temp.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<input type="text" value="">')
+			
+			setValue('works')
+			setDisabled(true)
+			
+			jest.advanceTimersByTime(500)
+			
+			expect(document.body.innerHTML).toBe('<input type="text" value="works" disabled="true">')
+			
+			expect(mountMock).toHaveBeenCalled()
+			expect(updateMock).toHaveBeenCalled()
+		})
 	})
 	
 	it('should parse script injected value', () => {

@@ -1,6 +1,6 @@
 {
     "name": "@beforesemicolon/markup",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "description": "Reactive HTML Templating System",
     "engines": {
         "node": ">=18.16.0"

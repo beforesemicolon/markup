@@ -260,7 +260,8 @@ export function handleElementAttribute(
     node: Element,
     name: string,
     values: unknown[],
-    cb: (item: EffectUnSubscriber) => void
+    cb: (item: EffectUnSubscriber) => void,
+    onAttrUpdate: () => void
 ) {
     if (
         name.slice(0, 2) === 'on' &&
@@ -269,6 +270,8 @@ export function handleElementAttribute(
         node.removeAttribute(name)
         return
     }
+
+    let init = false
 
     if (booleanAttributes[name]) {
         const d = values[0]
@@ -282,8 +285,11 @@ export function handleElementAttribute(
                 } else {
                     ;(node as Element).removeAttribute(name)
                 }
+
+                init && onAttrUpdate()
             }
 
+            init = true
             return newValue
         }
 
@@ -300,8 +306,12 @@ export function handleElementAttribute(
                 ? val(values[0])
                 : values.map((d) => val(d)).join('')
 
-        if (newValue !== prevValue) setElementAttribute(node, name, newValue)
+        if (newValue !== prevValue) {
+            setElementAttribute(node, name, newValue)
+            init && onAttrUpdate()
+        }
 
+        init = true
         return newValue
     }
 
@@ -623,8 +633,12 @@ export class HtmlTemplate {
                         values.push(value)
                     }
 
-                    handleElementAttribute(node, slot.name, values, (item) =>
-                        this.#effectUnsubs.add(item)
+                    handleElementAttribute(
+                        node,
+                        slot.name,
+                        values,
+                        (item) => this.#effectUnsubs.add(item),
+                        () => this.#updateSub?.()
                     )
                 }
             } else {
@@ -656,9 +670,7 @@ export class HtmlTemplate {
                                 rn.updateParentReference(parentNode)
                             }
 
-                            rn.onUpdate(() => {
-                                this.#updateSub?.()
-                            })
+                            rn.onUpdate(() => this.#updateSub?.())
                         } else {
                             renderContent(part, cont, (item) => {
                                 if (item instanceof HtmlTemplate) {
