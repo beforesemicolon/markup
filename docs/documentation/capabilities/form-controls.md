@@ -21,6 +21,7 @@ class TextField extends WebComponent {
         'value',
         'placeholder',
         'pattern',
+        'disabled',
         'required',
         'error',
     ]
@@ -30,26 +31,26 @@ class TextField extends WebComponent {
     value = ''
     pattern = ''
     required = false
+    disabled = false
     error = 'Invalid field value.'
 
     handleChange = (value) => {
+        this.value = value
         // dispatch a change event with the input field value
         this.dispatch('change', { value })
     }
 
     // render the component content
     render() {
+        const { error, ...inputAttrs } = this.props
+
         return html`
             <input
+                ${inputAttrs}
                 part="text-input"
                 type="text"
                 ref="input"
                 onchange="${(event) => this.handleChange(event.target.value)}"
-                placeholder="${this.props.placeholder}"
-                disabled="${this.props.disabled}"
-                pattern="${this.props.pattern}"
-                required="${this.props.required}"
-                value="${this.props.value}"
             />
         `
     }
@@ -148,7 +149,7 @@ class TextField extends WebComponent {
 
     formAssociatedCallback(form) {
         // register value received from props
-        this.internals.setFormValue(this.props.value());
+        this.internals.setFormValue(this.props.value(), false);
     }
 }
 ```
@@ -173,6 +174,7 @@ class TextField extends WebComponent {
 
     handleChange = (value, report = true) => {
         this.internals.setFormValue(value);
+        this.value = value;
 
         const [inputField] = this.refs['input'];
 
@@ -206,7 +208,7 @@ class TextField extends WebComponent {
     ...
 
     formAssociatedCallback(form) {
-        this.internals.setFormValue(this.props.value());
+        this.handleChange(this.props.value(), false);
     }
 
     ...
@@ -227,7 +229,7 @@ class TextField extends WebComponent {
     ...
 
     formDisabledCallback(disabled) {
-        this.refs['input'][0].disabled = disabled;
+        this.disabled = disabled;
     }
 
     ...
@@ -245,8 +247,7 @@ class TextField extends WebComponent {
     ...
 
     formResetCallback(form) {
-        this.handleChange('')
-        this.refs['input'][0].value = ''
+        this.handleChange('', false)
     }
 
     ...
@@ -270,8 +271,7 @@ class TextField extends WebComponent {
         if (mode == 'restore') {
             // expects a state parameter in the form 'controlMode/value'
             const [controlMode, value] = state.split('/');
-            this.handleChange(value)
-            this.refs['input'][0].value = value
+            this.handleChange(value, false)
         }
     }
 
@@ -290,6 +290,7 @@ class TextField extends WebComponent {
     static observedAttributes = [
         'value',
         'placeholder',
+        'disabled',
         'pattern',
         'error',
         'required',
@@ -316,6 +317,7 @@ class TextField extends WebComponent {
     placeholder = ''
     value = ''
     pattern = ''
+    disabled = false
     required = false
     error = 'Invalid field value'
 
@@ -324,24 +326,23 @@ class TextField extends WebComponent {
     }
 
     formDisabledCallback(disabled) {
-        this.refs['input'][0].disabled = disabled
+        this.disabled = disabled
     }
 
     formResetCallback() {
-        this.handleChange('')
-        this.refs['input'][0].value = ''
+        this.handleChange('', false)
     }
 
     formStateRestoreCallback(state, mode) {
         if (mode == 'restore') {
             const [controlMode, value] = state.split('/')
-            this.handleChange(value)
-            this.refs['input'][0].value = value
+            this.handleChange(value, false)
         }
     }
 
     handleChange = (value, report = true) => {
         this.internals.setFormValue(value)
+        this.value = value
 
         const [inputField] = this.refs['input']
 
@@ -357,17 +358,15 @@ class TextField extends WebComponent {
     }
 
     render() {
+        const { error, ...inputAttrs } = this.props
+
         return html`
             <input
+                ${inputAttrs}
                 part="text-input"
                 type="text"
                 ref="input"
                 onchange="${(event) => this.handleChange(event.target.value)}"
-                placeholder="${this.props.placeholder}"
-                disabled="${this.props.disabled}"
-                pattern="${this.props.pattern}"
-                required="${this.props.required}"
-                value="${this.props.value}"
             />
         `
     }
