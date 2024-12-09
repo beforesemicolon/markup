@@ -808,6 +808,12 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('<p>hidden text</p>\n' +
 				'\t\t\t    <button disabled="true">click me</button>\n' +
 				'\t\t\t    <input type="checkbox">')
+			
+			const [p, button, checkbox] = [...document.body.children] as HTMLInputElement[]
+			
+			expect(p.hidden).toBe(hidden)
+			expect(button.disabled).toBe(disabled)
+			expect(checkbox.checked).toBe(checked)
 		})
 		
 		it('should handle object attributes', () => {
@@ -827,6 +833,35 @@ describe('html', () => {
 			
 			expect(countUpSpy).toHaveBeenCalledTimes(1);
 			expect(countUpSpy).toHaveBeenCalledWith(expect.any(Event));
+		})
+		
+		it('should handle input value', () => {
+			const [value, setValue] = state("");
+			
+			const temp = html`
+			  <input type="text" value="${value}" ref="input" />
+			`.render(document.body);
+			
+			expect(document.body.innerHTML).toBe('<input type="text" value="">');
+			
+			const [inputField] = temp.refs['input'] as HTMLInputElement[];
+			
+			expect(inputField.getAttribute('value')).toBe('')
+			expect(inputField.value).toBe('')
+			
+			setValue('works')
+			
+			jest.advanceTimersToNextTimer(5)
+			
+			expect(inputField.getAttribute('value')).toBe('works')
+			expect(inputField.value).toBe('works')
+			
+			setValue('')
+			
+			jest.advanceTimersToNextTimer(5)
+			
+			expect(inputField.getAttribute('value')).toBe('')
+			expect(inputField.value).toBe('')
 		})
 	})
 	
@@ -854,7 +889,7 @@ describe('html', () => {
 		el.render(document.body)
 		
 		expect(document.body.innerHTML).toBe(
-			'<div data-test-map="[object Map]" data-test-val="[object Object]"></div>'
+			'<div data-test-map="{}" data-test-val="{&quot;val&quot;:12}"></div>'
 		)
 	})
 	

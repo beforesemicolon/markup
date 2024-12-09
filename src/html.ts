@@ -8,7 +8,6 @@ import { ReactiveNode } from './ReactiveNode.ts'
 import { insertNodeAfter } from './utils/insert-node-after.ts'
 import { parseDynamicRawValue } from './utils/parse-dynamic-raw-value.ts'
 import { renderContent } from './utils/render-content.ts'
-import { booleanAttributes } from './utils/boolean-attributes.ts'
 import { val } from './helpers/index.ts'
 import { setElementAttribute } from './utils/set-element-attribute.ts'
 import { effect } from './state.ts'
@@ -191,22 +190,18 @@ function createTemplate(
                     if (isRef || /\$val([0-9]+)/.test(value)) {
                         __self__.setAttribute('data-slot-id', id)
                         const v = value.trim()
-                        slots.push({
+                        return slots.push({
                             type: 'attribute',
                             name,
                             value: v,
                             nodeSelector: `[data-slot-id="${id}"]`,
                             valueParts: isRef ? [v] : parseDynamicRawValue(v),
                         })
-
-                        // skip setting attribute for Web Components as they can have non-primitive values
-                        // and will be handled by the "setElementAttribute" util
-                        if (tagName.includes('-')) return
                     }
 
-                    !isRef && setElementAttribute(__self__, name, value)
+                    setElementAttribute(__self__, name, value)
 
-                    // ensure object attributes do not override inline attributes
+                    // ensure prop attributes do not override inline attributes
                     slots.remove(attrSlots[name])
                 },
             } as unknown as ElementLike
@@ -272,33 +267,6 @@ export function handleElementAttribute(
     }
 
     let init = false
-
-    if (booleanAttributes[name]) {
-        const d = values[0]
-
-        const setAttr = (prevValue: unknown = Date.now()) => {
-            const newValue = val(d)
-
-            if (newValue !== prevValue) {
-                if (newValue) {
-                    setElementAttribute(node, name, newValue)
-                } else {
-                    ;(node as Element).removeAttribute(name)
-                }
-
-                init && onAttrUpdate()
-            }
-
-            init = true
-            return newValue
-        }
-
-        if (typeof d === 'function') {
-            return cb(effect(setAttr))
-        }
-
-        return setAttr()
-    }
 
     const setAttr = (prevValue?: unknown) => {
         const newValue =

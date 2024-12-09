@@ -8,6 +8,7 @@ import { ElementOptions } from '../types.ts'
  * @param attributes
  * @param htmlContent
  * @param textContent
+ * @param childNodes
  * @param ns
  */
 export const element = <A>(
