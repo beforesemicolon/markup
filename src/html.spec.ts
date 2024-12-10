@@ -512,7 +512,7 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('<button>click me</button>');
 		})
 		
-		it.skip('when anywhere inside own template', () => {
+		it('when anywhere inside own template', () => {
 			const temp = html`<div ref="box">
 				<p ref="paragraph">some text <span ref="value">value</span></p>
 			</div>`.render(document.body)
@@ -1862,6 +1862,32 @@ describe('html', () => {
 		jest.advanceTimersToNextTimer()
 		
 		expect(document.body.innerHTML).toBe('done')
+	})
+	
+	it('should render SVG', () => {
+		html`
+			<p>pre</p>
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" >
+				<style type="text/css">
+					.st0{fill-rule:evenodd;clip-rule:evenodd;}
+				</style>
+				<g>
+					<path class="st0" d="M60.7,116.9l33.7,39l98.6-117c7.4-7.9,19,0.5,13.2,9.5l-97,148.1c-7.4,9.5-17.4,10.5-25.8,1.1l-49-58.5 C24.9,125.4,49.1,105.9,60.7,116.9z"/>
+				</g>
+			</svg>
+			<p>post</p>
+		`.render(document.body);
+		
+		const [p1, svg, p2] = [...document.body.children] as HTMLElement[];
+		
+		expect(p1.namespaceURI).toBe('http://www.w3.org/1999/xhtml')
+		
+		expect(svg.namespaceURI).toBe('http://www.w3.org/2000/svg')
+		expect(svg.children[0].namespaceURI).toBe('http://www.w3.org/2000/svg')
+		expect(svg.children[1].namespaceURI).toBe('http://www.w3.org/2000/svg')
+		expect(svg.children[1].children[0].namespaceURI).toBe('http://www.w3.org/2000/svg')
+		
+		expect(p2.namespaceURI).toBe('http://www.w3.org/1999/xhtml')
 	})
 	
 })

@@ -119,13 +119,13 @@ function createTemplate(
                 },
             } as unknown as DocumentFragmentLike
         },
-        createElementNS: (namespace: string, tagName: string) => {
+        createElementNS: (namespaceURI: string, tagName: string) => {
             const id = createId()
-            const __self__ = document.createElementNS(namespace, tagName)
+            const __self__ = document.createElementNS(namespaceURI, tagName)
 
             return {
                 __self__,
-                namespace,
+                namespaceURI,
                 tagName: __self__.tagName,
                 children: __self__.children,
                 attributes: __self__.attributes,
