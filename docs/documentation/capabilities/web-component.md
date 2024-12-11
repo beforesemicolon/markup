@@ -133,28 +133,21 @@ class MyButton extends WebComponent {
 customElements.define('my-button', MyButton)
 ```
 
-#### mode
+#### ShadowRoot options
 
-You can set the mode your `ShadowRoot` should be created with by setting the mode property. By default, it is set to `open`.
-
-```javascript
-class MyButton extends WebComponent {
-    config = {
-        mode: 'closed',
-    }
-}
-
-customElements.define('my-button', MyButton)
-```
-
-#### delegatesFocus
-
-You may also set whether the `ShadowRoot` delegates focus by setting the delegatesFocus. By default, it is set to `false`.
+You can specific any [attachShadow options](https://developer.mozilla.org/en-US/docs/Web/API/Element/attachShadow#options) in the config object and they are all optional. The default matches their native default values.
 
 ```javascript
 class MyButton extends WebComponent {
     config = {
+        // whether to attach shadow root
+        shadow: true,
+        // shadow root options
+        mode: 'open',
         delegatesFocus: false,
+        clonable: false,
+        serializable: false,
+        slotAssignment: 'named',
     }
 }
 
