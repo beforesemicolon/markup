@@ -5,6 +5,13 @@ import {when, repeat, oneOf, is, element, suspense} from './helpers/index.ts'
 
 describe('html', () => {
 	
+	it('should render HtmlTemplate', () => {
+		html`${() => new HtmlTemplate(['Welcome to the test app'], [])}`
+			.render(document.body)
+		
+		expect(document.body.innerHTML).toBe('Welcome to the test app')
+	})
+	
 	it('should render correctly', () => {
 		const app = html`<h1>Todo Manager</h1>
 			<div class="action-bar">
