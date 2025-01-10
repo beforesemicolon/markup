@@ -187,22 +187,24 @@ function createTemplate(
 
                     const isRef = name === 'ref'
 
+                    !isRef && slots.remove(attrSlots[name])
+
                     if (isRef || /\$val([0-9]+)/.test(value)) {
                         __self__.setAttribute('data-slot-id', id)
                         const v = value.trim()
-                        return slots.push({
+
+                        attrSlots[name] = {
                             type: 'attribute',
                             name,
                             value: v,
                             nodeSelector: `[data-slot-id="${id}"]`,
                             valueParts: isRef ? [v] : parseDynamicRawValue(v),
-                        })
+                        }
+
+                        return slots.push(attrSlots[name])
                     }
 
                     setElementAttribute(__self__, name, value)
-
-                    // ensure prop attributes do not override inline attributes
-                    slots.remove(attrSlots[name])
                 },
             } as unknown as ElementLike
         },

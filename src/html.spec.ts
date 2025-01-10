@@ -2,6 +2,8 @@ import '../test.common.ts';
 import { html, HtmlTemplate } from './html.ts'
 import { effect, state } from './state.ts'
 import {when, repeat, oneOf, is, element, suspense} from './helpers/index.ts'
+import { text } from 'node:stream/consumers'
+import exp = require('node:constants')
 
 describe('html', () => {
 	
@@ -840,6 +842,27 @@ describe('html', () => {
 			
 			expect(countUpSpy).toHaveBeenCalledTimes(1);
 			expect(countUpSpy).toHaveBeenCalledWith(expect.any(Event));
+		})
+		
+		it('should override attribute in the object', () => {
+			const clickMock1 = jest.fn();
+			const clickMock2 = jest.fn();
+
+			const props = {
+				onclick: clickMock1,
+				type: 'submit'
+			}
+
+			const temp = html`<button ${props} type="button" onclick="${clickMock2}" ref="btn">click me</button>`.render(document.body)
+
+			const [btn] = temp.refs['btn'] as HTMLButtonElement[];
+
+			expect(document.body.innerHTML).toBe('<button type="button">click me</button>');
+
+			btn.click();
+
+			expect(clickMock1).not.toHaveBeenCalled()
+			expect(clickMock2).toHaveBeenCalled()
 		})
 		
 		it('should handle input value', () => {
