@@ -88,7 +88,7 @@ describe('element', () => {
 
         expect(el).toBeInstanceOf(MyButton)
         expect(el.outerHTML).toBe(
-            '<my-button id="btn" disabled="false"><span>click me</span></my-button>'
+            '<my-button id="btn"><span>click me</span></my-button>'
         )
     })
 

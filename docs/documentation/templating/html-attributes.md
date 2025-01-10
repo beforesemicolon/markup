@@ -44,6 +44,22 @@ html`
 // <input type="checkbox">
 ```
 
+Setting an attribute value to `false` (as string or boolean) or nil (`undefined` or `null`) will remove the attribute.
+
+```
+const disabled = false
+const checked = null
+
+html`
+    <p hidden="false">hidden text</p>
+    <button disabled="${disabled}">click me</button>
+    <input type="checkbox" checked="${checked}" />
+`.render(document.body)
+// <p>hidden text</p>
+// <button>click me</button>
+// <input type="checkbox">
+```
+
 ### Value attributes
 
 Markup is aware of value you inject in the template as attribute values and will track and update them accordingly. There is no extra syntax necessary to make this happen.

@@ -16,7 +16,7 @@ export const setElementAttribute = (
     if (
         value !== undefined &&
         value !== null &&
-        (!booleanAttributes[key] || value)
+        (!booleanAttributes[key] || !/false/.test(String(value).trim()))
     ) {
         const descriptor =
             Object.getOwnPropertyDescriptor(el, key) ??

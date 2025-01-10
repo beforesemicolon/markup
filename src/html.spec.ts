@@ -713,6 +713,21 @@ describe('html', () => {
 			expect(document.body.innerHTML).toBe('<button style="background: red;">click me</button>');
 		})
 		
+		it('any boolean attr without value', () => {
+			const [disabled, setDisabled] = state(true)
+			const btn = html`
+				<button disabled>click me</button>
+				<button disabled="">click me</button>
+			`
+			
+			btn.render(document.body)
+			
+			expect(document.body.innerHTML).toBe(
+				'<button disabled="">click me</button>\n' +
+				'\t\t\t\t<button disabled="">click me</button>'
+			)
+		})
+		
 		it('any boolean attr', () => {
 			const [disabled, setDisabled] = state(true)
 			const btn = html`
@@ -753,6 +768,12 @@ describe('html', () => {
 			)
 			
 			setHidden('')
+			jest.advanceTimersToNextTimer()
+			
+			expect(document.body.innerHTML).toBe('<button hidden="">click me</button>')
+			
+			// @ts-ignore
+			setHidden(false)
 			jest.advanceTimersToNextTimer()
 			
 			expect(document.body.innerHTML).toBe('<button>click me</button>')
@@ -892,6 +913,21 @@ describe('html', () => {
 			
 			expect(inputField.getAttribute('value')).toBe('')
 			expect(inputField.value).toBe('')
+		})
+		
+		it('and not set false boolean or nil attributes', () => {
+			const disabled = false
+			const checked = null
+			
+			html`
+			    <p hidden="false" id="${undefined}">hidden text</p>
+			    <button disabled="${disabled}" type="${null}">click me</button>
+			    <input type="checkbox" checked="${checked}" />
+			`.render(document.body)
+			
+			expect(document.body.innerHTML).toBe('<p>hidden text</p>\n' +
+				'\t\t\t    <button>click me</button>\n' +
+				'\t\t\t    <input type="checkbox">')
 		})
 	})
 	
