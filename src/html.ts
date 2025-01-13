@@ -99,7 +99,6 @@ function createTemplate(
     templateString = templateString.trim()
 
     const slots = new DoubleLinkedList<TemplateSlot>()
-    const attrSlots: Record<string, AttributeSlot> = {}
 
     const temp = parse(templateString, {
         createComment: (value) => document.createComment(value),
@@ -122,6 +121,7 @@ function createTemplate(
         createElementNS: (namespaceURI: string, tagName: string) => {
             const id = createId()
             const __self__ = document.createElementNS(namespaceURI, tagName)
+            const attrSlots: Record<string, AttributeSlot> = {}
 
             return {
                 __self__,
