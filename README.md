@@ -108,16 +108,11 @@ yarn add @beforesemicolon/markup
 This library requires no build or parsing. The CDN package is one digit killobyte in size, tiny!
 
 ```html
-<!doctype html>
-<html lang="en">
-    <head>
-        <!-- Grab the latest version -->
-        <script src="https://unpkg.com/@beforesemicolon/markup/dist/client.js"></script>
+<!-- Grab the latest version -->
+<script src="https://unpkg.com/@beforesemicolon/markup/dist/client.js"></script>
 
-        <!-- Or a specific version -->
-        <script src="https://unpkg.com/@beforesemicolon/markup@0.3.0/dist/client.js"></script>
-    </head>
-</html>
+<!-- Or a specific version -->
+<script src="https://unpkg.com/@beforesemicolon/markup@0.3.0/dist/client.js"></script>
 ```
 
 ### Usage
