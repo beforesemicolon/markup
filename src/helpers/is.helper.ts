@@ -8,14 +8,23 @@ import { val } from './val.ts'
 /**
  * checks whether the state value is equal to provided value or return value of the function checker
  * @param st
- * @param checker
+ * @param dataOrCheckerFn
  */
 export const is =
     <T>(
         st: T | StateGetter<T>,
-        checker: HelperValueChecker<T> | AnythingButAFunction<T>
+        dataOrCheckerFn: HelperValueChecker<T> | AnythingButAFunction<T>
     ) =>
-    () =>
-        typeof checker === 'function'
-            ? Boolean((checker as HelperValueChecker<T>)(val(st)))
-            : val(st) === checker
+    () => {
+        const value = val<T>(st)
+
+        if (typeof dataOrCheckerFn === 'function') {
+            return Boolean((dataOrCheckerFn as HelperValueChecker<T>)(value))
+        }
+
+        if (dataOrCheckerFn instanceof RegExp) {
+            return dataOrCheckerFn.test(String(value))
+        }
+
+        return value === dataOrCheckerFn
+    }

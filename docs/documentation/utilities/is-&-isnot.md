@@ -18,6 +18,17 @@ html`${when(is(status, 'pending'), html`<p>loading...</p>`, html`<p>done</p>`)}`
 
 Both the `is` and `isNot` take two arguments, a state or some data, and a value or a checker. They will always return a boolean as the result.
 
+### RegExp
+
+You can also use `is` and `isNot` with regular expressions to check if a string matches a pattern.
+
+```javascript
+const [email, setEmail] = state('');
+
+const isEmailValid = is(email, /^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+const isEmailInvalid = isNot(email, /^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+```
+
 ### Checker
 
 The more advance way to use the `is` and `isNot` utilities is by providing a function as second argument that is called with the value and must return a boolean.
@@ -32,4 +43,4 @@ const isGreaterThanTen = is(count, (n) => n > 10)
 const isNotPending = isNot(status, (st) => st !== 'pending')
 ```
 
-When they consume state as first argument, their result get re-evaluated with every change which allows it to be handy in quick validators.
+When they consume `StateGetter` as first argument, their result get re-evaluated with every change which allows it to be handy in quick validators.
