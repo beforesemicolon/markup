@@ -3,7 +3,11 @@ import {
     DocumentFragmentLike,
     ElementLike,
 } from '@beforesemicolon/html-parser'
-import { EffectUnSubscriber, ObjectLiteral } from './types.ts'
+import {
+    EffectUnSubscriber,
+    LifecycleCallback,
+    ObjectLiteral,
+} from './types.ts'
 import { ReactiveNode } from './ReactiveNode.ts'
 import { insertNodeAfter } from './utils/insert-node-after.ts'
 import { parseDynamicRawValue } from './utils/parse-dynamic-raw-value.ts'
@@ -43,9 +47,12 @@ type TemplateSlot = AttributeSlot | ContentSlot
 interface Template {
     template: DocumentFragment
     slots: DoubleLinkedList<TemplateSlot>
+    nodeRefs: Record<string, Node>
 }
 
-const createId = () => Math.floor(Math.random() * 1000).toString()
+// Use a monotonic counter for predictable, fast IDs
+let idCounter = 0
+const createId = () => (++idCounter).toString()
 
 const handleTextNode = (nodeValue: string, el: DocumentFragment | Element) => {
     if (/\$val([0-9]+)/.test(nodeValue)) {
@@ -89,27 +96,25 @@ function createTemplate(
         return templateRegistry[tempId]
     }
 
-    let templateString = ''
-
-    for (let i = 0; i < parts.length; i++) {
-        const p = parts[i]
-        templateString += i === parts.length - 1 ? p : p + `$val${i}`
+    // Build templateString efficiently
+    let templateString = parts[0]
+    for (let i = 1; i < parts.length; i++) {
+        templateString += `$val${i - 1}` + parts[i]
     }
-
     templateString = templateString.trim()
 
     const slots = new DoubleLinkedList<TemplateSlot>()
+    const nodeRefs: Record<string, Node> = {}
 
     const temp = parse(templateString, {
         createComment: (value) => document.createComment(value),
         createTextNode: (value) => document.createTextNode(value),
         createDocumentFragment: () => {
             const __self__ = document.createDocumentFragment()
-
             return {
                 __self__,
                 children: __self__.children,
-                appendChild: (node: Node & { __self__: Node }) => {
+                appendChild: (node: Node & { __self__?: Node }) => {
                     const slot = handleAppendChild(
                         node.__self__ ?? node,
                         __self__
@@ -123,13 +128,16 @@ function createTemplate(
             const __self__ = document.createElementNS(namespaceURI, tagName)
             const attrSlots: Record<string, AttributeSlot> = {}
 
+            // Store reference for quick lookup
+            nodeRefs[`[data-slot-id="${id}"]`] = __self__
+
             return {
                 __self__,
                 namespaceURI,
                 tagName: __self__.tagName,
                 children: __self__.children,
                 attributes: __self__.attributes,
-                appendChild(node: Node & { __self__: Node }) {
+                appendChild(node: Node & { __self__?: Node }) {
                     const slot = handleAppendChild(
                         node.__self__ ?? node,
                         __self__
@@ -138,7 +146,6 @@ function createTemplate(
                 },
                 setAttribute(name: string, value: string) {
                     const dynamicValue = name.match(/^val([0-9]+)$/)
-                    // should ignore dynamically set attribute name
                     if (dynamicValue) {
                         const idx = Number(dynamicValue[1])
                         const attrs = values[idx]
@@ -210,10 +217,12 @@ function createTemplate(
         },
     })
 
+    // Always clone the parsed template in #init, do not cache a pre-cloned fragment
     templateRegistry[tempId] = {
         // @ts-expect-error all elements have __self__
-        template: temp.__self__,
+        template: temp.__self__ as DocumentFragment,
         slots,
+        nodeRefs,
     }
 
     return templateRegistry[tempId]
@@ -298,10 +307,10 @@ export class HtmlTemplate {
     #effectUnsubs: Set<EffectUnSubscriber> = new Set()
     #values: Array<unknown> = []
     #mounted = false
-    #mountSub: (() => void | (() => void)) | undefined = undefined
-    #moveSub: (() => void | (() => void)) | undefined = undefined
-    #unmountSub: (() => void) | undefined = undefined
-    #updateSub: (() => void) | undefined = undefined
+    #mountSub: LifecycleCallback | undefined
+    #moveSub: LifecycleCallback | undefined
+    #unmountSub: LifecycleCallback | undefined
+    #updateSub: LifecycleCallback | undefined
     #markers = [document.createTextNode(''), document.createTextNode('')]
     __PARENT__: HtmlTemplate | null = null
     __CHILDREN__: Set<ReactiveNode | HtmlTemplate> = new Set()
@@ -395,7 +404,7 @@ export class HtmlTemplate {
                     this.#markers[1]
                 )
                 if (!(target instanceof DocumentFragment)) {
-                    this.#moveSub?.()
+                    this.#moveSub?.(this)
                 }
             } else {
                 this.#init('render', target)
@@ -445,7 +454,7 @@ export class HtmlTemplate {
                     element?.parentNode?.replaceChild(frag, element as Node)
 
                     if (!(target instanceof DocumentFragment)) {
-                        this.#moveSub?.()
+                        this.#moveSub?.(this)
                     }
                 } else {
                     this.#init('replace', element as Node)
@@ -482,7 +491,7 @@ export class HtmlTemplate {
                     )
                     insertNodeAfter(frag, element)
                     if (!(target instanceof DocumentFragment)) {
-                        this.#moveSub?.()
+                        this.#moveSub?.(this)
                     }
                 }
             } else {
@@ -528,21 +537,21 @@ export class HtmlTemplate {
             this.__PARENT__ = null
             this.#refs = {}
             this.#effectUnsubs.clear()
-            this.#unmountSub?.()
+            this.#unmountSub?.(this)
         }
     }
 
-    onMount(cb: () => void) {
+    onMount(cb: LifecycleCallback) {
         this.#mountSub = cb
         return this
     }
 
-    onUpdate(cb: () => void) {
+    onUpdate(cb: LifecycleCallback) {
         this.#updateSub = cb
         return this
     }
 
-    onMove(cb: () => void) {
+    onMove(cb: LifecycleCallback) {
         this.#moveSub = cb
         return this
     }
@@ -608,7 +617,7 @@ export class HtmlTemplate {
                         slot.name,
                         values,
                         (item) => this.#effectUnsubs.add(item),
-                        () => this.#updateSub?.()
+                        () => this.#updateSub?.(this)
                     )
                 }
             } else {
@@ -640,7 +649,7 @@ export class HtmlTemplate {
                                 rn.updateParentReference(parentNode)
                             }
 
-                            rn.onUpdate(() => this.#updateSub?.())
+                            rn.onUpdate(() => this.#updateSub?.(this))
                         } else {
                             renderContent(part, cont, (item) => {
                                 if (item instanceof HtmlTemplate) {
@@ -668,7 +677,7 @@ export class HtmlTemplate {
         }
 
         this.#mounted = true
-        const res = this.#mountSub?.()
+        const res = this.#mountSub?.(this)
 
         if (typeof res === 'function') {
             this.#unmountSub = res

@@ -23,10 +23,10 @@ Both the `is` and `isNot` take two arguments, a state or some data, and a value 
 You can also use `is` and `isNot` with regular expressions to check if a string matches a pattern.
 
 ```javascript
-const [email, setEmail] = state('');
+const [email, setEmail] = state('')
 
-const isEmailValid = is(email, /^[^\s@]+@[^\s@]+\.[^\s@]+$/);
-const isEmailInvalid = isNot(email, /^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+const isEmailValid = is(email, /^[^\s@]+@[^\s@]+\.[^\s@]+$/)
+const isEmailInvalid = isNot(email, /^[^\s@]+@[^\s@]+\.[^\s@]+$/)
 ```
 
 ### Checker

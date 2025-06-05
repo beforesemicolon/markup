@@ -14,6 +14,8 @@ Markup exposes few methods you can use to tap into the lifecycles of the templat
 -   `onUpdate`: method that takes a function to call when something in the rendered template changes;
 -   `onMove`: method that takes a function to call when the template content is moved from one location to another in the DOM.
 
+All lifecycle callbacks will be called with the instance of the template as the first argument that you can use to operate on the template itself.
+
 ### onMount
 
 The `onMount` method takes a function to be called when the template is rendered via any of the [render methods](./index.md#rendering). This function can return another function to be called when the template gets unmounted.

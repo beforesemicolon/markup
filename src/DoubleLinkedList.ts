@@ -58,9 +58,26 @@ export class DoubleLinkedList<T> {
     }
 
     pop() {
-        if (this.#tail) {
-            this.remove(this.#tail.value)
+        const elementToRemove = this.#tail
+
+        if (!elementToRemove) {
+            return // List is empty, nothing to pop.
         }
+
+        const valueToPop = elementToRemove.value
+
+        if (elementToRemove.prev) {
+            // The list has more than one element.
+            this.#tail = elementToRemove.prev
+            this.#tail.next = null
+        } else {
+            // This was the only element in the list.
+            this.#head = null
+            this.#tail = null
+        }
+
+        this.#map.delete(valueToPop)
+        // Note: Consistent with remove(), pop() does not return the popped value.
     }
 
     remove(value: T) {
