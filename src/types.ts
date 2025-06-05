@@ -1,3 +1,5 @@
+import { type HtmlTemplate } from './html.ts'
+
 export enum DynamicValueType {
     Content = 'content',
     Attribute = 'attribute',
@@ -37,3 +39,5 @@ export interface ElementOptions<A> {
     childNodes?: Node[]
     ns?: 'http://www.w3.org/1999/xhtml' | 'http://www.w3.org/2000/svg' | ''
 }
+
+export type LifecycleCallback = (template: HtmlTemplate) => void | (() => void)

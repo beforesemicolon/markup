@@ -3,7 +3,11 @@ import {
     DocumentFragmentLike,
     ElementLike,
 } from '@beforesemicolon/html-parser'
-import { EffectUnSubscriber, ObjectLiteral } from './types.ts'
+import {
+    EffectUnSubscriber,
+    LifecycleCallback,
+    ObjectLiteral,
+} from './types.ts'
 import { ReactiveNode } from './ReactiveNode.ts'
 import { insertNodeAfter } from './utils/insert-node-after.ts'
 import { parseDynamicRawValue } from './utils/parse-dynamic-raw-value.ts'
@@ -303,10 +307,10 @@ export class HtmlTemplate {
     #effectUnsubs: Set<EffectUnSubscriber> = new Set()
     #values: Array<unknown> = []
     #mounted = false
-    #mountSub: (() => void | (() => void)) | undefined = undefined
-    #moveSub: (() => void | (() => void)) | undefined = undefined
-    #unmountSub: (() => void) | undefined = undefined
-    #updateSub: (() => void) | undefined = undefined
+    #mountSub: LifecycleCallback | undefined
+    #moveSub: LifecycleCallback | undefined
+    #unmountSub: LifecycleCallback | undefined
+    #updateSub: LifecycleCallback | undefined
     #markers = [document.createTextNode(''), document.createTextNode('')]
     __PARENT__: HtmlTemplate | null = null
     __CHILDREN__: Set<ReactiveNode | HtmlTemplate> = new Set()
@@ -400,7 +404,7 @@ export class HtmlTemplate {
                     this.#markers[1]
                 )
                 if (!(target instanceof DocumentFragment)) {
-                    this.#moveSub?.()
+                    this.#moveSub?.(this)
                 }
             } else {
                 this.#init('render', target)
@@ -450,7 +454,7 @@ export class HtmlTemplate {
                     element?.parentNode?.replaceChild(frag, element as Node)
 
                     if (!(target instanceof DocumentFragment)) {
-                        this.#moveSub?.()
+                        this.#moveSub?.(this)
                     }
                 } else {
                     this.#init('replace', element as Node)
@@ -487,7 +491,7 @@ export class HtmlTemplate {
                     )
                     insertNodeAfter(frag, element)
                     if (!(target instanceof DocumentFragment)) {
-                        this.#moveSub?.()
+                        this.#moveSub?.(this)
                     }
                 }
             } else {
@@ -533,21 +537,21 @@ export class HtmlTemplate {
             this.__PARENT__ = null
             this.#refs = {}
             this.#effectUnsubs.clear()
-            this.#unmountSub?.()
+            this.#unmountSub?.(this)
         }
     }
 
-    onMount(cb: () => void) {
+    onMount(cb: LifecycleCallback) {
         this.#mountSub = cb
         return this
     }
 
-    onUpdate(cb: () => void) {
+    onUpdate(cb: LifecycleCallback) {
         this.#updateSub = cb
         return this
     }
 
-    onMove(cb: () => void) {
+    onMove(cb: LifecycleCallback) {
         this.#moveSub = cb
         return this
     }
@@ -613,7 +617,7 @@ export class HtmlTemplate {
                         slot.name,
                         values,
                         (item) => this.#effectUnsubs.add(item),
-                        () => this.#updateSub?.()
+                        () => this.#updateSub?.(this)
                     )
                 }
             } else {
@@ -645,7 +649,7 @@ export class HtmlTemplate {
                                 rn.updateParentReference(parentNode)
                             }
 
-                            rn.onUpdate(() => this.#updateSub?.())
+                            rn.onUpdate(() => this.#updateSub?.(this))
                         } else {
                             renderContent(part, cont, (item) => {
                                 if (item instanceof HtmlTemplate) {
@@ -673,7 +677,7 @@ export class HtmlTemplate {
         }
 
         this.#mounted = true
-        const res = this.#mountSub?.()
+        const res = this.#mountSub?.(this)
 
         if (typeof res === 'function') {
             this.#unmountSub = res
