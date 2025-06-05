@@ -105,6 +105,16 @@ describe('html', () => {
 		expect(document.body.innerHTML).toBe('&lt;p&gt;sample&lt;/p&gt;')
 	})
 	
+	it.skip('should render html entities', () => {
+		const htmlString = '&lt;'
+		const temp = html`${htmlString}`
+		
+		temp.render(document.body)
+		
+		expect(document.body.innerHTML).toBe('&lt;')
+		expect(document.body.textContent).toBe('<')
+	})
+	
 	it('should render html as HTML', () => {
 		// @ts-ignore
 		const htmlString = html(['<p>sample</p>'])
