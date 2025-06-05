@@ -43,9 +43,12 @@ type TemplateSlot = AttributeSlot | ContentSlot
 interface Template {
     template: DocumentFragment
     slots: DoubleLinkedList<TemplateSlot>
+    nodeRefs: Record<string, Node>
 }
 
-const createId = () => Math.floor(Math.random() * 1000).toString()
+// Use a monotonic counter for predictable, fast IDs
+let idCounter = 0
+const createId = () => (++idCounter).toString()
 
 const handleTextNode = (nodeValue: string, el: DocumentFragment | Element) => {
     if (/\$val([0-9]+)/.test(nodeValue)) {
@@ -89,27 +92,25 @@ function createTemplate(
         return templateRegistry[tempId]
     }
 
-    let templateString = ''
-
-    for (let i = 0; i < parts.length; i++) {
-        const p = parts[i]
-        templateString += i === parts.length - 1 ? p : p + `$val${i}`
+    // Build templateString efficiently
+    let templateString = parts[0]
+    for (let i = 1; i < parts.length; i++) {
+        templateString += `$val${i - 1}` + parts[i]
     }
-
     templateString = templateString.trim()
 
     const slots = new DoubleLinkedList<TemplateSlot>()
+    const nodeRefs: Record<string, Node> = {}
 
     const temp = parse(templateString, {
         createComment: (value) => document.createComment(value),
         createTextNode: (value) => document.createTextNode(value),
         createDocumentFragment: () => {
             const __self__ = document.createDocumentFragment()
-
             return {
                 __self__,
                 children: __self__.children,
-                appendChild: (node: Node & { __self__: Node }) => {
+                appendChild: (node: Node & { __self__?: Node }) => {
                     const slot = handleAppendChild(
                         node.__self__ ?? node,
                         __self__
@@ -123,13 +124,16 @@ function createTemplate(
             const __self__ = document.createElementNS(namespaceURI, tagName)
             const attrSlots: Record<string, AttributeSlot> = {}
 
+            // Store reference for quick lookup
+            nodeRefs[`[data-slot-id="${id}"]`] = __self__
+
             return {
                 __self__,
                 namespaceURI,
                 tagName: __self__.tagName,
                 children: __self__.children,
                 attributes: __self__.attributes,
-                appendChild(node: Node & { __self__: Node }) {
+                appendChild(node: Node & { __self__?: Node }) {
                     const slot = handleAppendChild(
                         node.__self__ ?? node,
                         __self__
@@ -138,7 +142,6 @@ function createTemplate(
                 },
                 setAttribute(name: string, value: string) {
                     const dynamicValue = name.match(/^val([0-9]+)$/)
-                    // should ignore dynamically set attribute name
                     if (dynamicValue) {
                         const idx = Number(dynamicValue[1])
                         const attrs = values[idx]
@@ -210,10 +213,12 @@ function createTemplate(
         },
     })
 
+    // Always clone the parsed template in #init, do not cache a pre-cloned fragment
     templateRegistry[tempId] = {
         // @ts-expect-error all elements have __self__
-        template: temp.__self__,
+        template: temp.__self__ as DocumentFragment,
         slots,
+        nodeRefs,
     }
 
     return templateRegistry[tempId]

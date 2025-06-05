@@ -21,18 +21,22 @@ export class ReactiveNode {
     }
 
     get refs(): Record<string, Array<Element>> {
-        let acc = {}
+        const collectedRefs: Record<string, Array<Element>> = {}
 
         for (const item of this.#result) {
             if (item instanceof HtmlTemplate) {
-                acc = {
-                    ...acc,
-                    ...item.refs,
+                const templateRefs = item.refs // item.refs is Record<string, Array<Element>>
+                for (const key in templateRefs) {
+                    if (
+                        Object.prototype.hasOwnProperty.call(templateRefs, key)
+                    ) {
+                        collectedRefs[key] = templateRefs[key] // Assign properties directly
+                    }
                 }
             }
         }
 
-        return acc
+        return collectedRefs
     }
 
     constructor(
