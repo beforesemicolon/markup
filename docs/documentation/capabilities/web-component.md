@@ -67,10 +67,10 @@ class CounterApp extends WebComponent<Props, State> {
 customElements.define('counter-app', CounterApp)
 ```
 
-In your HTML you can simply use the tag normally.
+In your HTML, you can simply use the tag normally.
 
 ```html
-<counter-app label="count up"></counter-app>m
+<counter-app label="count up"></counter-app>
 ```
 
 ### Installation
@@ -115,7 +115,7 @@ customElements.define('my-button', MyButton)
 
 ### Config
 
-You can configure very few basic stuff about your component that will determine how your component will be rendered.
+You can configure very few basic things about your component that will determine how your component will be rendered.
 
 #### ShadowRoot
 
@@ -135,7 +135,7 @@ customElements.define('my-button', MyButton)
 
 #### ShadowRoot options
 
-You can specific any [attachShadow options](https://developer.mozilla.org/en-US/docs/Web/API/Element/attachShadow#options) in the config object and they are all optional. The default matches their native default values.
+You can specify any [attachShadow options](https://developer.mozilla.org/en-US/docs/Web/API/Element/attachShadow#options) in the config object, and they are all optional. The default matches their native default values.
 
 ```javascript
 class MyButton extends WebComponent {
@@ -174,7 +174,7 @@ class MyButton extends WebComponent {
 customElements.define('my-button', MyButton)
 ```
 
-In the render method you can return anything: a string, a [DOM Node](https://developer.mozilla.org/en-US/docs/Web/API/Node), a [Markup template](../templating/index.md), a `null` value, or nothing at all. Some components can just handle some internal logic and dont need to render anything but their tags.
+In the render method, you can return anything: a string, a [DOM Node](https://developer.mozilla.org/en-US/docs/Web/API/Node), a [Markup template](../templating/index.md), a `null` value, or nothing at all. Some components can just handle some internal logic and don't need to render anything but their tags.
 
 ### Stylesheet
 
@@ -191,7 +191,7 @@ class MyButton extends WebComponent {
 customElements.define('my-button', MyButton)
 ```
 
-Where the style is added will depend on whether the shadow option is true or false. If the component has shadow style will be added to its own [content root](./web-component.md#content-root). Otherwise, style will be added to the closest root node the component was rendered in. It can be the document itself or [root](./web-component.md#root) of an ancestor web component.
+Where the style is added will depend on whether the shadow option is true or false. If the component has a shadow style, it will be added to its own [content root](./web-component.md#content-root). Otherwise, style will be added to the closest root node in which the component was rendered. It can be the document itself or [root](./web-component.md#root) of an ancestor web component.
 
 #### css
 
@@ -212,7 +212,7 @@ class MyButton extends WebComponent {
 customElements.define('my-button', MyButton)
 ```
 
-It helps your IDE give you better CSS syntax highlight and autocompletion but it does not perform any computation to your CSS at this point.
+It helps your IDE give you better CSS syntax highlighting and autocompletion, but it does not perform any computation on your CSS at this point.
 
 #### updateStylesheet
 
@@ -230,7 +230,7 @@ class MyButton extends WebComponent {
 customElements.define('my-button', MyButton)
 ```
 
-To define the default values for your props, simply define a property in the class with same name and provide the value.
+To define the default values for your props, simply define a property in the class with the same name and provide the value.
 
 ```javascript
 class MyButton extends WebComponent {
@@ -271,11 +271,11 @@ customElements.define('my-button', MyButton)
 
 ### State
 
-The state is based on [Markup state](../state/index.md) which means it will pair up with your template just fine.
+The state is based on [Markup state](../state/index.md), which means it will pair up with your template just fine.
 
 #### initialState
 
-To start using state in your component simply define the initial state with the `initialState` property.
+To start using state in your component, simply define the initial state with the `initialState` property.
 
 ```typescript
 interface State {
@@ -293,7 +293,7 @@ customElements.define('my-button', MyButton)
 
 #### setState
 
-If you have state, you will need to update it. To do that you can call the `setState` method with a whole or partially new state object or simply a callback function that returns the state.
+If you have a state, you will need to update it. To do that, you can call the `setState` method with a whole or partially new state object or simply a callback function that returns the state.
 
 ```typescript
 interface State {
@@ -317,7 +317,7 @@ class MyButton extends WebComponent<{}, State> {
 customElements.define('my-button', MyButton)
 ```
 
-if you provide a partial state object it will be merged with the current state object. No need to spread state when updating it.
+If you provide a partial state object, it will be merged with the current state object. No need to spread state when updating it.
 
 You can also provide a callback so you can access the current state data.
 
@@ -352,7 +352,7 @@ class MyButton extends WebComponent {
 customElements.define('my-button', MyButton)
 ```
 
-This `dispatch` method also takes a second argument which can be the data you want to expose with the event.
+This `dispatch` method also takes a second argument, which can be the data you want to expose with the event.
 
 ```javascript
 this.dispatch('change', { value })
@@ -378,7 +378,7 @@ customElements.define('my-button', MyButton)
 
 You may always use the `mounted` property to check if the component is in the DOM or not.
 
-You have the option to return a function to perform cleanups which is executed like [onDestroy](./web-component.md#onDesctroy).
+You have the option to return a function to perform cleanups, which is executed like [onDestroy](./web-component.md#onDesctroy).
 
 ```javascript
 class MyButton extends WebComponent {
@@ -408,7 +408,7 @@ customElements.define('my-button', MyButton)
 
 #### onUpdate
 
-The `onUpdate` method is called whenever the component props are updated via the `setAttribute` or changing the props property on the element instance directly.
+The `onUpdate` method is called whenever the component props are updated via the `setAttribute` or by changing the props property on the element instance directly.
 
 ```javascript
 class MyButton extends WebComponent {
@@ -420,7 +420,7 @@ class MyButton extends WebComponent {
 customElements.define('my-button', MyButton)
 ```
 
-The method will always tell you, which prop and its new and old value.
+The method will always tell you which prop and its new and old values.
 
 #### onAdoption
 
@@ -438,7 +438,7 @@ customElements.define('my-button', MyButton)
 
 #### onError
 
-The `onError` method is called whenever the component fails to perform internal actions. These action can also be related to code executed inside any lifecycle methods, render, state or style update.
+The `onError` method is called whenever the component fails to perform internal actions. These actions can also be related to code executed inside any lifecycle methods, render, state or style update.
 
 ```javascript
 class MyButton extends WebComponent {
@@ -466,7 +466,7 @@ class MyButton extends WebComponent {
 customElements.define('my-button', MyButton)
 ```
 
-You can also enhance components so all errors are handled in the same place.
+You can also enhance components so that all errors are handled in the same place.
 
 ```javascript
 // have your global componenent that extends WebComponent
@@ -526,8 +526,8 @@ const field = new TextField()
 field.contentRoot // ShadowRoot object
 ```
 
-This is not to be confused with the Node returned by calling the [getRootNode()](https://developer.mozilla.org/en-US/docs/Web/API/Node/getRootNode) on an element. The getRootNode will return the element context root node and contentRoot will contain the node where the template was rendered to.
+This is not to be confused with the Node returned by calling the [getRootNode()](https://developer.mozilla.org/en-US/docs/Web/API/Node/getRootNode) on an element. The getRootNode will return the element context root node, and contentRoot will contain the node where the template was rendered to.
 
 ### Root
 
-The `root` tells you about where the component was rendered at. It can either be the document itself, or the ancestor element shadow root.
+The `root` tells you about where the component was rendered. It can either be the document itself or the ancestor element shadow root.
