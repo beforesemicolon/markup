@@ -1966,4 +1966,81 @@ describe('html', () => {
 		expect(p2.namespaceURI).toBe('http://www.w3.org/1999/xhtml')
 	})
 	
+	it('should toggle checkbox', () => {
+		const [checked, setChecked] = state(false)
+		
+		const template = html`
+		  <input ref="input" type="checkbox" checked="${checked}"/>
+		  <button ref="btn" onclick="${() => setChecked(prev => !prev)}">toggle</button>
+		`;
+		template.render(document.body);
+		
+		const [input] = template.refs['input'] as HTMLInputElement[];
+		const [btn] = template.refs['btn'] as HTMLButtonElement[];
+		
+		expect(input.outerHTML).toBe('<input type="checkbox">')
+		expect(input.checked).toBe(false)
+		
+		btn.click()
+		jest.advanceTimersToNextTimer()
+		
+		expect(input.outerHTML).toBe('<input type="checkbox" checked="true">')
+		expect(input.checked).toBe(true)
+		
+		btn.click()
+		jest.advanceTimersToNextTimer()
+		
+		expect(input.outerHTML).toBe('<input type="checkbox">')
+		expect(input.checked).toBe(false)
+	})
+	
+	it('should toggle checkbox wc', () => {
+		const [checked, setChecked] = state(false)
+		
+		class MyCheckbox extends HTMLElement {
+			static observedAttributes = ['checked'];
+			#checked = false;
+			
+			set checked(newCheck: boolean) {
+				this.#checked = newCheck;
+				
+				if(newCheck) {
+					this.setAttribute('checked', '')
+				} else {
+					this.removeAttribute('checked')
+				}
+			}
+			
+			get checked() {
+				return this.#checked
+			}
+		}
+		
+		customElements.define('my-checkbox', MyCheckbox)
+		
+		const template = html`
+		  <my-checkbox ref="input" checked="${checked}"/>
+		  <button ref="btn" onclick="${() => setChecked(prev => !prev)}">toggle</button>
+		`;
+		template.render(document.body);
+		
+		const [input] = template.refs['input'] as HTMLInputElement[];
+		const [btn] = template.refs['btn'] as HTMLButtonElement[];
+		
+		expect(input.outerHTML).toBe('<my-checkbox></my-checkbox>')
+		expect(input.checked).toBe(false)
+		
+		btn.click()
+		jest.advanceTimersToNextTimer()
+		
+		expect(input.outerHTML).toBe('<my-checkbox checked="true"></my-checkbox>')
+		expect(input.checked).toBe(true)
+		
+		btn.click()
+		jest.advanceTimersToNextTimer()
+		
+		expect(input.outerHTML).toBe('<my-checkbox></my-checkbox>')
+		expect(input.checked).toBe(false)
+	})
+	
 })

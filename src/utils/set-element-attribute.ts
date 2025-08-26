@@ -13,16 +13,14 @@ export const setElementAttribute = (
     key: string,
     value: unknown
 ) => {
-    if (
-        value !== undefined &&
-        value !== null &&
-        (!booleanAttributes[key] || !/false/.test(String(value).trim()))
-    ) {
+    let isWritable = false
+
+    if (el.nodeName.includes('-')) {
         const descriptor =
             Object.getOwnPropertyDescriptor(el, key) ??
             // describe properties defined as setter/getter by checking the prototype
             Object.getOwnPropertyDescriptors(Object.getPrototypeOf(el))[key]
-        const isWritable =
+        isWritable =
             descriptor?.writable || typeof descriptor?.set === 'function'
 
         // Using setAttribute() to modify certain attributes, most notably value in XUL, works inconsistently,
@@ -33,7 +31,13 @@ export const setElementAttribute = (
             // @ts-expect-error Cannot assign to X because it is a read-only property.
             el[key] = value
         }
+    }
 
+    if (
+        value !== undefined &&
+        value !== null &&
+        (!booleanAttributes[key] || !/^false$/.test(String(value).trim()))
+    ) {
         const strValue = jsonStringify(value)
 
         if (
