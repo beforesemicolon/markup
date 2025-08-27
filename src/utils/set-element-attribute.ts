@@ -13,26 +13,26 @@ export const setElementAttribute = (
     key: string,
     value: unknown
 ) => {
-    let isWritable = false
+    const descriptor =
+        Object.getOwnPropertyDescriptor(el, key) ??
+        // describe properties defined as setter/getter by checking the prototype
+        Object.getOwnPropertyDescriptors(Object.getPrototypeOf(el))[key]
+    const isWritable =
+        descriptor?.writable || typeof descriptor?.set === 'function'
 
-    if (el.nodeName.includes('-')) {
-        const descriptor =
-            Object.getOwnPropertyDescriptor(el, key) ??
-            // describe properties defined as setter/getter by checking the prototype
-            Object.getOwnPropertyDescriptors(Object.getPrototypeOf(el))[key]
-        isWritable =
-            descriptor?.writable || typeof descriptor?.set === 'function'
-
-        // Using setAttribute() to modify certain attributes, most notably value in XUL, works inconsistently,
-        // as the attribute specifies the default value. To access or modify the current values, you should use
-        // the properties. For example, use elt.value instead of elt.setAttribute('value', val).
-        // https://stackoverflow.com/questions/29929797/setattribute-doesnt-work-the-way-i-expect-it-to
-        if (isWritable) {
-            // @ts-expect-error Cannot assign to X because it is a read-only property.
-            el[key] = value
-        }
+    // Using setAttribute() to modify certain attributes, most notably value in XUL, works inconsistently,
+    // as the attribute specifies the default value. To access or modify the current values, you should use
+    // the properties. For example, use elt.value instead of elt.setAttribute('value', val).
+    // https://stackoverflow.com/questions/29929797/setattribute-doesnt-work-the-way-i-expect-it-to
+    if (isWritable) {
+        // @ts-expect-error Cannot assign to X because it is a read-only property.
+        el[key] = value
     }
 
+    // need to avoid invalid attribute scenarios:
+    // disabled="false", checked="undefined", draggable="null"
+    // or boolean attributes with any value. All those scenarios are invalid
+    // and the attribute should be removed instead
     if (
         value !== undefined &&
         value !== null &&
