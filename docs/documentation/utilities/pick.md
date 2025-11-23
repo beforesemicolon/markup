@@ -107,3 +107,21 @@ The `pick` helper will catch the error and simply returns `undefined` that can b
 html`${pick(currentUser, 'jobs.2.company.url')}`.render(document.body)
 // renders "undefined"
 ```
+
+### Mapper function
+
+The `pick` utility accepts an optional third argument - a mapper function that transforms the picked value before returning it.
+
+```javascript
+html`
+    <h3>${pick(currentUser, 'name', (name) => name.toUpperCase())}</h3>
+    <p>
+        Member since:
+        ${pick(currentUser, 'jobs.0.startingDate', (date) =>
+            date.toLocaleDateString()
+        )}
+    </p>
+`.render(document.body)
+```
+
+This is useful for formatting values, converting types, or applying any transformation to the picked value before it's rendered or used.

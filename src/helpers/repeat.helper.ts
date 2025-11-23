@@ -1,7 +1,13 @@
 import { val } from './val.ts'
 import { ObjectLiteral, StateGetter } from '../types.ts'
 
-type repeatData<T> = number | ObjectLiteral<T> | Iterable<T>
+type repeatData<T, K> =
+    | number
+    | ObjectLiteral<T>
+    | Iterable<T>
+    | Array<T>
+    | Set<T>
+    | Map<K, T>
 
 const getList = (data: unknown) => {
     if (data) {
@@ -13,6 +19,10 @@ const getList = (data: unknown) => {
             typeof (data as Iterable<unknown>)[Symbol.iterator] === 'function'
         ) {
             return Array.from(data as Iterable<unknown>)
+        }
+
+        if (data instanceof Set || data instanceof Map) {
+            return [...data.entries()]
         }
 
         if (data instanceof Object) {
@@ -29,8 +39,8 @@ const getList = (data: unknown) => {
  * @param cb
  * @param whenEmpty
  */
-export const repeat = <T>(
-    data: repeatData<T> | StateGetter<repeatData<T>>,
+export const repeat = <T, K = string>(
+    data: repeatData<T, K> | StateGetter<repeatData<T, K>>,
     cb: (data: T, index: number) => unknown,
     whenEmpty?: () => unknown
 ) => {
