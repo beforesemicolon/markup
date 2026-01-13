@@ -13,7 +13,7 @@ import { is } from './is.helper.ts'
 export const isNot =
     <T>(
         st: T | StateGetter<T>,
-        dataOrCheckerFn: HelperValueChecker<T> | AnythingButAFunction<T>
+        dataOrCheckerFn?: HelperValueChecker<T> | AnythingButAFunction<T>
     ) =>
     () =>
         !is(st, dataOrCheckerFn)()

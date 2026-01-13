@@ -3,6 +3,9 @@ import {is} from "./is.helper.ts";
 describe('is', () => { // @ts-ignore
 
 	it('should handle is', () => {
+		expect(is(12)()).toBe(true)
+		expect(is(0)()).toBe(false)
+		expect(is(() => true)()).toBe(true)
 		expect(is(() => true, true)()).toBe(true)
 		expect(is(() => true, false)()).toBe(false)
 		expect(is(() => true, () => false)()).toBe(false)

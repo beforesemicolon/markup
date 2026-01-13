@@ -16,7 +16,7 @@ const [status, setStatus] = state('pending')
 html`${when(is(status, 'pending'), html`<p>loading...</p>`, html`<p>done</p>`)}`
 ```
 
-Both the `is` and `isNot` take two arguments, a state or some data, and a value or a checker. They will always return a boolean as the result.
+Both the `is` and `isNot` take two arguments, a state or some data, and a value or a checker. They will always return a boolean as the result. The second argument is optional and when not provided, it will check if the value is [truthy](https://developer.mozilla.org/en-US/docs/Glossary/Truthy) or [falsy](https://developer.mozilla.org/en-US/docs/Glossary/Falsy)
 
 ### RegExp
 

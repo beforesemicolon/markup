@@ -13,7 +13,7 @@ import { val } from './val.ts'
 export const is =
     <T>(
         st: T | StateGetter<T>,
-        dataOrCheckerFn: HelperValueChecker<T> | AnythingButAFunction<T>
+        dataOrCheckerFn?: HelperValueChecker<T> | AnythingButAFunction<T>
     ) =>
     () => {
         const value = val<T>(st)
@@ -24,6 +24,10 @@ export const is =
 
         if (dataOrCheckerFn instanceof RegExp) {
             return dataOrCheckerFn.test(String(value))
+        }
+
+        if (dataOrCheckerFn === undefined) {
+            return Boolean(value)
         }
 
         return value === dataOrCheckerFn
