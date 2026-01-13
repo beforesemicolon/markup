@@ -717,3 +717,287 @@ The `parsePathname` function allows you to provide a location pathname pattern a
 parsePathname('/projects/:projectId/:projectId/summary')
 // /projects/my-project/283478brxedy7d87w84yr8/summary
 ```
+
+## Advanced Features
+
+### Route Guards
+
+Route guards allow you to protect routes with authentication checks, authorization, or any custom logic. Guards can be global (run for all routes) or route-specific.
+
+#### registerRouteGuard
+
+Register a guard for a specific route. The guard function receives the pathname, search params, and page data, and can return:
+
+-   `true` - Allow navigation
+-   `false` - Block navigation (stay on current page)
+-   `string` - Redirect to the specified pathname
+-   `Promise<boolean | string>` - Async guards are fully supported
+
+```javascript
+import { registerRouteGuard } from '@beforesemicolon/router'
+
+// Block access to admin routes
+registerRouteGuard('/admin', (pathname, query, data) => {
+    if (!userIsAdmin()) {
+        return '/unauthorized' // Redirect
+    }
+    return true // Allow
+})
+
+// Async guard example
+registerRouteGuard('/protected', async (pathname, query, data) => {
+    const isAuth = await checkAuthentication()
+    return isAuth
+})
+```
+
+#### registerGlobalGuard
+
+Register a guard that runs for all routes. Global guards execute before route-specific guards.
+
+```javascript
+import { registerGlobalGuard } from '@beforesemicolon/router'
+
+// Check authentication for all routes
+registerGlobalGuard((pathname, query, data) => {
+    const publicRoutes = ['/login', '/register']
+
+    if (!publicRoutes.includes(pathname) && !isAuthenticated()) {
+        return '/login'
+    }
+
+    return true
+})
+```
+
+**Guard execution order:**
+
+1. Global guards (in registration order)
+2. Route-specific guards (in registration order)
+3. First guard that blocks or redirects stops execution
+
+### Hash Routing
+
+The router supports both history API and hash-based routing. Hash routing is perfect for static hosting (GitHub Pages, Netlify) and requires no server configuration.
+
+#### setRoutingMode
+
+Set the routing mode to either `'history'` (default) or `'hash'`.
+
+```javascript
+import { setRoutingMode } from '@beforesemicolon/router'
+
+// Enable hash routing
+setRoutingMode('hash')
+
+// Routes will use hash format: #/path
+// Links will automatically render as: <a href="#/path">...</a>
+
+// Switch back to history mode
+setRoutingMode('history')
+```
+
+#### getRoutingMode
+
+Get the current routing mode.
+
+```javascript
+import { getRoutingMode } from '@beforesemicolon/router'
+
+const mode = getRoutingMode() // 'history' or 'hash'
+```
+
+**With hash routing:**
+
+-   All navigation uses hash format: `#/path?query=value`
+-   Works without server-side routing configuration
+-   Perfect for static hosting
+-   Backward compatible with older browsers
+
+### Module Registry
+
+Register route modules for build-time optimization with bundlers like Vite or Webpack. This allows bundlers to analyze dependencies while using the convenient `src` attribute.
+
+#### registerRouteModules
+
+Register a map of module paths to their loader functions.
+
+```javascript
+import { registerRouteModules } from '@beforesemicolon/router'
+
+// With Vite - use import.meta.glob
+const modules = import.meta.glob('./pages/**/*.{ts,js}', { eager: false })
+registerRouteModules(modules)
+
+// With Webpack - use require.context
+const context = require.context('./pages', true, /\.(ts|js)$/)
+const moduleMap = {}
+context.keys().forEach((key) => {
+    moduleMap[key] = () => context(key)
+})
+registerRouteModules(moduleMap)
+
+// Manual registration
+registerRouteModules({
+    './pages/home.ts': () => import('./pages/home'),
+    './pages/about.ts': () => import('./pages/about'),
+})
+```
+
+Then use `src` attribute as normal:
+
+```html
+<page-route path="/home" src="./pages/home.ts"></page-route>
+```
+
+The router will:
+
+1. Check if the module is registered
+2. Use the registered loader if available
+3. Fall back to dynamic `import()` if not registered
+4. Cache the loaded module for reuse
+
+#### getRouteModule
+
+Get a registered module loader.
+
+```javascript
+import { getRouteModule } from '@beforesemicolon/router'
+
+const loader = getRouteModule('./pages/home.ts')
+if (loader) {
+    const module = await loader()
+    // Use module.default
+}
+```
+
+### Route Metadata
+
+Attach metadata to routes for titles, breadcrumbs, permissions, or any custom data.
+
+#### registerRoute with metadata
+
+Register a route with metadata using the `meta` option:
+
+```javascript
+import { registerRoute } from '@beforesemicolon/router'
+
+registerRoute('/dashboard', {
+    exact: true,
+    meta: {
+        title: 'Dashboard',
+        breadcrumb: 'Home > Dashboard',
+        requiresAuth: true,
+        layout: 'admin',
+        permissions: ['dashboard:read'],
+    },
+})
+```
+
+#### getRouteMeta
+
+Retrieve metadata for a registered route.
+
+```javascript
+import { getRouteMeta } from '@beforesemicolon/router'
+
+const meta = getRouteMeta('/dashboard')
+console.log(meta.title) // 'Dashboard'
+console.log(meta.requiresAuth) // true
+```
+
+**Common use cases:**
+
+Update document title based on route:
+
+```javascript
+import { onPageChange, getRouteMeta } from '@beforesemicolon/router'
+
+onPageChange((pathname) => {
+    const meta = getRouteMeta(pathname)
+    if (meta?.title) {
+        document.title = `${meta.title} | My App`
+    }
+})
+```
+
+Check permissions in guards:
+
+```javascript
+import { registerGlobalGuard, getRouteMeta } from '@beforesemicolon/router'
+
+registerGlobalGuard((pathname) => {
+    const meta = getRouteMeta(pathname)
+
+    if (meta?.requiresAuth && !isAuthenticated()) {
+        return '/login'
+    }
+
+    if (meta?.permissions && !hasPermissions(meta.permissions)) {
+        return '/unauthorized'
+    }
+
+    return true
+})
+```
+
+Build breadcrumbs:
+
+```javascript
+function getBreadcrumbs(pathname) {
+    const meta = getRouteMeta(pathname)
+    return meta?.breadcrumb?.split(' > ') || []
+}
+```
+
+### Component Prop
+
+Use the `component` attribute with explicit imports for build-time optimization and type safety.
+
+Instead of using the `src` attribute with a file path string, you can pass component references directly:
+
+```typescript
+import { html } from '@beforesemicolon/web-component'
+import { HomePage } from './pages/HomePage'
+import { AboutPage } from './pages/AboutPage'
+
+html`
+    <page-route path="/" component="${HomePage}"></page-route>
+    <page-route path="/about" component="${AboutPage}"></page-route>
+`
+```
+
+**Benefits:**
+
+-   TypeScript type checking at compile time
+-   Better IDE autocomplete and refactoring
+-   Bundler can analyze dependencies
+-   Code splitting and tree shaking
+-   Faster Hot Module Replacement (HMR)
+
+**Component format:**
+
+Components can be:
+
+```typescript
+// 1. HTML string
+export default `<h1>Welcome</h1>`
+
+// 2. Markup template
+import { html } from '@beforesemicolon/web-component'
+export default html`<h1>Welcome</h1>`
+
+// 3. DOM Node
+const div = document.createElement('div')
+div.textContent = 'Welcome'
+export default div
+
+// 4. Function receiving route context
+export default (pageData, pathParams, searchParams) => {
+    return html`
+        <h1>Welcome ${pageData.user?.name}</h1>
+        <p>User ID: ${pathParams.userId}</p>
+        <p>Tab: ${searchParams.tab}</p>
+    `
+}
+```
