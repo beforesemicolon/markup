@@ -1,6 +1,6 @@
 {
     "name": "@beforesemicolon/markup",
-    "version": "1.18.0",
+    "version": "1.18.1",
     "description": "Reactive HTML Templating System",
     "engines": {
         "node": ">=18.16.0"
@@ -16,12 +16,9 @@
     "scripts": {
         "test": "jest --coverage",
         "test:watch": "jest --watch",
-        "docs:watch": "rm -rf website && NODE_ENV=development nodemon --watch docs -e js,css,md,json --exec 'node node_modules/@beforesemicolon/builder/dist/esm/docs/run.js'",
+        "docs:watch": "rm -rf website && NODE_ENV=development nodemon --watch docs -e js,css,md,json --exec 'node build-docs.js'",
         "local": "nodemon --watch src -e ts --exec 'npm run build && npm pack && npm link'",
-        "build:docs": "node node_modules/@beforesemicolon/builder/dist/esm/docs/run.js",
-        "build:browser": "node node_modules/@beforesemicolon/builder/dist/esm/build-browser.js",
-        "build:modules": "node node_modules/@beforesemicolon/builder/dist/esm/build-modules.js",
-        "build": "rm -rf dist && npm-run-all lint test && tsc --emitDeclarationOnly && npm-run-all build:modules build:browser",
+        "build": "rm -rf dist && npm-run-all lint test && tsc --emitDeclarationOnly && node build.js",
         "lint": "eslint ./src && prettier --check .",
         "format": "eslint ./src --fix && prettier --write ."
     },
@@ -42,7 +39,7 @@
         "type": "github"
     },
     "devDependencies": {
-        "@beforesemicolon/builder": "^1.4.0",
+        "@beforesemicolon/builder": "^1.6.5",
         "@gjsify/esbuild-plugin-transform-ext": "0.0.4",
         "@types/jest": "^29.5.11",
         "@types/jsdom": "^21.1.6",
