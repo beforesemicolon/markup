@@ -302,9 +302,7 @@ Use in utility code; avoid sprinkling in templates—other helpers already unwra
 
 ```ts
 const [gap] = state(12)
-html`<div style="--gap:${() => `${gap()}px`}; margin: ${gap}px">
-    Box
-</div>`
+html`<div style="--gap:${() => `${gap()}px`}; margin: ${gap}px">Box</div>`
 ```
 
 -   Conditional content without ternaries:
