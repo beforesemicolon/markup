@@ -1,6 +1,6 @@
 ---
 name: Intro to States
-order: 6
+order: 7
 title: State - Markup by Before Semicolon
 description: How to handle state in Markup by Before Semicolon
 layout: document

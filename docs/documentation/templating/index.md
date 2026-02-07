@@ -1,6 +1,6 @@
 ---
 name: Create & Render
-order: 5
+order: 6
 title: Render Template - Markup by Before Semicolon
 description: How to create and render a templates in Markup by Before Semicolon
 layout: document

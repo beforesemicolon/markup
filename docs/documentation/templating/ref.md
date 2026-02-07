@@ -1,6 +1,6 @@
 ---
 name: References
-order: 5.4
+order: 6.4
 title: Template DOM References - Markup by Before Semicolon
 description: How to grab reference of the DOM element in Markup by Before Semicolon
 layout: document

@@ -1,6 +1,6 @@
 ---
 name: Events
-order: 5.5
+order: 6.5
 title: HTML Events - Markup by Before Semicolon
 description: how to handle HTML events in Markup by Before Semicolon
 layout: document
