@@ -212,11 +212,29 @@ class MyButton extends WebComponent {
 customElements.define('my-button', MyButton)
 ```
 
-It helps your IDE give you better CSS syntax highlighting and autocompletion, but it does not perform any computation on your CSS at this point.
+This makes your style reactive and it helps your IDE give you better CSS syntax highlighting and autocompletion;
+
+```javascript
+class MyButton extends WebComponent {
+    static observedAttributes = ['variant'];
+    
+    variant = 'primary'
+    
+    stylesheet = css`
+        button {
+            color: ${when(is(this.props.variant, 'primary'), 'red', 'blue')};
+        }
+    `
+}
+
+customElements.define('my-button', MyButton)
+```
 
 #### updateStylesheet
 
 You can always manipulate the stylesheet property according to the `CSSStyleSheet` properties. For when you want to replace the stylesheet completely with another, you can use the `updateStylesheet` method and provide either a string or a new instance of `CSSStyleSheet`.
+
+This method is great if you want to dynamically swap a component stylesheet to another. We recommend using the [css util](#css) to create reactive stylesheets.
 
 ### Props
 
