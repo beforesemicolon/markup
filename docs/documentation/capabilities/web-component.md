@@ -216,10 +216,10 @@ This makes your style reactive and it helps your IDE give you better CSS syntax 
 
 ```javascript
 class MyButton extends WebComponent {
-    static observedAttributes = ['variant'];
-    
+    static observedAttributes = ['variant']
+
     variant = 'primary'
-    
+
     stylesheet = css`
         button {
             color: ${when(is(this.props.variant, 'primary'), 'red', 'blue')};
