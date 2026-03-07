@@ -59,7 +59,7 @@
         "eslint-plugin-prettier": "^5.1.2",
         "eslint-plugin-promise": "^6.1.1",
         "front-matter": "^4.0.2",
-        "global-jsdom": "^9.2.0",
+        "global-jsdom": "^25.0.0",
         "highlight.js": "^11.10.0",
         "install": "^0.13.0",
         "isomorphic-dompurify": "^2.16.0",
