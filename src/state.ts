@@ -23,24 +23,30 @@ const scheduledExecutions = new DoubleLinkedList<
     DoubleLinkedList<StateSubscriber>
 >()
 
-let executeTimer: NodeJS.Timeout
+let flushPending = false
 
-const executeScheduled = () => {
-    clearTimeout(executeTimer)
-    executeTimer = setTimeout(() => {
-        const visited = new DoubleLinkedList<StateSubscriber>()
+const flushScheduledExecutions = () => {
+    const visited = new DoubleLinkedList<StateSubscriber>()
 
-        for (const subs of scheduledExecutions) {
-            for (const sub of subs) {
-                if (!visited.has(sub)) {
-                    visited.push(sub)
-                    sub()
-                }
+    for (const subs of scheduledExecutions) {
+        for (const sub of subs) {
+            if (!visited.has(sub)) {
+                visited.push(sub)
+                sub()
             }
         }
+    }
 
-        scheduledExecutions.clear()
-    }, 0)
+    scheduledExecutions.clear()
+}
+
+const scheduleExecution = () => {
+    if (flushPending) return
+    flushPending = true
+    queueMicrotask(() => {
+        flushPending = false
+        flushScheduledExecutions()
+    })
 }
 
 export const state = <T>(
@@ -82,8 +88,11 @@ export const state = <T>(
 
             if (updatedValue !== value) {
                 value = updatedValue
+                if (!subs.size) {
+                    return updatedValue
+                }
                 scheduledExecutions.push(subs)
-                executeScheduled()
+                scheduleExecution()
             }
 
             return updatedValue
@@ -95,23 +104,42 @@ export const state = <T>(
 export const effect = <T>(sub: EffectSubscriber<T>) => {
     if (typeof sub === 'function') {
         let value: T | undefined
+        let isRunning = false
+        let pendingReRun = false
+
+        const run = () => {
+            if (isRunning) {
+                pendingReRun = true
+                return
+            }
+
+            isRunning = true
+
+            const parent = currentResolvers.tail
+
+            if (parent && parent !== res) {
+                parent.children.push(res)
+            }
+
+            currentResolvers.push(res)
+
+            try {
+                value = sub(value)
+            } catch (e) {
+                console.error(e)
+            } finally {
+                currentResolvers.pop()
+                isRunning = false
+
+                if (pendingReRun) {
+                    pendingReRun = false
+                    queueMicrotask(run)
+                }
+            }
+        }
+
         const res: Resolver = {
-            sub() {
-                const parent = currentResolvers.tail
-
-                if (parent && parent !== res) {
-                    parent.children.push(res)
-                }
-
-                currentResolvers.push(res)
-                try {
-                    value = sub(value)
-                } catch (e) {
-                    console.error(e)
-                } finally {
-                    currentResolvers.pop()
-                }
-            },
+            sub: run,
             unsubs: new DoubleLinkedList(),
             children: new DoubleLinkedList(),
             clear() {
@@ -127,7 +155,7 @@ export const effect = <T>(sub: EffectSubscriber<T>) => {
             },
         }
 
-        res.sub()
+        run()
 
         return () => res.clear()
     }
