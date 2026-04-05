@@ -64,7 +64,7 @@
         "install": "^0.13.0",
         "isomorphic-dompurify": "^2.16.0",
         "jest": "^29.7.0",
-        "jest-environment-jsdom": "^29.7.0",
+        "jest-environment-jsdom": "^30.3.0",
         "jsdom": "^25.0.1",
         "marked": "^14.1.2",
         "marked-highlight": "^2.1.4",
