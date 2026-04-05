@@ -15,6 +15,8 @@ The best part is that it uses simple APIs and Web Component tags you can use to 
 -   [Web Components](#web-components): web component tags you can use around your content without having to use JavaScript.
 -   [Routing APIs](#routing-apis): JavaScript API that supports web components which are a collection of function you can call to perform actions, react to changes, or get location metadata.
 
+The current router resolves page activation through a central matcher in the router core. That means navigation is resolved once, guards run once for that navigation, and route-aware subscribers are only called when they are relevant to the resolved page.
+
 ## Examples
 
 ```html
@@ -227,6 +229,8 @@ Know that the `src` file is only loaded once and used between renders. When the 
 
 This behavior ensures no memory leaks or increased memory usage although using function you can have things running in the background after the page route content is cleaned up. This can be something to take advantage off and keep some things running in the background to save some calculations the next time the page route content re-renders.
 
+When a route becomes inactive, the router detaches its rendered content from the DOM and keeps the resolved route content cached. If the same route matches again, the cached content is remounted instead of recreated.
+
 Additionally, any `page-route` that does not match with the location pathname will render with the `hidden` attribute ensuring everything is truly invisible for the user.
 
 ### Page route query
@@ -247,6 +251,8 @@ The `page-route-query` component works just like [page-route](#page-route).
 ```
 
 It supports all the loading and fallback slots, and can load content from a file as well.
+
+Like `page-route`, `page-route-query` also benefits from cached route remounting. When the same query match becomes active again, the router can restore the cached content instead of rebuilding it.
 
 This component makes it easy to render things based on search query values which is an amazing option to have dynamic pages without having to write any JavaScript to track state.
 
@@ -494,6 +500,7 @@ Anything you add inside the `page-data` tags will be used as fall back in case t
 
 Additionally, the router itself exposes a collection of functions that support the [web components](#web-components) in what they do. Yoou can use these APIs to create your own solutions or extend the functionality of this library:
 
+-   [onPage](#onpage): A route-aware subscription API that tells you when a specific route becomes active or inactive.
 -   [onPageChange](#onpagechange): A function to subscribe to page changes whether they happened via link interactions or browser navigation.
 -   [isOnPage](#isonpage): A function that tells you whether a provided location is the current location in the browser
 -   [goToPage](#gotopage): A function to add a new entry to the browser history;
@@ -506,6 +513,31 @@ Additionally, the router itself exposes a collection of functions that support t
 -   [registerRoute](#registerroute): A function that lets you register a location pathname pattern;
 -   [isRegisteredRoute](#isregisteredroute): A function that lets you check if a specific location pathname is registered;
 -   [parsePathname](#parsepathname): A function that given a location pathname pattern, will fill up the details from the current location pathname;
+
+The router currently uses two subscription levels:
+
+-   `onPage(...)` for route-aware listeners such as `page-route` and `page-route-query`
+-   `onPageChange(...)` for generic listeners that care about every location change
+
+Route-aware listeners are notified before generic listeners so cached route content can be restored first.
+
+### onPage
+
+The `onPage` function allows you to subscribe to one route pattern and react only when that route becomes active, stays active, or becomes inactive. It receives:
+
+-   `active`: whether the provided route pattern currently matches the resolved location;
+-   `location.pathname`: the resolved location pathname;
+-   `location.query`: the resolved search params as an object literal;
+-   `location.data`: the resolved history state object;
+-   `location.params`: the matched pathname params for that route pattern.
+
+```javascript
+onPage('/projects/:projectId', (active, location) => {
+    if (!active) return
+
+    console.log(location.params.projectId)
+})
+```
 
 ### onPageChange
 
@@ -520,6 +552,8 @@ onPageChange((pathname, searchParams, pageData) => {
     // react to the change
 })
 ```
+
+Use `onPageChange(...)` for generic page listeners. If you are targeting a specific route, prefer `onPage(...)` instead.
 
 ### isOnPage
 
