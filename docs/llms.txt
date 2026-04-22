@@ -1,0 +1,14 @@
+Markup by Before Semicolon
+
+Primary docs for AI agents:
+
+- /documentation/ai - AI-first overview of Markup, Web Component, and Router usage
+- /documentation/guide - general onboarding and best practices
+- /documentation/get-started - install and first render
+- /documentation/templating/index - template rendering and interpolation rules
+- /documentation/state/index - state and effect behavior
+- /documentation/utilities/index - helper reference
+- /documentation/capabilities/web-component - custom element API, lifecycles, events, slots, refs, and form controls
+- /documentation/capabilities/router - navigation, route matching, and page data
+
+Use these pages before scanning the rest of the site.

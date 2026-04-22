@@ -17,6 +17,14 @@ It consists of 3 main APIs with additional utilities to simplify things even fur
 -   `state`: A simple state tracking API that allows you to define reactive data as you wish;
 -   `effect`: A straight forward way to define things that need to happen when certain states change;
 
+### AI-first entry
+
+If you are an AI agent or bot scanning the docs, start here:
+
+-   [AI Guide](ai.md)
+-   [Guide & Best Practices](guide.md)
+-   [What's possible?](capabilities/index.md)
+
 ### Motivation
 
 JavaScript, Web Standards and APIs give you everything you need to build any web project you want. What is often painful to deal with is the DOM and reactivity, especially as the project gets bigger or require multiple people collaboration.

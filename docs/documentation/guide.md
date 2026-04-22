@@ -1,6 +1,6 @@
 ---
 name: Guide & Best Practices
-order: 4
+order: 5
 title: Guidelines & Best Practices - Markup by Before Semicolon
 description: Guidelines & Best Practices Markup by Before Semicolon
 layout: document
