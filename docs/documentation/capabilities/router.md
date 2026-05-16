@@ -141,6 +141,7 @@ The `page-route` component allows you to wrap or load content that you wish to r
 -   `src`: The path to the text, HTML, or JavaScript file containing the content to render.
 -   `exact`: Whether the path should be match exactly as specified or be open-ended. This defaults to `true`.
 -   `title`: The new document title value for when the page renders. Overrides [page-link](#page-link) `title`.
+-   `name`: Group identifier for mutually exclusive routes. When multiple routes share the same name, only the first matching one renders (acting like a switch).
 
 By simply wrapping content with `page-route`, such content will be rendered only when the location pathname matches the `path` pattern.
 
@@ -153,6 +154,25 @@ You may also specify pathname params that you access using the [page-data](#page
 ```html
 <page-route path="/todos/:todoId">
     <h2>Todo (<page-data param="todoId">unknown</page-data>)</h2>
+</page-route>
+```
+
+In case you have overlapping routes, you can use the `name` attribute to ensure only one of them is rendered at a time. This is useful for creating switch-like behavior.
+
+```html
+<!-- Order matters: put more specific routes first -->
+<page-route 
+    name="main" 
+    path="/businesses/:businessId/projects/:projectId" 
+    exact="false">
+    Project Details
+</page-route>
+
+<page-route 
+    name="main" 
+    path="/businesses/:businessId" 
+    exact="false">
+    Business Overview
 </page-route>
 ```
 
@@ -519,7 +539,7 @@ The router currently uses two subscription levels:
 -   `onPage(...)` for route-aware listeners such as `page-route` and `page-route-query`
 -   `onPageChange(...)` for generic listeners that care about every location change
 
-Route-aware listeners are notified before generic listeners so cached route content can be restored first.
+Route-aware listeners are notified before generic listeners so cached route content can restored first.
 
 ### onPage
 
