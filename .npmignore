@@ -18,3 +18,7 @@ docs
 website
 test.common.ts
 build*.js
+renovate.json
+.renovaterc.json
+.renovaterc
+renovate.json5
