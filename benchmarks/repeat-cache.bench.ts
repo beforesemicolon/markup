@@ -49,6 +49,17 @@ async function run() {
             getImmutable()
         })
 
+        // 4b. Immutable Copy (Keyed)
+        let copyRefKeyed = items
+        const getImmutableKeyed = repeat(() => copyRefKeyed, renderMinimal, {
+            key: (item) => item.id,
+        })
+        getImmutableKeyed()
+        bench.add(`Immutable Copy (Keyed) - Size ${size}`, () => {
+            copyRefKeyed = copyItems(copyRefKeyed)
+            getImmutableKeyed()
+        })
+
         // 5. Append 1 item
         let appendRef = items
         const getAppend = repeat(() => appendRef, renderMinimal)

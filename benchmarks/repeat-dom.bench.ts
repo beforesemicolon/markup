@@ -73,6 +73,25 @@ async function run() {
             }
         )
 
+        // 5b. Update (New Refs, Same IDs) - FS-like (Keyed)
+        let refsKeyed = items
+        const [fsStateRefsKeyed, setFsStateRefsKeyed] = state(refsKeyed)
+        const containerRefsKeyed = document.createElement('div')
+        const tmplRefsKeyed = html`<div>
+            ${repeat(fsStateRefsKeyed, renderFilesystemLike, {
+                key: (item) => item.id,
+            })}
+        </div>`
+        tmplRefsKeyed.render(containerRefsKeyed)
+        bench.add(
+            `Update (New Refs, Same IDs) - FS-like (Keyed) - Size ${size}`,
+            async () => {
+                refsKeyed = copyItems(refsKeyed)
+                setFsStateRefsKeyed(refsKeyed)
+                await new Promise((resolve) => queueMicrotask(resolve))
+            }
+        )
+
         // 6. Update (Append 1 Item) - FS-like
         let appendRefs = items
         const [fsStateAppend, setFsStateAppend] = state(appendRefs)
@@ -90,6 +109,7 @@ async function run() {
         await bench.run()
         tmplStable.unmount()
         tmplRefs.unmount()
+        tmplRefsKeyed.unmount()
         tmplAppend.unmount()
 
         printReport(`DOM Mount and Update - Size ${size}`, bench, env)
