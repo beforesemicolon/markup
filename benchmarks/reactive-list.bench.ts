@@ -54,6 +54,12 @@ async function run() {
         tracker.counts
     )
 
+    // 3b. Update (Reverse List)
+    tracker.reset()
+    setListState([...items].reverse())
+    await new Promise((resolve) => queueMicrotask(resolve))
+    printLifecycleReport('3b. Update (Reverse List)', tracker.counts)
+
     // 4. Update (New Array, Immutable Copy/New Item Refs, Same IDs)
     tracker.reset()
     const copied = copyItems(items)
@@ -84,6 +90,74 @@ async function run() {
 
     // Cleanup
     tmpl.unmount()
+
+    console.log(`\n==================================================`)
+    console.log(`LIFECYCLE OPERATION COUNTS (Keyed, Size: ${SIZE})`)
+    console.log(`==================================================`)
+
+    const keyedContainer = document.createElement('div')
+    tracker.reset()
+    const keyedWrapped = tracker.wrapRenderer(renderFilesystemLike)
+    const [keyedState, setKeyedState] = state(items)
+    const keyedTmpl = html`<div>
+        ${repeat(keyedState, keyedWrapped, { key: (item) => item.id })}
+    </div>`
+    keyedTmpl.render(keyedContainer)
+    printLifecycleReport('1. Initial Mount (Cold) - Keyed', tracker.counts)
+
+    // 2. Update (Same Array Reference)
+    tracker.reset()
+    setKeyedState(items)
+    await new Promise((resolve) => queueMicrotask(resolve))
+    printLifecycleReport(
+        '2. Update (Same Array Reference) - Keyed',
+        tracker.counts
+    )
+
+    // 3. Update (New Array, Same Item Refs) - Keyed
+    tracker.reset()
+    setKeyedState([...items])
+    await new Promise((resolve) => queueMicrotask(resolve))
+    printLifecycleReport(
+        '3. Update (New Array, Same Item Refs) - Keyed',
+        tracker.counts
+    )
+
+    // 3b. Update (Reverse List) - Keyed
+    tracker.reset()
+    setKeyedState([...items].reverse())
+    await new Promise((resolve) => queueMicrotask(resolve))
+    printLifecycleReport('3b. Update (Reverse List) - Keyed', tracker.counts)
+
+    // 4. Update (New Array, Immutable Copy/New Item Refs, Same IDs) - Keyed
+    tracker.reset()
+    const copiedKeyed = copyItems(items)
+    setKeyedState(copiedKeyed)
+    await new Promise((resolve) => queueMicrotask(resolve))
+    printLifecycleReport(
+        '4. Update (Immutable Copy / New Item Refs) - Keyed',
+        tracker.counts
+    )
+
+    // 5. Append 1 item
+    tracker.reset()
+    setKeyedState([...copiedKeyed, { id: SIZE + 1, name: `item-${SIZE + 1}` }])
+    await new Promise((resolve) => queueMicrotask(resolve))
+    printLifecycleReport('5. Append 1 Item - Keyed', tracker.counts)
+
+    // 6. Prepend 1 item
+    tracker.reset()
+    setKeyedState([{ id: 0, name: 'item-0' }, ...copiedKeyed])
+    await new Promise((resolve) => queueMicrotask(resolve))
+    printLifecycleReport('6. Prepend 1 Item - Keyed', tracker.counts)
+
+    // 7. Remove 1 item (middle)
+    tracker.reset()
+    setKeyedState(copiedKeyed.filter((_, idx) => idx !== Math.floor(SIZE / 2)))
+    await new Promise((resolve) => queueMicrotask(resolve))
+    printLifecycleReport('7. Remove 1 Item (Middle) - Keyed', tracker.counts)
+
+    keyedTmpl.unmount()
     console.log('Teardown complete.\n')
 }
 
