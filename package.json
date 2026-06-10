@@ -20,7 +20,11 @@
         "local": "nodemon --watch src -e ts --exec 'npm run build && npm pack && npm link'",
         "build": "rm -rf dist && npm-run-all lint test && tsc --emitDeclarationOnly && node build.js",
         "lint": "eslint ./src && prettier --check .",
-        "format": "eslint ./src --fix && prettier --write ."
+        "format": "eslint ./src --fix && prettier --write .",
+        "benchmark": "npm-run-all benchmark:repeat benchmark:dom benchmark:reactive",
+        "benchmark:repeat": "tsx benchmarks/repeat-cache.bench.ts",
+        "benchmark:dom": "tsx benchmarks/repeat-dom.bench.ts",
+        "benchmark:reactive": "tsx benchmarks/reactive-list.bench.ts"
     },
     "author": "Elson Correia",
     "license": "BSD-3-Clause",
