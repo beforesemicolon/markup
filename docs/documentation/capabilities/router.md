@@ -161,17 +161,15 @@ In case you have overlapping routes, you can use the `name` attribute to ensure 
 
 ```html
 <!-- Order matters: put more specific routes first -->
-<page-route 
-    name="main" 
-    path="/businesses/:businessId/projects/:projectId" 
-    exact="false">
+<page-route
+    name="main"
+    path="/businesses/:businessId/projects/:projectId"
+    exact="false"
+>
     Project Details
 </page-route>
 
-<page-route 
-    name="main" 
-    path="/businesses/:businessId" 
-    exact="false">
+<page-route name="main" path="/businesses/:businessId" exact="false">
     Business Overview
 </page-route>
 ```
