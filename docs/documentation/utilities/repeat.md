@@ -111,3 +111,44 @@ The `repeat` also consumes an optional third argument which is a function that w
 ```javascript
 html`${repeat(todos, renderTodo, () => html`<p>No todos yet!</p>`)}`
 ```
+
+### Keys and Options
+
+By default, `repeat` uses the list items themselves as identity keys to track updates. If your items are objects or you want to track them by a unique identifier, you can pass an options object as the third argument instead:
+
+```javascript
+const options = {
+    key: (todo, index) => todo.id,
+    empty: () => html`<p>No todos yet!</p>`,
+}
+
+html`${repeat(todos, renderTodo, options)}`
+```
+
+The options object supports the following properties:
+
+-   `key` (function): A selector function that returns a unique key for each item. Highly recommended for dynamic lists where items can be re-ordered, added, or removed.
+-   `empty` (function): A function returning the template or node to render when the collection is empty.
+
+### Lazy List Rendering
+
+To optimize lists with a large number of complex items, you can combine the `repeat` utility with the [visible](./visible.md) utility. This defers the rendering of offscreen list items until they are about to scroll into view:
+
+```javascript
+import { html, repeat, visible } from '@beforesemicolon/markup'
+
+html`
+    <ul>
+        ${repeat(
+            todos,
+            (todo, index) =>
+                visible(
+                    () => html`<todo-item item="${todo}"></todo-item>`,
+                    html`<li class="placeholder">Loading...</li>`,
+                    { eager: index < 10 } // render first 10 immediately
+                ),
+            { key: (todo) => todo.id }
+        )}
+    </ul>
+`
+```

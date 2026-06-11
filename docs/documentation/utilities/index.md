@@ -14,6 +14,7 @@ Markup offers many utility functions that aid you in templating or work with the
 -   [suspense](./suspense.md): allows you to lazy render content;
 -   [repeat](./repeat.md): allows you to handle lists or repeat content;
 -   [when](./when.md): allows you to conditionally render content;
+-   [visible](./visible.md): allows you to defer rendering until elements enter viewport;
 -   [is and isNot](./is-&-isnot.md): allows you to quickly check truthiness of states
 -   [and, or, & oneOf](./and-or-&-oneof.md): allows you to quickly check conditions of states
 -   [pick](./pick.md): allows you deeply read state object key values

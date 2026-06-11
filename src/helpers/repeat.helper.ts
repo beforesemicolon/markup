@@ -80,9 +80,17 @@ export const repeat = <T, TKey = T, K = string>(
 
         for (let index = 0; index < list.length; index += 1) {
             const item = list[index]
-            const key = keyFn ? keyFn(item, index) : (item as unknown)
+            const key = keyFn
+                ? keyFn(item, index)
+                : item &&
+                    typeof item === 'object' &&
+                    'id' in item &&
+                    (item as Record<string, unknown>).id !== undefined &&
+                    (item as Record<string, unknown>).id !== null
+                  ? (item as Record<string, unknown>).id
+                  : (item as unknown)
 
-            if (keyFn) {
+            if (keyFn || (item && typeof item === 'object' && 'id' in item)) {
                 if (nextEntries.has(key)) {
                     throw new Error(
                         `Duplicate key "${key}" detected at index ${index} in repeat. Keys must be unique.`
