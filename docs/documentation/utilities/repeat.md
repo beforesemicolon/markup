@@ -2,7 +2,7 @@
 name: Repeat
 order: 8.4
 title: Repeat Utility - Markup by Before Semicolon
-description: How to handle lists and repeated content in Markup by Before Semicolon
+description: Render lists with the Markup repeat utility, including arrays, sets, maps, objects, numeric ranges, empty states, keys, and cached item templates.
 layout: document
 ---
 

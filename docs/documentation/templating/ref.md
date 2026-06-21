@@ -2,7 +2,7 @@
 name: References
 order: 6.4
 title: Template DOM References - Markup by Before Semicolon
-description: How to grab reference of the DOM element in Markup by Before Semicolon
+description: Use the Markup ref attribute to capture DOM element references from rendered templates and safely access elements created by the html template.
 layout: document
 ---
 

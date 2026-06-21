@@ -1,8 +1,8 @@
 ---
 name: Create & Render
 order: 6
-title: Render Template - Markup by Before Semicolon
-description: How to create and render a templates in Markup by Before Semicolon
+title: Markup Templating - Create, Render, Replace, and Nest Templates
+description: Learn how the Markup html tagged template creates templates, renders DOM, replaces content, nests templates, and updates reactive values.
 layout: document
 ---
 

@@ -2,7 +2,7 @@
 name: Element
 order: 8.1
 title: Element Utility - Markup by Before Semicolon
-description: How Markup by Before Semicolon allows you to easily create DOM elements
+description: Use the Markup element utility to create DOM elements programmatically with attributes, children, refs, and event handlers when a static template is not enough.
 layout: document
 ---
 

@@ -2,7 +2,7 @@
 name: Server Side Rendering
 order: 5.6
 title: Server Side Rendering - Markup by Before Semicolon
-description: How to render markup templates on the server
+description: Render Markup templates on the server in JavaScript environments, serialize HTML output, and understand how Markup can support server-side rendering workflows.
 layout: document
 ---
 

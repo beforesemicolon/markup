@@ -1,8 +1,8 @@
 ---
 name: Get Started
 order: 2
-title: Get Started - Markup by Before Semicolon
-description: How to start using Markup by Before Semicolon
+title: Get Started with Markup - Install and Render Your First Template
+description: Start using Markup with a simple HTML page, load it from a CDN, create reactive state, and render your first JavaScript template without a build step.
 layout: document
 ---
 

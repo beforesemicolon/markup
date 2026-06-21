@@ -2,7 +2,7 @@
 name: OneOf, And & Or
 order: 8.6
 title: OneOf, And & Or Utility - Markup by Before Semicolon
-description: How to quickly check state truthy or falsy with Markup by Before Semicolon
+description: Use the Markup and, or, and oneOf helpers to combine reactive boolean conditions and render templates when multiple state checks pass.
 layout: document
 ---
 

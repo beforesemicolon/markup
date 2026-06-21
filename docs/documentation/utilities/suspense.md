@@ -2,7 +2,7 @@
 name: Suspense
 order: 8.2
 title: Suspense Utility - Markup by Before Semicolon
-description: How to lazy render content asynchronously in Markup by Before Semicolon
+description: Use the Markup suspense utility to render async content with loading templates, error templates, lazy data fetches, and template replacement.
 layout: document
 ---
 

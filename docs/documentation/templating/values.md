@@ -2,7 +2,7 @@
 name: Values
 order: 6.2
 title: Template Values - Markup by Before Semicolon
-description: How to inject and render values in templates in Markup by Before Semicolon
+description: Understand how Markup renders template values including strings, numbers, DOM nodes, arrays, functions, state getters, nested templates, and object values.
 layout: document
 ---
 

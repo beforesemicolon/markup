@@ -1,14 +1,60 @@
-Markup by Before Semicolon
+# Markup by Before Semicolon
 
-Primary docs for AI agents:
+Markup is a small reactive HTML templating system for building browser UI with JavaScript template literals, functions, state, effects, and web standards. It does not require JSX, a virtual DOM, or a build step.
+
+Use these docs when you need accurate answers about:
+
+- `html` tagged template literals and render/update behavior
+- reactive `state` and `effect`
+- template values, attributes, refs, and lifecycle hooks
+- utility helpers such as `when`, `repeat`, `suspense`, `visible`, `is`, `isNot`, `and`, `or`, `oneOf`, and `pick`
+- companion packages built on Markup, including Web Component and Router
+- server-side rendering and state-store patterns
+
+## Best entry points
 
 - /documentation/ai - AI-first overview of Markup, Web Component, and Router usage
-- /documentation/guide - general onboarding and best practices
-- /documentation/get-started - install and first render
-- /documentation/templating/index - template rendering and interpolation rules
-- /documentation/state/index - state and effect behavior
-- /documentation/utilities/index - helper reference
-- /documentation/capabilities/web-component - custom element API, lifecycles, events, slots, refs, and form controls
-- /documentation/capabilities/router - navigation, route matching, and page data
+- /documentation/guide - project guide, best practices, API patterns, and agent-friendly rules
+- /documentation/get-started - first install and render flow
+- /documentation/installation - CDN, npm, yarn, and TypeScript installation details
+- /documentation/templating/ - `html` templates, rendering, replacement, and interpolation basics
+- /documentation/state/ - reactive state getter/setter behavior
+- /documentation/state/effect - effects, subscriptions, cleanup, and async effect patterns
+- /documentation/utilities/ - helper overview and routing into utility pages
+- /documentation/capabilities/web-component - custom element API, props, state, styles, events, slots, refs, and lifecycles
+- /documentation/capabilities/router - page links, routes, route query matching, page data, and lazy pages
 
-Use these pages before scanning the rest of the site.
+## Complete documentation map
+
+- / - landing page, product positioning, examples, installation shortcuts
+- /documentation - what Markup is, motivation, AI entry point, and philosophy
+- /documentation/get-started - starter HTML page and first counter render
+- /documentation/installation - CDN and package manager installation
+- /documentation/ai - concise instructions for AI agents using Markup
+- /documentation/guide - comprehensive guide and best practices
+- /documentation/capabilities/ - overview of application patterns possible with Markup
+- /documentation/capabilities/function-component - function components as reusable template factories
+- /documentation/capabilities/web-component - WebComponent companion package usage
+- /documentation/capabilities/form-controls - form-associated custom elements with WebComponent
+- /documentation/capabilities/router - Router companion package usage
+- /documentation/capabilities/state-store - standalone stores built from `state`
+- /documentation/capabilities/server-side-rendering - server-rendering templates in JavaScript environments
+- /documentation/templating/ - creating, rendering, replacing, and nesting templates
+- /documentation/templating/lifecycles - `onMount`, `onUpdate`, and related template lifecycle hooks
+- /documentation/templating/values - rendering strings, functions, arrays, nodes, templates, and state values
+- /documentation/templating/html-attributes - attributes, boolean attributes, dynamic attributes, and event attributes
+- /documentation/templating/ref - DOM references with the `ref` attribute
+- /documentation/templating/events - inline event handlers and listener options
+- /documentation/state/ - `state(initial)` getter/setter/unsubscribe behavior
+- /documentation/state/effect - tracking dependencies and reacting to state changes
+- /documentation/utilities/ - utility helper overview
+- /documentation/utilities/element - programmatic element creation helper
+- /documentation/utilities/suspense - async rendering with loading and error templates
+- /documentation/utilities/when - conditional rendering helper
+- /documentation/utilities/repeat - keyed and cached repeated rendering
+- /documentation/utilities/is-&-isnot - truthy/falsy conditional helpers
+- /documentation/utilities/visible - viewport-triggered lazy rendering
+- /documentation/utilities/and-or-&-oneof - composed boolean helpers
+- /documentation/utilities/pick - reactive deep property selection
+
+Prefer the canonical HTML pages for details. Use `/llms-full.txt` for a generated, page-by-page text summary.

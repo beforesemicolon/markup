@@ -2,7 +2,7 @@
 name: Intro to States
 order: 7
 title: State - Markup by Before Semicolon
-description: How to handle state in Markup by Before Semicolon
+description: Learn Markup state getter, setter, and unsubscribe behavior for reactive rendering, direct reads, functional updates, subscriptions, and template updates.
 layout: document
 ---
 

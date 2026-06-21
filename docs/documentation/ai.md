@@ -2,7 +2,7 @@
 name: AI Guide
 order: 4
 title: AI Guide - Markup by Before Semicolon
-description: AI-first overview of Markup, Web Component, and Router usage.
+description: AI-first guide to Markup APIs, package boundaries, rendering rules, state patterns, WebComponent usage, Router usage, and common implementation mistakes.
 layout: document
 ---
 

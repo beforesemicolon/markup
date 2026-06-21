@@ -2,7 +2,7 @@
 name: State Store
 order: 5.5
 title: State Store - Markup by Before Semicolon
-description: How to use state to create a state store
+description: Build shared state stores with Markup state, derived getters, update functions, effects, and repeat rendering patterns for application state management.
 layout: document
 ---
 

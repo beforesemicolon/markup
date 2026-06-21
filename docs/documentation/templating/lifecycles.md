@@ -2,7 +2,7 @@
 name: Lifecycles
 order: 6.1
 title: Template Lifecycles - Markup by Before Semicolon
-description: How to react to template lifecycles in Markup by Before Semicolon
+description: Use Markup template lifecycle hooks such as onMount and onUpdate to run setup, cleanup, and side effects when templates render or change.
 layout: document
 ---
 

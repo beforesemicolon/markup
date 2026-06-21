@@ -1,8 +1,8 @@
 ---
 name: Form Control
 order: 5.3
-title: Form Control - Markup by Before Semicolon
-description: Form Control with Markup Web Component
+title: Form Controls with Markup WebComponent - Custom Elements
+description: Create form-associated custom elements with Markup WebComponent, ElementInternals, validation, form callbacks, change events, and native form behavior.
 layout: document
 ---
 

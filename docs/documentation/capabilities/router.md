@@ -2,7 +2,7 @@
 name: Router
 order: 5.4
 title: Router - Markup by Before Semicolon
-description: Web Component based Router with Markup by Before Semicolon
+description: Use the Markup Router package for declarative page links, page routes, route parameters, query matching, page data, lazy routes, and web component routing.
 layout: document
 ---
 

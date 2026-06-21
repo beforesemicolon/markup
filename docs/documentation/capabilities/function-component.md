@@ -1,8 +1,8 @@
 ---
 name: Function Component
 order: 5.1
-title: Function Component - Markup by Before Semicolon
-description: How to create Component using Functions
+title: Function Components with Markup - JavaScript Template Factories
+description: Learn how to build reusable Markup components as plain JavaScript functions that return HTML templates with props, state, lifecycle hooks, and events.
 layout: document
 ---
 

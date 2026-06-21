@@ -5,8 +5,7 @@ export default () => `
     document.querySelectorAll('.code-copy-btn').forEach((copyBtn) => {
         let timer
         if (copyBtn) {
-            // the code is inside the "pre" tag right before the button
-            const code = copyBtn.previousElementSibling.textContent
+            const code = copyBtn.closest('.code-snippet')?.querySelector('.content')?.textContent ?? ''
 
             // no code, no copy button
             if (code.trim().length) {

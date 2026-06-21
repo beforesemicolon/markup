@@ -2,7 +2,7 @@
 name: Visible
 order: 8.5
 title: Visible Utility - Markup by Before Semicolon
-description: How to lazy render content based on visibility in Markup by Before Semicolon
+description: Use the Markup visible utility to defer rendering until content enters the viewport with IntersectionObserver-powered lazy UI.
 layout: document
 ---
 

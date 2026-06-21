@@ -2,7 +2,7 @@
 name: Is & IsNot
 order: 8.5
 title: Is & IsNot Utility - Markup by Before Semicolon
-description: How to quickly check state truthy or falsy with Markup by Before Semicolon
+description: Use the Markup is and isNot helpers to render content from truthy or falsy state values with concise reactive conditional logic.
 layout: document
 ---
 

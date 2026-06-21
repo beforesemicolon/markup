@@ -2,7 +2,7 @@
 name: Attributes
 order: 6.3
 title: HTML Attributes - Markup by Before Semicolon
-description: How to work with HTML attributes in Markup by Before Semicolon
+description: Work with Markup template attributes, boolean attributes, dynamic values, object attributes, refs, classes, and native inline event attributes.
 layout: document
 ---
 

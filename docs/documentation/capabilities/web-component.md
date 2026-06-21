@@ -2,7 +2,7 @@
 name: Web Component
 order: 5.2
 title: Web Component - Markup by Before Semicolon
-description: Enhance Web Component APIs with Markup by Before Semicolon
+description: Build native custom elements with the Markup WebComponent package, including props, state, scoped styles, slots, refs, events, and lifecycle methods.
 layout: document
 ---
 

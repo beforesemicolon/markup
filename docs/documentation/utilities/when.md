@@ -2,7 +2,7 @@
 name: When
 order: 8.3
 title: When Utility - Markup by Before Semicolon
-description: How to conditionally render content in Markup by Before Semicolon
+description: Use the Markup when helper for conditional rendering with state getters, fallback templates, lazy branches, and reactive UI decisions.
 layout: document
 ---
 

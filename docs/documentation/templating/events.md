@@ -2,7 +2,7 @@
 name: Events
 order: 6.5
 title: HTML Events - Markup by Before Semicolon
-description: how to handle HTML events in Markup by Before Semicolon
+description: Attach native event handlers in Markup templates with inline on* attributes, pass listener options, use AbortController, and handle DOM events safely.
 layout: document
 ---
 

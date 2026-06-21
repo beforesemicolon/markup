@@ -26,6 +26,7 @@ const navCategoryToHTML = (docs, currentPath) =>
 
 export default (props) => {
     const docs = props.siteMap.get('documentation')
+    const isDocsIndex = props.path === '/documentation/index.html'
     const docsMenu = `<ul>${navCategoryToHTML(docs, props.path)}</ul>`
     const pages = [...docs.values()].flatMap((page) =>
         page instanceof Map ? [...page.values()] : [page]
@@ -45,7 +46,7 @@ export default (props) => {
 <html lang="en">
     <head>
         ${meta(props)}
-        <link rel="stylesheet" href="/stylesheets/documentation.css">
+        <link rel="stylesheet" href="/stylesheets/documentation.css?v=20260621exact">
     </head>
     <body>
         ${header(props)}
@@ -54,7 +55,7 @@ export default (props) => {
             <a href="#docs-nav" aria-label="toggle mobile menu open"></a>
         </div>
         
-        <main id="documentation" class="wrapper">
+        <main id="documentation" class="wrapper${isDocsIndex ? ' docs-index' : ''}">
             <nav id="docs-nav">
                 ${docsMenu}
                 <a href="${props.path}" class="close-mobile-menu" aria-label="toggle mobile menu close"></a>

@@ -1,8 +1,8 @@
 ---
 name: Intro to Utilities
 order: 8
-title: Utility - Markup by Before Semicolon
-description: How Markup by Before Semicolon allows you to easily create DOM elements
+title: Markup Utilities - Conditional, Async, Repeated, and Lazy Rendering
+description: Overview of Markup helper utilities for conditional rendering, repeated rendering, async suspense, visibility-based lazy rendering, DOM elements, and state selection.
 layout: document
 ---
 

@@ -2,7 +2,7 @@
 name: Effect
 order: 7.1
 title: State Effect - Markup by Before Semicolon
-description: How to react to state in Markup by Before Semicolon
+description: Use Markup effect to track state dependencies, react to multiple state changes, clean up subscriptions, debounce async work, and control nested effects.
 layout: document
 ---
 

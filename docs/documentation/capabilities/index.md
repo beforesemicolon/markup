@@ -2,7 +2,7 @@
 name: What's possible?
 order: 6
 title: Capabilities - Markup by Before Semicolon
-description: How to use Markup to create web patterns
+description: Explore what you can build with Markup, including function components, Web Components, form controls, routing, state stores, and server-rendered templates.
 layout: document
 ---
 

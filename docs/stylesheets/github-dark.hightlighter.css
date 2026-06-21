@@ -2,14 +2,14 @@
     display: block;
     overflow-x: auto;
     padding: 0.5em;
-
-    color: #c9d1d9;
-    background: #0d1117;
+    color: var(--foreground);
+    background: var(--code-bg);
 }
 
 .hljs-comment,
 .hljs-punctuation {
-    color: #8b949e;
+    color: var(--muted-foreground);
+    font-style: italic;
 }
 
 .hljs-attr,
@@ -18,29 +18,29 @@
 .hljs-selector-attr,
 .hljs-selector-class,
 .hljs-selector-id {
-    color: #79c0ff;
+    color: oklch(0.82 0.14 90); /* Yellow syntax-attr */
 }
 
 .hljs-variable,
 .hljs-literal,
 .hljs-number,
 .hljs-doctag {
-    color: #ffa657;
+    color: var(--primary); /* Orange */
 }
 
 .hljs-params {
-    color: #c9d1d9;
+    color: var(--foreground);
 }
 
 .hljs-function {
-    color: #d2a8ff;
+    color: var(--accent); /* Cyan */
 }
 
 .hljs-class,
 .hljs-tag,
 .hljs-title,
 .hljs-built_in {
-    color: #7ee787;
+    color: var(--accent); /* Cyan */
 }
 
 .hljs-keyword,
@@ -49,28 +49,28 @@
 .hljs-meta-keyword,
 .hljs-template-tag,
 .hljs-template-variable {
-    color: #ff7b72;
+    color: var(--primary); /* Orange keyword */
 }
 
 .hljs-string,
 .hljs-undefined {
-    color: #a5d6ff;
+    color: oklch(0.78 0.15 145); /* Green syntax-string */
 }
 
 .hljs-regexp {
-    color: #a5d6ff;
+    color: oklch(0.78 0.15 145);
 }
 
 .hljs-symbol {
-    color: #79c0ff;
+    color: var(--accent);
 }
 
 .hljs-bullet {
-    color: #ffa657;
+    color: var(--primary);
 }
 
 .hljs-section {
-    color: #79c0ff;
+    color: var(--accent);
     font-weight: bold;
 }
 
@@ -78,30 +78,30 @@
 .hljs-name,
 .hljs-selector-tag,
 .hljs-selector-pseudo {
-    color: #7ee787;
+    color: var(--accent);
 }
 
 .hljs-emphasis {
-    color: #ffa657;
+    color: var(--primary);
     font-style: italic;
 }
 
 .hljs-strong {
-    color: #ffa657;
+    color: var(--primary);
     font-weight: bold;
 }
 
 .hljs-deletion {
-    color: #ffa198;
-    background-color: #490202;
+    color: oklch(0.62 0.22 25);
+    background-color: oklch(0.62 0.22 25 / 0.15);
 }
 
 .hljs-addition {
-    color: #7ee787;
-    background-color: #04260f;
+    color: oklch(0.78 0.15 145);
+    background-color: oklch(0.78 0.15 145 / 0.15);
 }
 
 .hljs-link {
-    color: #a5d6ff;
+    color: oklch(0.78 0.15 145);
     font-style: underline;
 }

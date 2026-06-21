@@ -2,7 +2,7 @@
 name: Installation
 order: 3
 title: Installation - Markup by Before Semicolon
-description: Install Markup by Before Semicolon
+description: Install Markup from a CDN or package manager, pin versions, import the JavaScript APIs, and use the TypeScript definitions included with the package.
 layout: document
 ---
 

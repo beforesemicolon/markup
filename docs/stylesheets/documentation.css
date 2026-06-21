@@ -1,84 +1,89 @@
-@import 'common.css';
+@import 'common.css?v=20260621exact';
 
 body {
-    background: #000306;
+    background-color: var(--background);
 }
 
 #documentation {
     display: flex;
-    max-height: 100vh;
-    overflow: auto;
-    scroll-behavior: smooth;
-    scroll-padding-top: 6rem;
+    max-height: calc(100vh - 4rem);
+    overflow: hidden;
+    position: relative;
 }
 
 @media screen and (max-width: 860px) {
     #documentation {
         max-height: none;
         flex-direction: column;
+        overflow: visible;
     }
 }
 
 /* #mobile-menu-toggle */
-
 #mobile-menu-toggle {
-    height: 40px;
-    background: #111;
-    padding: 10px 0 0 20px;
+    height: 48px;
+    background: oklch(0.22 0.018 250 / 0.8);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 14px 20px;
     position: sticky;
-    top: 60px;
+    top: 4rem;
     left: 0;
-    z-index: 9999;
+    z-index: 40;
     display: none;
+    border-bottom: 1px solid var(--border);
 }
 
 #mobile-menu-toggle a {
     display: inline-block;
-    width: 25px;
-    height: 12px;
+    width: 20px;
+    height: 14px;
     background: linear-gradient(
         0deg,
-        rgba(255, 255, 255, 1) 0%,
-        rgba(255, 255, 255, 1) 20%,
-        rgba(255, 255, 255, 0) 20%,
-        rgba(255, 255, 255, 0) 80%,
-        rgba(255, 255, 255, 1) 80%
+        var(--foreground) 0%,
+        var(--foreground) 15%,
+        transparent 15%,
+        transparent 42.5%,
+        var(--foreground) 42.5%,
+        var(--foreground) 57.5%,
+        transparent 57.5%,
+        transparent 85%,
+        var(--foreground) 85%
     );
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
     cursor: pointer;
     border: none;
-    border-radius: 0;
 }
 
 @media screen and (max-width: 1400px) {
     #mobile-menu-toggle {
-        display: inline-block;
+        display: block;
     }
 }
 
 /* nav ------------ */
-
 #documentation nav {
-    width: 225px;
+    width: 260px;
+    min-width: 260px;
+    border-right: 1px solid var(--border);
+    background: oklch(0.18 0.015 250 / 0.3);
+    overflow-y: auto;
+    height: calc(100vh - 4rem);
     position: sticky;
     top: 0;
-    left: 0;
-    min-height: 100%;
-    border-right: 0.001rem solid coral;
-    padding-bottom: 20px;
 }
 
 #documentation nav ul {
-    height: 100%;
-    overflow: auto;
-    padding: 50px 0 30px 0;
-    position: relative;
+    padding: 40px 24px;
 }
 
 #documentation nav a {
     text-decoration: none;
+    color: var(--muted-foreground);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: block;
+    width: 100%;
 }
 
 #documentation nav .close-mobile-menu {
@@ -90,306 +95,669 @@ body {
         display: none;
         position: fixed;
         left: 0;
-        top: 63px;
-        z-index: 10;
-        height: 100vh;
+        top: calc(4.5rem + 48px);
+        z-index: 45;
+        height: calc(100vh - 4.5rem - 48px);
         width: 100vw;
+        background: oklch(0.18 0.015 250 / 0.6);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-right: none;
     }
 
     #documentation nav ul {
-        background: #050c13;
-        width: 70vw;
-        max-width: 250px;
-        border-right: 0.001rem solid coral;
-        flex: 1;
+        background: var(--background);
+        width: 75vw;
+        max-width: 300px;
+        height: 100%;
+        border-right: 1px solid var(--border);
+        box-shadow: 20px 0 40px oklch(0 0 0 / 0.3);
         padding-bottom: 80px;
+        overflow-y: auto;
     }
 
     #documentation nav:target {
         display: flex;
-        z-index: 99999;
     }
 
     #documentation nav .close-mobile-menu {
         flex: 1;
-        background: rgba(5, 12, 19, 0.8);
         display: block;
+        height: 100%;
+        cursor: pointer;
     }
 }
 
 #documentation nav li {
-    padding: 6px 10px;
+    padding: 6px 12px;
     text-transform: capitalize;
-    letter-spacing: 0.05rem;
+    letter-spacing: 0.02rem;
     position: relative;
-    font-size: 0.9rem;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
 }
 
-#documentation nav li.active a,
+#documentation nav li:hover {
+    background: oklch(1 1 1 / 0.03);
+}
+
 #documentation nav li:hover a {
-    color: coral;
+    color: var(--foreground);
+}
+
+#documentation nav li.active {
+    background: oklch(0.74 0.18 45 / 0.08);
+}
+
+#documentation nav li.active a {
+    color: var(--primary);
+    font-weight: 600;
 }
 
 #documentation nav li.active::after {
     content: '';
     display: inline-block;
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
-    background: coral;
+    background: var(--primary);
     position: absolute;
-    right: 10px;
+    right: 16px;
     top: 50%;
-    transform: translate(0, -50%);
+    transform: translateY(-50%);
+    box-shadow: 0 0 8px var(--primary);
 }
 
 #documentation nav ol {
-    margin: 30px 0;
-    padding: 0 0 0 10px;
+    margin: 24px 0 16px 0;
+    padding: 0;
     list-style: none;
 }
 
 #documentation nav ol > span {
-    text-transform: capitalize;
-    font-size: 1rem;
-    margin-bottom: 10px;
-    display: inline-block;
+    text-transform: uppercase;
+    font-size: 0.75rem;
     font-weight: 700;
-    opacity: 0.6;
+    color: var(--muted-foreground);
+    letter-spacing: 0.08rem;
+    padding-left: 12px;
+    margin-bottom: 8px;
+    display: inline-block;
+    opacity: 0.5;
+}
+
+#documentation nav ol li {
+    padding-left: 20px;
 }
 
 /* article ------------ */
-
 #documentation article {
     flex: 1;
-    max-width: 1025px;
-    padding: 50px 30px;
-    color: #ddd;
-    line-height: 170%;
+    padding: 40px 48px 80px;
+    overflow-y: auto;
+    height: calc(100vh - 4rem);
+    scrollbar-width: thin;
 }
 
 @media screen and (max-width: 860px) {
     #documentation article {
-        padding: 10px 0;
+        padding: 24px 20px;
+        height: auto;
+        overflow: visible;
     }
 }
 
-#documentation article::after {
-    content: '';
-    display: block;
-    height: 50px;
-}
-
 #documentation article h2 {
-    font-size: 3rem;
-    margin-bottom: 30px;
+    font-size: 2.75rem;
+    font-weight: 850;
+    letter-spacing: -0.03rem;
+    margin-bottom: 24px;
+    line-height: 1.15;
 }
 
 #documentation article h3 {
-    font-weight: 500;
-    font-size: 1.8rem;
-    margin: 50px 0 15px;
+    font-weight: 700;
+    font-size: 1.75rem;
+    margin: 48px 0 16px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+    letter-spacing: -0.01rem;
 }
 
 #documentation article h4 {
-    font-weight: 300;
-    font-size: 1.6rem;
-    margin: 60px 0 15px;
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin: 32px 0 12px;
 }
 
 #documentation article p {
-    margin: 20px 0 10px;
+    margin: 16px 0;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: oklch(0.8 0.01 250);
 }
 
 #documentation article p a {
-    color: #0074d9;
-    border-bottom: 1px solid #013c6f;
+    color: var(--primary);
     font-weight: 500;
+    border-bottom: 1px dashed oklch(0.74 0.18 45 / 0.4);
+    transition: all 0.2s ease;
 }
 
 #documentation article p a:hover {
-    color: #078cff;
+    color: var(--primary-glow);
+    border-bottom-style: solid;
+    border-bottom-color: var(--primary-glow);
 }
 
 #documentation article .heading {
-    scroll-margin: 60px;
-}
-
-#documentation article .heading a {
-    text-decoration: none;
-    color: #ccc;
-    border: none;
-    position: relative;
-}
-
-#documentation article .heading a::before {
-    content: '#';
-    color: #777;
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translate(calc(-100% - 5px), -50%);
-    font-size: 80%;
-    display: none;
-}
-
-#documentation article .heading a:hover::before {
-    display: inline-block;
+    scroll-margin-top: 6rem;
 }
 
 #documentation article ul,
 #documentation article ol {
-    margin: 20px 0;
-    list-style: circle;
-    padding-left: 15px;
+    margin: 16px 0;
+    padding-left: 24px;
 }
 
-#documentation article ul li,
-#documentation article ol li {
-    margin: 15px 0;
+#documentation article ul {
+    list-style-type: disc;
 }
 
 #documentation article ol {
-    list-style: decimal;
+    list-style-type: decimal;
+}
+
+#documentation article li {
+    margin: 8px 0;
+    font-size: 0.95rem;
+    color: oklch(0.8 0.01 250);
 }
 
 #documentation article code:not(.hljs) {
-    background: #161a1c;
-    color: #d2ecff;
+    background: oklch(1 1 1 / 0.06);
+    color: var(--primary);
     display: inline-block;
-    padding: 3px 8px;
-    border-radius: 2px;
-    line-height: 130%;
-    font-size: 0.9rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    border: 1px solid var(--border);
 }
 
 #documentation article div.warning,
 #documentation article div.info {
-    background: #f7e199;
-    color: #222;
-    padding: 20px;
-    border-radius: 2px;
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin: 24px 0;
+    border-left: 4px solid;
+    font-size: 0.95rem;
+    line-height: 1.6;
 }
 
-#documentation article div.warning code,
-#documentation article div.info code {
-    background: #f5df90;
+#documentation article div.warning {
+    background: oklch(0.78 0.14 90 / 0.1);
+    border-color: oklch(0.78 0.14 90 / 0.6);
+    color: oklch(0.85 0.1 90);
+}
+
+#documentation article div.warning code {
+    background: oklch(0.78 0.14 90 / 0.15) !important;
+    color: oklch(0.85 0.1 90) !important;
+    border-color: oklch(0.78 0.14 90 / 0.2) !important;
 }
 
 #documentation article div.info {
-    background: #99d0f7;
+    background: oklch(0.7 0.16 200 / 0.1);
+    border-color: oklch(0.7 0.16 200 / 0.6);
+    color: oklch(0.85 0.12 200);
 }
 
 #documentation article div.info code {
-    background: #8cc9f4;
+    background: oklch(0.7 0.16 200 / 0.15) !important;
+    color: oklch(0.85 0.12 200) !important;
+    border-color: oklch(0.7 0.16 200 / 0.2) !important;
 }
 
 #documentation article details summary {
-    font-family: 'Exo 2.0', sans-serif;
-    font-weight: 500;
-    font-size: 1.8rem;
-    margin: 30px 0 15px;
+    font-family: var(--font-title);
+    font-weight: 600;
+    font-size: 1.5rem;
+    margin: 24px 0 12px;
     cursor: pointer;
+    color: var(--foreground);
 }
 
 #documentation article dl dt {
-    font-size: 1.2rem;
-    font-family: 'Exo 2.0', sans-serif;
-    margin-bottom: 10px;
-    font-weight: 500;
+    font-size: 1.1rem;
+    font-family: var(--font-title);
+    margin-top: 24px;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: var(--foreground);
 }
 
 #documentation article dl dd {
-    margin: 0 0 25px 10px;
-    line-height: 150%;
-}
-
-#documentation article .doc-prev-next-nav {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px 0;
-    margin-top: 50px;
-    border-radius: 2px;
-    border-top: 1px solid #333;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-#documentation article .doc-prev-next-nav a {
-    color: #aaa;
-    font-size: 0.9rem;
+    margin: 0 0 16px 12px;
+    line-height: 1.6;
+    color: oklch(0.8 0.01 250);
 }
 
 /* #edit-doc */
-
 #edit-doc {
-    margin-top: 50px;
+    margin-top: 40px;
     display: inline-block;
-    color: coral;
+    color: var(--primary);
     font-size: 0.8rem;
     float: right;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+#edit-doc:hover {
+    color: var(--primary-glow);
 }
 
 /* #page-navigation */
-
 #page-navigation {
-    border-top: 1px solid #222;
-    padding: 20px 0;
-    margin-top: 30px;
-}
-
-#page-navigation::after {
-    clear: both;
-    display: table;
-    content: '';
+    border-top: 1px solid var(--border);
+    padding: 32px 0 0;
+    margin-top: 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
 }
 
 #prev-doc,
 #next-doc {
-    text-decoration: none;
-    color: #92c5ee;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: oklch(1 1 1 / 0.02);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--muted-foreground);
+    transition: all 0.2s ease;
 }
 
-#prev-doc {
-    float: left;
-}
-
-#next-doc {
-    float: right;
+#prev-doc:hover,
+#next-doc:hover {
+    border-color: var(--primary);
+    background: oklch(0.74 0.18 45 / 0.05);
+    color: var(--foreground);
 }
 
 /* #table-of-content ------------ */
-
 #documentation #table-of-content {
-    width: 150px;
+    width: 220px;
+    min-width: 220px;
+    border-left: 1px solid var(--border);
+    background: oklch(0.18 0.015 250 / 0.1);
+    overflow-y: auto;
+    height: calc(100vh - 4rem);
     position: sticky;
     top: 0;
-    left: 0;
-    overflow: auto;
-    height: 100%;
-    border-left: 1px solid #222;
-    padding: 50px 0 30px 20px;
+    padding: 40px 24px;
+}
+
+#documentation.docs-index {
+    max-width: 1240px;
+    gap: 40px;
+}
+
+#documentation.docs-index nav {
+    border-right: 0;
+    background: transparent;
+    width: 220px;
+    min-width: 220px;
+}
+
+#documentation.docs-index nav li {
+    background: transparent;
+    padding-left: 0;
+}
+
+#documentation.docs-index nav li.active::after {
+    display: none;
+}
+
+#documentation.docs-index nav li.active a {
+    color: var(--foreground);
+}
+
+#documentation.docs-index article {
+    max-width: 940px;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+#documentation.docs-index #table-of-content {
+    display: none;
+}
+
+#documentation.docs-index article h2:first-child::before {
+    content: '// documentation';
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.15rem;
+    margin-bottom: 18px;
+}
+
+#documentation.docs-index article h2:first-child {
+    font-size: clamp(3.2rem, 5vw, 4.2rem);
+    margin-bottom: 22px;
+}
+
+#documentation.docs-index article h2:first-child + p {
+    font-size: 1.15rem;
+    max-width: 900px;
+    color: oklch(0.76 0.012 250);
+}
+
+#documentation.docs-index article h2:first-child + p + p {
+    display: none;
+}
+
+#documentation.docs-index article h2:first-child + p + p + ul {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    padding: 0;
+    margin: 34px 0 64px;
+    list-style: none;
+}
+
+#documentation.docs-index article h2:first-child + p + p + ul li {
+    margin: 0;
+    padding: 24px;
+    min-height: 140px;
+    border: 1px solid oklch(0.3 0.02 250 / 0.7);
+    border-radius: 12px;
+    background: oklch(0.22 0.018 250 / 0.36);
+    color: var(--muted-foreground);
+    line-height: 1.6;
+}
+
+#documentation.docs-index article h2:first-child + p + p + ul code {
+    display: block;
+    width: fit-content;
+    margin-bottom: 14px;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: var(--primary);
+    font-size: 1.05rem;
+}
+
+#documentation.docs-index article h3 {
+    border-bottom: 0;
+    padding-bottom: 0;
+    font-size: 1.85rem;
+}
+
+#documentation.docs-index article h3:nth-of-type(1)::before,
+#documentation.docs-index article h3:nth-of-type(2)::before {
+    display: inline-grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    margin-right: 12px;
+    border-radius: 6px;
+    border: 1px solid oklch(0.74 0.18 45 / 0.25);
+    color: var(--primary);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+}
+
+#documentation.docs-index article h3:nth-of-type(1)::before {
+    content: 'AI';
+    color: var(--accent);
+}
+
+#documentation.docs-index article h3:nth-of-type(2)::before {
+    content: 'O';
+}
+
+@media screen and (min-width: 1201px) {
+    #documentation.docs-index
+        article
+        h3:nth-of-type(2)
+        + p
+        + p
+        + p
+        + .code-snippet,
+    #documentation.docs-index
+        article
+        h3:nth-of-type(2)
+        + p
+        + p
+        + p
+        + .code-snippet
+        + p
+        + .code-snippet {
+        width: calc(50% - 12px);
+        display: inline-flex;
+        vertical-align: top;
+    }
+
+    #documentation.docs-index
+        article
+        h3:nth-of-type(2)
+        + p
+        + p
+        + p
+        + .code-snippet {
+        margin-right: 20px;
+    }
+}
+
+@media screen and (max-width: 860px) {
+    #documentation.docs-index article h2:first-child + p + p + ul {
+        grid-template-columns: 1fr;
+    }
+}
+
+#documentation #table-of-content h4 {
+    font-size: 0.75rem;
+    color: var(--foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.08rem;
+    margin-bottom: 16px;
 }
 
 #documentation #table-of-content li {
     font-size: 0.8rem;
-    padding: 6px 2px;
+    margin-bottom: 8px;
+    line-height: 1.4;
 }
 
 #documentation #table-of-content li a {
+    color: var(--muted-foreground);
     text-decoration: none;
-    text-underline-offset: 3px;
-    line-height: 130%;
+    transition: color 0.2s ease;
+    display: block;
 }
 
-#documentation #table-of-content li a:active,
-#documentation #table-of-content li a:target,
-#documentation #table-of-content li:hover a {
-    text-decoration: underline;
+#documentation #table-of-content li a:hover {
+    color: var(--primary);
 }
 
-@media screen and (max-width: 860px) {
+@media screen and (max-width: 1200px) {
     #documentation #table-of-content {
         display: none;
+    }
+}
+
+/* React documentation shell parity */
+#documentation {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr) 220px;
+    gap: 48px;
+    max-height: none;
+    overflow: visible;
+    padding-top: 96px;
+    padding-bottom: 80px;
+}
+
+#documentation nav {
+    grid-column: 1;
+    width: auto;
+    min-width: 0;
+    height: auto;
+    max-height: calc(100vh - 120px);
+    top: 96px;
+    border-right: 0;
+    background: transparent;
+}
+
+#documentation nav ul {
+    padding: 0;
+}
+
+#documentation article {
+    grid-column: 2;
+    min-width: 0;
+    height: auto;
+    overflow: visible;
+    padding: 0;
+}
+
+#documentation #table-of-content {
+    grid-column: 3;
+    width: auto;
+    min-width: 0;
+    height: auto;
+    max-height: calc(100vh - 120px);
+    top: 96px;
+    padding: 0 0 0 24px;
+    background: transparent;
+}
+
+#documentation .code-snippet,
+#documentation.docs-index article h3:nth-of-type(2) + p + p + p + .code-snippet,
+#documentation.docs-index
+    article
+    h3:nth-of-type(2)
+    + p
+    + p
+    + p
+    + .code-snippet
+    + p
+    + .code-snippet {
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+}
+
+#documentation .code-snippet .content {
+    padding: 12px 16px;
+}
+
+#documentation .code-snippet pre {
+    display: block;
+    margin: 0;
+    height: auto;
+    min-height: 0;
+}
+
+#documentation .code-snippet pre code {
+    display: inline;
+    padding: 0;
+    line-height: 1.5rem;
+}
+
+#documentation.docs-index {
+    max-width: 1280px;
+    padding-top: 96px;
+    padding-bottom: 80px;
+}
+
+#documentation.docs-index article {
+    max-width: none;
+}
+
+@media screen and (min-width: 1025px) {
+    #mobile-menu-toggle {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    #mobile-menu-toggle {
+        display: block;
+        position: sticky;
+        top: 64px;
+        z-index: 45;
+    }
+
+    #documentation {
+        display: block;
+        padding-top: 96px;
+    }
+
+    #documentation nav {
+        display: none;
+        position: fixed;
+        inset: 112px auto 0 0;
+        z-index: 60;
+        width: 100vw;
+        max-height: none;
+        height: calc(100vh - 112px);
+        background: oklch(0.18 0.015 250 / 0.72);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+
+    #documentation nav:target {
+        display: flex;
+    }
+
+    #documentation nav ul {
+        width: min(82vw, 320px);
+        max-width: none;
+        height: 100%;
+        overflow-y: auto;
+        padding: 24px;
+        background: var(--background);
+        border-right: 1px solid var(--border);
+    }
+
+    #documentation.docs-index nav,
+    #documentation.docs-index nav ul {
+        width: min(82vw, 320px);
+        min-width: 0;
+        max-width: none;
+    }
+
+    #documentation nav .close-mobile-menu {
+        display: block;
+        flex: 1;
+        height: 100%;
+    }
+
+    #documentation article {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 640px) {
+    #documentation {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    #documentation article h2,
+    #documentation.docs-index article h2:first-child {
+        font-size: 2.25rem;
+        line-height: 2.5rem;
     }
 }

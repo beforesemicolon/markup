@@ -1,8 +1,8 @@
 ---
 name: Guide & Best Practices
 order: 5
-title: Guidelines & Best Practices - Markup by Before Semicolon
-description: Guidelines & Best Practices Markup by Before Semicolon
+title: Markup Guide and Best Practices - JavaScript Reactive UI
+description: Comprehensive Markup guide covering installation, html templates, state, effects, utilities, WebComponent integration, Router patterns, and best practices.
 layout: document
 ---
 

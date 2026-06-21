@@ -2,7 +2,7 @@
 name: Pick
 order: 8.7
 title: Pick Utility - Markup by Before Semicolon
-description: How to render deep state values in Markup by Before Semicolon
+description: Use the Markup pick utility to select deep object state paths while preserving reactivity for nested properties and derived template values.
 layout: document
 ---
 

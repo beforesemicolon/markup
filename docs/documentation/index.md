@@ -2,8 +2,8 @@
 name: What is Markup?
 order: 1
 path: /documentation
-title: Documents - Markup by Before Semicolon
-description: What is Markup?
+title: Markup Documentation - Reactive HTML Templating for JavaScript
+description: Learn what Markup is, why it exists, and how it uses JavaScript template literals, functions, and web standards to build reactive user interfaces.
 layout: document
 ---
 
@@ -13,9 +13,9 @@ Markup is a JavaScript reactive templating system built to simplify how you buil
 
 It consists of 3 main APIs with additional utilities to simplify things even further:
 
--   `html`: A JavaScript tagged function that allows you to represent the DOM using template literal string;
--   `state`: A simple state tracking API that allows you to define reactive data as you wish;
--   `effect`: A straight forward way to define things that need to happen when certain states change;
+-   `html` A JavaScript tagged function that allows you to represent the DOM using template literal strings.
+-   `state` A simple state tracking API that lets you define reactive data however you want.
+-   `effect` A straightforward way to define things that need to happen when certain states change.
 
 ### AI-first entry
 
