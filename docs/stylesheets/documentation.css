@@ -54,12 +54,6 @@ body {
     border: none;
 }
 
-@media screen and (max-width: 1400px) {
-    #mobile-menu-toggle {
-        display: block;
-    }
-}
-
 /* nav ------------ */
 #documentation nav {
     width: 260px;
@@ -88,44 +82,6 @@ body {
 
 #documentation nav .close-mobile-menu {
     display: none;
-}
-
-@media screen and (max-width: 1400px) {
-    #documentation nav {
-        display: none;
-        position: fixed;
-        left: 0;
-        top: calc(4.5rem + 48px);
-        z-index: 45;
-        height: calc(100vh - 4.5rem - 48px);
-        width: 100vw;
-        background: oklch(0.18 0.015 250 / 0.6);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border-right: none;
-    }
-
-    #documentation nav ul {
-        background: var(--background);
-        width: 75vw;
-        max-width: 300px;
-        height: 100%;
-        border-right: 1px solid var(--border);
-        box-shadow: 20px 0 40px oklch(0 0 0 / 0.3);
-        padding-bottom: 80px;
-        overflow-y: auto;
-    }
-
-    #documentation nav:target {
-        display: flex;
-    }
-
-    #documentation nav .close-mobile-menu {
-        flex: 1;
-        display: block;
-        height: 100%;
-        cursor: pointer;
-    }
 }
 
 #documentation nav li {
@@ -523,10 +479,6 @@ body {
     color: var(--accent);
 }
 
-#documentation.docs-index article h3:nth-of-type(2)::before {
-    content: 'O';
-}
-
 @media screen and (min-width: 1201px) {
     #documentation.docs-index
         article
@@ -592,8 +544,8 @@ body {
 }
 
 @media screen and (max-width: 1200px) {
-    #documentation #table-of-content {
-        display: none;
+    #documentation {
+        gap: 24px;
     }
 }
 
@@ -746,6 +698,10 @@ body {
 
     #documentation article {
         width: 100%;
+    }
+
+    #documentation #table-of-content {
+        display: none;
     }
 }
 

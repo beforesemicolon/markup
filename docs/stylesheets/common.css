@@ -157,7 +157,6 @@ p {
 }
 
 a {
-    color: var(--foreground);
     text-decoration: none;
     transition: color 0.2s ease;
 }
@@ -285,7 +284,16 @@ header h1 a svg {
 header nav {
     display: flex;
     align-items: center;
-    gap: 32px;
+    gap: 48px;
+}
+
+header nav.nav-actions {
+    gap: 16px;
+}
+
+header nav.nav-actions .btn-primary {
+    height: 34px;
+    border-radius: 6px;
 }
 
 header nav a {

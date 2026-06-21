@@ -20,7 +20,7 @@ Use this page first if you are an AI agent scanning the docs.
 
 ## What each package owns
 
--   `@beforesemicolon/markup`: templates, `state`, `effect`, and helpers like `when`, `repeat`, `pick`, `is`, `and`, `or`, `oneOf`, `element`, and `suspense`
+-   `@beforesemicolon/markup`: templates, `state`, `effect`, and helpers like `when`, `repeat`, `pick`, `is`, `isNot`, `visible`, `and`, `or`, `oneOf`, `element`, and `suspense`
 -   `@beforesemicolon/web-component`: custom elements, props, state, lifecycles, events, slots, parts, refs, and form-associated controls
 -   `@beforesemicolon/router`: route matching, navigation, page data, redirects, query state, and route-aware rendering
 
@@ -32,6 +32,7 @@ Use this page first if you are an AI agent scanning the docs.
 -   Boolean logic: use `is`, `isNot`, `and`, `or`, `oneOf`
 -   Dynamic tags: use `element`
 -   Async states: use `suspense`
+-   Deferred/lazy rendering: use `visible`
 -   Custom element UI: use `WebComponent` plus `html`
 -   Component communication: use custom events, not callback props
 

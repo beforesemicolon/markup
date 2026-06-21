@@ -6,346 +6,253 @@ description: Comprehensive Markup guide covering installation, html templates, s
 layout: document
 ---
 
-# Markup Project Guide
+# Guide & Best Practices
 
-Comprehensive guide for `@beforesemicolon/markup`. Use this as a quick onboarding for humans and AI agents exploring the repo.
+This guide outlines core conventions, code design patterns, and common refactoring workflows for writing declarative, clean, and high-performance reactive applications with `@beforesemicolon/markup`.
 
-## Contents
+---
 
--   Overview
--   Quick Start (npm & CDN)
--   Core APIs: `html`, `state`, `effect`
--   Template Utilities (`when`, `repeat`, `is`, `oneOf`, `pick`, `element`, `suspense`, `val`)
--   Patterns & Gotchas
--   Real‑world Scenarios & Examples
--   Project Internals & Resources
+## Core Rules
 
-## Overview
+1.  **Prefer Declarative Helpers Over Branching**: Avoid writing inline JavaScript ternary operations or imperative functions inside template HTML strings. Always favor built-in Markup helpers (`when`, `repeat`, `pick`, `is`, etc.).
+2.  **Keep Side Effects Out of Render Functions**: Keep template rendering strictly side-effect-free. Side effects should live inside `effect()` blocks or Web Component lifecycle hooks (such as `onMount`).
+3.  **State Immutability**: Do not mutate objects used as canonical state directly. Track derived/pending changes separately and merge them only at render time.
+4.  **Preserve Source Collections**: Keep source arrays intact when deriving filtered or sorted views. Clearing a filter or search input should restore the full source list without requiring manual data resets.
+5.  **Reactive Value Binding**: Bind props and state directly (e.g. `disabled="${isDisabled}"` instead of `disabled="${isDisabled()}"`) to let Markup set up listeners surgically.
 
-Markup is a tiny reactive templating system that keeps you close to web standards. It relies on JavaScript functions and tagged template literals to describe the DOM declaratively, then reconciles changes efficiently without a virtual DOM.
+---
 
-## Quick Start
+## Refactor Workflows
 
-### Install
+Here is how you can migrate traditional imperative habits into clean, declarative Markup code.
 
-```bash
-npm install @beforesemicolon/markup
-```
+### 1. Conditional UI (if/else)
 
-### CDN (no build step)
+Avoid writing inline JavaScript conditions or logic gates inside templates.
 
-```html
-<script src="https://unpkg.com/@beforesemicolon/markup/dist/client.js"></script>
-<script>
-    const { html, state, effect } = BFS.MARKUP
-    html`<h1>Hello World</h1>`.render(document.body)
-</script>
-```
+**Imperative/Avoid:**
 
-### Minimal counter
-
-```ts
-import { html, state, effect } from '@beforesemicolon/markup'
-
-const [count, setCount] = state(0)
-const increment = () => setCount((prev) => prev + 1)
-
-effect(() => {
-    if (count() > 10) alert('Passed 10!')
-})
-
+```javascript
 html`
-    <p>Count: ${count}</p>
-    <button type="button" onclick="${increment}">Count up</button>
-`.render(document.getElementById('app'))
+    <div>
+        ${() => (isLoading() ? html`<p>Loading...</p>` : html`<p>Loaded!</p>`)}
+    </div>
+`
 ```
 
-## Core APIs
+**Declarative/Prefer:**
 
-### `html` – reactive templates
-
--   Tagged template literal returning an `HtmlTemplate`. Interpolations accept primitives, Nodes, or **functions** returning either.
--   Any function interpolated inside the template is re-run when reactive values it reads change.
--   Use functions for dynamic attributes/styles/text. Prefer `${valueGetter}` over `${valueGetter()}` inside templates so Markup can call the getter reactively.
-
-```ts
-const [first] = state('Ada')
-const [last] = state('Lovelace')
-
-const fullName = () => `${first()} ${last()}` // function as data
-html`<h1>Hello, ${fullName}</h1>` // do NOT call it here
-
-const styles = () => `color: ${first() === 'Ada' ? 'teal' : 'black'}`
-html`<p style="${styles}">${fullName}</p>` // template calls styles and fullName
+```javascript
+html`
+    <div>${when(isLoading, html`<p>Loading...</p>`, html`<p>Loaded!</p>`)}</div>
+`
 ```
 
--   Functions placed directly in templates are **first-class data**: the template calls them, subscribes to any state reads inside, and re-renders when those states change.
--   Helpers (`when`, `repeat`, `pick`, etc.) also accept functions and subscribe to the state reads inside them.
+### 2. Rendering Lists
 
-### `state` – reactive values
+Avoid using `.map()` inside templates to generate dynamic list nodes. Using `.map()` destroys and rebuilds nodes on every update, whereas `repeat()` uses surgical memoization under the hood.
 
-```ts
-const [value, setValue, unsubscribe] = state(initial, optionalSubscriber)
-setValue(next | (prev) => next)
-unsubscribe() // stop the optional subscriber
+**Imperative/Avoid:**
+
+```javascript
+html`
+    <ul>
+        ${() => items().map((item) => html`<li>${item.name}</li>`)}
+    </ul>
+`
 ```
 
--   Optional 2nd argument: `state(initial, subscriber)` registers an initial subscriber (useful for effects that should run on every change).
--   Getter form (`value`) is callable in JS (`value()`) and directly usable in templates (`${value}`) for reactivity.
--   Setters batch updates; subscribers run on the next tick.
--   Third tuple entry unsubscribes the initial subscriber when you no longer need it.
+**Declarative/Prefer:**
 
-Example (unsubscribe after one update):
-
-```ts
-const [value, setValue, stopLog] = state(0, () => {
-    console.log('value changed to', value())
-})
-
-setValue(1) // logs once
-stopLog() // detach the subscriber
-setValue(2) // no log
+```javascript
+html`
+    <ul>
+        ${repeat(items, (item) => html`<li>${item.name}</li>`)}
+    </ul>
+`
 ```
 
-### `effect` – side effects
+### 3. Nested Optional Reads
 
-```ts
-const removeEffect = effect(() => {
-    console.log('value is', value())
-    // return optional cleanup or derived value
-})
-// later: removeEffect()
+Avoid using nested optional chaining (`?.`) directly inside UI interpolations. This can lead to runtime errors if parts of the chain become undefined or unresolved.
+
+**Imperative/Avoid:**
+
+```javascript
+html`
+    <div>
+        <h2>${() => user()?.profile?.details?.name || 'Guest'}</h2>
+    </div>
+`
 ```
 
--   Runs immediately and whenever reactive reads inside change.
--   Use for side effects only; render UI via template functions instead.
+**Declarative/Prefer:**
 
-## Template Utilities (what/when/how)
-
-These helpers are primarily for **stateful** data. For static values, plain JS (ternaries, `map`, literals) is fine.
-
-### `when(condition, then, else?)`
-
--   Use when the condition depends on state so the template re-runs automatically.
--   For static booleans, a direct binding or ternary is fine.
-
-```ts
-// Reactive: reruns when stateful isLoading changes
-html`${when(isLoading, 'Loading…', 'Ready')}`
-
-// Static: simple ternary is clearer
-html`${isStatic ? 'Yes' : 'No'}`
-
-// Booleans: bind directly instead of wrapping in when
-html`<button disabled="${isSaving}">Save</button>`
+```javascript
+html`
+    <div>
+        <h2>
+            ${pick(user, 'profile.details.name', (name) => name || 'Guest')}
+        </h2>
+    </div>
+`
 ```
 
-Avoid: nesting complex logic inside `when`. Compute booleans first, e.g.:
+### 4. Boolean Expression Composition
 
-```ts
-const canSubmit = () => isAuth() && hasPlan()
-html`${when(canSubmit, 'Go', 'Login required')}`
+Avoid writing custom functions that just combine multiple states with `&&` or `||`. Compose them using Markup boolean combinators.
+
+**Imperative/Avoid:**
+
+```javascript
+const canPublish = () => !isSaving() && hasChanges() && hasPermission()
+
+html` <button disabled="${() => !canPublish()}">Publish</button> `
 ```
 
-### `repeat(data, mapFn, whenEmpty?)`
+**Declarative/Prefer:**
 
--   Renders lists from arrays, Sets, Maps, numbers, or objects; first arg may be a getter.
--   Keeps item instances stable by memoizing map results.
+```javascript
+const canPublish = and(isNot(isSaving), is(hasChanges), is(hasPermission))
 
-```ts
-const [items] = state([{ id: 1, name: 'A' }]) // Array
-html`${repeat(
-    items,
-    (item) => html`<li>${item.name}</li>`,
-    () => 'No items'
-)}`
+html` <button disabled="${isNot(canPublish)}">Publish</button> `
+```
 
-const setData = new Set(['a', 'b']) // Set
-html`${repeat(setData, (v) => html`<span>${v}</span>`)}`
+---
 
-const mapData = new Map([
-    [1, 'one'],
-    [2, 'two'],
-]) // Map (receives [key,value])
-html`${repeat(mapData, ([k, v]) => html`<p>${k}:${v}</p>`)}`
+## Canonical Patterns
 
-const count = 3 // Number (renders 1..n)
-html`${repeat(count, (n, i) => html`<b>${n}</b>`)}`
+### Stateful Search & Filter Listing
 
-const obj = { a: 1, b: 2 } // Object (entries)
-html`${repeat(obj, ([k, v]) => html`<em>${k}:${v}</em>`)}`
+This is the standard pattern for rendering collections with dynamic filtering. The source state (`items`) remains completely immutable.
 
-const iterable = {
-    // Custom iterable
-    *[Symbol.iterator]() {
-        yield 'x'
-        yield 'y'
-    },
+```typescript
+import { html, state, when, repeat, is, pick } from '@beforesemicolon/markup'
+
+const [query, setQuery] = state('')
+const [items] = state<Project[]>([])
+
+// Derive filtered list reactively
+const filtered = () =>
+    items().filter((p) => p.name.toLowerCase().includes(query().toLowerCase()))
+
+const handleInput = (event: Event) => {
+    setQuery((event.target as HTMLInputElement).value)
 }
-html`${repeat(iterable, (v) => html`<i>${v}</i>`)}`
-```
 
-For static arrays, `array.map` inline is fine. Use `repeat` when the list is reactive so DOM nodes update efficiently. Avoid passing a non-iterable (will render empty/throw).
-
-### `is(a, b)` / `isNot(a, b)`
-
--   Simple equality/predicate helpers that return booleans; pair with `when`.
-
-```ts
-html`${when(is(status, 'error'), 'Retry', 'Submit')}`
-html`${when(
-    is(value, (v) => v > 10),
-    'Big',
-    'Small'
-)}` // predicate
-html`${when(is(flag), 'Truthy', 'Falsy')}` // no second arg: truthy/falsy check
-```
-
-Use for clarity; avoid chaining multiple comparisons—use `oneOf` instead.
-
-### `oneOf(value, list)`
-
--   Tests membership against an array.
-
-```ts
-html`${when(oneOf(mode, ['create', 'edit']), 'Writable', 'Read-only')}`
-```
-
-Use instead of long `||` chains. Avoid huge lists—precompute a Set if needed.
-
-### `and(...conditions)` / `or(...conditions)`
-
--   Boolean combinators that evaluate values/getters lazily.
-
-```ts
-html`${when(and(isAuth, hasPlan), 'Welcome back')}`
-```
-
-Use to express intent; avoid very long chains—extract helper functions instead.
-
-### `pick(obj, key, mapper?)`
-
--   Safely read deep values using dot paths; optionally map the extracted value.
-
-```ts
-const [user] = state({ profile: { name: 'Ada' } })
-html`<p>Name: ${pick(user, 'profile.name')}</p>`
-html`<p>
-    Upper: ${pick(user, 'profile.name', (v) => String(v).toUpperCase())}
-</p>`
-```
-
-Use when passing nested data into templates without manual guarding. Avoid overusing for simple flat reads—direct getters are clearer.
-
-### `element(tagFn, options)`
-
--   Create dynamic elements while staying reactive (e.g., switching tag names). Options: `attributes`, `properties`, `htmlContent`, `children`, and event handlers in `attributes` (e.g., `onclick`).
-
-```ts
-const tag = () => (isBlock() ? 'div' : 'button')
-const click = () => console.log('clicked')
-html`${() =>
-    element(tag(), {
-        attributes: { class: 'box', onclick: click, 'data-kind': 'demo' },
-        properties: { title: 'hello' },
-        textContent: 'text',
-        htmlContent: '<strong>Hi</strong>',
-        children: [element('span', { textContent: ' more text' })],
-    })}`
-```
-
-Use for dynamic tags or programmatic element creation. Avoid when a static tag suffices.
-
-### `suspense(asyncAction, loadingTpl?, errorTpl?)`
-
--   Shows `loadingTpl` while `asyncAction` resolves; swaps in result (template or value) or `errorTpl` on failure.
-
-```ts
-const loadTodos = () => fetch('/api/todos').then((r) => r.json())
-
-html`
-    ${suspense(
-        async () => {
-            const todos = await loadTodos()
-            return html`<ul>
-                ${repeat(todos, (t) => html`<li>${t.title}</li>`)}
-            </ul>`
-        },
-        html`<p>Loading todos…</p>`,
-        (err) => html`<p class="error">${err.message}</p>`
+const View = html`
+    <input value="${query}" oninput="${handleInput}" />
+    ${when(
+        is(pick(filtered, 'length'), 0),
+        html`<p>No results found.</p>`,
+        html`<ul>
+            ${repeat(filtered, (item) => html`<li>${item.name}</li>`)}
+        </ul>`
     )}
 `
 ```
 
-Use for async UI slots. Avoid calling the same slow action repeatedly; wrap it to cache results if needed.
+### Async Slots (Suspense)
 
-### `val(anything)`
+Use `suspense` to load remote resources cleanly:
 
--   Normalizes getters/values; mostly used internally. Handy when writing your own helpers.
+```typescript
+import { html, suspense } from '@beforesemicolon/markup'
 
-```ts
-const maybe = (x) => val(x) ?? 'N/A'
+const loadData = () => fetch('/api/data').then((res) => res.json())
+
+const ResourceView = html`
+    ${suspense(
+        async () => {
+            const data = await loadData()
+            return html`<p>Resolved: ${data.message}</p>`
+        },
+        html`<p>Loading resource...</p>`,
+        (err) => html`<p class="error">Error: ${err.message}</p>`
+    )}
+`
 ```
 
-Use in utility code; avoid sprinkling in templates—other helpers already unwrap.
+### More Common Patterns
 
-## Patterns & Best Practices
+Here are more typical recipes you can copy-paste for common UI requirements:
 
--   Keep templates declarative: use `when`, `repeat`, and boolean helpers **when binding to state**; for one-off static content, inline values/ternaries/`map` are fine.
--   Derive values inside small functions (`${() => ...}`) to stay reactive; avoid capturing mutable state outside. Rendering once? Use `${state()}`; need reactivity? Use `${state}`.
--   Cache or memoize expensive computations you call from template functions.
--   Favor enums over wide string unions for shared statuses.
+#### Membership Checks & Option Swapping
 
-### More examples
+```typescript
+import { html, state, when, oneOf } from '@beforesemicolon/markup'
 
--   Reactive attributes and styles:
+const [mode, setMode] = state<'view' | 'edit' | 'preview'>('view')
 
-```ts
+const View = html`
+    ${when(
+        oneOf(mode, ['edit', 'preview']),
+        html`<button onclick="${() => setMode('view')}">Done</button>`,
+        html`<button onclick="${() => setMode('edit')}">Edit</button>`
+    )}
+`
+```
+
+#### Reactive CSS Variables & Styles
+
+```typescript
+import { html, state } from '@beforesemicolon/markup'
+
 const [gap] = state(12)
-html`<div style="--gap:${() => `${gap()}px`}; margin: ${gap}px">Box</div>`
+
+// Reactive style bindings cleared and updated dynamically
+const Box = html`
+    <div style="--gap: ${() => `${gap()}px`}; margin: ${gap}px">
+        Spacing Gap: ${gap}px
+    </div>
+`
 ```
 
--   Conditional content without ternaries:
+#### Nested Value Rendering
 
-```ts
-html`${when(oneOf(status, ['loading', 'creating']), 'Working…', 'Idle')}`
+```typescript
+import { html, state, pick } from '@beforesemicolon/markup'
+
+const [currentEntity] = state({ details: { author: { name: 'Ada Lovelace' } } })
+
+// Safe nested navigation via pick
+const AuthorHeader = html`
+    <h1>Written by: ${pick(currentEntity, 'details.author.name')}</h1>
+`
 ```
 
--   Derived lists stay reactive:
+#### Shared State Store
 
-```ts
-const groups = () => Object.groupBy(items(), (o) => o.group ?? 'Ungrouped')
-html`${repeat(groups, ([g, opts]) => html`<section>${when(g, g)}</section>`)}`
-```
+```typescript
+import { state } from '@beforesemicolon/markup'
 
--   State store pattern:
+export const [todos, setTodos] = state<Todo[]>([])
+export const [loadingState, setLoadingState] = state<
+    'idle' | 'loading' | 'error'
+>('idle')
 
-```ts
-const [todos, setTodos] = state([])
-const [loading, setLoading] = state('idle' as 'idle' | 'loading' | 'error')
-
-export const refresh = async () => {
-    setLoading('loading')
+export const fetchTodos = async () => {
+    setLoadingState('loading')
     try {
-        const list = await api.list()
+        const response = await fetch('/api/todos')
+        const list = await response.json()
         setTodos(list)
-        setLoading('idle')
+        setLoadingState('idle')
     } catch {
-        setLoading('error')
+        setLoadingState('error')
     }
 }
 ```
 
--   Render once vs reactively:
+---
 
-```ts
-html`${count()}` // render once
-html`${count}` // stays reactive to count changes
-```
+## Conventions & Guardrails
 
-## Resources
-
--   Documentation site: https://markup.beforesemicolon.com/documentation/
--   Code entrypoints: `src/index.ts`, `src/html.ts`, `src/state.ts`, `src/helpers/`
-
-Happy building with Markup! Keep templates declarative, lean on the helpers, and let functions drive reactivity.
+-   **Pass Getters/Functions directly**: Do not execute getters inside template attributes when subscription/reactivity is intended. Pass `disabled="${isDisabled}"`, not `disabled="${isDisabled()}"`.
+-   **Clean Event Bindings**: Do not wrap callbacks in redundant closures unless passing arguments:
+    -   _Good_: `<button onclick="${logout}">Logout</button>`
+    -   _Good_: `<button onclick="${() => handleSelect(item)}">Select</button>`
+    -   _Avoid_: `<button onclick="${() => logout()}">Logout</button>`
+-   **Direct Property Bindings**: Do not pre-normalize simple template attributes in setup/getters just to render them. Markup handles `undefined`, empty, and falsy attribute values correctly.
+-   **Boolean Attributes**: Markup core automatically unwraps and evaluates boolean states. Do not add `Boolean(val(this.props.someBoolean()))`-style wrappers; bind properties directly.
+-   **Static vs. Reactive**: If a value is static (never changes after initialization), render its evaluated state: `html`<p>${state()}</p>`. If it is reactive and should dynamically update, bind the getter: `html`<p>${state}</p>`.

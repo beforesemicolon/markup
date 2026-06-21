@@ -62,7 +62,7 @@ const renderCodeBlock = (filename, code, lang = 'javascript') => {
         .join('')
 
     return `
-    <div class="code-snippet">
+    <div class="code-snippet" data-code="${escapeHTML(code.replace(/\n$/, ''))}">
         <div class="header">
             <div class="mac-dots">
                 <span class="dot-red"></span>
@@ -103,128 +103,120 @@ const App = html\`
 
 App.render(document.getElementById('app'));`
 
-const todoCode = `import { html, state, effect, repeat } from '@beforesemicolon/markup';
+const todoCode = `import { html, state, effect, repeat } from '@beforesemicolon/markup'
 
 const [todos, setTodos] = state(
-  JSON.parse(localStorage.getItem('todos') ?? '[]')
-);
-const [draft, setDraft] = state('');
+    JSON.parse(localStorage.getItem('todos') ?? '[]')
+)
 
-// persist on every change
 effect(() => {
-  localStorage.setItem('todos', JSON.stringify(todos()));
-});
+    localStorage.setItem('todos', JSON.stringify(todos()))
+})
 
 const addTodo = () => {
-  if (!draft().trim()) return;
-  setTodos([...todos(), { text: draft(), done: false }]);
-  setDraft('');
-};
+    const text = window.prompt('What needs doing?')?.trim()
+
+    if (text) setTodos((prev) => [...prev, { text, done: false }])
+}
 
 const toggle = (i) =>
-  setTodos(todos().map((t, idx) =>
-    idx === i ? { ...t, done: !t.done } : t
-  ));
+    setTodos(todos().map((t, idx) => (idx === i ? { ...t, done: !t.done } : t)))
 
 html\`
-  <input
-    value="\${draft}"
-    oninput="\${(e) => setDraft(e.target.value)}"
-    placeholder="What needs doing?"
-  />
-  <button type="button" onclick="\${addTodo}">Add</button>
+    <button type="button" onclick="\${addTodo}">Add</button>
+    <ul>
+        \${repeat(
+            todos,
+            (todo, i) => html\`
+                <li
+                    class="\${todo.done ? 'done' : ''}"
+                    onclick="\${() => toggle(i)}"
+                >
+                    \${todo.text}
+                </li>
+            \`
+        )}
+    </ul>
+\`.render(document.querySelector('#app'))`
 
-  <ul>
-    \${repeat(todos, (todo, i) => html\`
-      <li class="\${() => todo.done ? 'done' : ''}"
-          onclick="\${() => toggle(i)}">
-        \${todo.text}
-      </li>
-    \`)}
-  </ul>
-\`.render(document.querySelector('#app'));`
-
-const buttonComponentCode = `import { WebComponent, html } from '@beforesemicolon/web-component';
-import stylesheet from './button.css' with { type: 'css' };
+const buttonComponentCode = `import { WebComponent, html } from '@beforesemicolon/web-component'
+import stylesheet from './button.css' with { type: 'css' }
 
 class Button extends WebComponent {
-  static observedAttributes = ['disabled'];
+    static observedAttributes = ['disabled', 'type']
 
-  disabled = false;
+    type = 'button'
+    disabled = false
 
-  stylesheet = stylesheet;
+    stylesheet = stylesheet
 
-  handleClick = (evt) => {
-    evt.stopPropagation();
-    this.dispatch('click')
-  }
+    handleClick = (evt) => {
+        evt.stopPropagation()
+        this.dispatch('click')
+    }
 
-  render = () => {
-    return html\`
-      <button
-        class="btn"
-        type="button"
-        disabled="\${this.props.disabled}"
-        onclick="\${this.handleClick}">
-        <slot></slot>
-      </button>
-    \`;
-  }
+    render = () => {
+        return html\`
+            <button \${this.props} class="btn" onclick="\${this.handleClick}">
+                <slot></slot>
+            </button>
+        \`
+    }
 }
 
 customElements.define('bfs-button', Button)`
 
-const suspenseCode = `import { html, suspense } from '@beforesemicolon/markup';
+const suspenseCode = `import { html, suspense } from '@beforesemicolon/markup'
 
 const loadUser = async () => {
-  const res = await fetch('/api/me');
-  return res.json();
-};
+    const res = await fetch('/api/me')
+    return res.json()
+}
+
+const renderUser = async () => {
+    const user = await loadUser()
+    return html\`
+        <article>
+            <h2>\${user.name}</h2>
+            <p>\${user.bio}</p>
+        </article>
+    \`
+}
 
 html\`
-  <h1>Profile</h1>
+    <h1>Profile</h1>
 
-  \${suspense(
-    async () => {
-      const user = await loadUser();
-      return html\`
-        <article>
-          <h2>\${user.name}</h2>
-          <p>\${user.bio}</p>
-        </article>
-      \`;
-    },
-    html\`<p>Loading profile…</p>\`,         // fallback
-    (err) => html\`<p>Failed: \${err.message}</p>\` // catch
-  )}
-\`.render(document.querySelector('#app'));`
+    \${suspense(
+        renderUser,
+        html\`<p>Loading profile…</p>\`, // fallback
+        (err) => html\`<p>Failed: \${err.message}</p>\` // catch
+    )}
+\`.render(document.querySelector('#app'))`
 
 const routerCode = `<!-- in <head>:
 <script src="https://unpkg.com/@beforesemicolon/router/dist/client.js"></script>
 -->
 
-<!-- declarative routing with the markup router -->
 <nav>
-  <page-link path="/">Home</page-link>
-  <page-link path="/about">About</page-link>
-  <page-link path="/users/42">User 42</page-link>
+    <page-link path="/">Home</page-link>
+    <page-link path="/about">About</page-link>
+    <page-link path="/users">Users</page-link>
 </nav>
 
 <page-route path="/">
-  <h1>Welcome home</h1>
+    <h1>Welcome home</h1>
 </page-route>
 
-<page-route path="/about">
-  <h1>About us</h1>
+<page-route path="/about" src="./pages/about.js"></page-route>
+
+<page-route path="/users" exact="false">
+    <page-route src="./pages/users.js"></page-route>
+    <page-route path="/:userId" src="./pages/user.js"></page-route>
 </page-route>
 
-<page-route path="/users/:id">
-  <user-profile></user-profile>
-</page-route>
+<page-route path="/404"> 404 - Page not found! </page-route>
 
-<page-route default>
-  <h1>404 — not found</h1>
-</page-route>`
+<page-redirect path="/404" title="404 - Page not found!"></page-redirect>`
 
 const lifecycleCode = `import { html, state } from '@beforesemicolon/markup';
 
