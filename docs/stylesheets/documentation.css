@@ -5,18 +5,20 @@ body {
 }
 
 #documentation {
-    display: flex;
-    max-height: calc(100vh - 4rem);
-    overflow: hidden;
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr) 220px;
+    gap: 24px;
     position: relative;
+    padding-top: 96px;
+    padding-bottom: 80px;
 }
 
-@media screen and (max-width: 860px) {
-    #documentation {
-        max-height: none;
-        flex-direction: column;
-        overflow: visible;
-    }
+#documentation.docs-index {
+    max-width: 1280px;
+}
+
+#documentation.docs-index article {
+    max-width: none;
 }
 
 /* #mobile-menu-toggle */
@@ -56,18 +58,15 @@ body {
 
 /* nav ------------ */
 #documentation nav {
-    width: 260px;
-    min-width: 260px;
-    border-right: 1px solid var(--border);
-    background: oklch(0.18 0.015 250 / 0.3);
+    grid-column: 1;
     overflow-y: auto;
-    height: calc(100vh - 4rem);
     position: sticky;
-    top: 0;
+    top: 96px;
+    max-height: calc(100vh - 120px);
 }
 
 #documentation nav ul {
-    padding: 40px 24px;
+    padding: 0;
 }
 
 #documentation nav a {
@@ -150,19 +149,9 @@ body {
 
 /* article ------------ */
 #documentation article {
-    flex: 1;
-    padding: 40px 48px 80px;
-    overflow-y: auto;
-    height: calc(100vh - 4rem);
+    grid-column: 2;
+    min-width: 0;
     scrollbar-width: thin;
-}
-
-@media screen and (max-width: 860px) {
-    #documentation article {
-        padding: 24px 20px;
-        height: auto;
-        overflow: visible;
-    }
 }
 
 #documentation article h2 {
@@ -350,46 +339,38 @@ body {
 
 /* #table-of-content ------------ */
 #documentation #table-of-content {
-    width: 220px;
-    min-width: 220px;
+    grid-column: 3;
     border-left: 1px solid var(--border);
-    background: oklch(0.18 0.015 250 / 0.1);
     overflow-y: auto;
-    height: calc(100vh - 4rem);
+    max-height: calc(100vh - 120px);
     position: sticky;
-    top: 0;
-    padding: 40px 24px;
+    top: 96px;
+    padding: 0 0 0 24px;
 }
 
-#documentation.docs-index {
-    max-width: 1240px;
-    gap: 40px;
-}
-
-#documentation.docs-index nav {
-    border-right: 0;
-    background: transparent;
-    width: 220px;
-    min-width: 220px;
-}
-
-#documentation.docs-index nav li {
-    background: transparent;
-    padding-left: 0;
-}
-
-#documentation.docs-index nav li.active::after {
-    display: none;
-}
-
-#documentation.docs-index nav li.active a {
+#documentation #table-of-content h4 {
+    font-size: 0.75rem;
     color: var(--foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.08rem;
+    margin-bottom: 16px;
 }
 
-#documentation.docs-index article {
-    max-width: 940px;
-    padding-left: 0;
-    padding-right: 0;
+#documentation #table-of-content li {
+    font-size: 0.8rem;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+#documentation #table-of-content li a {
+    color: var(--muted-foreground);
+    text-decoration: none;
+    transition: color 0.2s ease;
+    display: block;
+}
+
+#documentation #table-of-content li a:hover {
+    color: var(--primary);
 }
 
 #documentation.docs-index #table-of-content {
@@ -479,121 +460,6 @@ body {
     color: var(--accent);
 }
 
-@media screen and (min-width: 1201px) {
-    #documentation.docs-index
-        article
-        h3:nth-of-type(2)
-        + p
-        + p
-        + p
-        + .code-snippet,
-    #documentation.docs-index
-        article
-        h3:nth-of-type(2)
-        + p
-        + p
-        + p
-        + .code-snippet
-        + p
-        + .code-snippet {
-        width: calc(50% - 12px);
-        display: inline-flex;
-        vertical-align: top;
-    }
-
-    #documentation.docs-index
-        article
-        h3:nth-of-type(2)
-        + p
-        + p
-        + p
-        + .code-snippet {
-        margin-right: 20px;
-    }
-}
-
-@media screen and (max-width: 860px) {
-    #documentation.docs-index article h2:first-child + p + p + ul {
-        grid-template-columns: 1fr;
-    }
-}
-
-#documentation #table-of-content h4 {
-    font-size: 0.75rem;
-    color: var(--foreground);
-    text-transform: uppercase;
-    letter-spacing: 0.08rem;
-    margin-bottom: 16px;
-}
-
-#documentation #table-of-content li {
-    font-size: 0.8rem;
-    margin-bottom: 8px;
-    line-height: 1.4;
-}
-
-#documentation #table-of-content li a {
-    color: var(--muted-foreground);
-    text-decoration: none;
-    transition: color 0.2s ease;
-    display: block;
-}
-
-#documentation #table-of-content li a:hover {
-    color: var(--primary);
-}
-
-@media screen and (max-width: 1200px) {
-    #documentation {
-        gap: 24px;
-    }
-}
-
-/* React documentation shell parity */
-#documentation {
-    display: grid;
-    grid-template-columns: 240px minmax(0, 1fr) 220px;
-    gap: 48px;
-    max-height: none;
-    overflow: visible;
-    padding-top: 96px;
-    padding-bottom: 80px;
-}
-
-#documentation nav {
-    grid-column: 1;
-    width: auto;
-    min-width: 0;
-    height: auto;
-    max-height: calc(100vh - 120px);
-    top: 96px;
-    border-right: 0;
-    background: transparent;
-}
-
-#documentation nav ul {
-    padding: 0;
-}
-
-#documentation article {
-    grid-column: 2;
-    min-width: 0;
-    height: auto;
-    overflow: visible;
-    padding: 0;
-}
-
-#documentation #table-of-content {
-    grid-column: 3;
-    width: auto;
-    min-width: 0;
-    height: auto;
-    max-height: calc(100vh - 120px);
-    top: 96px;
-    padding: 0 0 0 24px;
-    background: transparent;
-}
-
 #documentation .code-snippet,
 #documentation.docs-index article h3:nth-of-type(2) + p + p + p + .code-snippet,
 #documentation.docs-index
@@ -627,14 +493,37 @@ body {
     line-height: 1.5rem;
 }
 
-#documentation.docs-index {
-    max-width: 1280px;
-    padding-top: 96px;
-    padding-bottom: 80px;
-}
+@media screen and (min-width: 1201px) {
+    #documentation.docs-index
+        article
+        h3:nth-of-type(2)
+        + p
+        + p
+        + p
+        + .code-snippet,
+    #documentation.docs-index
+        article
+        h3:nth-of-type(2)
+        + p
+        + p
+        + p
+        + .code-snippet
+        + p
+        + .code-snippet {
+        width: calc(50% - 12px);
+        display: inline-flex;
+        vertical-align: top;
+    }
 
-#documentation.docs-index article {
-    max-width: none;
+    #documentation.docs-index
+        article
+        h3:nth-of-type(2)
+        + p
+        + p
+        + p
+        + .code-snippet {
+        margin-right: 20px;
+    }
 }
 
 @media screen and (min-width: 1025px) {
@@ -683,13 +572,6 @@ body {
         border-right: 1px solid var(--border);
     }
 
-    #documentation.docs-index nav,
-    #documentation.docs-index nav ul {
-        width: min(82vw, 320px);
-        min-width: 0;
-        max-width: none;
-    }
-
     #documentation nav .close-mobile-menu {
         display: block;
         flex: 1;
@@ -702,6 +584,12 @@ body {
 
     #documentation #table-of-content {
         display: none;
+    }
+}
+
+@media screen and (max-width: 860px) {
+    #documentation.docs-index article h2:first-child + p + p + ul {
+        grid-template-columns: 1fr;
     }
 }
 
