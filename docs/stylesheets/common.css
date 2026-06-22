@@ -626,6 +626,11 @@ footer .copyright-section .brand-logo-container img {
 }
 
 @media screen and (max-width: 768px) {
+    .code-snippet pre code {
+        font-size: 0.7rem;
+        line-height: 150%;
+    }
+    
     footer {
         padding-top: 40px;
         padding-bottom: 30px;
