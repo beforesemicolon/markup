@@ -186,51 +186,9 @@ const generateSeoFiles = async () => {
     ])
 }
 
-const normalizeCodeBlocks = async (dir) => {
-    const entries = await readdir(dir, { withFileTypes: true })
-
-    for (const entry of entries) {
-        if (entry.isDirectory()) {
-            await normalizeCodeBlocks(new URL(`${entry.name}/`, dir))
-        } else if (entry.isFile() && entry.name.endsWith('.html')) {
-            const file = new URL(entry.name, dir)
-            const html = await readFile(file, 'utf8')
-
-            let normalized = html.replace(
-                /<div class="code-snippet">[\s\S]*?<div class="content">[\s\S]*?<pre><code[\s\S]*?>([\s\S]*?)<\/code><\/pre><\/div>[\s\S]*?<button[\s\S]*?<\/button><\/div>/g,
-                (match, codeContent) => {
-                    const labelMatch = match.match(
-                        /<div class="label[^>]*>(.*?)<\/div>/
-                    )
-                    const label = labelMatch
-                        ? labelMatch[1].trim()
-                        : 'javascript'
-
-                    const code = codeContent
-                        .replace(/<span[^>]*>/g, '')
-                        .replace(/<\/span>/g, '')
-                        .replace(/&lt;/g, '<')
-                        .replace(/&gt;/g, '>')
-                        .replace(/&amp;/g, '&')
-                        .replace(/&quot;/g, '"')
-                        .replace(/&#39;/g, "'")
-                        .trim()
-
-                    return renderCodeBlock('snippet', code, label)
-                }
-            )
-
-            if (normalized !== html) {
-                await writeFile(file, normalized)
-            }
-        }
-    }
-}
-
 buildDocs()
     .then(async () => {
         await mkdir(website, { recursive: true })
-        await normalizeCodeBlocks(website)
         await generateSeoFiles()
     })
     .catch(console.error)
