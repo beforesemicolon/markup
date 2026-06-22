@@ -186,7 +186,18 @@ const generateSeoFiles = async () => {
     ])
 }
 
-buildDocs()
+buildDocs({
+    markedOptions: {
+        renderer: {
+            code({ lang, raw }) {
+                const rawCode = raw
+                    .replace(/^\s*```[^\n]*\n/, '')
+                    .replace(/\n\s*```\s*$/, '')
+                return renderCodeBlock('snippet', rawCode, lang)
+            },
+        },
+    },
+})
     .then(async () => {
         await mkdir(website, { recursive: true })
         await generateSeoFiles()
