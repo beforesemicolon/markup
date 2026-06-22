@@ -476,10 +476,6 @@ body {
     display: flex;
 }
 
-#documentation .code-snippet .content {
-    padding: 12px 16px;
-}
-
 #documentation .code-snippet pre {
     display: block;
     margin: 0;

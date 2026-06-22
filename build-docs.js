@@ -1,5 +1,6 @@
 import { buildDocs } from '@beforesemicolon/builder'
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
+import { renderCodeBlock } from './docs/_layouts/_code-snippet.js'
 
 const source = new URL('./docs/llms.txt', import.meta.url)
 const docsRoot = new URL('./docs/', import.meta.url)
@@ -188,39 +189,42 @@ const generateSeoFiles = async () => {
 const normalizeCodeBlocks = async (dir) => {
     const entries = await readdir(dir, { withFileTypes: true })
 
-    await Promise.all(
-        entries.map(async (entry) => {
+    for (const entry of entries) {
+        if (entry.isDirectory()) {
+            await normalizeCodeBlocks(new URL(`${entry.name}/`, dir))
+        } else if (entry.isFile() && entry.name.endsWith('.html')) {
             const file = new URL(entry.name, dir)
-
-            if (entry.isDirectory()) {
-                await normalizeCodeBlocks(new URL(`${entry.name}/`, dir))
-                return
-            }
-
-            if (!entry.isFile() || !entry.name.endsWith('.html')) return
-
             const html = await readFile(file, 'utf8')
-            const normalized = html
-                .replace(
-                    /<pre>\s*(<code\b[^>]*>[\s\S]*?<\/code>)\s*<\/pre>/g,
-                    '<pre>$1</pre>'
-                )
-                .replace(
-                    /<div class=code-snippet>(?!<div class=header>)(<div class="[^"]*label[^"]*"[^>]*>[\s\S]*?<\/div>)<div class=content>(<pre>[\s\S]*?<\/pre>)<\/div>(<button\b[^>]*class=code-copy-btn[^>]*>copy<\/button>)<\/div>/g,
-                    (_, label, pre, button) =>
-                        `<div class=code-snippet>${snippetHeader(label, button)}<div class=content>${pre}</div></div>`
-                )
-                .replace(
-                    /<div class=code-snippet>(?!<div class=header>)<div class=content>(<pre>[\s\S]*?<\/pre>)<\/div>(<button\b[^>]*class=code-copy-btn[^>]*>copy<\/button>)<\/div>/g,
-                    (_, pre, button) =>
-                        `<div class=code-snippet>${snippetHeader('<div class=label>code</div>', button)}<div class=content>${pre}</div></div>`
-                )
+
+            let normalized = html.replace(
+                /<div class="code-snippet">[\s\S]*?<div class="content">[\s\S]*?<pre><code[\s\S]*?>([\s\S]*?)<\/code><\/pre><\/div>[\s\S]*?<button[\s\S]*?<\/button><\/div>/g,
+                (match, codeContent) => {
+                    const labelMatch = match.match(
+                        /<div class="label[^>]*>(.*?)<\/div>/
+                    )
+                    const label = labelMatch
+                        ? labelMatch[1].trim()
+                        : 'javascript'
+
+                    const code = codeContent
+                        .replace(/<span[^>]*>/g, '')
+                        .replace(/<\/span>/g, '')
+                        .replace(/&lt;/g, '<')
+                        .replace(/&gt;/g, '>')
+                        .replace(/&amp;/g, '&')
+                        .replace(/&quot;/g, '"')
+                        .replace(/&#39;/g, "'")
+                        .trim()
+
+                    return renderCodeBlock('snippet', code, label)
+                }
+            )
 
             if (normalized !== html) {
                 await writeFile(file, normalized)
             }
-        })
-    )
+        }
+    }
 }
 
 buildDocs()
