@@ -96,8 +96,7 @@ h2,
 h3,
 h4,
 h5,
-h6,
-p {
+h6 {
     margin-top: 0;
     line-height: 1.25;
 }
@@ -151,6 +150,7 @@ h6 a:hover::before {
 }
 
 p {
+    margin-top: 0;
     line-height: 1.6;
     font-weight: 400;
     color: var(--muted-foreground);
@@ -647,13 +647,10 @@ footer .copyright-section .brand-logo-container img {
 header.site-header {
     position: fixed;
     inset: 0 0 auto;
-    z-index: 50;
     width: 100%;
     max-width: none;
     height: auto;
     padding: 0;
-    border-bottom: 1px solid oklch(0.3 0.02 250 / 0.5);
-    background-color: oklch(0.18 0.015 250 / 0.6);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
 }
@@ -694,7 +691,6 @@ header.site-header nav a.docs-github-link {
     border-top: 1px solid oklch(0.3 0.02 250 / 0.5);
     background: transparent;
     padding: 56px 0 36px;
-    color: var(--muted-foreground);
 }
 
 .site-footer .footer-inner {

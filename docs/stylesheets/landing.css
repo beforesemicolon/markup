@@ -879,7 +879,6 @@
 .hero-section {
     min-height: auto;
     padding: 128px 0 96px;
-    background-image: var(--gradient-hero);
 }
 
 .hero-section::after {
@@ -917,7 +916,6 @@
 }
 
 .version-badge {
-    padding: 6px 12px;
     font-size: 0.75rem;
     line-height: 1rem;
     background: oklch(0.22 0.018 250 / 0.6);
@@ -930,9 +928,7 @@
     margin-top: 24px;
     margin-bottom: 0;
     font-size: 4.5rem;
-    line-height: 1.05;
     font-weight: 700;
-    letter-spacing: 0;
 }
 
 .hero-subtitle {
@@ -950,30 +946,26 @@
     align-items: center;
 }
 
-.btn-secondary,
 .btn-outline {
     height: 48px;
     padding: 0 24px;
     border-radius: 8px;
-    font-weight: 500;
 }
 
 .btn-secondary {
+    border-radius: 8px;
     gap: 8px;
     border-color: oklch(0.3 0.02 250 / 0.8);
     background: oklch(0.22 0.018 250 / 0.4);
     backdrop-filter: blur(8px);
     color: var(--foreground);
+    font-size: 0.875rem;
 }
 
 .btn-secondary::before {
     content: '$';
     color: var(--muted-foreground);
     font-family: var(--font-mono);
-    font-size: 0.875rem;
-}
-
-.btn-secondary {
     font-size: 0.875rem;
 }
 
@@ -1060,12 +1052,15 @@
 .features-section .section-header h2,
 .showcase-header h2,
 .install-section h2 {
-    margin-top: 12px;
     margin-bottom: 0;
-    font-size: 2.25rem;
-    line-height: 2.5rem;
     font-weight: 700;
     letter-spacing: 0;
+}
+
+.products-section .section-header h2 {
+    margin-top: 12px;
+    font-size: 2.25rem;
+    line-height: 2.5rem;
 }
 
 .products-section .section-header p {

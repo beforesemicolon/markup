@@ -48,6 +48,17 @@ html`
 `
 ```
 
+You can use ternary directly if you intend to render once and or dont expect the data update:
+
+```javascript
+html`
+    <div>
+        ${isLoading ? html`<p>Loading...</p>` : html`<p>Loaded!</p>`}
+    </div>
+`
+```
+
+
 ### 2. Rendering Lists
 
 Avoid using `.map()` inside templates to generate dynamic list nodes. Using `.map()` destroys and rebuilds nodes on every update, whereas `repeat()` uses surgical memoization under the hood.
@@ -68,6 +79,16 @@ html`
 html`
     <ul>
         ${repeat(items, (item) => html`<li>${item.name}</li>`)}
+    </ul>
+`
+```
+
+You can use the `map` directly if you intend to render once and or dont expect updates:
+
+```javascript
+html`
+    <ul>
+        ${list.map((item) => html`<li>${item.name}</li>`)}
     </ul>
 `
 ```
@@ -98,6 +119,20 @@ html`
 `
 ```
 
+The pick option allows you to define fallbacks or handle the value for formatting and or additional processing.
+
+```javascript
+const over18 = age => age > 18 ? 'Over 18' : 'Under 18';
+
+html`
+    <div>
+        <h2>
+            ${pick(user, 'profile.details.age', over18)}
+        </h2>
+    </div>
+`
+```
+
 ### 4. Boolean Expression Composition
 
 Avoid writing custom functions that just combine multiple states with `&&` or `||`. Compose them using Markup boolean combinators.
@@ -117,6 +152,8 @@ const canPublish = and(isNot(isSaving), is(hasChanges), is(hasPermission))
 
 html` <button disabled="${isNot(canPublish)}">Publish</button> `
 ```
+
+Markup invites function compososition and working with stateful functions. You should look more into [how to create custom helpers](/documentation/utilities/#custom-utility) to understand more.
 
 ---
 
@@ -142,31 +179,36 @@ const handleInput = (event: Event) => {
 
 const View = html`
     <input value="${query}" oninput="${handleInput}" />
-    ${when(
-        is(pick(filtered, 'length'), 0),
-        html`<p>No results found.</p>`,
-        html`<ul>
-            ${repeat(filtered, (item) => html`<li>${item.name}</li>`)}
-        </ul>`
-    )}
+    <ul>
+        ${repeat(
+            filtered, 
+            (item) => html`<li>${item.name}</li>`,
+            () => html`<p>No results found.</p>`
+        )}
+    </ul>
 `
 ```
 
+This allows state to remain immutable and you to create derived states that you use for rendering that combines different states to resolve to a desired one.
+
 ### Async Slots (Suspense)
 
-Use `suspense` to load remote resources cleanly:
+Use `suspense` to render async UI cleanly with error and fallback(while loading) rendering handlers:
 
 ```typescript
 import { html, suspense } from '@beforesemicolon/markup'
 
-const loadData = () => fetch('/api/data').then((res) => res.json())
+const resource = async () => {
+    const res = await fetch('/api/data');
+    
+    const data = await res.json();
+    
+    return html`<p>Resolved: ${data.message}</p>`
+}
 
 const ResourceView = html`
     ${suspense(
-        async () => {
-            const data = await loadData()
-            return html`<p>Resolved: ${data.message}</p>`
-        },
+        resource,
         html`<p>Loading resource...</p>`,
         (err) => html`<p class="error">Error: ${err.message}</p>`
     )}
