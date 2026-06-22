@@ -51,13 +51,8 @@ html`
 You can use ternary directly if you intend to render once and or dont expect the data update:
 
 ```javascript
-html`
-    <div>
-        ${isLoading ? html`<p>Loading...</p>` : html`<p>Loaded!</p>`}
-    </div>
-`
+html` <div>${isLoading ? html`<p>Loading...</p>` : html`<p>Loaded!</p>`}</div> `
 ```
-
 
 ### 2. Rendering Lists
 
@@ -122,13 +117,11 @@ html`
 The pick option allows you to define fallbacks or handle the value for formatting and or additional processing.
 
 ```javascript
-const over18 = age => age > 18 ? 'Over 18' : 'Under 18';
+const over18 = (age) => (age > 18 ? 'Over 18' : 'Under 18')
 
 html`
     <div>
-        <h2>
-            ${pick(user, 'profile.details.age', over18)}
-        </h2>
+        <h2>${pick(user, 'profile.details.age', over18)}</h2>
     </div>
 `
 ```
@@ -181,7 +174,7 @@ const View = html`
     <input value="${query}" oninput="${handleInput}" />
     <ul>
         ${repeat(
-            filtered, 
+            filtered,
             (item) => html`<li>${item.name}</li>`,
             () => html`<p>No results found.</p>`
         )}
@@ -199,10 +192,10 @@ Use `suspense` to render async UI cleanly with error and fallback(while loading)
 import { html, suspense } from '@beforesemicolon/markup'
 
 const resource = async () => {
-    const res = await fetch('/api/data');
-    
-    const data = await res.json();
-    
+    const res = await fetch('/api/data')
+
+    const data = await res.json()
+
     return html`<p>Resolved: ${data.message}</p>`
 }
 
