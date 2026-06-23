@@ -1,19 +1,19 @@
 import { buildModules, buildBrowser, buildDocs } from '@beforesemicolon/builder'
-import { renderCodeBlock } from './docs/_layouts/_code-snippet.js'
 
-Promise.all([
-    buildBrowser(),
-    buildModules(),
-    buildDocs({
-        markedOptions: {
-            renderer: {
-                code({ lang, raw }) {
-                    const rawCode = raw
-                        .replace(/^\s*```[^\n]*\n/, '')
-                        .replace(/\n\s*```\s*$/, '')
-                    return renderCodeBlock('snippet', rawCode, lang)
-                },
-            },
-        },
-    }),
-]).catch(console.error)
+const run = async () => {
+    try {
+        await Promise.all([
+            buildBrowser(),
+            buildModules(),
+            buildDocs({
+                template: 'fading-citrus',
+            }),
+        ])
+        // Wait for the unawaited async writeFile calls in builder's forEach to finish
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+    } catch (e) {
+        console.error(e)
+    }
+}
+
+run()

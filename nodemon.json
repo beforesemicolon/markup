@@ -1,0 +1,10 @@
+{
+    "watch": ["docs"],
+    "ext": "js,css,md,json",
+    "ignore": [
+        "docs/_layouts/**",
+        "docs/assets/**",
+        "docs/stylesheets/**",
+        "docs/scripts/**"
+    ]
+}

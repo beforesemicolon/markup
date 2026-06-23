@@ -1,6 +1,5 @@
 import { buildDocs } from '@beforesemicolon/builder'
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
-import { renderCodeBlock } from './docs/_layouts/_code-snippet.js'
 
 const source = new URL('./docs/llms.txt', import.meta.url)
 const docsRoot = new URL('./docs/', import.meta.url)
@@ -186,20 +185,18 @@ const generateSeoFiles = async () => {
     ])
 }
 
-buildDocs({
-    markedOptions: {
-        renderer: {
-            code({ lang, raw }) {
-                const rawCode = raw
-                    .replace(/^\s*```[^\n]*\n/, '')
-                    .replace(/\n\s*```\s*$/, '')
-                return renderCodeBlock('snippet', rawCode, lang)
-            },
-        },
-    },
-})
-    .then(async () => {
+const run = async () => {
+    try {
+        await buildDocs({
+            template: 'fading-citrus',
+        })
         await mkdir(website, { recursive: true })
         await generateSeoFiles()
-    })
-    .catch(console.error)
+        // Wait for the unawaited async writeFile calls in builder's forEach to finish
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+    } catch (e) {
+        console.error(e)
+    }
+}
+
+run()
