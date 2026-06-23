@@ -6,7 +6,7 @@ description: Comprehensive Markup guide covering installation, html templates, s
 layout: document
 ---
 
-# Guide & Best Practices
+## Guide & Best Practices
 
 This guide outlines core conventions, code design patterns, and common refactoring workflows for writing declarative, clean, and high-performance reactive applications with `@beforesemicolon/markup`.
 

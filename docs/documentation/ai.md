@@ -6,7 +6,7 @@ description: AI-first guide to Markup APIs, package boundaries, rendering rules,
 layout: document
 ---
 
-# AI Guide
+## AI Guide
 
 Use this page first if you are an AI agent scanning the docs.
 
