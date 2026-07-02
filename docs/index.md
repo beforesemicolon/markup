@@ -73,7 +73,7 @@ Production-ready libraries powered by the same reactive engine &mdash; opt-in, m
 
 A reactive layer over the native Web Components API. Props, state, lifecycles, scoped styles - built on Markup.
 
-=== product title=Router package=@beforesemicolon/router color=cyan icon=router href=https://markup.beforesemicolon.com/documentation/capabilities/router
+=== product title=Router package=@beforesemicolon/router color=cyan icon=router href=https://router.beforesemicolon.com/
 
 Declarative routing as web component tags. Nested routes, query matching, lazy-loaded pages - zero JavaScript required.
 

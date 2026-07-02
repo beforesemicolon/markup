@@ -2,7 +2,7 @@
 name: What's possible?
 order: 6
 title: Capabilities - Markup by Before Semicolon
-description: Explore what you can build with Markup, including function components, Web Components, form controls, routing, state stores, and server-rendered templates.
+description: Explore what you can build with Markup, including function components, companion Web Components, companion Router, state stores, and server-rendered templates.
 layout: document
 ---
 
@@ -27,9 +27,9 @@ Modern web frameworks often carry a heavy penalty in bundle size and setup compl
 
 At the other end of the spectrum, Markup’s simplicity and flexibility scale cleanly to large-scale codebases. Because it relies entirely on native JavaScript primitives and standard APIs, it integrates naturally with professional architecture patterns:
 
--   **Composition**: Build scalable UI using [Function Components](./function-component.md) or standard [Web Components](https://web-component.beforesemicolon.com/).
+-   **Composition**: Build scalable UI using [Function Components](./function-component.md) or companion [Web Components](https://web-component.beforesemicolon.com/).
 -   **State Management**: Create robust, predictable unidirectional data flows using [State Stores](./state-store.md).
--   **Declarative Routing**: Power complex Single Page Applications (SPAs) using the `@beforesemicolon/router` [Router](./router.md).
+-   **Declarative Routing**: Power complex Single Page Applications (SPAs) using the companion [`@beforesemicolon/router`](https://router.beforesemicolon.com/).
 -   **Performance**: Surgical DOM reconciliation ensures that enterprise dashboards, complex forms, and data-heavy tables remain extremely fast and responsive.
 -   **Server-Side Rendering (SSR)**: Boost SEO and initial load times for massive web apps with native [Server Side Rendering](./server-side-rendering.md) capabilities.
 
@@ -38,7 +38,7 @@ At the other end of the spectrum, Markup’s simplicity and flexibility scale cl
 Before Semicolon offers additional libraries built on top of Markup to provide full framework-like capabilities:
 
 -   [Web Components Integration](https://web-component.beforesemicolon.com/) — Enhance custom elements with automatic reactive rendering.
--   [SPA Router](./router.md) — Manage path matching, query state, and route-aware template switches.
+-   [SPA Router](https://router.beforesemicolon.com/) — Manage path matching, query state, and route-aware template switches.
 
 Additionally, here are examples of architecture patterns you can build using only core Markup APIs:
 

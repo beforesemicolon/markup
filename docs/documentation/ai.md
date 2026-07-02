@@ -2,7 +2,7 @@
 name: AI Guide
 order: 4
 title: AI Guide - Markup by Before Semicolon
-description: AI-first guide to Markup APIs, package boundaries, rendering rules, state patterns, Router usage, and common implementation mistakes.
+description: AI-first guide to Markup APIs, package boundaries, rendering rules, state patterns, companion packages, and common implementation mistakes.
 layout: document
 ---
 
@@ -15,13 +15,12 @@ Use this page first if you are an AI agent scanning the docs.
 -   [What is Markup?](./index.md)
 -   [Get Started](./get-started.md)
 -   [Guide & Best Practices](./guide.md)
--   [Router](./capabilities/router.md)
 
 ## What each package owns
 
 -   `@beforesemicolon/markup`: templates, `state`, `effect`, and helpers like `when`, `repeat`, `pick`, `is`, `isNot`, `visible`, `and`, `or`, `oneOf`, `element`, and `suspense`
--   `@beforesemicolon/web-component`: custom elements, props, state, lifecycles, events, slots, parts, refs, and form-associated controls
--   `@beforesemicolon/router`: route matching, navigation, page data, redirects, query state, and route-aware rendering
+-   `@beforesemicolon/web-component`: custom elements, props, state, lifecycles, events, slots, parts, refs, and form-associated controls. Use [web-component.beforesemicolon.com](https://web-component.beforesemicolon.com/) for package-specific docs.
+-   `@beforesemicolon/router`: route matching, navigation, page data, redirects, query state, and route-aware rendering. Use [router.beforesemicolon.com](https://router.beforesemicolon.com/) for package-specific docs.
 
 ## Common tasks
 
@@ -38,7 +37,6 @@ Use this page first if you are an AI agent scanning the docs.
 -   [Templating](../templating/index.md)
 -   [State](../state/index.md)
 -   [Utilities](../utilities/index.md)
--   [Router](./capabilities/router.md)
 
 ## Rules for agents
 
