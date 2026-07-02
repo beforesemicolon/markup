@@ -13,7 +13,7 @@ Use these docs when you need accurate answers about:
 
 ## Best entry points
 
-- /documentation/ai - AI-first overview of Markup, Web Component, and Router usage
+- /documentation/ai - AI-first overview of Markup and Router usage
 - /documentation/guide - project guide, best practices, API patterns, and agent-friendly rules
 - /documentation/get-started - first install and render flow
 - /documentation/installation - CDN, npm, yarn, and TypeScript installation details
@@ -21,7 +21,6 @@ Use these docs when you need accurate answers about:
 - /documentation/state/ - reactive state getter/setter behavior
 - /documentation/state/effect - effects, subscriptions, cleanup, and async effect patterns
 - /documentation/utilities/ - helper overview and routing into utility pages
-- /documentation/capabilities/web-component - custom element API, props, state, styles, events, slots, refs, and lifecycles
 - /documentation/capabilities/router - page links, routes, route query matching, page data, and lazy pages
 
 ## Complete documentation map
@@ -34,8 +33,6 @@ Use these docs when you need accurate answers about:
 - /documentation/guide - comprehensive guide and best practices
 - /documentation/capabilities/ - overview of application patterns possible with Markup
 - /documentation/capabilities/function-component - function components as reusable template factories
-- /documentation/capabilities/web-component - WebComponent companion package usage
-- /documentation/capabilities/form-controls - form-associated custom elements with WebComponent
 - /documentation/capabilities/router - Router companion package usage
 - /documentation/capabilities/state-store - standalone stores built from `state`
 - /documentation/capabilities/server-side-rendering - server-rendering templates in JavaScript environments

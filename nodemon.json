@@ -1,10 +1,4 @@
 {
     "watch": ["docs"],
-    "ext": "js,css,md,json",
-    "ignore": [
-        "docs/_layouts/**",
-        "docs/assets/**",
-        "docs/stylesheets/**",
-        "docs/scripts/**"
-    ]
+    "ext": "js,css,md,json,svg,png,jpg,jpeg,webp,ico"
 }

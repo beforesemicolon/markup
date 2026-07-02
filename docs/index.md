@@ -69,7 +69,7 @@ App.render(document.getElementById('app'));
 
 Production-ready libraries powered by the same reactive engine &mdash; opt-in, modular, and free of third-party runtime dependencies.
 
-=== product title="Web Components" package=@beforesemicolon/web-component color=orange icon=webComponents href=https://markup.beforesemicolon.com/documentation/capabilities/web-component
+=== product title="Web Components" package=@beforesemicolon/web-component color=orange icon=webComponents href=https://web-component.beforesemicolon.com/
 
 A reactive layer over the native Web Components API. Props, state, lifecycles, scoped styles - built on Markup.
 

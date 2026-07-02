@@ -1,4 +1,6 @@
 import { buildDocs } from '@beforesemicolon/builder'
+import fs from 'fs'
+import path from 'path'
 
 const docsOptions = {
     template: 'fading-citrus',
@@ -10,6 +12,11 @@ const docsOptions = {
 
 const run = async () => {
     try {
+        fs.rmSync(path.join(process.cwd(), 'website'), {
+            recursive: true,
+            force: true,
+        })
+
         await buildDocs(docsOptions)
         // Wait for the unawaited async writeFile calls in builder's forEach to finish
         await new Promise((resolve) => setTimeout(resolve, 1000))

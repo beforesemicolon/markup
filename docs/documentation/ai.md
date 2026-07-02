@@ -2,7 +2,7 @@
 name: AI Guide
 order: 4
 title: AI Guide - Markup by Before Semicolon
-description: AI-first guide to Markup APIs, package boundaries, rendering rules, state patterns, WebComponent usage, Router usage, and common implementation mistakes.
+description: AI-first guide to Markup APIs, package boundaries, rendering rules, state patterns, Router usage, and common implementation mistakes.
 layout: document
 ---
 
@@ -15,7 +15,6 @@ Use this page first if you are an AI agent scanning the docs.
 -   [What is Markup?](./index.md)
 -   [Get Started](./get-started.md)
 -   [Guide & Best Practices](./guide.md)
--   [Web Component](./capabilities/web-component.md)
 -   [Router](./capabilities/router.md)
 
 ## What each package owns
@@ -33,16 +32,12 @@ Use this page first if you are an AI agent scanning the docs.
 -   Dynamic tags: use `element`
 -   Async states: use `suspense`
 -   Deferred/lazy rendering: use `visible`
--   Custom element UI: use `WebComponent` plus `html`
--   Component communication: use custom events, not callback props
 
 ## Canonical pages
 
 -   [Templating](../templating/index.md)
 -   [State](../state/index.md)
 -   [Utilities](../utilities/index.md)
--   [Web Component](./capabilities/web-component.md)
--   [Form Controls](./capabilities/form-controls.md)
 -   [Router](./capabilities/router.md)
 
 ## Rules for agents
