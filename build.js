@@ -1,4 +1,6 @@
 import { buildModules, buildBrowser, buildDocs } from '@beforesemicolon/builder'
+import fs from 'fs'
+import path from 'path'
 
 const docsOptions = {
     template: 'fading-citrus',
@@ -6,6 +8,29 @@ const docsOptions = {
     generatedFiles: {
         netlify: true,
     },
+}
+
+const legacyRedirects = [
+    '/documentation/capabilities/web-component https://web-component.beforesemicolon.com/ 301!',
+    '/documentation/capabilities/web-component/ https://web-component.beforesemicolon.com/ 301!',
+    '/documentation/capabilities/router https://router.beforesemicolon.com/ 301!',
+    '/documentation/capabilities/router/ https://router.beforesemicolon.com/ 301!',
+    '/documentation/capabilities/form-controls https://web-component.beforesemicolon.com/documentation/advanced/form-integration 301!',
+    '/documentation/capabilities/form-controls/ https://web-component.beforesemicolon.com/documentation/advanced/form-integration 301!',
+]
+
+const appendLegacyRedirects = () => {
+    const redirectsPath = path.join(process.cwd(), 'website', '_redirects')
+    const redirects = fs.existsSync(redirectsPath)
+        ? fs.readFileSync(redirectsPath, 'utf8')
+        : ''
+    const nextRedirects = [
+        ...new Set([...redirects.split('\n'), ...legacyRedirects]),
+    ]
+        .filter(Boolean)
+        .join('\n')
+
+    fs.writeFileSync(redirectsPath, `${nextRedirects}\n`)
 }
 
 const run = async () => {
@@ -17,6 +42,7 @@ const run = async () => {
         ])
         // Wait for the unawaited async writeFile calls in builder's forEach to finish
         await new Promise((resolve) => setTimeout(resolve, 1000))
+        appendLegacyRedirects()
     } catch (e) {
         console.error(e)
     }
