@@ -15,6 +15,8 @@ const legacyRedirects = [
     '/documentation/capabilities/web-component/ https://web-component.beforesemicolon.com/ 301!',
     '/documentation/capabilities/router https://router.beforesemicolon.com/ 301!',
     '/documentation/capabilities/router/ https://router.beforesemicolon.com/ 301!',
+    '/documentation/capabilities/form-controls https://web-component.beforesemicolon.com/documentation/advanced/form-integration 301!',
+    '/documentation/capabilities/form-controls/ https://web-component.beforesemicolon.com/documentation/advanced/form-integration 301!',
 ]
 
 const appendLegacyRedirects = () => {
