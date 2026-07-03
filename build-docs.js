@@ -11,10 +11,10 @@ const docsOptions = {
 }
 
 const legacyRedirects = [
-    '/documentation/web-component https://web-component.beforesemicolon.com/ 301!',
-    '/documentation/web-component/ https://web-component.beforesemicolon.com/ 301!',
-    '/documentation/router https://router.beforesemicolon.com/ 301!',
-    '/documentation/router/ https://router.beforesemicolon.com/ 301!',
+    '/documentation/capabilities/web-component https://web-component.beforesemicolon.com/ 301!',
+    '/documentation/capabilities/web-component/ https://web-component.beforesemicolon.com/ 301!',
+    '/documentation/capabilities/router https://router.beforesemicolon.com/ 301!',
+    '/documentation/capabilities/router/ https://router.beforesemicolon.com/ 301!',
 ]
 
 const appendLegacyRedirects = () => {
