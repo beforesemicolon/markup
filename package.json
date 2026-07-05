@@ -44,7 +44,7 @@
         "type": "github"
     },
     "devDependencies": {
-        "@beforesemicolon/builder": "^1.8.24",
+        "@beforesemicolon/builder": "file:../builder/beforesemicolon-builder-1.8.25.tgz",
         "@gjsify/esbuild-plugin-transform-ext": "0.0.4",
         "@types/jest": "^29.5.11",
         "@types/jsdom": "^21.1.6",
