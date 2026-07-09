@@ -47,7 +47,7 @@
         "@beforesemicolon/builder": "^1.8.25",
         "@gjsify/esbuild-plugin-transform-ext": "0.0.4",
         "@types/jest": "^29.5.11",
-        "@types/jsdom": "^21.1.6",
+        "@types/jsdom": "^28.0.0",
         "@types/jsdom-global": "^3.0.7",
         "@types/node": "^20.10.5",
         "@types/node-sass": "^4.11.7",
