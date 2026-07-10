@@ -79,7 +79,7 @@
         "tinybench": "^3.0.0",
         "ts-jest": "^29.1.1",
         "tsx": "^4.7.0",
-        "typescript": "^5.3.3"
+        "typescript": "^7.0.0"
     },
     "dependencies": {
         "@beforesemicolon/html-parser": "^0.10.0"
