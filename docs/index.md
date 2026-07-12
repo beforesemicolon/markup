@@ -65,21 +65,21 @@ App.render(document.getElementById('app'));
 
 `// the ecosystem`
 
-## Spawned from Markup.
+## Extend the way you build.
 
-Production-ready libraries that grew out of the same reactive engine &mdash; opt-in, modular, and free of third-party runtime dependencies.
+Use Markup on its own for reactive templates, or add focused companion packages when your app needs custom elements, routing, or localization.
 
 === product title="Web Components" package=@beforesemicolon/web-component color=orange icon=webComponents href=https://web-component.beforesemicolon.com/
 
-A reactive layer over the native Web Components API. Props, state, lifecycles, scoped styles - built on Markup.
+A reactive layer over the native Web Components API. Keep Markup's template model while adding props, state, lifecycles, and scoped styles.
 
 === product title=Router package=@beforesemicolon/router color=cyan icon=router href=https://router.beforesemicolon.com/
 
-Declarative routing as web component tags. Nested routes, query matching, lazy-loaded pages - zero JavaScript required.
+Declarative routing as web component tags. Compose pages, nested layouts, query routes, and lazy-loaded views without adopting a framework router.
 
 === product title=Intl package=@beforesemicolon/intl color=primary icon=reactive href=https://intl.beforesemicolon.com/
 
-Localization for component-first interfaces. Message formatting, locale scopes, and runtime-aware formatter helpers.
+Localization for component-first interfaces. Add locale scopes, translated messages, and formatter helpers that fit naturally into Markup-driven UI.
 
 :::
 
