@@ -65,9 +65,9 @@ App.render(document.getElementById('app'));
 
 `// the ecosystem`
 
-## Built on top of Markup.
+## Spawned from Markup.
 
-Production-ready libraries powered by the same reactive engine &mdash; opt-in, modular, and free of third-party runtime dependencies.
+Production-ready libraries that grew out of the same reactive engine &mdash; opt-in, modular, and free of third-party runtime dependencies.
 
 === product title="Web Components" package=@beforesemicolon/web-component color=orange icon=webComponents href=https://web-component.beforesemicolon.com/
 
@@ -76,6 +76,10 @@ A reactive layer over the native Web Components API. Props, state, lifecycles, s
 === product title=Router package=@beforesemicolon/router color=cyan icon=router href=https://router.beforesemicolon.com/
 
 Declarative routing as web component tags. Nested routes, query matching, lazy-loaded pages - zero JavaScript required.
+
+=== product title=Intl package=@beforesemicolon/intl color=primary icon=reactive href=https://intl.beforesemicolon.com/
+
+Localization for component-first interfaces. Message formatting, locale scopes, and runtime-aware formatter helpers.
 
 :::
 
