@@ -1,6 +1,6 @@
 {
     "name": "@beforesemicolon/markup",
-    "version": "1.18.3",
+    "version": "1.18.4",
     "description": "Reactive HTML Templating System",
     "engines": {
         "node": ">=18.16.0"
@@ -82,6 +82,6 @@
         "typescript": "^5.3.3"
     },
     "dependencies": {
-        "@beforesemicolon/html-parser": "^0.10.0"
+        "@beforesemicolon/html-parser": "^0.11.0"
     }
 }
