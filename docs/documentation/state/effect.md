@@ -1,14 +1,14 @@
 ---
-name: Effect
+name: '{{t.pages.documentation.state.effect.meta.effect}}'
 order: 7.1
-title: State Effect - Markup by Before Semicolon
-description: Use Markup effect to track state dependencies, react to multiple state changes, clean up subscriptions, debounce async work, and control nested effects.
+title: '{{t.pages.documentation.state.effect.meta.state_effect_markup_by_before_semicolon}}'
+description: '{{t.pages.documentation.state.effect.meta.use_markup_effect_to_track_state_dependencies_react_to_multiple_state_changes_clean_up_subscript}}'
 layout: document
 ---
 
-## Effect
+## {{t.pages.documentation.state.effect.content.effect}}
 
-The `effect` API complements the [state](./index) API by providing a better way to react to multiple state changes based on what you need to be executed.
+{{t.pages.documentation.state.effect.content.the_effect_api_complements_the_state_index_api_by_providing_a_better_way_to_react_to_multiple_st}}
 
 ```typescript
 type EffectSubscriber<T> = (value: T | undefined) => undefined | T
@@ -17,7 +17,7 @@ type EffectUnSubscriber = () => void
 effect: <T>(sub: EffectSubscriber<T>) => EffectUnSubscriber
 ```
 
-The `state` API allows you to subscribe to changes of its value.
+{{t.pages.documentation.state.effect.content.the_state_api_allows_you_to_subscribe_to_changes_of_its_value}}
 
 ```javascript
 const [count, updateCount] = state(0, () => {
@@ -27,7 +27,7 @@ const [count, updateCount] = state(0, () => {
 updateCount(10)
 ```
 
-This is great if you want to perform side effects related to a single state. To perform side effects for multiple states you will need the `effect` API.
+{{t.pages.documentation.state.effect.content.this_is_great_if_you_want_to_perform_side_effects_related_to_a_single_state_to_perform_side_effe}}
 
 ```javascript
 const [count, updateCount] = state(0)
@@ -39,9 +39,9 @@ effect(() => {
 updateCount(10)
 ```
 
-#### EffectUnSubscriber
+#### {{t.pages.documentation.state.effect.content.effectunsubscriber}}
 
-Some side effects can stay there continuosly as a global effect to something specific. Others need to be cleaned up whenever the scope where they are defined at goes away.
+{{t.pages.documentation.state.effect.content.some_side_effects_can_stay_there_continuosly_as_a_global_effect_to_something_specific_others_nee}}
 
 ```javascript
 const cleanEffect = effect(() => {
@@ -51,11 +51,11 @@ const cleanEffect = effect(() => {
 cleanEffect()
 ```
 
-### How it works?
+### {{t.common.content.how_it_works}}
 
-When you call a `StateGetter` inside the `effect` callback function, the `effect` becomes aware of the state and this detection is done synchronously.
+{{t.pages.documentation.state.effect.content.when_you_call_a_stategetter_inside_the_effect_callback_function_the_effect_becomes_aware_of_the}}
 
-The effect calls the provided callback as soon as its declared so it becomes aware of the states called inside.
+{{t.pages.documentation.state.effect.content.the_effect_calls_the_provided_callback_as_soon_as_its_declared_so_it_becomes_aware_of_the_states}}
 
 ```javascript
 effect(() => {
@@ -63,7 +63,7 @@ effect(() => {
 })
 ```
 
-The `effect` also batches updates which allows you to update multiple state at once and only have a single reaction.
+{{t.pages.documentation.state.effect.content.the_effect_also_batches_updates_which_allows_you_to_update_multiple_state_at_once_and_only_have}}
 
 ```javascript
 effect(() => {
@@ -76,7 +76,7 @@ setCount((prev) => prev + 1)
 setTotal((prev) => prev + 1)
 ```
 
-The batch update is useful but the `effect` also understand initialization which allows you to make a bunch calculation on load and only have it run once after you are done.
+{{t.pages.documentation.state.effect.content.the_batch_update_is_useful_but_the_effect_also_understand_initialization_which_allows_you_to_mak}}
 
 ```javascript
 effect(() => {
@@ -90,11 +90,11 @@ while (count() < 100) {
 }
 ```
 
-#### Caching
+#### {{t.pages.documentation.state.effect.content.caching}}
 
-The `effect` allows you to return values that are cached and provided in the callback for the next time. This is great for tracking changes accross updates.
+{{t.pages.documentation.state.effect.content.the_effect_allows_you_to_return_values_that_are_cached_and_provided_in_the_callback_for_the_next}}
 
-For example, perform a debounce effect on search value changes.
+{{t.pages.documentation.state.effect.content.for_example_perform_a_debounce_effect_on_search_value_changes}}
 
 ```javascript
 const [search, setSearch] = state('')
@@ -114,11 +114,11 @@ effect((timer) => {
 })
 ```
 
-#### Async effect
+#### {{t.pages.documentation.state.effect.content.async_effect}}
 
-The `effect` works synchronously. That's how it detects the states inside and caches data.
+{{t.pages.documentation.state.effect.content.the_effect_works_synchronously_that_s_how_it_detects_the_states_inside_and_caches_data}}
 
-However, callback you provide to the `effect` can be asynchronous if you really want to.
+{{t.pages.documentation.state.effect.content.however_callback_you_provide_to_the_effect_can_be_asynchronous_if_you_really_want_to}}
 
 ```javascript
 effect(async () => {
@@ -134,7 +134,7 @@ effect(async () => {
 })
 ```
 
-If you do so, the cached data will be the promise returned by the function and not the data you return from the async callback. This means you need to resolve the cached data to get the value.
+{{t.pages.documentation.state.effect.content.if_you_do_so_the_cached_data_will_be_the_promise_returned_by_the_function_and_not_the_data_you_r}}
 
 ```javascript
 effect(async (res = Promise.resolve(0)) => {
@@ -146,9 +146,9 @@ effect(async (res = Promise.resolve(0)) => {
 })
 ```
 
-#### Nested effect
+#### {{t.pages.documentation.state.effect.content.nested_effect}}
 
-You can nest `effect` to track different values. This allows for the body of your `effect` to react independently while different effects track different states.
+{{t.pages.documentation.state.effect.content.you_can_nest_effect_to_track_different_values_this_allows_for_the_body_of_your_effect_to_react_i}}
 
 ```javascript
 const unsub = effect(() => {
@@ -161,4 +161,4 @@ const unsub = effect(() => {
 unsub() // clears all effects
 ```
 
-If you want to clear all effects, you can unsubscribe from the outer most `effect` and which will take care of all child `effect` for you. However, inner effects must be tracked by you as whenever the outer effect is called, a new inner effect will be created.
+{{t.pages.documentation.state.effect.content.if_you_want_to_clear_all_effects_you_can_unsubscribe_from_the_outer_most_effect_and_which_will_t}}

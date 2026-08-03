@@ -1,14 +1,14 @@
 ---
-name: Suspense
+name: '{{t.pages.documentation.utilities.suspense.meta.suspense}}'
 order: 8.2
-title: Suspense Utility - Markup by Before Semicolon
-description: Use the Markup suspense utility to render async content with loading templates, error templates, lazy data fetches, and template replacement.
+title: '{{t.pages.documentation.utilities.suspense.meta.suspense_utility_markup_by_before_semicolon}}'
+description: '{{t.pages.documentation.utilities.suspense.meta.use_the_markup_suspense_utility_to_render_async_content_with_loading_templates_error_templates_l}}'
 layout: document
 ---
 
-## Suspense Utility
+## {{t.pages.documentation.utilities.suspense.content.suspense_utility}}
 
-The `suspense` utility allows you to lazy render content by using the [replace](../templating/index.md#replace) method in the template instances while allowing you to handle the loading and error state.
+{{t.pages.documentation.utilities.suspense.content.the_suspense_utility_allows_you_to_lazy_render_content_by_using_the_replace_templating_index_md}}
 
 ```javascript
 const loadTodos = async () => {
@@ -28,9 +28,9 @@ html`<ul>
 </ul>`.render(document.body)
 ```
 
-### Loading state
+### {{t.pages.documentation.utilities.suspense.content.loading_state}}
 
-You can pass a custom loading content to render while the asynchronous work is being performed. The `suspense` has a default loading indicator that might not be what you want.
+{{t.pages.documentation.utilities.suspense.content.you_can_pass_a_custom_loading_content_to_render_while_the_asynchronous_work_is_being_performed_t}}
 
 ```javascript
 html`<ul>
@@ -38,9 +38,9 @@ html`<ul>
 </ul>`.render(document.body)
 ```
 
-### Error state
+### {{t.pages.documentation.utilities.suspense.content.error_state}}
 
-You can also provide a function as third argument to handle how you want to display any errors. The `suspense` has a default way that might not be what you want.
+{{t.pages.documentation.utilities.suspense.content.you_can_also_provide_a_function_as_third_argument_to_handle_how_you_want_to_display_any_errors_t}}
 
 ```javascript
 html`<ul>

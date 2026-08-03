@@ -1,16 +1,16 @@
 ---
-name: Visible
+name: '{{t.pages.documentation.utilities.visible.meta.visible}}'
 order: 8.5
-title: Visible Utility - Markup by Before Semicolon
-description: Use the Markup visible utility to defer rendering until content enters the viewport with IntersectionObserver-powered lazy UI.
+title: '{{t.pages.documentation.utilities.visible.meta.visible_utility_markup_by_before_semicolon}}'
+description: '{{t.pages.documentation.utilities.visible.meta.use_the_markup_visible_utility_to_defer_rendering_until_content_enters_the_viewport_with_interse}}'
 layout: document
 ---
 
-## Visible Utility
+## {{t.pages.documentation.utilities.visible.content.visible_utility}}
 
-The `visible` utility allows you to defer the rendering of content until its placeholder element enters or is about to enter the viewport (using `IntersectionObserver` under the hood).
+{{t.pages.documentation.utilities.visible.content.the_visible_utility_allows_you_to_defer_the_rendering_of_content_until_its_placeholder_element_e}}
 
-This is incredibly useful for improving page load speed and memory consumption when rendering large lists of complex items, rendering content below the fold, or lazy-loading offscreen components.
+{{t.pages.documentation.utilities.visible.content.this_is_incredibly_useful_for_improving_page_load_speed_and_memory_consumption_when_rendering_la}}
 
 ```javascript
 import { html, visible } from '@beforesemicolon/markup'
@@ -25,14 +25,14 @@ html`
 `.render(document.body)
 ```
 
-### Options
+### {{t.pages.documentation.utilities.visible.content.options}}
 
-The third argument is an optional options object which supports standard `IntersectionObserver` options, plus an `eager` flag:
+{{t.pages.documentation.utilities.visible.content.the_third_argument_is_an_optional_options_object_which_supports_standard_intersectionobserver_op}}
 
--   `eager` (boolean): When set to `true`, the content will render immediately upon mount, completely bypassing the observer setup.
--   `root` (Element | Document | null): The element that is used as the viewport for checking visibility of the target.
--   `rootMargin` (string): Margin around the root.
--   `threshold` (number | number[]): Numeric value or array of values indicating what percentage of the target's visibility the observer's callback should be executed.
+-   {{t.pages.documentation.utilities.visible.content.eager_boolean_when_set_to_true_the_content_will_render_immediately_upon_mount_completely_bypassi}}
+-   {{t.pages.documentation.utilities.visible.content.root_element_document_null_the_element_that_is_used_as_the_viewport_for_checking_visibility_of_t}}
+-   {{t.pages.documentation.utilities.visible.content.rootmargin_string_margin_around_the_root}}
+-   {{t.pages.documentation.utilities.visible.content.threshold_number_number_numeric_value_or_array_of_values_indicating_what_percentage_of_the_targe}}
 
 ```javascript
 html`
@@ -48,10 +48,10 @@ html`
 `
 ```
 
-### Observer Deduplication
+### {{t.pages.documentation.utilities.visible.content.observer_deduplication}}
 
-To ensure maximum performance and minimal browser overhead, the `visible` utility maintains a module-level registry of active `IntersectionObserver` instances. If multiple `visible` elements share identical options (e.g. they all use `rootMargin: '600px 0px'`), they will share a single, global `IntersectionObserver` instance under the hood.
+{{t.pages.documentation.utilities.visible.content.to_ensure_maximum_performance_and_minimal_browser_overhead_the_visible_utility_maintains_a_modul}}
 
-### Automatic Cleanup
+### {{t.pages.documentation.utilities.visible.content.automatic_cleanup}}
 
-When the wrapping template is unmounted from the DOM, the `visible` utility automatically unobserves the elements and cleans up any references in the observer registry, preventing memory leaks.
+{{t.pages.documentation.utilities.visible.content.when_the_wrapping_template_is_unmounted_from_the_dom_the_visible_utility_automatically_unobserve}}

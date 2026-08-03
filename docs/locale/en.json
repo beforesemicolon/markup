@@ -1,0 +1,825 @@
+{
+    "_routes": {
+        "documentation/ai": "/documentation/ai",
+        "documentation/capabilities/function-component": "/documentation/capabilities/function-component",
+        "documentation/capabilities/index": "/documentation/capabilities/",
+        "documentation/capabilities/server-side-rendering": "/documentation/capabilities/server-side-rendering",
+        "documentation/capabilities/state-store": "/documentation/capabilities/state-store",
+        "documentation/get-started": "/documentation/get-started",
+        "documentation/guide": "/documentation/guide",
+        "documentation/index": "/documentation/",
+        "documentation/installation": "/documentation/installation",
+        "documentation/state/effect": "/documentation/state/effect",
+        "documentation/state/index": "/documentation/state/",
+        "documentation/templating/events": "/documentation/templating/events",
+        "documentation/templating/html-attributes": "/documentation/templating/html-attributes",
+        "documentation/templating/index": "/documentation/templating/",
+        "documentation/templating/lifecycles": "/documentation/templating/lifecycles",
+        "documentation/templating/ref": "/documentation/templating/ref",
+        "documentation/templating/values": "/documentation/templating/values",
+        "documentation/utilities/and-or-&-oneof": "/documentation/utilities/and-or-&-oneof",
+        "documentation/utilities/element": "/documentation/utilities/element",
+        "documentation/utilities/index": "/documentation/utilities/",
+        "documentation/utilities/is-&-isnot": "/documentation/utilities/is-&-isnot",
+        "documentation/utilities/pick": "/documentation/utilities/pick",
+        "documentation/utilities/repeat": "/documentation/utilities/repeat",
+        "documentation/utilities/suspense": "/documentation/utilities/suspense",
+        "documentation/utilities/visible": "/documentation/utilities/visible",
+        "documentation/utilities/when": "/documentation/utilities/when",
+        "index": "/"
+    },
+    "common": {
+        "content": {
+            "lifecycles": "Lifecycles",
+            "examples": "Examples",
+            "get_started": "Get Started",
+            "how_it_works": "How it works?"
+        }
+    },
+    "pages": {
+        "documentation": {
+            "ai": {
+                "meta": {
+                    "ai_guide": "AI Guide",
+                    "ai_guide_markup_by_before_semicolon": "AI Guide - Markup by Before Semicolon",
+                    "ai_first_guide_to_markup_apis_package_boundaries_rendering_rules_state_patterns_companion_packag": "AI-first guide to Markup APIs, package boundaries, rendering rules, state patterns, companion packages, and common implementation mistakes."
+                },
+                "content": {
+                    "ai_guide": "AI Guide",
+                    "use_this_page_first_if_you_are_an_ai_agent_scanning_the_docs": "Use this page first if you are an AI agent scanning the docs.",
+                    "read_first": "Read first",
+                    "what_is_markup_index_md": "[What is Markup?](./index.md)",
+                    "get_started_get_started_md": "[Get Started](./get-started.md)",
+                    "guide_best_practices_guide_md": "[Guide & Best Practices](./guide.md)",
+                    "what_each_package_owns": "What each package owns",
+                    "beforesemicolon_markup_templates_state_effect_and_helpers_like_when_repeat_pick_is_isnot_visible": "`@beforesemicolon/markup`: templates, `state`, `effect`, and helpers like `when`, `repeat`, `pick`, `is`, `isNot`, `visible`, `and`, `or`, `oneOf`, `element`, and `suspense`",
+                    "beforesemicolon_web_component_custom_elements_props_state_lifecycles_events_slots_parts_refs_and": "`@beforesemicolon/web-component`: custom elements, props, state, lifecycles, events, slots, parts, refs, and form-associated controls. Use [web-component.beforesemicolon.com](https://web-component.beforesemicolon.com/) for package-specific docs.",
+                    "beforesemicolon_router_route_matching_navigation_page_data_redirects_query_state_and_route_aware": "`@beforesemicolon/router`: route matching, navigation, page data, redirects, query state, and route-aware rendering. Use [router.beforesemicolon.com](https://router.beforesemicolon.com/) for package-specific docs.",
+                    "common_tasks": "Common tasks",
+                    "conditional_ui_use_when": "Conditional UI: use `when`",
+                    "lists_use_repeat": "Lists: use `repeat`",
+                    "nested_reads_use_pick": "Nested reads: use `pick`",
+                    "boolean_logic_use_is_isnot_and_or_oneof": "Boolean logic: use `is`, `isNot`, `and`, `or`, `oneOf`",
+                    "dynamic_tags_use_element": "Dynamic tags: use `element`",
+                    "async_states_use_suspense": "Async states: use `suspense`",
+                    "deferred_lazy_rendering_use_visible": "Deferred/lazy rendering: use `visible`",
+                    "canonical_pages": "Canonical pages",
+                    "templating_templating_index_md": "[Templating](../templating/index.md)",
+                    "state_state_index_md": "[State](../state/index.md)",
+                    "utilities_utilities_index_md": "[Utilities](../utilities/index.md)",
+                    "rules_for_agents": "Rules for agents",
+                    "prefer_the_narrowest_page_that_answers_the_task": "Prefer the narrowest page that answers the task.",
+                    "read_the_package_specific_page_before_editing_related_code": "Read the package-specific page before editing related code.",
+                    "do_not_scan_the_whole_site_unless_the_task_spans_multiple_packages": "Do not scan the whole site unless the task spans multiple packages.",
+                    "when_in_doubt_follow_the_examples_on_the_relevant_api_page": "When in doubt, follow the examples on the relevant API page."
+                }
+            },
+            "capabilities": {
+                "function_component": {
+                    "meta": {
+                        "function_component": "Function Component",
+                        "function_components_with_markup_javascript_template_factories": "Function Components with Markup - JavaScript Template Factories",
+                        "learn_how_to_build_reusable_markup_components_as_plain_javascript_functions_that_return_html_tem": "Learn how to build reusable Markup components as plain JavaScript functions that return HTML templates with props, state, lifecycle hooks, and events."
+                    },
+                    "content": {
+                        "function_component": "Function Component",
+                        "markup_does_not_ship_with_a_dedicated_component_api_components_are_simply_functions_that_return": "Markup does not ship with a dedicated component API. Components are simply functions that return a `HTMLTemplate` instance.",
+                        "it_is_totally_up_to_you_what_these_functions_can_do_or_look_like_from_the_example_above_you_can": "It is totally up to you what these functions can do or look like. From the example above, you can simply render your component using the `render` method.",
+                        "inputs_props": "Inputs (Props)",
+                        "since_its_functions_you_can_take_arguments_and_inject_them_directly_into_the_template_with_prope": "Since its functions, you can take arguments and inject them directly into the template with proper defaults handling.",
+                        "templates_can_take_raw_values_or_functions_that_returns_some_value_which_can_be_a_state_or_simpl": "Templates can take raw values or functions that returns some value which can be a `state` or simply a `dynamic value`, in that case, you can have your input type definition use the `StateGetter` type.",
+                        "the_stategetter_allows_you_to_communicate_that_your_component_takes_function_values_as_input_whi": "The `StateGetter` allows you to communicate that your component takes function values as input which makes it easier to work with states.",
+                        "you_can_take_advantage_of_both_effect_state_effect_md_and_html_lifecycles_templating_lifecycles": "You can take advantage of both [effect](../state/effect.md) and `html` [lifecycles](../templating/lifecycles.md) to react to things like component mounted, unmounted, and updates to do everything you need.",
+                        "markup_template_has_powerful_lifecycles_and_because_a_function_is_called_once_and_with_power_of": "Markup template has powerful lifecycles and because a function is called once and with power of reactivity, you can encapsulate everything inside the function leaving everything to Markup to manage."
+                    }
+                },
+                "index": {
+                    "meta": {
+                        "what_s_possible": "What's possible?",
+                        "capabilities_markup_by_before_semicolon": "Capabilities - Markup by Before Semicolon",
+                        "explore_what_you_can_build_with_markup_including_function_components_companion_web_components_co": "Explore what you can build with Markup, including function components, companion Web Components, companion Router, state stores, and server-rendered templates."
+                    },
+                    "content": {
+                        "capabilities": "Capabilities",
+                        "markup_is_a_highly_flexible_performant_and_lightweight_templating_system_that_can_serve_as_the_c": "Markup is a highly flexible, performant, and lightweight templating system that can serve as the core of anything from quick single-file widgets to large-scale, enterprise-ready systems.",
+                        "from_tiny_solutions_to_enterprise_systems": "From Tiny Solutions to Enterprise Systems",
+                        "because_markup_requires_no_compile_or_build_step_and_is_only_7_6kb_gzip_it_has_zero_package_fric": "Because Markup requires **no compile or build step** and is only **7.6KB gzip**, it has zero package friction. This makes it a perfect fit for a wide spectrum of applications:",
+                        "text_1_lightweight_specialized_environments": "1. Lightweight & Specialized Environments",
+                        "modern_web_frameworks_often_carry_a_heavy_penalty_in_bundle_size_and_setup_complexity_markup_s_f": "Modern web frameworks often carry a heavy penalty in bundle size and setup complexity. Markup's footprint is small enough that it simplifies development in resource-constrained or specialized environments:",
+                        "browser_extensions_build_manifest_v3_content_scripts_side_panels_and_popups_without_packaging_a": "**Browser Extensions**: Build Manifest V3 content scripts, side panels, and popups without packaging a massive runtime or fighting complex bundler settings.",
+                        "embeddable_widgets_create_chat_widgets_calculators_feedback_forms_or_interactive_cards_that_can": "**Embeddable Widgets**: Create chat widgets, calculators, feedback forms, or interactive cards that can be injected into any client website without bloating their page load times.",
+                        "cms_plugins_themes_add_rich_reactivity_to_shopify_wordpress_or_custom_headless_cms_templates_sea": "**CMS Plugins & Themes**: Add rich reactivity to Shopify, WordPress, or custom headless CMS templates seamlessly.",
+                        "micro_frontends_ship_independent_highly_isolated_components_that_initialize_instantly_and_share": "**Micro-frontends**: Ship independent, highly isolated components that initialize instantly and share almost zero overhead.",
+                        "text_2_large_scale_enterprise_applications": "2. Large‑Scale & Enterprise Applications",
+                        "at_the_other_end_of_the_spectrum_markup_s_simplicity_and_flexibility_scale_cleanly_to_large_scal": "At the other end of the spectrum, Markup’s simplicity and flexibility scale cleanly to large-scale codebases. Because it relies entirely on native JavaScript primitives and standard APIs, it integrates naturally with professional architecture patterns:",
+                        "composition_build_scalable_ui_using_function_components_function_component_md_or_companion_web_c": "**Composition**: Build scalable UI using [Function Components](./function-component.md) or companion [Web Components](https://web-component.beforesemicolon.com/).",
+                        "state_management_create_robust_predictable_unidirectional_data_flows_using_state_stores_state_st": "**State Management**: Create robust, predictable unidirectional data flows using [State Stores](./state-store.md).",
+                        "declarative_routing_power_complex_single_page_applications_spas_using_the_companion_beforesemico": "**Declarative Routing**: Power complex Single Page Applications (SPAs) using the companion [`@beforesemicolon/router`](https://router.beforesemicolon.com/).",
+                        "performance_surgical_dom_reconciliation_ensures_that_enterprise_dashboards_complex_forms_and_dat": "**Performance**: Surgical DOM reconciliation ensures that enterprise dashboards, complex forms, and data-heavy tables remain extremely fast and responsive.",
+                        "server_side_rendering_ssr_boost_seo_and_initial_load_times_for_massive_web_apps_with_native_serv": "**Server-Side Rendering (SSR)**: Boost SEO and initial load times for massive web apps with native [Server Side Rendering](./server-side-rendering.md) capabilities.",
+                        "before_semicolon_offers_additional_libraries_built_on_top_of_markup_to_provide_full_framework_li": "Before Semicolon offers additional libraries built on top of Markup to provide full framework-like capabilities:",
+                        "web_components_integration_https_web_component_beforesemicolon_com_enhance_custom_elements_with": "[Web Components Integration](https://web-component.beforesemicolon.com/) — Enhance custom elements with automatic reactive rendering.",
+                        "spa_router_https_router_beforesemicolon_com_manage_path_matching_query_state_and_route_aware_tem": "[SPA Router](https://router.beforesemicolon.com/) — Manage path matching, query state, and route-aware template switches.",
+                        "additionally_here_are_examples_of_architecture_patterns_you_can_build_using_only_core_markup_api": "Additionally, here are examples of architecture patterns you can build using only core Markup APIs:",
+                        "function_components_function_component_md": "[Function Components](./function-component.md)",
+                        "state_management_stores_state_store_md": "[State Management Stores](./state-store.md)",
+                        "server_side_rendering_ssr_server_side_rendering_md": "[Server-Side Rendering (SSR)](./server-side-rendering.md)",
+                        "here_are_more_examples_you_can_draw_inspiration_from": "Here are more examples you can draw inspiration from:",
+                        "node_ssr_website_https_stackblitz_com_edit_stackblitz_starters_a6rvq7": "[Node SSR website](https://stackblitz.com/edit/stackblitz-starters-a6rvq7)",
+                        "todo_app_with_localstorage_https_codepen_io_beforesemicolon_pen_baxjxwx_editors_0010": "[ToDo App with Localstorage](https://codepen.io/beforesemicolon/pen/BaXJxwx?editors=0010)",
+                        "todo_app_with_state_management_https_stackblitz_com_edit_web_platform_lvonxr": "[ToDo App with State Management](https://stackblitz.com/edit/web-platform-lvonxr)",
+                        "tic_tac_toe_app_https_codepen_io_beforesemicolon_pen_eyqyreo_editors_0010": "[Tic Tac Toe app](https://codepen.io/beforesemicolon/pen/eYqyreO?editors=0010)",
+                        "calculator_app_https_codepen_io_beforesemicolon_pen_abeegmb": "[Calculator app](https://codepen.io/beforesemicolon/pen/abeEGMB)",
+                        "spa_router_app_https_stackblitz_com_edit_vitejs_vite_4jvsfp_file_index_html": "[SPA (Router) app](https://stackblitz.com/edit/vitejs-vite-4jvsfp?file=index.html)",
+                        "counter_app_https_stackblitz_com_edit_web_platform_ixypdh": "[Counter App](https://stackblitz.com/edit/web-platform-ixypdh)",
+                        "timer_app_https_codepen_io_beforesemicolon_pen_ylqzqzv": "[Timer App](https://codepen.io/beforesemicolon/pen/yLQzQZV)"
+                    }
+                },
+                "server_side_rendering": {
+                    "meta": {
+                        "server_side_rendering": "Server Side Rendering",
+                        "server_side_rendering_markup_by_before_semicolon": "Server Side Rendering - Markup by Before Semicolon",
+                        "render_markup_templates_on_the_server_in_javascript_environments_serialize_html_output_and_under": "Render Markup templates on the server in JavaScript environments, serialize HTML output, and understand how Markup can support server-side rendering workflows."
+                    },
+                    "content": {
+                        "server_side_rendering": "Server Side Rendering",
+                        "markup_can_run_in_any_javascript_environment_which_means_you_can_also_server_side_render_the_tem": "Markup can run in any JavaScript environment which means you can also server-side render the templates for your pages.",
+                        "take_for_example_this_simple_page_created_with_markup": "Take for example this simple page created with Markup.",
+                        "we_can_follow_by_creating_a_simple_express_app_and_serve_our_homepage": "We can follow by creating a simple express app and serve our `HomePage`.",
+                        "notice_that_we_are_calling_the_tostring_on_the_template_which_takes_a_snapshot_of_the_current_st": "Notice that we are calling the `.toString()` on the template which takes a snapshot of the current state of the template and returns a HTML string representation.",
+                        "this_also_means_that_you_can_render_templates_on_the_server_and_take_snapshots_on_updates_to_ser": "This also means that you can render templates on the server and take snapshots on updates to server-side render.",
+                        "now_we_can_serve_our_express_app_with_node_like_so": "Now, we can serve our express app with Node like so:",
+                        "notice_that_there_is_a_global_jsdom_package_and_all_it_does_is_make_dom_apis_global_that_markup": "Notice that there is a `global-jsdom` package and all it does is make DOM APIs global that Markup can use to function normally. This is actually required for Node since Markup depend heavily on DOM APIs. Please find the right way to load DOM APIs depending on the JavaScript environment you use.",
+                        "this_is_a_simple_example_on_how_to_approach_rendering_things_on_the_server_the_main_requirement": "This is a simple example on how to approach rendering things on the server. The main requirement is to have some type of DOM API that can render on the server environment you use (Deno, Bun, Node, etc). From there, making such APIs globally available will cover everything, and you can use Markup freely.",
+                        "try_it_out_https_stackblitz_com_edit_stackblitz_starters_a6rvq7": "[Try it Out](https://stackblitz.com/edit/stackblitz-starters-a6rvq7)"
+                    }
+                },
+                "state_store": {
+                    "meta": {
+                        "state_store": "State Store",
+                        "state_store_markup_by_before_semicolon": "State Store - Markup by Before Semicolon",
+                        "build_shared_state_stores_with_markup_state_derived_getters_update_functions_effects_and_repeat": "Build shared state stores with Markup state, derived getters, update functions, effects, and repeat rendering patterns for application state management."
+                    },
+                    "content": {
+                        "state_store": "State Store",
+                        "the_great_thing_about_markup_state_state_index_is_the_fact_that_it_is_a_standalone_api_that_work": "The great thing about Markup [state](../state/index) is the fact that it is a standalone API that works great witht the template itself.",
+                        "what_this_allows_you_to_do_is_manage_shared_global_state_away_from_the_component_and_inject_them": "What this allows you to do is manage shared/global state away from the component and inject them directly into the template or perform side effects where needed. All that without worrying about subcriptions and cleanups.",
+                        "create_a_state_store": "Create a state store",
+                        "take_for_example_this_todos_state_store": "Take for example this `todos` state store:",
+                        "as_you_can_see_we_can_create_a_file_dedicated_to_manage_a_particular_state_we_want_to_use_in_mul": "As you can see, we can create a file dedicated to manage a particular state we want to use in multiple places in our application.",
+                        "consuming_the_store_state": "Consuming the store state",
+                        "we_don_t_have_to_worry_about_subscription_when_it_comes_to_rendering_this_data_we_can_inject_it": "We don't have to worry about subscription when it comes to rendering this data, we can inject it directly into the template.",
+                        "easy_enough_to_perform_something_whenever_this_list_changes_we_can_just_use_the_effect_state_eff": "Easy enough, to perform something whenever this list changes, we can just use the [effect](../state/effect.md).",
+                        "define_store_actions": "Define store actions",
+                        "because_the_store_is_simply_a_file_we_can_expose_functions_that_perform_changes_in_the_data_with": "Because the store is simply a file, we can expose functions that perform changes in the data without exposing the logic or complexity of the state.",
+                        "these_actions_can_be_whatever_you_want_they_can": "These actions can be whatever you want. They can",
+                        "store_data_in_localstorage_or_indexeddb": "store data in `localstorage` or `indexedDB`;",
+                        "be_asynchronous": "be asynchronous;",
+                        "call_servers_apis_to_save_data": "call servers APIs to save data;",
+                        "perform_validations": "perform validations;",
+                        "map_the_data": "map the data;",
+                        "etc": "etc",
+                        "data_storage_and_state_management_does_not_have_to_be_complex_and_all_you_need_from_here_is_use": "Data storage and state management does not have to be complex and all you need from here is use the APIs readily available in the environment to do whatever you want.",
+                        "look_at_this_example_of_todo_state_store_with_localstorage_https_stackblitz_com_edit_web_platfor": "Look at this example of [todo state store with localstorage](https://stackblitz.com/edit/web-platform-lvonxr?file=index.html)."
+                    }
+                }
+            },
+            "get_started": {
+                "meta": {
+                    "get_started_with_markup_install_and_render_your_first_template": "Get Started with Markup - Install and Render Your First Template",
+                    "start_using_markup_with_a_simple_html_page_load_it_from_a_cdn_create_reactive_state_and_render_y": "Start using Markup with a simple HTML page, load it from a CDN, create reactive state, and render your first JavaScript template without a build step."
+                },
+                "content": {
+                    "markup_is_a_plug_and_play_library_which_means_you_don_t_need_to_build_or_compile_it_into_anythin": "Markup is a **plug and play** library, which means, you don't need to build or compile it into anything to be able to see what you build. What you write is what is shipped to the client. Nothing more, nothing less.",
+                    "additionally_you_can_run_it_on_the_client_and_server_to_produce_any_type_of_application": "Additionally, you can run it on the client and server to produce any type of application.",
+                    "try_examples_in_the_browser": "Try Examples in the Browser",
+                    "the_simplest_way_to_start_is_by_trying_it_in_browser_and_there_are_few_project_you_can_get_start": "The simplest way to start is by trying it in-browser, and there are few project you can get started with:",
+                    "client_todo_app_with_state_management_https_stackblitz_com_edit_web_platform_lvonxr_stackblitz": "[Client ToDo App with State Management](https://stackblitz.com/edit/web-platform-lvonxr) (StackBlitz)",
+                    "client_counter_app_https_stackblitz_com_edit_web_platform_ixypdh_stackblitz": "[Client Counter App](https://stackblitz.com/edit/web-platform-ixypdh) (StackBlitz)",
+                    "client_timer_app_https_codepen_io_beforesemicolon_pen_ylqzqzv_codepen": "[Client Timer App](https://codepen.io/beforesemicolon/pen/yLQzQZV) (CodePen)",
+                    "node_ssr_website_https_stackblitz_com_edit_stackblitz_starters_a6rvq7_stackblitz": "[Node SSR website](https://stackblitz.com/edit/stackblitz-starters-a6rvq7) (StackBlitz)",
+                    "html_file": "HTML File",
+                    "the_simplest_way_to_start_is_by_creating_an_html_file_and_adding_the_following_content_you_can_t": "The simplest way to start is by creating an html file and adding the following content. You can then open it in the browser to see."
+                }
+            },
+            "guide": {
+                "meta": {
+                    "guide_best_practices": "Guide & Best Practices",
+                    "markup_guide_and_best_practices_javascript_reactive_ui": "Markup Guide and Best Practices - JavaScript Reactive UI",
+                    "comprehensive_markup_guide_covering_installation_html_templates_state_effects_utilities_webcompo": "Comprehensive Markup guide covering installation, html templates, state, effects, utilities, WebComponent integration, Router patterns, and best practices."
+                },
+                "content": {
+                    "guide_best_practices": "Guide & Best Practices",
+                    "this_guide_outlines_core_conventions_code_design_patterns_and_common_refactoring_workflows_for_w": "This guide outlines core conventions, code design patterns, and common refactoring workflows for writing declarative, clean, and high-performance reactive applications with `@beforesemicolon/markup`.",
+                    "core_rules": "Core Rules",
+                    "prefer_declarative_helpers_over_branching_avoid_writing_inline_javascript_ternary_operations_or": "**Prefer Declarative Helpers Over Branching**: Avoid writing inline JavaScript ternary operations or imperative functions inside template HTML strings. Always favor built-in Markup helpers (`when`, `repeat`, `pick`, `is`, etc.).",
+                    "keep_side_effects_out_of_render_functions_keep_template_rendering_strictly_side_effect_free_side": "**Keep Side Effects Out of Render Functions**: Keep template rendering strictly side-effect-free. Side effects should live inside `effect()` blocks or Web Component lifecycle hooks (such as `onMount`).",
+                    "state_immutability_do_not_mutate_objects_used_as_canonical_state_directly_track_derived_pending": "**State Immutability**: Do not mutate objects used as canonical state directly. Track derived/pending changes separately and merge them only at render time.",
+                    "preserve_source_collections_keep_source_arrays_intact_when_deriving_filtered_or_sorted_views_cle": "**Preserve Source Collections**: Keep source arrays intact when deriving filtered or sorted views. Clearing a filter or search input should restore the full source list without requiring manual data resets.",
+                    "reactive_value_binding_bind_props_and_state_directly_e_g_disabled_isdisabled_instead_of_disabled": "**Reactive Value Binding**: Bind props and state directly (e.g. `disabled=\"${isDisabled}\"` instead of `disabled=\"${isDisabled()}\"`) to let Markup set up listeners surgically.",
+                    "refactor_workflows": "Refactor Workflows",
+                    "here_is_how_you_can_migrate_traditional_imperative_habits_into_clean_declarative_markup_code": "Here is how you can migrate traditional imperative habits into clean, declarative Markup code.",
+                    "text_1_conditional_ui_if_else": "1. Conditional UI (if/else)",
+                    "avoid_writing_inline_javascript_conditions_or_logic_gates_inside_templates": "Avoid writing inline JavaScript conditions or logic gates inside templates.",
+                    "imperative_avoid": "**Imperative/Avoid:**",
+                    "declarative_prefer": "**Declarative/Prefer:**",
+                    "you_can_use_ternary_directly_if_you_intend_to_render_once_and_or_dont_expect_the_data_update": "You can use ternary directly if you intend to render once and or dont expect the data update:",
+                    "text_2_rendering_lists": "2. Rendering Lists",
+                    "avoid_using_map_inside_templates_to_generate_dynamic_list_nodes_using_map_destroys_and_rebuilds": "Avoid using `.map()` inside templates to generate dynamic list nodes. Using `.map()` destroys and rebuilds nodes on every update, whereas `repeat()` uses surgical memoization under the hood.",
+                    "you_can_use_the_map_directly_if_you_intend_to_render_once_and_or_dont_expect_updates": "You can use the `map` directly if you intend to render once and or dont expect updates:",
+                    "text_3_nested_optional_reads": "3. Nested Optional Reads",
+                    "avoid_using_nested_optional_chaining_directly_inside_ui_interpolations_this_can_lead_to_runtime": "Avoid using nested optional chaining (`?.`) directly inside UI interpolations. This can lead to runtime errors if parts of the chain become undefined or unresolved.",
+                    "the_pick_option_allows_you_to_define_fallbacks_or_handle_the_value_for_formatting_and_or_additio": "The pick option allows you to define fallbacks or handle the value for formatting and or additional processing.",
+                    "text_4_boolean_expression_composition": "4. Boolean Expression Composition",
+                    "avoid_writing_custom_functions_that_just_combine_multiple_states_with_or_compose_them_using_mark": "Avoid writing custom functions that just combine multiple states with `&&` or `||`. Compose them using Markup boolean combinators.",
+                    "markup_invites_function_compososition_and_working_with_stateful_functions_you_should_look_more_i": "Markup invites function compososition and working with stateful functions. You should look more into [how to create custom helpers](/documentation/utilities/#custom-utility) to understand more.",
+                    "canonical_patterns": "Canonical Patterns",
+                    "stateful_search_filter_listing": "Stateful Search & Filter Listing",
+                    "this_is_the_standard_pattern_for_rendering_collections_with_dynamic_filtering_the_source_state_i": "This is the standard pattern for rendering collections with dynamic filtering. The source state (`items`) remains completely immutable.",
+                    "this_allows_state_to_remain_immutable_and_you_to_create_derived_states_that_you_use_for_renderin": "This allows state to remain immutable and you to create derived states that you use for rendering that combines different states to resolve to a desired one.",
+                    "async_slots_suspense": "Async Slots (Suspense)",
+                    "use_suspense_to_render_async_ui_cleanly_with_error_and_fallback_while_loading_rendering_handlers": "Use `suspense` to render async UI cleanly with error and fallback(while loading) rendering handlers:",
+                    "more_common_patterns": "More Common Patterns",
+                    "here_are_more_typical_recipes_you_can_copy_paste_for_common_ui_requirements": "Here are more typical recipes you can copy-paste for common UI requirements:",
+                    "membership_checks_option_swapping": "Membership Checks & Option Swapping",
+                    "reactive_css_variables_styles": "Reactive CSS Variables & Styles",
+                    "nested_value_rendering": "Nested Value Rendering",
+                    "shared_state_store": "Shared State Store",
+                    "conventions_guardrails": "Conventions & Guardrails",
+                    "pass_getters_functions_directly_do_not_execute_getters_inside_template_attributes_when_subscript": "**Pass Getters/Functions directly**: Do not execute getters inside template attributes when subscription/reactivity is intended. Pass `disabled=\"${isDisabled}\"`, not `disabled=\"${isDisabled()}\"`.",
+                    "clean_event_bindings_do_not_wrap_callbacks_in_redundant_closures_unless_passing_arguments": "**Clean Event Bindings**: Do not wrap callbacks in redundant closures unless passing arguments:",
+                    "good_logout": "_Good_: `<button onclick=\"${logout}\">Logout</button>`",
+                    "good_handleselect_item_select": "_Good_: `<button onclick=\"${() => handleSelect(item)}\">Select</button>`",
+                    "avoid_logout_logout": "_Avoid_: `<button onclick=\"${() => logout()}\">Logout</button>`",
+                    "direct_property_bindings_do_not_pre_normalize_simple_template_attributes_in_setup_getters_just_t": "**Direct Property Bindings**: Do not pre-normalize simple template attributes in setup/getters just to render them. Markup handles `undefined`, empty, and falsy attribute values correctly.",
+                    "boolean_attributes_markup_core_automatically_unwraps_and_evaluates_boolean_states_do_not_add_boo": "**Boolean Attributes**: Markup core automatically unwraps and evaluates boolean states. Do not add `Boolean(val(this.props.someBoolean()))`-style wrappers; bind properties directly.",
+                    "static_vs_reactive_if_a_value_is_static_never_changes_after_initialization_render_its_evaluated": "**Static vs. Reactive**: If a value is static (never changes after initialization), render its evaluated state: `html`<p>${state()}</p>`. If it is reactive and should dynamically update, bind the getter: `html`<p>${state}</p>`."
+                }
+            },
+            "index": {
+                "meta": {
+                    "what_is_markup": "What is Markup?",
+                    "markup_documentation_reactive_html_templating_for_javascript": "Markup Documentation - Reactive HTML Templating for JavaScript",
+                    "learn_what_markup_is_why_it_exists_and_how_it_uses_javascript_template_literals_functions_and_we": "Learn what Markup is, why it exists, and how it uses JavaScript template literals, functions, and web standards to build reactive user interfaces."
+                },
+                "content": {
+                    "what_is_markup": "What is Markup?",
+                    "markup_is_a_javascript_reactive_templating_system_built_to_simplify_how_you_build_web_user_inter": "Markup is a JavaScript reactive templating system built to simplify how you build Web user interfaces using web standards with minimal enhancements to the native web APIs as possible.",
+                    "it_consists_of_3_main_apis_with_additional_utilities_to_simplify_things_even_further": "It consists of 3 main APIs with additional utilities to simplify things even further:",
+                    "html_a_javascript_tagged_function_that_allows_you_to_represent_the_dom_using_template_literal_st": "`html` A JavaScript tagged function that allows you to represent the DOM using template literal strings.",
+                    "state_a_simple_state_tracking_api_that_lets_you_define_reactive_data_however_you_want": "`state` A simple state tracking API that lets you define reactive data however you want.",
+                    "effect_a_straightforward_way_to_define_things_that_need_to_happen_when_certain_states_change": "`effect` A straightforward way to define things that need to happen when certain states change.",
+                    "why_do_we_need_another_tool": "Why do we need another tool?",
+                    "modern_web_development_has_become_heavily_reliant_on_complex_build_steps_compiler_configuration": "Modern web development has become heavily reliant on complex build steps, compiler configuration, and massive framework dependencies. Often, all you want to do is build a reactive interface, but you end up having to set up Vite, Babel, Webpack, Svelte, or React just to get basic state reactivity.",
+                    "markup_exists_to_solve_this_pain_point_it_bridges_the_gap_between_raw_tedious_dom_manipulation_a": "Markup exists to solve this pain point. It bridges the gap between raw, tedious DOM manipulation and heavy component frameworks. By utilizing modern JavaScript primitives—specifically **template literals** and **functions**—Markup provides clean, declarative, and surgically precise reactivity **without any build steps**.",
+                    "compare_how_you_build_a_simple_counter": "Compare how you build a simple counter.",
+                    "the_tedious_vanilla_way": "The Tedious Vanilla Way",
+                    "the_markup_way_simple_reactive": "The Markup Way (Simple & Reactive)",
+                    "core_concepts": "Core Concepts",
+                    "text_1_functions_for_lazy_evaluation": "1. Functions for Lazy Evaluation",
+                    "reactivity_in_markup_is_powered_by_native_javascript_functions_since_functions_represent_lazy_ev": "Reactivity in Markup is powered by native JavaScript functions. Since functions represent lazy evaluations, they can be run whenever their underlying state changes. Wrapping your values or templates in functions is the secret behind Markup's surgical DOM updates.",
+                    "text_2_tagged_template_literals": "2. Tagged Template Literals",
+                    "markup_uses_the_standard_html_tagged_template_literal_to_represent_the_dom_no_jsx_parser_no_prop": "Markup uses the standard `html` tagged template literal to represent the DOM. No JSX parser, no proprietary template syntax, and no Virtual DOM. What you write is parsed directly into native HTML templates and updated surgically.",
+                    "key_benefits": "Key Benefits",
+                    "zero_build_step_no_compilers_no_bundlers_no_npm_install_required_to_get_started_drop_the_cdn_lin": "🚀 **Zero Build Step**: No compilers, no bundlers, no npm install required to get started. Drop the CDN link into a `<script>` tag and start coding.",
+                    "surgical_dom_updates_no_virtual_dom_diffing_markup_target_updates_only_the_specific_nodes_and_at": "⚡ **Surgical DOM Updates**: No Virtual DOM diffing. Markup target-updates only the specific nodes and attributes that changed.",
+                    "ultra_lightweight_at_only_7_6kb_gzip_18kb_uncompressed_it_is_perfect_for_micro_frontends_widgets": "📦 **Ultra Lightweight**: At only **7.6KB gzip** (18KB uncompressed), it is perfect for micro-frontends, widgets, prototypes, and lightweight web apps.",
+                    "standard_web_components_easily_integrates_with_web_components_to_provide_reactive_rendering_and": "🔌 **Standard Web Components**: Easily integrates with Web Components to provide reactive rendering and simplified lifecycle management."
+                }
+            },
+            "installation": {
+                "meta": {
+                    "installation": "Installation",
+                    "installation_markup_by_before_semicolon": "Installation - Markup by Before Semicolon",
+                    "install_markup_from_a_cdn_or_package_manager_pin_versions_import_the_javascript_apis_and_use_the": "Install Markup from a CDN or package manager, pin versions, import the JavaScript APIs, and use the TypeScript definitions included with the package."
+                },
+                "content": {
+                    "installation": "Installation",
+                    "markup_is_a_plug_and_play_package_that_does_not_need_to_be_built_there_is_no_need_to_any_additio": "Markup is a plug-and-play package that does not need to be built. There is no need to any additional setup or requirements to get started. Simply add it to your project and start writing your code.",
+                    "via_cdn": "Via CDN",
+                    "this_method_is_the_quickest_loading_option_and_can_be_placed_in_the_head_tag_of_the_document": "This method is the quickest loading option and can be placed in the head tag of the document.",
+                    "you_may_also_specify_a_specific_version_you_want": "You may also specify a specific version you want.",
+                    "you_can_use_various_cdn_providers_like_unpkg_jsdelivr": "You can use various CDN providers like **unpkg**, **jsDelivr**.",
+                    "the_client_cdn_link_will_create_a_global_bfs_markup_variable_you_can_access_for_all_the_internal": "The client CDN link will create a global BFS.MARKUP variable you can access for all the internal functions.",
+                    "via_npm": "Via npm",
+                    "this_package_is_also_available_via_npm_which_will_allow_you_to_use_it_in_server_side_javascript": "This package is also available via **npm** which will allow you to use it in server-side JavaScript environments.",
+                    "via_yarn": "Via yarn",
+                    "typescript": "Typescript",
+                    "this_package_was_built_using_typescript_you_don_t_need_to_install_a_separate_types_package_for_i": "This package was built using typescript. You don't need to install a separate \"types\" package for it."
+                }
+            },
+            "state": {
+                "effect": {
+                    "meta": {
+                        "effect": "Effect",
+                        "state_effect_markup_by_before_semicolon": "State Effect - Markup by Before Semicolon",
+                        "use_markup_effect_to_track_state_dependencies_react_to_multiple_state_changes_clean_up_subscript": "Use Markup effect to track state dependencies, react to multiple state changes, clean up subscriptions, debounce async work, and control nested effects."
+                    },
+                    "content": {
+                        "effect": "Effect",
+                        "the_effect_api_complements_the_state_index_api_by_providing_a_better_way_to_react_to_multiple_st": "The `effect` API complements the [state](./index) API by providing a better way to react to multiple state changes based on what you need to be executed.",
+                        "the_state_api_allows_you_to_subscribe_to_changes_of_its_value": "The `state` API allows you to subscribe to changes of its value.",
+                        "this_is_great_if_you_want_to_perform_side_effects_related_to_a_single_state_to_perform_side_effe": "This is great if you want to perform side effects related to a single state. To perform side effects for multiple states you will need the `effect` API.",
+                        "effectunsubscriber": "EffectUnSubscriber",
+                        "some_side_effects_can_stay_there_continuosly_as_a_global_effect_to_something_specific_others_nee": "Some side effects can stay there continuosly as a global effect to something specific. Others need to be cleaned up whenever the scope where they are defined at goes away.",
+                        "when_you_call_a_stategetter_inside_the_effect_callback_function_the_effect_becomes_aware_of_the": "When you call a `StateGetter` inside the `effect` callback function, the `effect` becomes aware of the state and this detection is done synchronously.",
+                        "the_effect_calls_the_provided_callback_as_soon_as_its_declared_so_it_becomes_aware_of_the_states": "The effect calls the provided callback as soon as its declared so it becomes aware of the states called inside.",
+                        "the_effect_also_batches_updates_which_allows_you_to_update_multiple_state_at_once_and_only_have": "The `effect` also batches updates which allows you to update multiple state at once and only have a single reaction.",
+                        "the_batch_update_is_useful_but_the_effect_also_understand_initialization_which_allows_you_to_mak": "The batch update is useful but the `effect` also understand initialization which allows you to make a bunch calculation on load and only have it run once after you are done.",
+                        "caching": "Caching",
+                        "the_effect_allows_you_to_return_values_that_are_cached_and_provided_in_the_callback_for_the_next": "The `effect` allows you to return values that are cached and provided in the callback for the next time. This is great for tracking changes accross updates.",
+                        "for_example_perform_a_debounce_effect_on_search_value_changes": "For example, perform a debounce effect on search value changes.",
+                        "async_effect": "Async effect",
+                        "the_effect_works_synchronously_that_s_how_it_detects_the_states_inside_and_caches_data": "The `effect` works synchronously. That's how it detects the states inside and caches data.",
+                        "however_callback_you_provide_to_the_effect_can_be_asynchronous_if_you_really_want_to": "However, callback you provide to the `effect` can be asynchronous if you really want to.",
+                        "if_you_do_so_the_cached_data_will_be_the_promise_returned_by_the_function_and_not_the_data_you_r": "If you do so, the cached data will be the promise returned by the function and not the data you return from the async callback. This means you need to resolve the cached data to get the value.",
+                        "nested_effect": "Nested effect",
+                        "you_can_nest_effect_to_track_different_values_this_allows_for_the_body_of_your_effect_to_react_i": "You can nest `effect` to track different values. This allows for the body of your `effect` to react independently while different effects track different states.",
+                        "if_you_want_to_clear_all_effects_you_can_unsubscribe_from_the_outer_most_effect_and_which_will_t": "If you want to clear all effects, you can unsubscribe from the outer most `effect` and which will take care of all child `effect` for you. However, inner effects must be tracked by you as whenever the outer effect is called, a new inner effect will be created."
+                    }
+                },
+                "index": {
+                    "meta": {
+                        "intro_to_states": "Intro to States",
+                        "state_markup_by_before_semicolon": "State - Markup by Before Semicolon",
+                        "learn_markup_state_getter_setter_and_unsubscribe_behavior_for_reactive_rendering_direct_reads_fu": "Learn Markup state getter, setter, and unsubscribe behavior for reactive rendering, direct reads, functional updates, subscriptions, and template updates."
+                    },
+                    "content": {
+                        "state": "State",
+                        "something_that_is_truly_missing_in_web_apis_is_reactivity_the_ability_to_react_to_changes_instea": "Something that is truly missing in web APIs is reactivity, the ability to react to changes instead of listening to events. A big promise is the [tc39 proposal](https://github.com/tc39/proposal-signals) which is attempting to bring signals to JavaScript.",
+                        "until_then_markup_exposes_a_standalone_api_that_gives_you_that_capability_called_state": "Until then, Markup exposes a standalone API that gives you that capability called `state`.",
+                        "the_state_api_can_be_used_with_or_without_templates_allowing_you_to_create_state_stores_capabili": "The state API can be used with or without templates allowing you to create [state stores](../capabilities/state-store.md), enhance Web Components, and even provide reactivity with raw DOM manipulation.",
+                        "the_best_part_is_when_you_combine_state_and_templates_to_render_dom_nodes_that_react_to_updates": "The best part is when you combine state and templates to render DOM nodes that react to updates as they happen without having to manipulate the DOM yourself.",
+                        "markup_templates_do_not_traverse_the_dom_to_check_for_updates_instead_it_creates_render_effects": "Markup templates do not traverse the DOM to check for updates. Instead, it creates [render effects](./effect.md) in place to update the DOM exactly where and when needed.",
+                        "input": "Input",
+                        "to_initialize_a_state_you_can_optionally_provide_an_initialvalue_as_well_as_a_statesubscriber_wh": "To initialize a state, you can optionally provide an `initialValue` as well as a `StateSubscriber` which is a function that will be called every time the state changes.",
+                        "when_no_input_value_provided_the_default_value_is_an_empty_string": "When no input value provided, the default value is an empty string.",
+                        "return": "Return",
+                        "the_state_function_will_return_and_array_with_three_functions_a_stategetter_statesetter_and_a_st": "The `state` function will return and array with three functions, a `StateGetter`, `StateSetter`, and a `StateUnSubscriber`.",
+                        "stategetter": "StateGetter",
+                        "the_stategetter_is_a_function_you_must_call_to_get_the_current_value_of_the_state": "The `StateGetter` is a function you must call to get the current value of the state.",
+                        "statesetter": "StateSetter",
+                        "the_statesetter_is_a_function_you_call_with_the_new_value_for_the_state_or_a_function_that_gets": "The `StateSetter` is a function you call with the new value for the state or a function that gets called with the current value and must return a new value.",
+                        "calling_the_statesetter_with_same_value_will_not_cause_the_subscribers_to_be_called_a_shallow_co": "Calling the `StateSetter` with same value will not cause the subscribers to be called. A shallow comparison is made before updating the current value which prevents unnecessary updates.",
+                        "stateunsubscriber": "StateUnSubscriber",
+                        "in_case_you_provide_a_statesubscriber_as_a_second_argument_for_the_state_you_can_then_use_the_st": "In case you provide a `StateSubscriber` as a second argument for the `state`, you can then use the `StateUnSubscriber` to stop listening to the state changes.",
+                        "the_state_is_a_synchronous_value_which_means_you_can_update_it_in_one_line_and_read_it_on_the_ne": "The state is a synchronous value which means you can update it in one line and read it on the next.",
+                        "behind_the_scenes_state_is_just_a_self_managed_subscription_that_works_seamlessly_with_effect_an": "Behind the scenes, `state` is just a self managed subscription that works seamlessly with `effect` and `html` APIs.",
+                        "form_input_value_and_validation": "Form input value and validation:"
+                    }
+                }
+            },
+            "templating": {
+                "events": {
+                    "meta": {
+                        "events": "Events",
+                        "html_events_markup_by_before_semicolon": "HTML Events - Markup by Before Semicolon",
+                        "attach_native_event_handlers_in_markup_templates_with_inline_on_attributes_pass_listener_options": "Attach native event handlers in Markup templates with inline on* attributes, pass listener options, use AbortController, and handle DOM events safely."
+                    },
+                    "content": {
+                        "events": "Events",
+                        "html_allows_you_set_inline_event_listeners_using_on_attributes_this_is_pretty_much_how_you_set_e": "HTML allows you set inline event listeners using `on*` attributes. This is pretty much how you set event listeners on tags in Markup.",
+                        "the_big_difference_with_markup_is_that_these_attributes_are_not_rendered_and_behind_the_scenes_m": "The big difference with Markup is that these attributes are not rendered and behind the scenes Markup is using the [addEventListener](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener) to set event listeners on your tags.",
+                        "this_allows_your_html_to_have_event_listeners_and_be_safe_by_not_allowing_unsafe_inline_event_li": "This allows your HTML to have event listeners and be safe by not allowing unsafe inline event listeners attributes while still enjoying all the advantages of using `addEventListener` API.",
+                        "event_options": "Event options",
+                        "because_markup_is_using_addeventlistener_behind_the_scenes_it_offers_a_special_syntax_that_allow": "Because Markup is using `addEventListener` behind the scenes, it offers a special syntax that allows you to set options which is not possible with native HTML.",
+                        "by_providing_a_tuple_array_with_two_values_you_can_specify_the_handler_and_its_options_to_be_use": "By providing a tuple (array with two values), you can specify the handler and its options to be used when setting an event listener.",
+                        "these_options_are_just_addeventlistener_options_https_developer_mozilla_org_en_us_docs_web_api_e": "These options are just [addEventListener options](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#options) that allows you to specify how the event should be handled including defining signals."
+                    }
+                },
+                "html_attributes": {
+                    "meta": {
+                        "attributes": "Attributes",
+                        "html_attributes_markup_by_before_semicolon": "HTML Attributes - Markup by Before Semicolon",
+                        "work_with_markup_template_attributes_boolean_attributes_dynamic_values_object_attributes_refs_cl": "Work with Markup template attributes, boolean attributes, dynamic values, object attributes, refs, classes, and native inline event attributes."
+                    },
+                    "content": {
+                        "html_attributes": "HTML Attributes",
+                        "html_attributes_in_markup_templates_are_just_html_attributes_one_specific_behavior_change_is_rel": "HTML attributes in Markup templates are just HTML attributes. One specific behavior change is related to [boolean attributes](https://developer.mozilla.org/en-US/docs/Glossary/Boolean/HTML) and besides that, your knowledge about HTML attributes transfer as is.",
+                        "boolean_attributes": "Boolean attributes",
+                        "boolean_attributes_in_html_are_attributes_that_represent_true_or_false_values": "Boolean attributes in HTML are attributes that represent `true` or `false` values.",
+                        "the_issue_with_boolean_attributes_in_html_is_that_giving_them_the_value_of_false_does_not_stop_t": "The issue with boolean attributes in HTML is that giving them the value of `false` does not stop their effect on the element. If they are present in the tag they work as having the value of `true` no matter their value.",
+                        "markup_honors_the_true_or_false_values_and_allows_you_to_add_or_remove_these_attributes_just_by": "Markup honors the `true` or `false` values and allows you to add or remove these attributes just by specifying their boolean values.",
+                        "setting_an_attribute_value_to_false_as_string_or_boolean_or_nil_undefined_or_null_will_remove_th": "Setting an attribute value to `false` (as string or boolean) or nil (`undefined` or `null`) will remove the attribute.",
+                        "value_attributes": "Value attributes",
+                        "markup_is_aware_of_value_you_inject_in_the_template_as_attribute_values_and_will_track_and_updat": "Markup is aware of value you inject in the template as attribute values and will track and update them accordingly. There is no extra syntax necessary to make this happen.",
+                        "event_attributes": "Event attributes",
+                        "html_allows_you_to_declare_inline_event_attributes_and_they_work_the_same_with_markup_no_extra_s": "HTML allows you to declare inline event attributes and they work the same with markup. No extra syntax is needed to add attach events but Markup does additional things in the background you can learn more about by reading the [events](./events.md) docs.",
+                        "reference_attribute": "Reference attribute",
+                        "one_thing_that_exists_in_markup_and_not_in_html_is_the_ref_attribute_that_allows_you_to_create_a": "One thing that exists in Markup and not in HTML is the `ref` attribute that allows you to create a reference to an element you can use to access the rendered DOM element for whatever operation you need. You can read about [references](./ref.md) for more details.",
+                        "attributes_as_object": "Attributes as object",
+                        "it_is_good_to_know_all_the_possible_attributes_in_advance_but_sometimes_that_s_not_possible_for": "It is good to know all the possible attributes in advance but sometimes that's not possible. For that, you can collect attributes as objects and just inject them as is overriding as needed.",
+                        "any_attribute_you_set_after_injecting_the_attribute_object_will_override_the_object_attribute_na": "Any attribute you set after injecting the attribute object will override the object attribute name value. In the example above, we ensure that the `type` of the button is always `button` by setting it after injecting the `props` object.",
+                        "also_you_can_use_camelcase_attribute_name_to_changed_to_kebab_case_in_the_example_above_arialabe": "Also, you can use camelcase attribute name to changed to kebab-case. In the example above `ariaLabel` will become `aria-label` when the button renders. The `onClick` will change to `onclick` and handled like an [event attributes](#event-attributes)."
+                    }
+                },
+                "index": {
+                    "meta": {
+                        "create_render": "Create & Render",
+                        "markup_templating_create_render_replace_and_nest_templates": "Markup Templating - Create, Render, Replace, and Nest Templates",
+                        "learn_how_the_markup_html_tagged_template_creates_templates_renders_dom_replaces_content_nests_t": "Learn how the Markup html tagged template creates templates, renders DOM, replaces content, nests templates, and updates reactive values."
+                    },
+                    "content": {
+                        "templating": "Templating",
+                        "markup_uses_tagged_template_literals_https_developer_mozilla_org_en_us_docs_web_javascript_refer": "Markup uses [tagged template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates) called `html` to describe the HTML you want to render.",
+                        "the_html_returns_an_htmltemplate_instance_containing_methods_and_properties_you_can_use_to_acces": "The `html` returns an `HTMLTemplate` instance containing methods and properties you can use to access or perform many actions.",
+                        "rendering": "Rendering",
+                        "there_are_few_ways_to_render_a_template_after_you_define_it": "There are few ways to render a template after you define it:",
+                        "render_takes_a_htmlelement_to_append_the_template_to": "`render`: Takes a HTMLElement to append the template to;",
+                        "replace_takes_any_node_or_another_htmltemplate_instance_to_replace_in_the_dom": "`replace`: Takes any Node or another `HTMLTemplate` instance to replace in the DOM;",
+                        "insertafter_takes_any_node_or_another_htmltemplate_instance_to_insert_the_template_after": "`insertAfter`: Takes any Node or another `HTMLTemplate` instance to insert the template after;",
+                        "render": "render",
+                        "the_render_method_will_take_either_a_shadowroot_htmlelement_or_documentfragment_to_append_the_co": "The `render` method will take either a `ShadowRoot`, `HTMLElement`, or `DocumentFragment` to append the content to.",
+                        "the_parsing_of_the_template_happens_at_render_time_and_will_only_happen_once_this_is_also_true_f": "The parsing of the template happens at render time and will only happen once. This is also true for other rendering methods.",
+                        "calling_the_render_method_with_same_target_repeatedly_will_only_work_once_you_can_call_it_with_a": "Calling the `render` method with same target repeatedly will only work once. You can call it with a different target to move content to a different place.",
+                        "replace": "replace",
+                        "the_replace_method_takes_any_htmltemplate_or_node_https_developer_mozilla_org_en_us_docs_web_api": "The `replace` method takes any `HTMLTemplate` or [Node](https://developer.mozilla.org/en-US/docs/Web/API/Node) as long as it is not a `ShadowRoot`, `HTMLBodyElement`, `HTMLHeadElement`, or `HTMLHtmlElement` to replace in the DOM.",
+                        "similar_to_render_method_it_will_only_parse_content_once": "Similar to `render` method, it will only parse content once.",
+                        "the_replace_method_is_powerful_especially_when_working_with_asynchronous_rendering_you_can_rende": "The `replace` method is powerful especially when working with asynchronous rendering you can render something temporarily like a loading indicator and then replace it later once you have your data. This is exactly what [suspense](../utilities/suspense.md) utility does.",
+                        "insertafter": "insertAfter",
+                        "the_insertafter_method_works_exactly_like_the_render_method_the_only_difference_is_that_it_adds": "The `insertAfter` method works exactly like the `render` method. The only difference is that it adds the template content after the provided target node.",
+                        "another_difference_is_that_it_can_also_take_a_htmltemplate_instance_as_target_allowing_to_render": "Another difference is that it can also take a `HTMLTemplate` instance as target, allowing to render templates one after another.",
+                        "parentnode": "parentNode",
+                        "the_parentnode_property_will_tell_you_where_the_template_was_rendered_it_will_return_the_element": "The `parentNode` property will tell you where the template was rendered. It will return the element in which the template nodes were added to.",
+                        "mounted": "mounted",
+                        "after_you_render_your_template_you_can_use_the_mounted_property_to_check_if_your_template_was_ad": "After you render your template, you can use the `mounted` property to check if your template was added to the target as you wanted.",
+                        "the_mounted_property_will_not_tell_you_if_the_template_is_actually_attached_to_a_document_for_th": "The `mounted` property will not tell you if the template is actually attached to a document. For that, you can use the `parentNode?.isConnected`.",
+                        "childnodes": "childNodes",
+                        "the_childnodes_will_give_you_an_array_of_top_level_nodes_rendered_by_the_template": "The `childNodes` will give you an array of top level Nodes rendered by the template.",
+                        "unmount": "unmount",
+                        "to_remove_your_template_from_the_target_you_can_use_the_unmount_method": "To remove your template from the target, you can use the `unmount` method.",
+                        "the_unmount_should_be_the_only_way_you_go_about_removing_the_template_from_the_dom_this_is_becau": "The `unmount` should be the ONLY way you go about removing the template from the DOM. This is because it also unsubscribes from any state recursively. This means that even when you nest templates, the `unmount` will be called for all of them.",
+                        "directly_manipulating_the_dom_may_have_undesired_results": "Directly manipulating the DOM may have undesired results.",
+                        "tostring": "toString",
+                        "conveniently_you_can_get_a_string_representation_of_your_template_in_its_current_rendered_state": "Conveniently, you can get a string representation of your template in its current rendered state.",
+                        "livecycles": "Livecycles",
+                        "there_are_additional_methods_available_for_lifecycle_purpose_you_can_learn_more_by_checking_the": "There are additional methods available for lifecycle purpose. You can learn more by checking the [lifecycle](./lifecycles.md) document."
+                    }
+                },
+                "lifecycles": {
+                    "meta": {
+                        "template_lifecycles_markup_by_before_semicolon": "Template Lifecycles - Markup by Before Semicolon",
+                        "use_markup_template_lifecycle_hooks_such_as_onmount_and_onupdate_to_run_setup_cleanup_and_side_e": "Use Markup template lifecycle hooks such as onMount and onUpdate to run setup, cleanup, and side effects when templates render or change."
+                    },
+                    "content": {
+                        "markup_exposes_few_methods_you_can_use_to_tap_into_the_lifecycles_of_the_template": "Markup exposes few methods you can use to tap into the lifecycles of the template:",
+                        "onmount_method_that_takes_a_function_to_call_when_the_template_is_mounted_that_can_return_anothe": "`onMount`: method that takes a function to call when the template is mounted that can return another function to be called when the template is unmounted;",
+                        "onupdate_method_that_takes_a_function_to_call_when_something_in_the_rendered_template_changes": "`onUpdate`: method that takes a function to call when something in the rendered template changes;",
+                        "onmove_method_that_takes_a_function_to_call_when_the_template_content_is_moved_from_one_location": "`onMove`: method that takes a function to call when the template content is moved from one location to another in the DOM.",
+                        "all_lifecycle_callbacks_will_be_called_with_the_instance_of_the_template_as_the_first_argument_t": "All lifecycle callbacks will be called with the instance of the template as the first argument that you can use to operate on the template itself.",
+                        "onmount": "onMount",
+                        "the_onmount_method_takes_a_function_to_be_called_when_the_template_is_rendered_via_any_of_the_re": "The `onMount` method takes a function to be called when the template is rendered via any of the [render methods](./index.md#rendering). This function can return another function to be called when the template gets unmounted.",
+                        "the_unmount_event_can_be_triggered_by_calling_the_unmount_or_when_the_template_was_removed_part": "The unmount event can be triggered by calling the `unmount` or when the template was removed part of some change in the parent template.",
+                        "these_livecycles_are_perfect_for_setups_and_cleanups_around_the_template_these_are_things_like_w": "These livecycles are perfect for setups and cleanups around the template. These are things like working with timers or other event driven actions that stay in the background.",
+                        "onupdate": "onUpdate",
+                        "the_onupdate_method_takes_a_function_to_be_called_whenever_something_in_the_template_changes_thi": "The `onUpdate` method takes a function to be called whenever something in the template changes. This could attribute or node added, removed, or updated.",
+                        "if_you_want_to_react_to_a_specific_state_change_you_can_use_the_effect_state_effect_md_the_onupd": "If you want to react to a specific state change, you can use the [effect](../state/effect.md). The `onUpdate` is perfect for when you want to take snapshots of the template or perform generic template related side effects.",
+                        "onmove": "onMove",
+                        "the_onmove_method_takes_a_function_to_be_called_whenever_the_template_render_target_changes": "The `onMove` method takes a function to be called whenever the template render target changes.",
+                        "this_livecycle_is_perfect_to_perform_action_dependent_on_the_template_location_these_can_be_thin": "This livecycle is perfect to perform action dependent on the template location. These can be things like DOM reordering or when working with drag and drop.",
+                        "chaining": "Chaining",
+                        "all_template_livecycles_and_render_methods_index_md_rendering_can_be_chained_and_you_should_alwa": "All template livecycles and [render methods](./index.md#rendering) can be chained and you should always set the livecycles before rendering anything."
+                    }
+                },
+                "ref": {
+                    "meta": {
+                        "references": "References",
+                        "template_dom_references_markup_by_before_semicolon": "Template DOM References - Markup by Before Semicolon",
+                        "use_the_markup_ref_attribute_to_capture_dom_element_references_from_rendered_templates_and_safel": "Use the Markup ref attribute to capture DOM element references from rendered templates and safely access elements created by the html template."
+                    },
+                    "content": {
+                        "ref": "Ref",
+                        "markup_templates_will_handle_all_dom_elements_rendering_for_you_but_if_you_really_need_to_access": "Markup templates will handle all DOM elements rendering for you but if you really need to access the element rendered by the templates, you can use the `ref` attribute to provide a handle key that you can then use to grab the elements.",
+                        "multiple_references": "Multiple references",
+                        "the_ref_attribute_always_return_an_array_therefore_you_can_use_the_same_key_to_grab_multiple_ite": "The `ref` attribute always return an array. Therefore, you can use the same key to grab multiple items at once.",
+                        "references_are_not_created_until_the_template_is_rendered_this_is_because_creating_a_template_si": "References are not created until the template is rendered. This is because creating a template simply registers a template and its during the rendering phase that the elements are collected.",
+                        "access_references": "Access references",
+                        "to_access_these_reference_elements_you_can_read_the_refs_property_in_the_template_instance": "To access these reference elements, you can read the `refs` property in the template instance.",
+                        "the_refs_property_returns_an_object_literal_with_array_of_elements_keyed_by_the_value_you_provid": "The `refs` property returns an object literal with array of elements keyed by the value you provided in the `ref` attributes.",
+                        "nested_references": "Nested references",
+                        "you_can_access_any_reference_via_the_template_instance_including_its_child_templates": "You can access any reference via the template instance including its child templates.",
+                        "this_capability_allows_you_to_focus_on_your_top_template_and_work_everything_from_there_this_doe": "This capability allows you to focus on your top template and work everything from there. This does not mean you cannot access the references at each individual template level. Its just more convenient.",
+                        "dynamic_references": "Dynamic references",
+                        "all_references_are_dynamic_and_this_means_that_as_things_render_or_unmount_from_the_template_ref": "All references are dynamic and this means that as things render or unmount from the template, reference are added or removed.",
+                        "for_this_reason_you_should_always_check_for_the_reference_being_there_before_doing_anything_this": "For this reason, you should always check for the reference being there before doing anything. This would be the indication whether the element is still rendered in the template or not."
+                    }
+                },
+                "values": {
+                    "meta": {
+                        "values": "Values",
+                        "template_values_markup_by_before_semicolon": "Template Values - Markup by Before Semicolon",
+                        "understand_how_markup_renders_template_values_including_strings_numbers_dom_nodes_arrays_functio": "Understand how Markup renders template values including strings, numbers, DOM nodes, arrays, functions, state getters, nested templates, and object values."
+                    },
+                    "content": {
+                        "values": "Values",
+                        "if_you_ever_worked_with_javascript_template_literals_https_developer_mozilla_org_en_us_docs_web": "If you ever worked with JavaScript [template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) you may already know you can inject values. Since markup templates are just template literals, you can inject whatever you want and Markup will handle each value for you.",
+                        "parsing": "Parsing",
+                        "before_we_jump_into_specific_values_lets_talk_about_how_markup_parses_the_html_string_in_the_tem": "Before we jump into specific values, lets talk about how Markup parses the HTML string in the template literals.",
+                        "just_because_you_can_inject_values_anywhere_in_the_string_does_not_mean_it_will_be_parsed_the_wa": "Just because you can inject values anywhere in the string does not mean it will be parsed the way you want. Markup sees HTML in the template literals just like HTML written in `.html` files.",
+                        "this_means_you_can_only_inject_values_around_tags_openings_or_as_attribute_value_for_example_inj": "This means, you can only inject values around tags openings or as attribute value. For example, injecting a value for tag name will not result in parsed DOM elements.",
+                        "the_above_will_simply_result_in_hello_world_string_and_not_the_paragraph_element_with_hello_worl": "The above will simply result in `<p>hello world</p>` string and not the paragraph element with \"hello world\" text inside.",
+                        "similarly_you_cannot_have_a_string_representation_of_attribute_key_value_and_inject_it_in_the_bo": "Similarly, you cannot have a string representation of attribute key value and inject it in the body of the tag to be interpreted. The example bellow will throw an error:",
+                        "there_is_a_way_to_inject_attribute_objects_you_can_learn_about_by_reading_the_attributes_html_at": "There is a way to inject attribute objects you can learn about by reading the [attributes](./html-attributes.md#attributes-as-object) doc.",
+                        "to_conclude_write_html_as_you_know_and_inject_value_where_you_would_write_values_in_html_those_a": "To conclude, write HTML as you know and inject value where you would write values in HTML. Those are, as attribute value (between parenthesis), before, after, or inside a tag.",
+                        "node": "Node",
+                        "markup_templates_work_seamlessly_with_dom_nodes_and_this_ability_is_what_allows_you_to_migrate_a": "Markup templates work seamlessly with DOM nodes and this ability is what allows you to migrate any vanilla JavaScript solution easily to Markup templates.",
+                        "you_can_inject_any_node_directly_in_the_template_and_they_will_be_rendered_as_so": "You can inject any Node directly in the template and they will be rendered as so.",
+                        "if_you_want_a_better_and_quicker_way_to_create_htmlelement_we_suggest_taking_a_look_at_the_eleme": "If you want a better and quicker way to create `HTMLElement` we suggest taking a look at the [element utility](../utilities/element.md).",
+                        "htmltemplate": "HTMLTemplate",
+                        "the_best_thing_about_markup_templates_is_the_ability_to_nest_them_to_compose_more_complex_views": "The best thing about Markup templates is the ability to nest them to compose more complex views while each template maintaining their lifecycles, and tracking which allows for more performant updates and a granular way to track each part of the view.",
+                        "this_capability_resembles_the_native_dom_node_instead_the_difference_is_instead_of_tracking_indi": "This capability resembles the native DOM node instead. The difference is, instead of tracking individual nodes, you can track a meaningful collection of them that makes sense together.",
+                        "arrays": "Arrays",
+                        "injecting_arrays_in_templates_is_a_powerful_way_to_quickly_render_a_collection_of_things_quickly": "Injecting arrays in templates is a powerful way to quickly render a collection of things quickly that needs to be tracked and updated together.\nArrays will have their items rendered as they are. This makes it super easy to render lists in general and comes handy with data handling.",
+                        "the_list_is_rendered_without_space_or_commas_you_can_also_collect_a_list_of_templates_to_render": "The list is rendered without space or commas. You can also collect a list of templates to render directly as nested templates.",
+                        "this_parsing_only_happens_up_to_one_level_though_if_what_you_wish_to_render_is_one_level_deeper": "This parsing only happens up to one level though. If what you wish to render is one level deeper it will rendered as the string version of that data in JavaScript.",
+                        "functions": "Functions",
+                        "functions_are_first_class_citizens_in_markup_it_is_used_for_reactivity_and_lazy_evaluations_and": "Functions are first class citizens in Markup. It is used for reactivity and lazy evaluations and they are pretty much the secret behind Markup.",
+                        "every_function_injected_in_the_template_is_called_and_its_value_is_rendered_and_tracked_accordin": "Every function injected in the template is called and its value is rendered and tracked accordingly.",
+                        "when_you_learn_about_state_state_index_md_and_effect_state_effect_md_you_will_notice_that_its_al": "When you learn about [state](../state/index.md) and [effect](../state/effect.md) you will notice that its all about functions and one thing that makes it more powerful is using functions that perform calculations with state.",
+                        "markup_understands_that_functions_may_contain_states_that_change_and_will_evaluate_them_whenever": "Markup understands that functions may contain states that change and will evaluate them whenever those state change and then perform the change in the DOM accordingly.",
+                        "primitives": "Primitives",
+                        "when_you_inject_primitive_value_they_will_all_be_rendered_as_their_string_version": "When you inject primitive value, they will all be rendered as their string version.",
+                        "you_need_to_be_specifically_careful_with_nil_values_like_undefined_and_null_resulting_of_accessi": "You need to be specifically careful with nil values like `undefined` and `null` resulting of accessing values not there. They are rendered and may not be what you want. If you wish to render nothing, always use an empty string.",
+                        "non_primitives": "Non-Primitives",
+                        "array_functions_nodes_and_htmltemplate_are_the_only_non_primitive_values_that_do_not_receive_a_s": "Array, Functions, Nodes, and HTMLTemplate are the only non-primitive values that do not receive a special handling. Everything else will be render the same way as they would if stringified in JavaScript."
+                    }
+                }
+            },
+            "utilities": {
+                "and_or_oneof": {
+                    "meta": {
+                        "oneof_and_or": "OneOf, And & Or",
+                        "oneof_and_or_utility_markup_by_before_semicolon": "OneOf, And & Or Utility - Markup by Before Semicolon",
+                        "use_the_markup_and_or_and_oneof_helpers_to_combine_reactive_boolean_conditions_and_render_templa": "Use the Markup and, or, and oneOf helpers to combine reactive boolean conditions and render templates when multiple state checks pass."
+                    },
+                    "content": {
+                        "oneof_and_or_utilities": "OneOf, And & Or Utilities",
+                        "markup_comes_with_additional_utilities_that_work_as_operators_and_allows_you_to_check_a_value_fr": "Markup comes with additional utilities that work as operators and allows you to check a value from a bunch. This comes in form of `and`, `or`, and `oneOf` utilities.",
+                        "oneof": "oneOf",
+                        "the_oneof_works_like_the_is_and_isnot_is_isnot_md_utilities_but_instead_of_checking_a_one_value": "The `oneOf` works like the [is and isNot](./is-&-isnot.md) utilities but instead of checking a one value, it checks many.",
+                        "it_takes_the_value_state_you_want_to_check_and_an_array_of_values_to_check_against_the_utility_s": "It takes the value/state you want to check and an array of values to check against. The utility simply checks the value exactly.",
+                        "and": "and",
+                        "the_and_utility_works_like_the_logical_and_https_developer_mozilla_org_en_us_docs_web_javascript": "The `and` utility works like the `&&` ([Logical AND](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_AND)). It will return `true` only if all values are [TRUTHY](https://developer.mozilla.org/en-US/docs/Glossary/Truthy).",
+                        "you_can_list_any_amount_of_values_for_the_check": "You can list any amount of values for the check:",
+                        "and_value1_value2_valuen": "`and(value1, value2, ..., valueN)`",
+                        "or": "or",
+                        "the_or_utility_works_like_the_logical_or_https_developer_mozilla_org_en_us_docs_web_javascript_r": "The `or` utility works like the `||` ([Logical OR](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_OR)). It will return `true` only if at least one of the values are [TRUTHY](https://developer.mozilla.org/en-US/docs/Glossary/Truthy).",
+                        "or_value1_value2_valuen": "`or(value1, value2, ..., valueN)`"
+                    }
+                },
+                "element": {
+                    "meta": {
+                        "element": "Element",
+                        "element_utility_markup_by_before_semicolon": "Element Utility - Markup by Before Semicolon",
+                        "use_the_markup_element_utility_to_create_dom_elements_programmatically_with_attributes_children": "Use the Markup element utility to create DOM elements programmatically with attributes, children, refs, and event handlers when a static template is not enough."
+                    },
+                    "content": {
+                        "element_utility": "Element Utility",
+                        "the_element_attribute_is_simply_a_function_that_allows_you_to_create_dom_elements_in_one_call": "The `element` attribute is simply a function that allows you to create DOM elements in one call.",
+                        "normally_when_working_with_dom_elements_we_create_and_piece_them_together_after": "Normally, when working with DOM elements we create and piece them together after.",
+                        "this_is_a_lot_of_steps_to_create_a_simple_button_here_is_the_same_thing_using_element": "This is a lot of steps to create a simple button. Here is the same thing using `element`:",
+                        "the_element_uses_addeventlistener_behind_the_scenes_and_handles_non_primitive_values_for_you_by": "The `element` uses `addEventListener` behind the scenes and handles non-primitive values for you by easily detecting web component elements.",
+                        "childnodes_and_htmlcontent": "childNodes and htmlContent",
+                        "the_childnodes_and_htmlcontent_options_allows_you_to_component_more_complex_elements_easily_depe": "The `childNodes` and `htmlContent` options allows you to component more complex elements easily depending on how you want to approach.",
+                        "here_is_a_example_using_the_childnodes_option": "Here is a example using the `childNodes` option:",
+                        "now_an_example_of_the_same_thing_using_the_htmlcontent_option": "Now an example of the same thing using the `htmlContent` option:",
+                        "the_main_difference_here_is_the_fact_the_using_childnodes_you_can_specify_function_and_property": "The main difference here is the fact the using `childNodes` you can specify function and property values to attributes while the `htmlContent` only takes a static HTML you want to use.",
+                        "web_components": "Web components",
+                        "the_best_part_of_working_with_element_is_with_web_components_it_will_handle_all_non_primitive_pr": "The best part of working with `element` is with web components. It will handle all non-primitive props to ensure the web components get data as they should.",
+                        "svg_elements": "SVG elements",
+                        "to_create_svg_elements_you_can_specify_the_ns_option_with_the_value_of_http_www_w3_org_2000_svg": "To create SVG elements you can specify the `ns` option with the value of `http://www.w3.org/2000/svg` and that will give you any SVG element."
+                    }
+                },
+                "index": {
+                    "meta": {
+                        "intro_to_utilities": "Intro to Utilities",
+                        "markup_utilities_conditional_async_repeated_and_lazy_rendering": "Markup Utilities - Conditional, Async, Repeated, and Lazy Rendering",
+                        "overview_of_markup_helper_utilities_for_conditional_rendering_repeated_rendering_async_suspense": "Overview of Markup helper utilities for conditional rendering, repeated rendering, async suspense, visibility-based lazy rendering, DOM elements, and state selection."
+                    },
+                    "content": {
+                        "utilities": "Utilities",
+                        "markup_offers_many_utility_functions_that_aid_you_in_templating_or_work_with_the_dom_in_general": "Markup offers many utility functions that aid you in templating or work with the DOM in general:",
+                        "element_element_md_allows_you_to_easily_create_dom_elements": "[element](./element.md): allows you to easily create DOM elements;",
+                        "suspense_suspense_md_allows_you_to_lazy_render_content": "[suspense](./suspense.md): allows you to lazy render content;",
+                        "repeat_repeat_md_allows_you_to_handle_lists_or_repeat_content": "[repeat](./repeat.md): allows you to handle lists or repeat content;",
+                        "when_when_md_allows_you_to_conditionally_render_content": "[when](./when.md): allows you to conditionally render content;",
+                        "visible_visible_md_allows_you_to_defer_rendering_until_elements_enter_viewport": "[visible](./visible.md): allows you to defer rendering until elements enter viewport;",
+                        "is_and_isnot_is_isnot_md_allows_you_to_quickly_check_truthiness_of_states": "[is and isNot](./is-&-isnot.md): allows you to quickly check truthiness of states",
+                        "and_or_oneof_and_or_oneof_md_allows_you_to_quickly_check_conditions_of_states": "[and, or, & oneOf](./and-or-&-oneof.md): allows you to quickly check conditions of states",
+                        "pick_pick_md_allows_you_deeply_read_state_object_key_values": "[pick](./pick.md): allows you deeply read state object key values",
+                        "why_you_need_utilities": "Why you need utilities?",
+                        "in_markup_functions_are_first_class_citizens_which_means_that_reactive_data_are_represented_with": "In Markup, functions are first class citizens which means that reactive data are represented with functions. For simplicity you can create functions that handle specific logic away from the template so things look clean, and logic is reusable.",
+                        "you_can_create_utility_functions_to_handle_things_like": "You can create utility functions to handle things like:",
+                        "validation": "validation;",
+                        "data_transformation": "data transformation;",
+                        "logic_base_rendering": "logic base rendering;",
+                        "caching": "caching;",
+                        "etc": "etc;",
+                        "you_only_need_to_define_utilities_when_working_with_states_everything_else_can_remain_as_static": "You only need to define utilities when working with states. Everything else can remain as static data.",
+                        "utilities_are_just_functions_that_rendered_in_template_and_that_need_to_be_called_whenever_the_s": "Utilities are just functions that rendered in template and that need to be called whenever the state they depend on changes.",
+                        "custom_utility": "Custom utility",
+                        "the_power_with_working_with_states_and_template_comes_when_you_start_defining_your_own_utilities": "The power with working with states and template comes when you start defining your own utilities. Let's look at a quick example:",
+                        "we_have_a_common_scenario_where_we_have_a_input_field_that_uses_state_and_we_need_to_display_a_c": "We have a common scenario where we have a input field that uses state and we need to display a certain message whether the value is valid or not.",
+                        "we_could_just_go_ahead_and_add_the_logic_for_the_message_right_in_template": "We could just go ahead and add the logic for the message right in template:",
+                        "this_is_not_bad_but_logic_in_the_template_takes_space_and_lots_of_them_makes_template_hard_to_re": "This is not bad but logic in the template takes space and lots of them makes template hard to read.",
+                        "i_realized_that_i_want_to_mark_the_field_red_when_the_input_is_invalid_and_that_relies_on_the_sa": "I realized that i want to mark the field red when the input is invalid and that relies on the same logic we have in the function. So, i can extract that logic into a function for reusability:",
+                        "now_i_have_two_utilities_that_tell_me_whether_the_value_has_ever_been_changed_or_if_it_is_valid": "Now I have two utilities that tell me whether the value has ever been changed or if it is valid that I can use anywhere to render whatever.",
+                        "but_i_don_t_need_to_stop_there_i_can_use_function_to_represent_anything_i_want_and_end_up_with_s": "But I don't need to stop there, i can use function to represent anything I want and end up with something like this:",
+                        "you_can_see_that_we_have_functions_that_handle_different_logic_composing_them_for_even_more_comp": "You can see that we have functions that handle different logic composing them for even more complex logic dependent on the state.",
+                        "this_ability_to_just_create_and_compose_functions_to_handle_everything_is_what_further_makes_tem": "This ability to just create and compose functions to handle everything is what further makes templating easy and fun in Markup.",
+                        "we_can_further_things_up_by_wrapping_everything_in_a_reusable_utility_for_handling_form_input_va": "We can further things up by wrapping everything in a reusable utility for handling form input values of any kind that we can use with multiple form fields.",
+                        "and_this_allows_me_to_easily_create_fields_handlers_for_any_field_like_so": "And this allows me to easily create fields handlers for any field like so:",
+                        "as_you_can_see_when_it_comes_to_reactivity_markup_relies_heavily_and_solely_on_functions_to_get": "As you can see, when it comes to reactivity, Markup relies heavily and solely on functions to get the job done. This function oriented nature makes templating simple and somehow familiar to anyone. Give it a try!"
+                    }
+                },
+                "is_isnot": {
+                    "meta": {
+                        "is_isnot": "Is & IsNot",
+                        "is_isnot_utility_markup_by_before_semicolon": "Is & IsNot Utility - Markup by Before Semicolon",
+                        "use_the_markup_is_and_isnot_helpers_to_render_content_from_truthy_or_falsy_state_values_with_con": "Use the Markup is and isNot helpers to render content from truthy or falsy state values with concise reactive conditional logic."
+                    },
+                    "content": {
+                        "is_isnot_utilities": "Is & IsNot Utilities",
+                        "the_is_and_isnot_are_one_of_the_simplest_utilities_that_allows_you_to_quickly_check_truthiness_a": "The `is` and `isNot` are one of the simplest utilities that allows you to quickly check truthiness about values, especially states.",
+                        "both_the_is_and_isnot_take_two_arguments_a_state_or_some_data_and_a_value_or_a_checker_they_will": "Both the `is` and `isNot` take two arguments, a state or some data, and a value or a checker. They will always return a boolean as the result. The second argument is optional and when not provided, it will check if the value is [truthy](https://developer.mozilla.org/en-US/docs/Glossary/Truthy) or [falsy](https://developer.mozilla.org/en-US/docs/Glossary/Falsy)",
+                        "regexp": "RegExp",
+                        "you_can_also_use_is_and_isnot_with_regular_expressions_to_check_if_a_string_matches_a_pattern": "You can also use `is` and `isNot` with regular expressions to check if a string matches a pattern.",
+                        "checker": "Checker",
+                        "the_more_advance_way_to_use_the_is_and_isnot_utilities_is_by_providing_a_function_as_second_argu": "The more advance way to use the `is` and `isNot` utilities is by providing a function as second argument that is called with the value and must return a boolean.",
+                        "this_checker_allows_you_to_perform_custom_checks_instead_of_the_default_strict_equality": "This checker allows you to perform custom checks instead of the default strict equality.",
+                        "when_they_consume_stategetter_as_first_argument_their_result_get_re_evaluated_with_every_change": "When they consume `StateGetter` as first argument, their result get re-evaluated with every change which allows it to be handy in quick validators."
+                    }
+                },
+                "pick": {
+                    "meta": {
+                        "pick": "Pick",
+                        "pick_utility_markup_by_before_semicolon": "Pick Utility - Markup by Before Semicolon",
+                        "use_the_markup_pick_utility_to_select_deep_object_state_paths_while_preserving_reactivity_for_ne": "Use the Markup pick utility to select deep object state paths while preserving reactivity for nested properties and derived template values."
+                    },
+                    "content": {
+                        "pick_utility": "Pick Utility",
+                        "the_pick_utility_simplifies_working_with_object_states_by_allowing_you_to_read_deep_property_val": "The `pick` utility simplifies working with object states by allowing you to read deep property values while keeping the reactivity of the states.",
+                        "why_use_pick_utility": "Why use `pick` utility?",
+                        "let_s_look_at_a_simple_user_object_state": "Let's look at a simple user object state.",
+                        "the_user_data_model_looks_something_like_this": "The user data model looks something like this:",
+                        "now_we_can_try_to_display_this_user_information_that_was_set_in_the_state": "Now we can try to display this user information that was set in the state.",
+                        "this_displays_everything_perfectly_however_if_this_is_an_object_that_changes_nothing_will_re_ren": "This displays everything perfectly. However, if this is an object that changes, nothing will re-render because everything was rendered statically. The simple solution is to render everything dynamically using functions.",
+                        "alternatively_you_can_use_pick_to_pick_the_properties_you_want_to_render_from_a_state": "Alternatively, you can use `pick` to pick the properties you want to render from a state.",
+                        "the_pick_utility_is_just_a_function_and_can_be_used_outside_the_templates_as_well": "The `pick` utility is just a function and can be used outside the templates as well.",
+                        "deep_values": "Deep values",
+                        "the_best_part_of_using_pick_is_its_ability_to_let_you_pick_deep_values_for_example_let_s_access": "The best part of using `pick` is its ability to let you pick deep values. For example, let's access our current user third job company website.",
+                        "as_you_can_see_you_can_use_dot_notation_https_developer_mozilla_org_en_us_docs_web_javascript_re": "As you can see, you can use [dot notation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Property_accessors#dot_notation) to access properties deeply and everything will re-render when these values change.",
+                        "undefined_values": "Undefined values",
+                        "the_pick_utility_also_offers_protection_against_undefined_values_by_preventing_things_from_throw": "The `pick` utility also offers protection against undefined values by preventing things from throwing errors when trying to read a property that does not exist.",
+                        "the_pick_helper_will_catch_the_error_and_simply_returns_undefined_that_can_be_rendered_or_read_b": "The `pick` helper will catch the error and simply returns `undefined` that can be rendered or read by your code.",
+                        "mapper_function": "Mapper function",
+                        "the_pick_utility_accepts_an_optional_third_argument_a_mapper_function_that_transforms_the_picked": "The `pick` utility accepts an optional third argument - a mapper function that transforms the picked value before returning it.",
+                        "this_is_useful_for_formatting_values_converting_types_or_applying_any_transformation_to_the_pick": "This is useful for formatting values, converting types, or applying any transformation to the picked value before it's rendered or used."
+                    }
+                },
+                "repeat": {
+                    "meta": {
+                        "repeat": "Repeat",
+                        "repeat_utility_markup_by_before_semicolon": "Repeat Utility - Markup by Before Semicolon",
+                        "render_lists_with_the_markup_repeat_utility_including_arrays_sets_maps_objects_numeric_ranges_em": "Render lists with the Markup repeat utility, including arrays, sets, maps, objects, numeric ranges, empty states, keys, and cached item templates."
+                    },
+                    "content": {
+                        "repeat_utility": "Repeat Utility",
+                        "the_repeat_utility_is_markup_recommended_way_to_render_iterable_data_or_repeating_content_it_han": "The `repeat` utility is Markup recommended way to render iterable data or repeating content. It handles things like caching and tracking for the template ensuring list changes only happen to the items that need them.",
+                        "why_use_repeat": "Why use repeat?",
+                        "markup_templates_already_handle_arrays_but_like_any_other_injected_value_markup_track_the_whole": "Markup templates already handle arrays but like any other injected value, Markup track the whole thing and not its individual items.",
+                        "the_above_code_will_work_just_fine_as_far_as_rendering_a_list_the_issue_becomes_evident_when_a_s": "The above code will work just fine as far as rendering a list. The issue becomes evident when a single item changes, is added or removed. This is because the function will get called again generating a brand new list of content to render. If Markup sees a new list, it will re-render everything.",
+                        "the_better_way_is_to_not_dynamically_map_the_list_on_render_but_on_creation_so_markup_always_hav": "The better way is to not dynamically map the list on render but on creation so Markup always have the things you want to render so it can check if its different from before or not.",
+                        "this_is_exactly_what_repeat_utility_does_for_you_by_just_taking_the_data_and_the_render_function": "This is exactly what `repeat` utility does for you by just taking the data and the render function.",
+                        "numbers": "Numbers",
+                        "the_repeat_helper_accepts_a_number_among_many_things_this_number_represents_the_number_of_times": "The `repeat` helper accepts a number among many things. This number represents the number of times you want the callback render function needs to be called.",
+                        "the_callback_function_will_be_called_with_numbers_from_1_to_the_number_you_provided_along_with_t": "The callback function will be called with numbers from 1 to the number you provided along with the indexes.",
+                        "iterables_and_object_literals": "Iterables and Object literals",
+                        "additionally_repeat_can_consume_any_object_literal_or_iterable_object_https_developer_mozilla_or": "Additionally, `repeat` can consume any Object literal or [iterable object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols) and this includes:",
+                        "array": "Array",
+                        "set": "Set",
+                        "map": "Map",
+                        "string": "String",
+                        "any_object_with_symbol_iterator_https_developer_mozilla_org_en_us_docs_web_javascript_reference": "any object with [Symbol.iterator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol/iterator)",
+                        "since_markup_template_do_not_handle_rendering_such_objects_except_array_this_is_an_additional_ad": "Since Markup template do not handle rendering such objects (except Array), this is an additional advantage in using `repeat`. You dont have to worry about converting any data into Array just so you can iterate and render.",
+                        "the_callback_function_will_always_get_called_with_the_entries_and_the_index": "The callback function will always get called with the entries and the index.",
+                        "empty_state": "Empty state",
+                        "the_repeat_also_consumes_an_optional_third_argument_which_is_a_function_that_will_get_called_to": "The `repeat` also consumes an optional third argument which is a function that will get called to return what to render when the data is empty.",
+                        "keys_and_options": "Keys and Options",
+                        "by_default_repeat_uses_the_list_items_themselves_as_identity_keys_to_track_updates_if_your_items": "By default, `repeat` uses the list items themselves as identity keys to track updates. If your items are objects or you want to track them by a unique identifier, you can pass an options object as the third argument instead:",
+                        "the_options_object_supports_the_following_properties": "The options object supports the following properties:",
+                        "key_function_a_selector_function_that_returns_a_unique_key_for_each_item_highly_recommended_for": "`key` (function): A selector function that returns a unique key for each item. Highly recommended for dynamic lists where items can be re-ordered, added, or removed.",
+                        "empty_function_a_function_returning_the_template_or_node_to_render_when_the_collection_is_empty": "`empty` (function): A function returning the template or node to render when the collection is empty.",
+                        "lazy_list_rendering": "Lazy List Rendering",
+                        "to_optimize_lists_with_a_large_number_of_complex_items_you_can_combine_the_repeat_utility_with_t": "To optimize lists with a large number of complex items, you can combine the `repeat` utility with the [visible](./visible.md) utility. This defers the rendering of offscreen list items until they are about to scroll into view:"
+                    }
+                },
+                "suspense": {
+                    "meta": {
+                        "suspense": "Suspense",
+                        "suspense_utility_markup_by_before_semicolon": "Suspense Utility - Markup by Before Semicolon",
+                        "use_the_markup_suspense_utility_to_render_async_content_with_loading_templates_error_templates_l": "Use the Markup suspense utility to render async content with loading templates, error templates, lazy data fetches, and template replacement."
+                    },
+                    "content": {
+                        "suspense_utility": "Suspense Utility",
+                        "the_suspense_utility_allows_you_to_lazy_render_content_by_using_the_replace_templating_index_md": "The `suspense` utility allows you to lazy render content by using the [replace](../templating/index.md#replace) method in the template instances while allowing you to handle the loading and error state.",
+                        "loading_state": "Loading state",
+                        "you_can_pass_a_custom_loading_content_to_render_while_the_asynchronous_work_is_being_performed_t": "You can pass a custom loading content to render while the asynchronous work is being performed. The `suspense` has a default loading indicator that might not be what you want.",
+                        "error_state": "Error state",
+                        "you_can_also_provide_a_function_as_third_argument_to_handle_how_you_want_to_display_any_errors_t": "You can also provide a function as third argument to handle how you want to display any errors. The `suspense` has a default way that might not be what you want."
+                    }
+                },
+                "visible": {
+                    "meta": {
+                        "visible": "Visible",
+                        "visible_utility_markup_by_before_semicolon": "Visible Utility - Markup by Before Semicolon",
+                        "use_the_markup_visible_utility_to_defer_rendering_until_content_enters_the_viewport_with_interse": "Use the Markup visible utility to defer rendering until content enters the viewport with IntersectionObserver-powered lazy UI."
+                    },
+                    "content": {
+                        "visible_utility": "Visible Utility",
+                        "the_visible_utility_allows_you_to_defer_the_rendering_of_content_until_its_placeholder_element_e": "The `visible` utility allows you to defer the rendering of content until its placeholder element enters or is about to enter the viewport (using `IntersectionObserver` under the hood).",
+                        "this_is_incredibly_useful_for_improving_page_load_speed_and_memory_consumption_when_rendering_la": "This is incredibly useful for improving page load speed and memory consumption when rendering large lists of complex items, rendering content below the fold, or lazy-loading offscreen components.",
+                        "options": "Options",
+                        "the_third_argument_is_an_optional_options_object_which_supports_standard_intersectionobserver_op": "The third argument is an optional options object which supports standard `IntersectionObserver` options, plus an `eager` flag:",
+                        "eager_boolean_when_set_to_true_the_content_will_render_immediately_upon_mount_completely_bypassi": "`eager` (boolean): When set to `true`, the content will render immediately upon mount, completely bypassing the observer setup.",
+                        "root_element_document_null_the_element_that_is_used_as_the_viewport_for_checking_visibility_of_t": "`root` (Element | Document | null): The element that is used as the viewport for checking visibility of the target.",
+                        "rootmargin_string_margin_around_the_root": "`rootMargin` (string): Margin around the root.",
+                        "threshold_number_number_numeric_value_or_array_of_values_indicating_what_percentage_of_the_targe": "`threshold` (number | number[]): Numeric value or array of values indicating what percentage of the target's visibility the observer's callback should be executed.",
+                        "observer_deduplication": "Observer Deduplication",
+                        "to_ensure_maximum_performance_and_minimal_browser_overhead_the_visible_utility_maintains_a_modul": "To ensure maximum performance and minimal browser overhead, the `visible` utility maintains a module-level registry of active `IntersectionObserver` instances. If multiple `visible` elements share identical options (e.g. they all use `rootMargin: '600px 0px'`), they will share a single, global `IntersectionObserver` instance under the hood.",
+                        "automatic_cleanup": "Automatic Cleanup",
+                        "when_the_wrapping_template_is_unmounted_from_the_dom_the_visible_utility_automatically_unobserve": "When the wrapping template is unmounted from the DOM, the `visible` utility automatically unobserves the elements and cleans up any references in the observer registry, preventing memory leaks."
+                    }
+                },
+                "when": {
+                    "meta": {
+                        "when": "When",
+                        "when_utility_markup_by_before_semicolon": "When Utility - Markup by Before Semicolon",
+                        "use_the_markup_when_helper_for_conditional_rendering_with_state_getters_fallback_templates_lazy": "Use the Markup when helper for conditional rendering with state getters, fallback templates, lazy branches, and reactive UI decisions."
+                    },
+                    "content": {
+                        "when_utility": "When Utility",
+                        "the_when_helper_is_markup_out_of_the_box_utility_to_do_conditional_rendering_in_or_outside_templ": "The `when` helper is Markup out of the box utility to do conditional rendering in or outside templates.",
+                        "it_mimics_an_if_and_else_statement_with_the_else_being_conditional": "It mimics an if-and-else statement with the else being conditional.",
+                        "condition": "Condition",
+                        "the_condition_is_the_first_argument_and_it_can_be_a_static_value_or_a_function_for_something_tha": "The condition is the first argument and it can be a static value or a function for something that will change like a [StateGetter](../state/index.md#stategetter).",
+                        "the_when_helper_will_re_evaluate_whenever_the_condition_changes_for_an_accurate_render": "The `when` helper will re-evaluate whenever the condition changes for an accurate render.",
+                        "then_else": "Then & else",
+                        "the_second_argument_is_required_and_represent_the_then_value_while_the_third_argument_is_optiona": "The second argument is required and represent the \"then\" value while the third argument is optional since it represent the \"else\" body."
+                    }
+                }
+            }
+        },
+        "home": {
+            "meta": {
+                "markup": "Markup",
+                "markup_by_before_semicolon": "Markup by Before Semicolon",
+                "markup_is_an_under_8kb_gzip_reactive_html_templating_system_for_building_web_standard_javascript": "Markup is an under-8KB gzip reactive HTML templating system for building web-standard JavaScript user interfaces with state, effects, components, and no build step."
+            },
+            "content": {
+                "reactive_dom": "Reactive DOM.",
+                "zero_build": "Zero build.",
+                "a_tiny_web_standards_first_templating_system_that_brings_reactivity_state_and_components_to_vani": "A tiny, web-standards-first templating system that brings reactivity, state, and components to vanilla JavaScript. **No bundlers. No JSX. No magic.**",
+                "text_7_6kb": "7.6KB",
+                "cdn_gzip": "CDN gzip",
+                "third_party_deps": "third-party deps",
+                "web_standards": "web standards",
+                "the_ecosystem": "`// the ecosystem`",
+                "extend_the_way_you_build": "Extend the way you build.",
+                "use_markup_on_its_own_for_reactive_templates_or_add_focused_companion_packages_when_your_app_nee": "Use Markup on its own for reactive templates, or add focused companion packages when your app needs custom elements, routing, or localization.",
+                "web_components": "Web Components",
+                "a_reactive_layer_over_the_native_web_components_api_keep_markup_s_template_model_while_adding_pr": "A reactive layer over the native Web Components API. Keep Markup's template model while adding props, state, lifecycles, and scoped styles.",
+                "declarative_routing_as_web_component_tags_compose_pages_nested_layouts_query_routes_and_lazy_loa": "Declarative routing as web component tags. Compose pages, nested layouts, query routes, and lazy-loaded views without adopting a framework router.",
+                "localization_for_component_first_interfaces_add_locale_scopes_translated_messages_and_formatter": "Localization for component-first interfaces. Add locale scopes, translated messages, and formatter helpers that fit naturally into Markup-driven UI.",
+                "why_markup": "`// why markup`",
+                "the_platform_is_the_framework": "The platform is the framework.",
+                "web_standards_web_apis_and_modern_javascript_are_all_you_need_markup_just_adds_the_reactivity": "Web Standards, Web APIs, and modern JavaScript are all you need. Markup just adds the reactivity.",
+                "reactive": "Reactive",
+                "template_literals_and_functions_create_reactive_dom_with_state_lifecycles_and_side_effects": "Template literals and functions create reactive DOM with state, lifecycles, and side-effects.",
+                "tiny_under_8kb_gzip": "Tiny - under 8KB gzip",
+                "the_cdn_browser_build_transfers_at_about_7_6kb_gzip_ship_enterprise_apps_without_a_megabyte_of_f": "The CDN browser build transfers at about 7.6KB gzip. Ship enterprise apps without a megabyte of framework.",
+                "web_standards_2": "Web Standards",
+                "three_simple_apis_that_extend_the_platform_you_already_know_no_proprietary_abstractions": "Three simple APIs that extend the platform you already know. No proprietary abstractions.",
+                "plug_play": "Plug & Play",
+                "drop_in_a_script_tag_and_go_no_build_step_no_jsx_no_configuration_files": "Drop in a script tag and go. No build step, no JSX, no configuration files.",
+                "supercharge_native_web_components_with_reactivity_skip_manual_dom_manipulation": "Supercharge native Web Components with reactivity. Skip manual DOM manipulation.",
+                "surgical_updates": "Surgical Updates",
+                "data_driven_rendering_means_the_dom_updates_only_where_and_when_it_actually_needs_to": "Data-driven rendering means the DOM updates only where and when it actually needs to.",
+                "see_it_in_action": "`// see it in action`",
+                "looks_like_html_feels_like_magic": "Looks like HTML. Feels like magic.",
+                "reactive_state_component_composition_and_lifecycle_all_from_the_javascript_primitives_you_alread": "Reactive state, component composition, and lifecycle &mdash; all from the JavaScript primitives you already know.",
+                "todos_localstorage": "Todos + localStorage",
+                "button_component_using_webcomponent": "Button component using WebComponent",
+                "suspense_async": "Suspense (async)",
+                "page_routing": "Page routing",
+                "template_lifecycles": "Template lifecycles",
+                "quick_start": "`// quick start`",
+                "install_in_seconds": "Install in seconds.",
+                "pick_your_weapon_markup_works_everywhere_javascript_runs": "Pick your weapon. Markup works everywhere JavaScript runs.",
+                "build_the_web": "Build the Web,",
+                "your_way": "your way.",
+                "join_developers_shipping_faster_with_a_framework_that_respects_the_platform_and_your_time": "Join developers shipping faster with a framework that respects the platform - and your time."
+            }
+        }
+    }
+}

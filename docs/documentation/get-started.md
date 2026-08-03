@@ -1,29 +1,29 @@
 ---
-name: Get Started
+name: '{{t.common.content.get_started}}'
 order: 2
-title: Get Started with Markup - Install and Render Your First Template
-description: Start using Markup with a simple HTML page, load it from a CDN, create reactive state, and render your first JavaScript template without a build step.
+title: '{{t.pages.documentation.get_started.meta.get_started_with_markup_install_and_render_your_first_template}}'
+description: '{{t.pages.documentation.get_started.meta.start_using_markup_with_a_simple_html_page_load_it_from_a_cdn_create_reactive_state_and_render_y}}'
 layout: document
 ---
 
-## Get Started
+## {{t.common.content.get_started}}
 
-Markup is a **plug and play** library, which means, you don't need to build or compile it into anything to be able to see what you build. What you write is what is shipped to the client. Nothing more, nothing less.
+{{t.pages.documentation.get_started.content.markup_is_a_plug_and_play_library_which_means_you_don_t_need_to_build_or_compile_it_into_anythin}}
 
-Additionally, you can run it on the client and server to produce any type of application.
+{{t.pages.documentation.get_started.content.additionally_you_can_run_it_on_the_client_and_server_to_produce_any_type_of_application}}
 
-### Try Examples in the Browser
+### {{t.pages.documentation.get_started.content.try_examples_in_the_browser}}
 
-The simplest way to start is by trying it in-browser, and there are few project you can get started with:
+{{t.pages.documentation.get_started.content.the_simplest_way_to_start_is_by_trying_it_in_browser_and_there_are_few_project_you_can_get_start}}
 
--   [Client ToDo App with State Management](https://stackblitz.com/edit/web-platform-lvonxr) (StackBlitz)
--   [Client Counter App](https://stackblitz.com/edit/web-platform-ixypdh) (StackBlitz)
--   [Client Timer App](https://codepen.io/beforesemicolon/pen/yLQzQZV) (CodePen)
--   [Node SSR website](https://stackblitz.com/edit/stackblitz-starters-a6rvq7) (StackBlitz)
+-   {{t.pages.documentation.get_started.content.client_todo_app_with_state_management_https_stackblitz_com_edit_web_platform_lvonxr_stackblitz}}
+-   {{t.pages.documentation.get_started.content.client_counter_app_https_stackblitz_com_edit_web_platform_ixypdh_stackblitz}}
+-   {{t.pages.documentation.get_started.content.client_timer_app_https_codepen_io_beforesemicolon_pen_ylqzqzv_codepen}}
+-   {{t.pages.documentation.get_started.content.node_ssr_website_https_stackblitz_com_edit_stackblitz_starters_a6rvq7_stackblitz}}
 
-### HTML File
+### {{t.pages.documentation.get_started.content.html_file}}
 
-The simplest way to start is by creating an html file and adding the following content. You can then open it in the browser to see.
+{{t.pages.documentation.get_started.content.the_simplest_way_to_start_is_by_creating_an_html_file_and_adding_the_following_content_you_can_t}}
 
 ```html
 <!doctype html>

@@ -1,22 +1,22 @@
 ---
-name: References
+name: '{{t.pages.documentation.templating.ref.meta.references}}'
 order: 6.4
-title: Template DOM References - Markup by Before Semicolon
-description: Use the Markup ref attribute to capture DOM element references from rendered templates and safely access elements created by the html template.
+title: '{{t.pages.documentation.templating.ref.meta.template_dom_references_markup_by_before_semicolon}}'
+description: '{{t.pages.documentation.templating.ref.meta.use_the_markup_ref_attribute_to_capture_dom_element_references_from_rendered_templates_and_safel}}'
 layout: document
 ---
 
-## Ref
+## {{t.pages.documentation.templating.ref.content.ref}}
 
-Markup templates will handle all DOM elements rendering for you but if you really need to access the element rendered by the templates, you can use the `ref` attribute to provide a handle key that you can then use to grab the elements.
+{{t.pages.documentation.templating.ref.content.markup_templates_will_handle_all_dom_elements_rendering_for_you_but_if_you_really_need_to_access}}
 
 ```javascript
 html`<button ref="btn">click me</button>`
 ```
 
-### Multiple references
+### {{t.pages.documentation.templating.ref.content.multiple_references}}
 
-The `ref` attribute always return an array. Therefore, you can use the same key to grab multiple items at once.
+{{t.pages.documentation.templating.ref.content.the_ref_attribute_always_return_an_array_therefore_you_can_use_the_same_key_to_grab_multiple_ite}}
 
 ```javascript
 const temp = html`
@@ -26,11 +26,11 @@ const temp = html`
 `.render(document.body)
 ```
 
-References are not created until the template is rendered. This is because creating a template simply registers a template and its during the rendering phase that the elements are collected.
+{{t.pages.documentation.templating.ref.content.references_are_not_created_until_the_template_is_rendered_this_is_because_creating_a_template_si}}
 
-### Access references
+### {{t.pages.documentation.templating.ref.content.access_references}}
 
-To access these reference elements, you can read the `refs` property in the template instance.
+{{t.pages.documentation.templating.ref.content.to_access_these_reference_elements_you_can_read_the_refs_property_in_the_template_instance}}
 
 ```javascript
 const temp = html`
@@ -44,11 +44,11 @@ console.log(
 )
 ```
 
-The `refs` property returns an object literal with array of elements keyed by the value you provided in the `ref` attributes.
+{{t.pages.documentation.templating.ref.content.the_refs_property_returns_an_object_literal_with_array_of_elements_keyed_by_the_value_you_provid}}
 
-### Nested references
+### {{t.pages.documentation.templating.ref.content.nested_references}}
 
-You can access any reference via the template instance including its child templates.
+{{t.pages.documentation.templating.ref.content.you_can_access_any_reference_via_the_template_instance_including_its_child_templates}}
 
 ```javascript
 const items = [
@@ -68,7 +68,7 @@ console.log(
 )
 ```
 
-This capability allows you to focus on your top template and work everything from there. This does not mean you cannot access the references at each individual template level. Its just more convenient.
+{{t.pages.documentation.templating.ref.content.this_capability_allows_you_to_focus_on_your_top_template_and_work_everything_from_there_this_doe}}
 
 ```javascript
 items[0].refs['item'] // [li]
@@ -76,9 +76,9 @@ temp.refs['list'] // [ul]
 temp.refs['item'] // [li, li, li]
 ```
 
-### Dynamic references
+### {{t.pages.documentation.templating.ref.content.dynamic_references}}
 
-All references are dynamic and this means that as things render or unmount from the template, reference are added or removed.
+{{t.pages.documentation.templating.ref.content.all_references_are_dynamic_and_this_means_that_as_things_render_or_unmount_from_the_template_ref}}
 
 ```javascript
 const items = [
@@ -105,4 +105,4 @@ console.log(
 )
 ```
 
-For this reason, you should always check for the reference being there before doing anything. This would be the indication whether the element is still rendered in the template or not.
+{{t.pages.documentation.templating.ref.content.for_this_reason_you_should_always_check_for_the_reference_being_there_before_doing_anything_this}}

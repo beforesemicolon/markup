@@ -1,14 +1,14 @@
 ---
-name: Function Component
+name: '{{t.pages.documentation.capabilities.function_component.meta.function_component}}'
 order: 5.1
-title: Function Components with Markup - JavaScript Template Factories
-description: Learn how to build reusable Markup components as plain JavaScript functions that return HTML templates with props, state, lifecycle hooks, and events.
+title: '{{t.pages.documentation.capabilities.function_component.meta.function_components_with_markup_javascript_template_factories}}'
+description: '{{t.pages.documentation.capabilities.function_component.meta.learn_how_to_build_reusable_markup_components_as_plain_javascript_functions_that_return_html_tem}}'
 layout: document
 ---
 
-## Function Component
+## {{t.pages.documentation.capabilities.function_component.content.function_component}}
 
-Markup does not ship with a dedicated component API. Components are simply functions that return a `HTMLTemplate` instance.
+{{t.pages.documentation.capabilities.function_component.content.markup_does_not_ship_with_a_dedicated_component_api_components_are_simply_functions_that_return}}
 
 ```javascript
 const MyButton = () => {
@@ -16,15 +16,15 @@ const MyButton = () => {
 }
 ```
 
-It is totally up to you what these functions can do or look like. From the example above, you can simply render your component using the `render` method.
+{{t.pages.documentation.capabilities.function_component.content.it_is_totally_up_to_you_what_these_functions_can_do_or_look_like_from_the_example_above_you_can}}
 
 ```javascript
 MyButton().render(document.body)
 ```
 
-### Inputs (Props)
+### {{t.pages.documentation.capabilities.function_component.content.inputs_props}}
 
-Since its functions, you can take arguments and inject them directly into the template with proper defaults handling.
+{{t.pages.documentation.capabilities.function_component.content.since_its_functions_you_can_take_arguments_and_inject_them_directly_into_the_template_with_prope}}
 
 ```javascript
 const Button = ({ content = '', disabled = false, type = 'button' }) => {
@@ -34,7 +34,7 @@ const Button = ({ content = '', disabled = false, type = 'button' }) => {
 }
 ```
 
-Templates can take raw values or functions that returns some value which can be a `state` or simply a `dynamic value`, in that case, you can have your input type definition use the `StateGetter` type.
+{{t.pages.documentation.capabilities.function_component.content.templates_can_take_raw_values_or_functions_that_returns_some_value_which_can_be_a_state_or_simpl}}
 
 ```typescript
 enum MyButtonType {
@@ -50,11 +50,11 @@ interface MyButtonProps {
 }
 ```
 
-The `StateGetter` allows you to communicate that your component takes function values as input which makes it easier to work with states.
+{{t.pages.documentation.capabilities.function_component.content.the_stategetter_allows_you_to_communicate_that_your_component_takes_function_values_as_input_whi}}
 
-### Lifecycles
+### {{t.common.content.lifecycles}}
 
-You can take advantage of both [effect](../state/effect.md) and `html` [lifecycles](../templating/lifecycles.md) to react to things like component mounted, unmounted, and updates to do everything you need.
+{{t.pages.documentation.capabilities.function_component.content.you_can_take_advantage_of_both_effect_state_effect_md_and_html_lifecycles_templating_lifecycles}}
 
 ```javascript
 const ChatMessages = () => {
@@ -94,4 +94,4 @@ const ChatMessages = () => {
 }
 ```
 
-Markup template has powerful lifecycles and because a function is called once and with power of reactivity, you can encapsulate everything inside the function leaving everything to Markup to manage.
+{{t.pages.documentation.capabilities.function_component.content.markup_template_has_powerful_lifecycles_and_because_a_function_is_called_once_and_with_power_of}}

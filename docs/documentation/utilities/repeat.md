@@ -1,22 +1,22 @@
 ---
-name: Repeat
+name: '{{t.pages.documentation.utilities.repeat.meta.repeat}}'
 order: 8.4
-title: Repeat Utility - Markup by Before Semicolon
-description: Render lists with the Markup repeat utility, including arrays, sets, maps, objects, numeric ranges, empty states, keys, and cached item templates.
+title: '{{t.pages.documentation.utilities.repeat.meta.repeat_utility_markup_by_before_semicolon}}'
+description: '{{t.pages.documentation.utilities.repeat.meta.render_lists_with_the_markup_repeat_utility_including_arrays_sets_maps_objects_numeric_ranges_em}}'
 layout: document
 ---
 
-## Repeat Utility
+## {{t.pages.documentation.utilities.repeat.content.repeat_utility}}
 
-The `repeat` utility is Markup recommended way to render iterable data or repeating content. It handles things like caching and tracking for the template ensuring list changes only happen to the items that need them.
+{{t.pages.documentation.utilities.repeat.content.the_repeat_utility_is_markup_recommended_way_to_render_iterable_data_or_repeating_content_it_han}}
 
 ```javascript
 html`${repeat(todos, renderTodo)}`
 ```
 
-### Why use repeat?
+### {{t.pages.documentation.utilities.repeat.content.why_use_repeat}}
 
-Markup templates already handle arrays but like any other injected value, Markup track the whole thing and not its individual items.
+{{t.pages.documentation.utilities.repeat.content.markup_templates_already_handle_arrays_but_like_any_other_injected_value_markup_track_the_whole}}
 
 ```javascript
 const [todos, updateTodos] = state([])
@@ -32,9 +32,9 @@ updateTodos((prev) => [
 ])
 ```
 
-The above code will work just fine as far as rendering a list. The issue becomes evident when a single item changes, is added or removed. This is because the function will get called again generating a brand new list of content to render. If Markup sees a new list, it will re-render everything.
+{{t.pages.documentation.utilities.repeat.content.the_above_code_will_work_just_fine_as_far_as_rendering_a_list_the_issue_becomes_evident_when_a_s}}
 
-The better way is to not dynamically map the list on render but on creation so Markup always have the things you want to render so it can check if its different from before or not.
+{{t.pages.documentation.utilities.repeat.content.the_better_way_is_to_not_dynamically_map_the_list_on_render_but_on_creation_so_markup_always_hav}}
 
 ```javascript
 const [todos, updateTodos] = state([])
@@ -50,17 +50,17 @@ updateTodos((prev) => [
 ])
 ```
 
-This is exactly what `repeat` utility does for you by just taking the data and the render function.
+{{t.pages.documentation.utilities.repeat.content.this_is_exactly_what_repeat_utility_does_for_you_by_just_taking_the_data_and_the_render_function}}
 
-### Numbers
+### {{t.pages.documentation.utilities.repeat.content.numbers}}
 
-The `repeat` helper accepts a number among many things. This number represents the number of times you want the callback render function needs to be called.
+{{t.pages.documentation.utilities.repeat.content.the_repeat_helper_accepts_a_number_among_many_things_this_number_represents_the_number_of_times}}
 
 ```javascript
 html`${repeat(3, html`<spa></span>`)}`
 ```
 
-The callback function will be called with numbers from 1 to the number you provided along with the indexes.
+{{t.pages.documentation.utilities.repeat.content.the_callback_function_will_be_called_with_numbers_from_1_to_the_number_you_provided_along_with_t}}
 
 ```javascript
 html`${repeat(3, (n, index) => html`<spa>${n} - ${index}</span>`)}`.render(
@@ -69,15 +69,15 @@ html`${repeat(3, (n, index) => html`<spa>${n} - ${index}</span>`)}`.render(
 // <span>1 - 0</span><span>2 - 1</span><span>3 - 2</span>
 ```
 
-### Iterables and Object literals
+### {{t.pages.documentation.utilities.repeat.content.iterables_and_object_literals}}
 
-Additionally, `repeat` can consume any Object literal or [iterable object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols) and this includes:
+{{t.pages.documentation.utilities.repeat.content.additionally_repeat_can_consume_any_object_literal_or_iterable_object_https_developer_mozilla_or}}
 
--   Array
--   Set
--   Map
--   String
--   any object with [Symbol.iterator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol/iterator)
+-   {{t.pages.documentation.utilities.repeat.content.array}}
+-   {{t.pages.documentation.utilities.repeat.content.set}}
+-   {{t.pages.documentation.utilities.repeat.content.map}}
+-   {{t.pages.documentation.utilities.repeat.content.string}}
+-   {{t.pages.documentation.utilities.repeat.content.any_object_with_symbol_iterator_https_developer_mozilla_org_en_us_docs_web_javascript_reference}}
 
 ```javascript
 const iterable = {}
@@ -91,9 +91,9 @@ iterable[Symbol.iterator] = function* () {
 html`${repeat(iterable, renderItem)}`
 ```
 
-Since Markup template do not handle rendering such objects (except Array), this is an additional advantage in using `repeat`. You dont have to worry about converting any data into Array just so you can iterate and render.
+{{t.pages.documentation.utilities.repeat.content.since_markup_template_do_not_handle_rendering_such_objects_except_array_this_is_an_additional_ad}}
 
-The callback function will always get called with the entries and the index.
+{{t.pages.documentation.utilities.repeat.content.the_callback_function_will_always_get_called_with_the_entries_and_the_index}}
 
 ```javascript
 const employeesSalary = {
@@ -104,17 +104,17 @@ const employeesSalary = {
 html`${repeat(employeesSalary, ([name, salary], index) => html`...`)}`
 ```
 
-### Empty state
+### {{t.pages.documentation.utilities.repeat.content.empty_state}}
 
-The `repeat` also consumes an optional third argument which is a function that will get called to return what to render when the data is empty.
+{{t.pages.documentation.utilities.repeat.content.the_repeat_also_consumes_an_optional_third_argument_which_is_a_function_that_will_get_called_to}}
 
 ```javascript
 html`${repeat(todos, renderTodo, () => html`<p>No todos yet!</p>`)}`
 ```
 
-### Keys and Options
+### {{t.pages.documentation.utilities.repeat.content.keys_and_options}}
 
-By default, `repeat` uses the list items themselves as identity keys to track updates. If your items are objects or you want to track them by a unique identifier, you can pass an options object as the third argument instead:
+{{t.pages.documentation.utilities.repeat.content.by_default_repeat_uses_the_list_items_themselves_as_identity_keys_to_track_updates_if_your_items}}
 
 ```javascript
 const options = {
@@ -125,14 +125,14 @@ const options = {
 html`${repeat(todos, renderTodo, options)}`
 ```
 
-The options object supports the following properties:
+{{t.pages.documentation.utilities.repeat.content.the_options_object_supports_the_following_properties}}
 
--   `key` (function): A selector function that returns a unique key for each item. Highly recommended for dynamic lists where items can be re-ordered, added, or removed.
--   `empty` (function): A function returning the template or node to render when the collection is empty.
+-   {{t.pages.documentation.utilities.repeat.content.key_function_a_selector_function_that_returns_a_unique_key_for_each_item_highly_recommended_for}}
+-   {{t.pages.documentation.utilities.repeat.content.empty_function_a_function_returning_the_template_or_node_to_render_when_the_collection_is_empty}}
 
-### Lazy List Rendering
+### {{t.pages.documentation.utilities.repeat.content.lazy_list_rendering}}
 
-To optimize lists with a large number of complex items, you can combine the `repeat` utility with the [visible](./visible.md) utility. This defers the rendering of offscreen list items until they are about to scroll into view:
+{{t.pages.documentation.utilities.repeat.content.to_optimize_lists_with_a_large_number_of_complex_items_you_can_combine_the_repeat_utility_with_t}}
 
 ```javascript
 import { html, repeat, visible } from '@beforesemicolon/markup'

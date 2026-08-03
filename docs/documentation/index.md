@@ -1,31 +1,31 @@
 ---
-name: What is Markup?
+name: '{{t.pages.documentation.index.meta.what_is_markup}}'
 order: 1
 path: /documentation
-title: Markup Documentation - Reactive HTML Templating for JavaScript
-description: Learn what Markup is, why it exists, and how it uses JavaScript template literals, functions, and web standards to build reactive user interfaces.
+title: '{{t.pages.documentation.index.meta.markup_documentation_reactive_html_templating_for_javascript}}'
+description: '{{t.pages.documentation.index.meta.learn_what_markup_is_why_it_exists_and_how_it_uses_javascript_template_literals_functions_and_we}}'
 layout: document
 ---
 
-## What is Markup?
+## {{t.pages.documentation.index.content.what_is_markup}}
 
-Markup is a JavaScript reactive templating system built to simplify how you build Web user interfaces using web standards with minimal enhancements to the native web APIs as possible.
+{{t.pages.documentation.index.content.markup_is_a_javascript_reactive_templating_system_built_to_simplify_how_you_build_web_user_inter}}
 
-It consists of 3 main APIs with additional utilities to simplify things even further:
+{{t.pages.documentation.index.content.it_consists_of_3_main_apis_with_additional_utilities_to_simplify_things_even_further}}
 
--   `html` A JavaScript tagged function that allows you to represent the DOM using template literal strings.
--   `state` A simple state tracking API that lets you define reactive data however you want.
--   `effect` A straightforward way to define things that need to happen when certain states change.
+-   {{t.pages.documentation.index.content.html_a_javascript_tagged_function_that_allows_you_to_represent_the_dom_using_template_literal_st}}
+-   {{t.pages.documentation.index.content.state_a_simple_state_tracking_api_that_lets_you_define_reactive_data_however_you_want}}
+-   {{t.pages.documentation.index.content.effect_a_straightforward_way_to_define_things_that_need_to_happen_when_certain_states_change}}
 
-### Why do we need another tool?
+### {{t.pages.documentation.index.content.why_do_we_need_another_tool}}
 
-Modern web development has become heavily reliant on complex build steps, compiler configuration, and massive framework dependencies. Often, all you want to do is build a reactive interface, but you end up having to set up Vite, Babel, Webpack, Svelte, or React just to get basic state reactivity.
+{{t.pages.documentation.index.content.modern_web_development_has_become_heavily_reliant_on_complex_build_steps_compiler_configuration}}
 
-Markup exists to solve this pain point. It bridges the gap between raw, tedious DOM manipulation and heavy component frameworks. By utilizing modern JavaScript primitives—specifically **template literals** and **functions**—Markup provides clean, declarative, and surgically precise reactivity **without any build steps**.
+{{t.pages.documentation.index.content.markup_exists_to_solve_this_pain_point_it_bridges_the_gap_between_raw_tedious_dom_manipulation_a}}
 
-Compare how you build a simple counter.
+{{t.pages.documentation.index.content.compare_how_you_build_a_simple_counter}}
 
-#### The Tedious Vanilla Way
+#### {{t.pages.documentation.index.content.the_tedious_vanilla_way}}
 
 ```javascript
 let count = 0
@@ -51,7 +51,7 @@ btn.addEventListener('onclick', () => {
 document.body.append(p, btn)
 ```
 
-#### The Markup Way (Simple & Reactive)
+#### {{t.pages.documentation.index.content.the_markup_way_simple_reactive}}
 
 ```javascript
 // reactive data
@@ -75,19 +75,19 @@ html`
 `.render(document.body)
 ```
 
-### Core Concepts
+### {{t.pages.documentation.index.content.core_concepts}}
 
-#### 1. Functions for Lazy Evaluation
+#### {{t.pages.documentation.index.content.text_1_functions_for_lazy_evaluation}}
 
-Reactivity in Markup is powered by native JavaScript functions. Since functions represent lazy evaluations, they can be run whenever their underlying state changes. Wrapping your values or templates in functions is the secret behind Markup's surgical DOM updates.
+{{t.pages.documentation.index.content.reactivity_in_markup_is_powered_by_native_javascript_functions_since_functions_represent_lazy_ev}}
 
-#### 2. Tagged Template Literals
+#### {{t.pages.documentation.index.content.text_2_tagged_template_literals}}
 
-Markup uses the standard `html` tagged template literal to represent the DOM. No JSX parser, no proprietary template syntax, and no Virtual DOM. What you write is parsed directly into native HTML templates and updated surgically.
+{{t.pages.documentation.index.content.markup_uses_the_standard_html_tagged_template_literal_to_represent_the_dom_no_jsx_parser_no_prop}}
 
-### Key Benefits
+### {{t.pages.documentation.index.content.key_benefits}}
 
--   🚀 **Zero Build Step**: No compilers, no bundlers, no npm install required to get started. Drop the CDN link into a `<script>` tag and start coding.
--   ⚡ **Surgical DOM Updates**: No Virtual DOM diffing. Markup target-updates only the specific nodes and attributes that changed.
--   📦 **Ultra Lightweight**: At only **7.6KB gzip** (18KB uncompressed), it is perfect for micro-frontends, widgets, prototypes, and lightweight web apps.
--   🔌 **Standard Web Components**: Easily integrates with Web Components to provide reactive rendering and simplified lifecycle management.
+-   {{t.pages.documentation.index.content.zero_build_step_no_compilers_no_bundlers_no_npm_install_required_to_get_started_drop_the_cdn_lin}}
+-   {{t.pages.documentation.index.content.surgical_dom_updates_no_virtual_dom_diffing_markup_target_updates_only_the_specific_nodes_and_at}}
+-   {{t.pages.documentation.index.content.ultra_lightweight_at_only_7_6kb_gzip_18kb_uncompressed_it_is_perfect_for_micro_frontends_widgets}}
+-   {{t.pages.documentation.index.content.standard_web_components_easily_integrates_with_web_components_to_provide_reactive_rendering_and}}

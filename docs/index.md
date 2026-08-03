@@ -1,34 +1,34 @@
 ---
-name: Markup
+name: '{{t.pages.home.meta.markup}}'
 order: 0
-title: Markup by Before Semicolon
-description: Markup is an under-8KB gzip reactive HTML templating system for building web-standard JavaScript user interfaces with state, effects, components, and no build step.
+title: '{{t.pages.home.meta.markup_by_before_semicolon}}'
+description: '{{t.pages.home.meta.markup_is_an_under_8kb_gzip_reactive_html_templating_system_for_building_web_standard_javascript}}'
 layout: landing
 ---
 
-::: layout landing-hero version=v1.18.3 title="Reactive DOM." title2="Zero build." primaryLabel="Get Started" secondaryLabel="npm i @beforesemicolon/markup"
+::: layout landing-hero version=v1.18.3 title="{{t.pages.home.content.reactive_dom}}" title2="{{t.pages.home.content.zero_build}}" primaryLabel="{{t.common.content.get_started}}" secondaryLabel="npm i @beforesemicolon/markup"
 
 === copy
 
-A tiny, web-standards-first templating system that brings reactivity, state, and components to vanilla JavaScript. **No bundlers. No JSX. No magic.**
+{{t.pages.home.content.a_tiny_web_standards_first_templating_system_that_brings_reactivity_state_and_components_to_vani}}
 
 === stat
 
-## 7.6KB
+## {{t.pages.home.content.text_7_6kb}}
 
-CDN gzip
+{{t.pages.home.content.cdn_gzip}}
 
 === stat
 
 ## 0
 
-third-party deps
+{{t.pages.home.content.third_party_deps}}
 
 === stat
 
 ## 100%
 
-web standards
+{{t.pages.home.content.web_standards}}
 
 === code filename=counter.js lang=javascript
 
@@ -63,23 +63,23 @@ App.render(document.getElementById('app'));
 
 === header
 
-`// the ecosystem`
+{{t.pages.home.content.the_ecosystem}}
 
-## Extend the way you build.
+## {{t.pages.home.content.extend_the_way_you_build}}
 
-Use Markup on its own for reactive templates, or add focused companion packages when your app needs custom elements, routing, or localization.
+{{t.pages.home.content.use_markup_on_its_own_for_reactive_templates_or_add_focused_companion_packages_when_your_app_nee}}
 
-=== product title="Web Components" package=@beforesemicolon/web-component color=orange icon=webComponents href=https://web-component.beforesemicolon.com/
+=== product title="{{t.pages.home.content.web_components}}" package=@beforesemicolon/web-component color=orange icon=webComponents href=https://web-component.beforesemicolon.com/
 
-A reactive layer over the native Web Components API. Keep Markup's template model while adding props, state, lifecycles, and scoped styles.
+{{t.pages.home.content.a_reactive_layer_over_the_native_web_components_api_keep_markup_s_template_model_while_adding_pr}}
 
 === product title=Router package=@beforesemicolon/router color=cyan icon=router href=https://router.beforesemicolon.com/
 
-Declarative routing as web component tags. Compose pages, nested layouts, query routes, and lazy-loaded views without adopting a framework router.
+{{t.pages.home.content.declarative_routing_as_web_component_tags_compose_pages_nested_layouts_query_routes_and_lazy_loa}}
 
 === product title=Intl package=@beforesemicolon/intl color=primary icon=reactive href=https://intl.beforesemicolon.com/
 
-Localization for component-first interfaces. Add locale scopes, translated messages, and formatter helpers that fit naturally into Markup-driven UI.
+{{t.pages.home.content.localization_for_component_first_interfaces_add_locale_scopes_translated_messages_and_formatter}}
 
 :::
 
@@ -87,47 +87,47 @@ Localization for component-first interfaces. Add locale scopes, translated messa
 
 === header
 
-`// why markup`
+{{t.pages.home.content.why_markup}}
 
-## The platform is the framework.
+## {{t.pages.home.content.the_platform_is_the_framework}}
 
-Web Standards, Web APIs, and modern JavaScript are all you need. Markup just adds the reactivity.
+{{t.pages.home.content.web_standards_web_apis_and_modern_javascript_are_all_you_need_markup_just_adds_the_reactivity}}
 
 === feature icon=reactive
 
-### Reactive
+### {{t.pages.home.content.reactive}}
 
-Template literals and functions create reactive DOM with state, lifecycles, and side-effects.
+{{t.pages.home.content.template_literals_and_functions_create_reactive_dom_with_state_lifecycles_and_side_effects}}
 
 === feature icon=tiny
 
-### Tiny - under 8KB gzip
+### {{t.pages.home.content.tiny_under_8kb_gzip}}
 
-The CDN browser build transfers at about 7.6KB gzip. Ship enterprise apps without a megabyte of framework.
+{{t.pages.home.content.the_cdn_browser_build_transfers_at_about_7_6kb_gzip_ship_enterprise_apps_without_a_megabyte_of_f}}
 
 === feature icon=standards
 
-### Web Standards
+### {{t.pages.home.content.web_standards_2}}
 
-Three simple APIs that extend the platform you already know. No proprietary abstractions.
+{{t.pages.home.content.three_simple_apis_that_extend_the_platform_you_already_know_no_proprietary_abstractions}}
 
 === feature icon=plug
 
-### Plug & Play
+### {{t.pages.home.content.plug_play}}
 
-Drop in a script tag and go. No build step, no JSX, no configuration files.
+{{t.pages.home.content.drop_in_a_script_tag_and_go_no_build_step_no_jsx_no_configuration_files}}
 
 === feature icon=webComponents
 
-### Web Components
+### {{t.pages.home.content.web_components}}
 
-Supercharge native Web Components with reactivity. Skip manual DOM manipulation.
+{{t.pages.home.content.supercharge_native_web_components_with_reactivity_skip_manual_dom_manipulation}}
 
 === feature icon=surgical
 
-### Surgical Updates
+### {{t.pages.home.content.surgical_updates}}
 
-Data-driven rendering means the DOM updates only where and when it actually needs to.
+{{t.pages.home.content.data_driven_rendering_means_the_dom_updates_only_where_and_when_it_actually_needs_to}}
 
 :::
 
@@ -135,13 +135,13 @@ Data-driven rendering means the DOM updates only where and when it actually need
 
 === header
 
-`// see it in action`
+{{t.pages.home.content.see_it_in_action}}
 
-## Looks like HTML. Feels like magic.
+## {{t.pages.home.content.looks_like_html_feels_like_magic}}
 
-Reactive state, component composition, and lifecycle &mdash; all from the JavaScript primitives you already know.
+{{t.pages.home.content.reactive_state_component_composition_and_lifecycle_all_from_the_javascript_primitives_you_alread}}
 
-=== example label="Todos + localStorage" color=orange filename=todos.js lang=javascript
+=== example label="{{t.pages.home.content.todos_localstorage}}" color=orange filename=todos.js lang=javascript
 
 ```javascript
 import { html, state, effect, repeat } from '@beforesemicolon/markup'
@@ -181,7 +181,7 @@ html`
 `.render(document.querySelector('#app'))
 ```
 
-=== example label="Button component using WebComponent" color=cyan filename=button-component.js lang=javascript
+=== example label="{{t.pages.home.content.button_component_using_webcomponent}}" color=cyan filename=button-component.js lang=javascript
 
 ```javascript
 import { WebComponent, html } from '@beforesemicolon/web-component'
@@ -212,7 +212,7 @@ class Button extends WebComponent {
 customElements.define('bfs-button', Button)
 ```
 
-=== example label="Suspense (async)" color=orange filename=profile.js lang=javascript
+=== example label="{{t.pages.home.content.suspense_async}}" color=orange filename=profile.js lang=javascript
 
 ```javascript
 import { html, suspense } from '@beforesemicolon/markup'
@@ -243,7 +243,7 @@ html`
 `.render(document.querySelector('#app'))
 ```
 
-=== example label="Page routing" color=cyan filename=app.html lang=html
+=== example label="{{t.pages.home.content.page_routing}}" color=cyan filename=app.html lang=html
 
 ```html
 <!-- in <head>:
@@ -272,7 +272,7 @@ html`
 <page-redirect path="/404" title="404 - Page not found!"></page-redirect>
 ```
 
-=== example label="Template lifecycles" color=orange filename=timer.js lang=javascript
+=== example label="{{t.pages.home.content.template_lifecycles}}" color=orange filename=timer.js lang=javascript
 
 ```javascript
 import { html, state } from '@beforesemicolon/markup'
@@ -298,11 +298,11 @@ html` <p>Elapsed: ${seconds}s</p> `
 
 === header
 
-`// quick start`
+{{t.pages.home.content.quick_start}}
 
-## Install in seconds.
+## {{t.pages.home.content.install_in_seconds}}
 
-Pick your weapon. Markup works everywhere JavaScript runs.
+{{t.pages.home.content.pick_your_weapon_markup_works_everywhere_javascript_runs}}
 
 === tab key=cdn label=CDN command="<script src=&quot;https://unpkg.com/@beforesemicolon/markup/dist/client.js&quot;></script>"
 
@@ -314,10 +314,10 @@ Pick your weapon. Markup works everywhere JavaScript runs.
 
 :::
 
-::: layout landing-cta title="Build the Web," title2="your way."
+::: layout landing-cta title="{{t.pages.home.content.build_the_web}}" title2="{{t.pages.home.content.your_way}}"
 
 === copy
 
-Join developers shipping faster with a framework that respects the platform - and your time.
+{{t.pages.home.content.join_developers_shipping_faster_with_a_framework_that_respects_the_platform_and_your_time}}
 
 :::

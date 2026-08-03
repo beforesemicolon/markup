@@ -1,22 +1,22 @@
 ---
-name: Values
+name: '{{t.pages.documentation.templating.values.meta.values}}'
 order: 6.2
-title: Template Values - Markup by Before Semicolon
-description: Understand how Markup renders template values including strings, numbers, DOM nodes, arrays, functions, state getters, nested templates, and object values.
+title: '{{t.pages.documentation.templating.values.meta.template_values_markup_by_before_semicolon}}'
+description: '{{t.pages.documentation.templating.values.meta.understand_how_markup_renders_template_values_including_strings_numbers_dom_nodes_arrays_functio}}'
 layout: document
 ---
 
-## Values
+## {{t.pages.documentation.templating.values.content.values}}
 
-If you ever worked with JavaScript [template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) you may already know you can inject values. Since markup templates are just template literals, you can inject whatever you want and Markup will handle each value for you.
+{{t.pages.documentation.templating.values.content.if_you_ever_worked_with_javascript_template_literals_https_developer_mozilla_org_en_us_docs_web}}
 
-### Parsing
+### {{t.pages.documentation.templating.values.content.parsing}}
 
-Before we jump into specific values, lets talk about how Markup parses the HTML string in the template literals.
+{{t.pages.documentation.templating.values.content.before_we_jump_into_specific_values_lets_talk_about_how_markup_parses_the_html_string_in_the_tem}}
 
-Just because you can inject values anywhere in the string does not mean it will be parsed the way you want. Markup sees HTML in the template literals just like HTML written in `.html` files.
+{{t.pages.documentation.templating.values.content.just_because_you_can_inject_values_anywhere_in_the_string_does_not_mean_it_will_be_parsed_the_wa}}
 
-This means, you can only inject values around tags openings or as attribute value. For example, injecting a value for tag name will not result in parsed DOM elements.
+{{t.pages.documentation.templating.values.content.this_means_you_can_only_inject_values_around_tags_openings_or_as_attribute_value_for_example_inj}}
 
 ```javascript
 const tag = 'p'
@@ -27,9 +27,9 @@ temp.render(document.getElementById('app'))
 // renders <p>hello world</p> as string
 ```
 
-The above will simply result in `<p>hello world</p>` string and not the paragraph element with "hello world" text inside.
+{{t.pages.documentation.templating.values.content.the_above_will_simply_result_in_hello_world_string_and_not_the_paragraph_element_with_hello_worl}}
 
-Similarly, you cannot have a string representation of attribute key value and inject it in the body of the tag to be interpreted. The example bellow will throw an error:
+{{t.pages.documentation.templating.values.content.similarly_you_cannot_have_a_string_representation_of_attribute_key_value_and_inject_it_in_the_bo}}
 
 ```javascript
 const attrs = 'id="sample"'
@@ -40,9 +40,9 @@ temp.render(document.getElementById('app'))
 // throws: Invalid attribute object provided: id="sample"
 ```
 
-There is a way to inject attribute objects you can learn about by reading the [attributes](./html-attributes.md#attributes-as-object) doc.
+{{t.pages.documentation.templating.values.content.there_is_a_way_to_inject_attribute_objects_you_can_learn_about_by_reading_the_attributes_html_at}}
 
-To conclude, write HTML as you know and inject value where you would write values in HTML. Those are, as attribute value (between parenthesis), before, after, or inside a tag.
+{{t.pages.documentation.templating.values.content.to_conclude_write_html_as_you_know_and_inject_value_where_you_would_write_values_in_html_those_a}}
 
 ```javascript
 const label = 'click me'
@@ -51,11 +51,11 @@ const type = 'button'
 html`<button type="${type}">${label}</button>`
 ```
 
-### Node
+### {{t.pages.documentation.templating.values.content.node}}
 
-Markup templates work seamlessly with DOM nodes and this ability is what allows you to migrate any vanilla JavaScript solution easily to Markup templates.
+{{t.pages.documentation.templating.values.content.markup_templates_work_seamlessly_with_dom_nodes_and_this_ability_is_what_allows_you_to_migrate_a}}
 
-You can inject any Node directly in the template and they will be rendered as so.
+{{t.pages.documentation.templating.values.content.you_can_inject_any_node_directly_in_the_template_and_they_will_be_rendered_as_so}}
 
 ```javascript
 const button = document.createElement('button')
@@ -65,11 +65,11 @@ button.type = 'button'
 html`${button}`.render(document.body)
 ```
 
-If you want a better and quicker way to create `HTMLElement` we suggest taking a look at the [element utility](../utilities/element.md).
+{{t.pages.documentation.templating.values.content.if_you_want_a_better_and_quicker_way_to_create_htmlelement_we_suggest_taking_a_look_at_the_eleme}}
 
-### HTMLTemplate
+### {{t.pages.documentation.templating.values.content.htmltemplate}}
 
-The best thing about Markup templates is the ability to nest them to compose more complex views while each template maintaining their lifecycles, and tracking which allows for more performant updates and a granular way to track each part of the view.
+{{t.pages.documentation.templating.values.content.the_best_thing_about_markup_templates_is_the_ability_to_nest_them_to_compose_more_complex_views}}
 
 ```javascript
 const fieldLabel = html`<span>Enter name</span>`
@@ -80,12 +80,11 @@ html` <label aria-label="name field"> ${fieldLabel} ${field} </label> `.render(
 )
 ```
 
-This capability resembles the native DOM node instead. The difference is, instead of tracking individual nodes, you can track a meaningful collection of them that makes sense together.
+{{t.pages.documentation.templating.values.content.this_capability_resembles_the_native_dom_node_instead_the_difference_is_instead_of_tracking_indi}}
 
-### Arrays
+### {{t.pages.documentation.templating.values.content.arrays}}
 
-Injecting arrays in templates is a powerful way to quickly render a collection of things quickly that needs to be tracked and updated together.
-Arrays will have their items rendered as they are. This makes it super easy to render lists in general and comes handy with data handling.
+{{t.pages.documentation.templating.values.content.injecting_arrays_in_templates_is_a_powerful_way_to_quickly_render_a_collection_of_things_quickly}}
 
 ```javascript
 const fruits = ['apple', 'banana', 'orange', 'peach']
@@ -94,7 +93,7 @@ html`Fruits: ${fruits}`.render(document.body)
 // Fruits: applebananaorangepeach
 ```
 
-The list is rendered without space or commas. You can also collect a list of templates to render directly as nested templates.
+{{t.pages.documentation.templating.values.content.the_list_is_rendered_without_space_or_commas_you_can_also_collect_a_list_of_templates_to_render}}
 
 ```javascript
 const fruits = [
@@ -111,7 +110,7 @@ html`Fruits:
 // Fruits: <ul><li>apple</li><li>banana</li><li>orange</li><li>peach</li></ul>
 ```
 
-This parsing only happens up to one level though. If what you wish to render is one level deeper it will rendered as the string version of that data in JavaScript.
+{{t.pages.documentation.templating.values.content.this_parsing_only_happens_up_to_one_level_though_if_what_you_wish_to_render_is_one_level_deeper}}
 
 ```javascript
 const fruits = [
@@ -131,11 +130,11 @@ html`Fruits:
 // Fruits: <ul>&lt;li&gt;apple&lt;/li&gt;,&lt;li&gt;banana&lt;/li&gt;,&lt;li&gt;orange&lt;/li&gt;,&lt;li&gt;peach&lt;/li&gt;</ul>
 ```
 
-### Functions
+### {{t.pages.documentation.templating.values.content.functions}}
 
-Functions are first class citizens in Markup. It is used for reactivity and lazy evaluations and they are pretty much the secret behind Markup.
+{{t.pages.documentation.templating.values.content.functions_are_first_class_citizens_in_markup_it_is_used_for_reactivity_and_lazy_evaluations_and}}
 
-Every function injected in the template is called and its value is rendered and tracked accordingly.
+{{t.pages.documentation.templating.values.content.every_function_injected_in_the_template_is_called_and_its_value_is_rendered_and_tracked_accordin}}
 
 ```javascript
 const greeting = () => 'Hello World'
@@ -144,7 +143,7 @@ html`<p>${greeting}</p>`.render(document.body)
 // <p>Hello World</p>
 ```
 
-When you learn about [state](../state/index.md) and [effect](../state/effect.md) you will notice that its all about functions and one thing that makes it more powerful is using functions that perform calculations with state.
+{{t.pages.documentation.templating.values.content.when_you_learn_about_state_state_index_md_and_effect_state_effect_md_you_will_notice_that_its_al}}
 
 ```javascript
 const [count, setCount] = state(1)
@@ -159,11 +158,11 @@ html`
 `.render(document.body)
 ```
 
-Markup understands that functions may contain states that change and will evaluate them whenever those state change and then perform the change in the DOM accordingly.
+{{t.pages.documentation.templating.values.content.markup_understands_that_functions_may_contain_states_that_change_and_will_evaluate_them_whenever}}
 
-### Primitives
+### {{t.pages.documentation.templating.values.content.primitives}}
 
-When you inject primitive value, they will all be rendered as their string version.
+{{t.pages.documentation.templating.values.content.when_you_inject_primitive_value_they_will_all_be_rendered_as_their_string_version}}
 
 ```javascript
 html`
@@ -173,11 +172,11 @@ html`
 // 0 true false 34 sample undefined null Symbol(sample)
 ```
 
-You need to be specifically careful with nil values like `undefined` and `null` resulting of accessing values not there. They are rendered and may not be what you want. If you wish to render nothing, always use an empty string.
+{{t.pages.documentation.templating.values.content.you_need_to_be_specifically_careful_with_nil_values_like_undefined_and_null_resulting_of_accessi}}
 
-### Non-Primitives
+### {{t.pages.documentation.templating.values.content.non_primitives}}
 
-Array, Functions, Nodes, and HTMLTemplate are the only non-primitive values that do not receive a special handling. Everything else will be render the same way as they would if stringified in JavaScript.
+{{t.pages.documentation.templating.values.content.array_functions_nodes_and_htmltemplate_are_the_only_non_primitive_values_that_do_not_receive_a_s}}
 
 ```javascript
 html`${{}} ${new Object()} ${new Map()} ${new Set()} ${new Date()}`.render(

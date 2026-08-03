@@ -1,0 +1,15 @@
+{
+    "schemaVersion": "1.0",
+    "mode": "static",
+    "siteUrl": "https://markup.beforesemicolon.com",
+    "defaultLocale": "en",
+    "locales": ["en"],
+    "docs": {
+        "sourceDir": "docs",
+        "outputDir": "website",
+        "template": "fading-citrus",
+        "generatedFiles": {
+            "netlify": true
+        }
+    }
+}

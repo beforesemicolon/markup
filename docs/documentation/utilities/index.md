@@ -1,45 +1,45 @@
 ---
-name: Intro to Utilities
+name: '{{t.pages.documentation.utilities.index.meta.intro_to_utilities}}'
 order: 8
-title: Markup Utilities - Conditional, Async, Repeated, and Lazy Rendering
-description: Overview of Markup helper utilities for conditional rendering, repeated rendering, async suspense, visibility-based lazy rendering, DOM elements, and state selection.
+title: '{{t.pages.documentation.utilities.index.meta.markup_utilities_conditional_async_repeated_and_lazy_rendering}}'
+description: '{{t.pages.documentation.utilities.index.meta.overview_of_markup_helper_utilities_for_conditional_rendering_repeated_rendering_async_suspense}}'
 layout: document
 ---
 
-## Utilities
+## {{t.pages.documentation.utilities.index.content.utilities}}
 
-Markup offers many utility functions that aid you in templating or work with the DOM in general:
+{{t.pages.documentation.utilities.index.content.markup_offers_many_utility_functions_that_aid_you_in_templating_or_work_with_the_dom_in_general}}
 
--   [element](./element.md): allows you to easily create DOM elements;
--   [suspense](./suspense.md): allows you to lazy render content;
--   [repeat](./repeat.md): allows you to handle lists or repeat content;
--   [when](./when.md): allows you to conditionally render content;
--   [visible](./visible.md): allows you to defer rendering until elements enter viewport;
--   [is and isNot](./is-&-isnot.md): allows you to quickly check truthiness of states
--   [and, or, & oneOf](./and-or-&-oneof.md): allows you to quickly check conditions of states
--   [pick](./pick.md): allows you deeply read state object key values
+-   {{t.pages.documentation.utilities.index.content.element_element_md_allows_you_to_easily_create_dom_elements}}
+-   {{t.pages.documentation.utilities.index.content.suspense_suspense_md_allows_you_to_lazy_render_content}}
+-   {{t.pages.documentation.utilities.index.content.repeat_repeat_md_allows_you_to_handle_lists_or_repeat_content}}
+-   {{t.pages.documentation.utilities.index.content.when_when_md_allows_you_to_conditionally_render_content}}
+-   {{t.pages.documentation.utilities.index.content.visible_visible_md_allows_you_to_defer_rendering_until_elements_enter_viewport}}
+-   {{t.pages.documentation.utilities.index.content.is_and_isnot_is_isnot_md_allows_you_to_quickly_check_truthiness_of_states}}
+-   {{t.pages.documentation.utilities.index.content.and_or_oneof_and_or_oneof_md_allows_you_to_quickly_check_conditions_of_states}}
+-   {{t.pages.documentation.utilities.index.content.pick_pick_md_allows_you_deeply_read_state_object_key_values}}
 
-### Why you need utilities?
+### {{t.pages.documentation.utilities.index.content.why_you_need_utilities}}
 
-In Markup, functions are first class citizens which means that reactive data are represented with functions. For simplicity you can create functions that handle specific logic away from the template so things look clean, and logic is reusable.
+{{t.pages.documentation.utilities.index.content.in_markup_functions_are_first_class_citizens_which_means_that_reactive_data_are_represented_with}}
 
-You can create utility functions to handle things like:
+{{t.pages.documentation.utilities.index.content.you_can_create_utility_functions_to_handle_things_like}}
 
--   validation;
--   data transformation;
--   logic base rendering;
--   caching;
--   etc;
+-   {{t.pages.documentation.utilities.index.content.validation}}
+-   {{t.pages.documentation.utilities.index.content.data_transformation}}
+-   {{t.pages.documentation.utilities.index.content.logic_base_rendering}}
+-   {{t.pages.documentation.utilities.index.content.caching}}
+-   {{t.pages.documentation.utilities.index.content.etc}}
 
-You only need to define utilities when working with states. Everything else can remain as static data.
+{{t.pages.documentation.utilities.index.content.you_only_need_to_define_utilities_when_working_with_states_everything_else_can_remain_as_static}}
 
-Utilities are just functions that rendered in template and that need to be called whenever the state they depend on changes.
+{{t.pages.documentation.utilities.index.content.utilities_are_just_functions_that_rendered_in_template_and_that_need_to_be_called_whenever_the_s}}
 
-### Custom utility
+### {{t.pages.documentation.utilities.index.content.custom_utility}}
 
-The power with working with states and template comes when you start defining your own utilities. Let's look at a quick example:
+{{t.pages.documentation.utilities.index.content.the_power_with_working_with_states_and_template_comes_when_you_start_defining_your_own_utilities}}
 
-We have a common scenario where we have a input field that uses state and we need to display a certain message whether the value is valid or not.
+{{t.pages.documentation.utilities.index.content.we_have_a_common_scenario_where_we_have_a_input_field_that_uses_state_and_we_need_to_display_a_c}}
 
 ```javascript
 const [value, updateValue] = state(null)
@@ -53,7 +53,7 @@ html` <input value="${value}" oninput="${handleChange}" /> `.render(
 )
 ```
 
-We could just go ahead and add the logic for the message right in template:
+{{t.pages.documentation.utilities.index.content.we_could_just_go_ahead_and_add_the_logic_for_the_message_right_in_template}}
 
 ```javascript
 html`
@@ -68,9 +68,9 @@ html`
 `.render(document.body)
 ```
 
-This is not bad but logic in the template takes space and lots of them makes template hard to read.
+{{t.pages.documentation.utilities.index.content.this_is_not_bad_but_logic_in_the_template_takes_space_and_lots_of_them_makes_template_hard_to_re}}
 
-I realized that i want to mark the field red when the input is invalid and that relies on the same logic we have in the function. So, i can extract that logic into a function for reusability:
+{{t.pages.documentation.utilities.index.content.i_realized_that_i_want_to_mark_the_field_red_when_the_input_is_invalid_and_that_relies_on_the_sa}}
 
 ```javascript
 const [value, updateValue] = state(null)
@@ -89,9 +89,9 @@ html`
 // renders: <input> true false
 ```
 
-Now I have two utilities that tell me whether the value has ever been changed or if it is valid that I can use anywhere to render whatever.
+{{t.pages.documentation.utilities.index.content.now_i_have_two_utilities_that_tell_me_whether_the_value_has_ever_been_changed_or_if_it_is_valid}}
 
-But I don't need to stop there, i can use function to represent anything I want and end up with something like this:
+{{t.pages.documentation.utilities.index.content.but_i_don_t_need_to_stop_there_i_can_use_function_to_represent_anything_i_want_and_end_up_with_s}}
 
 ```javascript
 const [value, updateValue] = state(null)
@@ -120,11 +120,11 @@ html`
 `.render(document.body)
 ```
 
-You can see that we have functions that handle different logic composing them for even more complex logic dependent on the state.
+{{t.pages.documentation.utilities.index.content.you_can_see_that_we_have_functions_that_handle_different_logic_composing_them_for_even_more_comp}}
 
-This ability to just create and compose functions to handle everything is what further makes templating easy and fun in Markup.
+{{t.pages.documentation.utilities.index.content.this_ability_to_just_create_and_compose_functions_to_handle_everything_is_what_further_makes_tem}}
 
-We can further things up by wrapping everything in a reusable utility for handling form input values of any kind that we can use with multiple form fields.
+{{t.pages.documentation.utilities.index.content.we_can_further_things_up_by_wrapping_everything_in_a_reusable_utility_for_handling_form_input_va}}
 
 ```javascript
 const formFieldValue = (pattern) => {
@@ -146,7 +146,7 @@ const formFieldValue = (pattern) => {
 }
 ```
 
-And this allows me to easily create fields handlers for any field like so:
+{{t.pages.documentation.utilities.index.content.and_this_allows_me_to_easily_create_fields_handlers_for_any_field_like_so}}
 
 ```javascript
 const name = formFieldValue(/[a-z]{3,}/i)
@@ -189,4 +189,4 @@ html`
 `.render(document.body)
 ```
 
-As you can see, when it comes to reactivity, Markup relies heavily and solely on functions to get the job done. This function oriented nature makes templating simple and somehow familiar to anyone. Give it a try!
+{{t.pages.documentation.utilities.index.content.as_you_can_see_when_it_comes_to_reactivity_markup_relies_heavily_and_solely_on_functions_to_get}}

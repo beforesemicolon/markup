@@ -1,12 +1,12 @@
 ---
-name: Element
+name: '{{t.pages.documentation.utilities.element.meta.element}}'
 order: 8.1
-title: Element Utility - Markup by Before Semicolon
-description: Use the Markup element utility to create DOM elements programmatically with attributes, children, refs, and event handlers when a static template is not enough.
+title: '{{t.pages.documentation.utilities.element.meta.element_utility_markup_by_before_semicolon}}'
+description: '{{t.pages.documentation.utilities.element.meta.use_the_markup_element_utility_to_create_dom_elements_programmatically_with_attributes_children}}'
 layout: document
 ---
 
-## Element Utility
+## {{t.pages.documentation.utilities.element.content.element_utility}}
 
 ```typescript
 interface ElementOptions<A> {
@@ -20,9 +20,9 @@ interface ElementOptions<A> {
 type element = <A>(tagName: string, options?: ElementOptions<A>) => Element
 ```
 
-The `element` attribute is simply a function that allows you to create DOM elements in one call.
+{{t.pages.documentation.utilities.element.content.the_element_attribute_is_simply_a_function_that_allows_you_to_create_dom_elements_in_one_call}}
 
-Normally, when working with DOM elements we create and piece them together after.
+{{t.pages.documentation.utilities.element.content.normally_when_working_with_dom_elements_we_create_and_piece_them_together_after}}
 
 ```javascript
 const button = document.createElement('button')
@@ -34,7 +34,7 @@ button.addEventListener('click', () => {
 })
 ```
 
-This is a lot of steps to create a simple button. Here is the same thing using `element`:
+{{t.pages.documentation.utilities.element.content.this_is_a_lot_of_steps_to_create_a_simple_button_here_is_the_same_thing_using_element}}
 
 ```javascript
 const button = element('button', {
@@ -48,13 +48,13 @@ const button = element('button', {
 })
 ```
 
-The `element` uses `addEventListener` behind the scenes and handles non-primitive values for you by easily detecting web component elements.
+{{t.pages.documentation.utilities.element.content.the_element_uses_addeventlistener_behind_the_scenes_and_handles_non_primitive_values_for_you_by}}
 
-### childNodes and htmlContent
+### {{t.pages.documentation.utilities.element.content.childnodes_and_htmlcontent}}
 
-The `childNodes` and `htmlContent` options allows you to component more complex elements easily depending on how you want to approach.
+{{t.pages.documentation.utilities.element.content.the_childnodes_and_htmlcontent_options_allows_you_to_component_more_complex_elements_easily_depe}}
 
-Here is a example using the `childNodes` option:
+{{t.pages.documentation.utilities.element.content.here_is_a_example_using_the_childnodes_option}}
 
 ```javascript
 element('ul', {
@@ -76,7 +76,7 @@ element('ul', {
 })
 ```
 
-Now an example of the same thing using the `htmlContent` option:
+{{t.pages.documentation.utilities.element.content.now_an_example_of_the_same_thing_using_the_htmlcontent_option}}
 
 ```javascript
 element('ul', {
@@ -88,11 +88,11 @@ element('ul', {
 })
 ```
 
-The main difference here is the fact the using `childNodes` you can specify function and property values to attributes while the `htmlContent` only takes a static HTML you want to use.
+{{t.pages.documentation.utilities.element.content.the_main_difference_here_is_the_fact_the_using_childnodes_you_can_specify_function_and_property}}
 
-### Web components
+### {{t.pages.documentation.utilities.element.content.web_components}}
 
-The best part of working with `element` is with web components. It will handle all non-primitive props to ensure the web components get data as they should.
+{{t.pages.documentation.utilities.element.content.the_best_part_of_working_with_element_is_with_web_components_it_will_handle_all_non_primitive_pr}}
 
 ```javascript
 const item = element('todo-item', {
@@ -107,9 +107,9 @@ const item = element('todo-item', {
 })
 ```
 
-### SVG elements
+### {{t.pages.documentation.utilities.element.content.svg_elements}}
 
-To create SVG elements you can specify the `ns` option with the value of `http://www.w3.org/2000/svg` and that will give you any SVG element.
+{{t.pages.documentation.utilities.element.content.to_create_svg_elements_you_can_specify_the_ns_option_with_the_value_of_http_www_w3_org_2000_svg}}
 
 ```javascript
 const rect = element('rect', {

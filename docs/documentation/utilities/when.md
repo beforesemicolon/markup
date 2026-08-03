@@ -1,16 +1,16 @@
 ---
-name: When
+name: '{{t.pages.documentation.utilities.when.meta.when}}'
 order: 8.3
-title: When Utility - Markup by Before Semicolon
-description: Use the Markup when helper for conditional rendering with state getters, fallback templates, lazy branches, and reactive UI decisions.
+title: '{{t.pages.documentation.utilities.when.meta.when_utility_markup_by_before_semicolon}}'
+description: '{{t.pages.documentation.utilities.when.meta.use_the_markup_when_helper_for_conditional_rendering_with_state_getters_fallback_templates_lazy}}'
 layout: document
 ---
 
-## When Utility
+## {{t.pages.documentation.utilities.when.content.when_utility}}
 
-The `when` helper is Markup out of the box utility to do conditional rendering in or outside templates.
+{{t.pages.documentation.utilities.when.content.the_when_helper_is_markup_out_of_the_box_utility_to_do_conditional_rendering_in_or_outside_templ}}
 
-It mimics an if-and-else statement with the else being conditional.
+{{t.pages.documentation.utilities.when.content.it_mimics_an_if_and_else_statement_with_the_else_being_conditional}}
 
 ```javascript
 const visible = true
@@ -18,9 +18,9 @@ const visible = true
 html` <p>${when(visible, `visible`, `hidden`)}</p> `
 ```
 
-### Condition
+### {{t.pages.documentation.utilities.when.content.condition}}
 
-The condition is the first argument and it can be a static value or a function for something that will change like a [StateGetter](../state/index.md#stategetter).
+{{t.pages.documentation.utilities.when.content.the_condition_is_the_first_argument_and_it_can_be_a_static_value_or_a_function_for_something_tha}}
 
 ```javascript
 const [visible, updateVisible] = state(true)
@@ -28,11 +28,11 @@ const [visible, updateVisible] = state(true)
 html` ${when(visible, html`<p>visible</p>`, html`<p>hidden</p>`)} `
 ```
 
-The `when` helper will re-evaluate whenever the condition changes for an accurate render.
+{{t.pages.documentation.utilities.when.content.the_when_helper_will_re_evaluate_whenever_the_condition_changes_for_an_accurate_render}}
 
-### Then & else
+### {{t.pages.documentation.utilities.when.content.then_else}}
 
-The second argument is required and represent the "then" value while the third argument is optional since it represent the "else" body.
+{{t.pages.documentation.utilities.when.content.the_second_argument_is_required_and_represent_the_then_value_while_the_third_argument_is_optiona}}
 
 ```javascript
 const [visible, updateVisible] = state(true)

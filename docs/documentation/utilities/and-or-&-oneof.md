@@ -1,18 +1,18 @@
 ---
-name: OneOf, And & Or
+name: '{{t.pages.documentation.utilities.and_or_oneof.meta.oneof_and_or}}'
 order: 8.6
-title: OneOf, And & Or Utility - Markup by Before Semicolon
-description: Use the Markup and, or, and oneOf helpers to combine reactive boolean conditions and render templates when multiple state checks pass.
+title: '{{t.pages.documentation.utilities.and_or_oneof.meta.oneof_and_or_utility_markup_by_before_semicolon}}'
+description: '{{t.pages.documentation.utilities.and_or_oneof.meta.use_the_markup_and_or_and_oneof_helpers_to_combine_reactive_boolean_conditions_and_render_templa}}'
 layout: document
 ---
 
-## OneOf, And & Or Utilities
+## {{t.pages.documentation.utilities.and_or_oneof.content.oneof_and_or_utilities}}
 
-Markup comes with additional utilities that work as operators and allows you to check a value from a bunch. This comes in form of `and`, `or`, and `oneOf` utilities.
+{{t.pages.documentation.utilities.and_or_oneof.content.markup_comes_with_additional_utilities_that_work_as_operators_and_allows_you_to_check_a_value_fr}}
 
-### oneOf
+### {{t.pages.documentation.utilities.and_or_oneof.content.oneof}}
 
-The `oneOf` works like the [is and isNot](./is-&-isnot.md) utilities but instead of checking a one value, it checks many.
+{{t.pages.documentation.utilities.and_or_oneof.content.the_oneof_works_like_the_is_and_isnot_is_isnot_md_utilities_but_instead_of_checking_a_one_value}}
 
 ```javascript
 const [status, setStatus] = state('pending')
@@ -24,11 +24,11 @@ html`${when(
 )}`
 ```
 
-It takes the value/state you want to check and an array of values to check against. The utility simply checks the value exactly.
+{{t.pages.documentation.utilities.and_or_oneof.content.it_takes_the_value_state_you_want_to_check_and_an_array_of_values_to_check_against_the_utility_s}}
 
-### and
+### {{t.pages.documentation.utilities.and_or_oneof.content.and}}
 
-The `and` utility works like the `&&` ([Logical AND](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_AND)). It will return `true` only if all values are [TRUTHY](https://developer.mozilla.org/en-US/docs/Glossary/Truthy).
+{{t.pages.documentation.utilities.and_or_oneof.content.the_and_utility_works_like_the_logical_and_https_developer_mozilla_org_en_us_docs_web_javascript}}
 
 ```javascript
 html`${when(
@@ -38,13 +38,13 @@ html`${when(
 )}`
 ```
 
-You can list any amount of values for the check:
+{{t.pages.documentation.utilities.and_or_oneof.content.you_can_list_any_amount_of_values_for_the_check}}
 
-`and(value1, value2, ..., valueN)`
+{{t.pages.documentation.utilities.and_or_oneof.content.and_value1_value2_valuen}}
 
-### or
+### {{t.pages.documentation.utilities.and_or_oneof.content.or}}
 
-The `or` utility works like the `||` ([Logical OR](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_OR)). It will return `true` only if at least one of the values are [TRUTHY](https://developer.mozilla.org/en-US/docs/Glossary/Truthy).
+{{t.pages.documentation.utilities.and_or_oneof.content.the_or_utility_works_like_the_logical_or_https_developer_mozilla_org_en_us_docs_web_javascript_r}}
 
 ```javascript
 html`${when(
@@ -54,6 +54,6 @@ html`${when(
 )}`
 ```
 
-You can list any amount of values for the check:
+{{t.pages.documentation.utilities.and_or_oneof.content.you_can_list_any_amount_of_values_for_the_check}}
 
-`or(value1, value2, ..., valueN)`
+{{t.pages.documentation.utilities.and_or_oneof.content.or_value1_value2_valuen}}

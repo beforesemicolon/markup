@@ -1,14 +1,14 @@
 ---
-name: Events
+name: '{{t.pages.documentation.templating.events.meta.events}}'
 order: 6.5
-title: HTML Events - Markup by Before Semicolon
-description: Attach native event handlers in Markup templates with inline on* attributes, pass listener options, use AbortController, and handle DOM events safely.
+title: '{{t.pages.documentation.templating.events.meta.html_events_markup_by_before_semicolon}}'
+description: '{{t.pages.documentation.templating.events.meta.attach_native_event_handlers_in_markup_templates_with_inline_on_attributes_pass_listener_options}}'
 layout: document
 ---
 
-## Events
+## {{t.pages.documentation.templating.events.content.events}}
 
-HTML allows you set inline event listeners using `on*` attributes. This is pretty much how you set event listeners on tags in Markup.
+{{t.pages.documentation.templating.events.content.html_allows_you_set_inline_event_listeners_using_on_attributes_this_is_pretty_much_how_you_set_e}}
 
 ```javascript
 const handleClick = (event) => {
@@ -18,7 +18,7 @@ const handleClick = (event) => {
 html`<button onclick="${handleClick}">click me</button>`
 ```
 
-The big difference with Markup is that these attributes are not rendered and behind the scenes Markup is using the [addEventListener](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener) to set event listeners on your tags.
+{{t.pages.documentation.templating.events.content.the_big_difference_with_markup_is_that_these_attributes_are_not_rendered_and_behind_the_scenes_m}}
 
 ```javascript
 html`<button onclick="${handleClick}">click me</button>`.render(document.body)
@@ -26,11 +26,11 @@ html`<button onclick="${handleClick}">click me</button>`.render(document.body)
 // renders: <button>click me</button>
 ```
 
-This allows your HTML to have event listeners and be safe by not allowing unsafe inline event listeners attributes while still enjoying all the advantages of using `addEventListener` API.
+{{t.pages.documentation.templating.events.content.this_allows_your_html_to_have_event_listeners_and_be_safe_by_not_allowing_unsafe_inline_event_li}}
 
-### Event options
+### {{t.pages.documentation.templating.events.content.event_options}}
 
-Because Markup is using `addEventListener` behind the scenes, it offers a special syntax that allows you to set options which is not possible with native HTML.
+{{t.pages.documentation.templating.events.content.because_markup_is_using_addeventlistener_behind_the_scenes_it_offers_a_special_syntax_that_allow}}
 
 ```javascript
 const handleClick = (event) => {
@@ -42,9 +42,9 @@ html`<button onclick="${[handleClick, { once: true }]}">
 </button>`.render(document.body)
 ```
 
-By providing a tuple (array with two values), you can specify the handler and its options to be used when setting an event listener.
+{{t.pages.documentation.templating.events.content.by_providing_a_tuple_array_with_two_values_you_can_specify_the_handler_and_its_options_to_be_use}}
 
-These options are just [addEventListener options](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#options) that allows you to specify how the event should be handled including defining signals.
+{{t.pages.documentation.templating.events.content.these_options_are_just_addeventlistener_options_https_developer_mozilla_org_en_us_docs_web_api_e}}
 
 ```javascript
 const controller = new AbortController()

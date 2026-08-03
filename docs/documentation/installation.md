@@ -1,45 +1,45 @@
 ---
-name: Installation
+name: '{{t.pages.documentation.installation.meta.installation}}'
 order: 3
-title: Installation - Markup by Before Semicolon
-description: Install Markup from a CDN or package manager, pin versions, import the JavaScript APIs, and use the TypeScript definitions included with the package.
+title: '{{t.pages.documentation.installation.meta.installation_markup_by_before_semicolon}}'
+description: '{{t.pages.documentation.installation.meta.install_markup_from_a_cdn_or_package_manager_pin_versions_import_the_javascript_apis_and_use_the}}'
 layout: document
 ---
 
-## Installation
+## {{t.pages.documentation.installation.content.installation}}
 
-Markup is a plug-and-play package that does not need to be built. There is no need to any additional setup or requirements to get started. Simply add it to your project and start writing your code.
+{{t.pages.documentation.installation.content.markup_is_a_plug_and_play_package_that_does_not_need_to_be_built_there_is_no_need_to_any_additio}}
 
-### Via CDN
+### {{t.pages.documentation.installation.content.via_cdn}}
 
-This method is the quickest loading option and can be placed in the head tag of the document.
+{{t.pages.documentation.installation.content.this_method_is_the_quickest_loading_option_and_can_be_placed_in_the_head_tag_of_the_document}}
 
 ```html
 <script src="https://unpkg.com/@beforesemicolon/markup/dist/client.js" />
 ```
 
-You may also specify a specific version you want.
+{{t.pages.documentation.installation.content.you_may_also_specify_a_specific_version_you_want}}
 
 ```html
 <script src="https://unpkg.com/@beforesemicolon/markup@1.0.0/dist/client.js" />
 ```
 
-You can use various CDN providers like **unpkg**, **jsDelivr**.
+{{t.pages.documentation.installation.content.you_can_use_various_cdn_providers_like_unpkg_jsdelivr}}
 
 ```html
 <script src="https://unpkg.com/@beforesemicolon/markup/dist/client.js" />
 <script src="https://cdn.jsdelivr.net/npm/@beforesemicolon/markup/dist/client.js" />
 ```
 
-The client CDN link will create a global BFS.MARKUP variable you can access for all the internal functions.
+{{t.pages.documentation.installation.content.the_client_cdn_link_will_create_a_global_bfs_markup_variable_you_can_access_for_all_the_internal}}
 
 ```javascript
 const { html, state, effect } = BFS.MARKUP
 ```
 
-### Via npm
+### {{t.pages.documentation.installation.content.via_npm}}
 
-This package is also available via **npm** which will allow you to use it in server-side JavaScript environments.
+{{t.pages.documentation.installation.content.this_package_is_also_available_via_npm_which_will_allow_you_to_use_it_in_server_side_javascript}}
 
 ```
 npm install @beforesemicolon/markup
@@ -49,12 +49,12 @@ npm install @beforesemicolon/markup
 import { html, state, effect } from '@beforesemicolon/markup'
 ```
 
-### Via yarn
+### {{t.pages.documentation.installation.content.via_yarn}}
 
 ```
 yarn add @beforesemicolon/markup
 ```
 
-### Typescript
+### {{t.pages.documentation.installation.content.typescript}}
 
-This package was built using typescript. You don't need to install a separate "types" package for it.
+{{t.pages.documentation.installation.content.this_package_was_built_using_typescript_you_don_t_need_to_install_a_separate_types_package_for_i}}

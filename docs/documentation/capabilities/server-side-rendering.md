@@ -1,16 +1,16 @@
 ---
-name: Server Side Rendering
+name: '{{t.pages.documentation.capabilities.server_side_rendering.meta.server_side_rendering}}'
 order: 5.6
-title: Server Side Rendering - Markup by Before Semicolon
-description: Render Markup templates on the server in JavaScript environments, serialize HTML output, and understand how Markup can support server-side rendering workflows.
+title: '{{t.pages.documentation.capabilities.server_side_rendering.meta.server_side_rendering_markup_by_before_semicolon}}'
+description: '{{t.pages.documentation.capabilities.server_side_rendering.meta.render_markup_templates_on_the_server_in_javascript_environments_serialize_html_output_and_under}}'
 layout: document
 ---
 
-## Server Side Rendering
+## {{t.pages.documentation.capabilities.server_side_rendering.content.server_side_rendering}}
 
-Markup can run in any JavaScript environment which means you can also server-side render the templates for your pages.
+{{t.pages.documentation.capabilities.server_side_rendering.content.markup_can_run_in_any_javascript_environment_which_means_you_can_also_server_side_render_the_tem}}
 
-Take for example this simple page created with Markup.
+{{t.pages.documentation.capabilities.server_side_rendering.content.take_for_example_this_simple_page_created_with_markup}}
 
 ```typescript
 // ./server/pages/home.page.ts
@@ -41,7 +41,7 @@ export const HomePage = ({ title }: HomePageProps) => {
 }
 ```
 
-We can follow by creating a simple express app and serve our `HomePage`.
+{{t.pages.documentation.capabilities.server_side_rendering.content.we_can_follow_by_creating_a_simple_express_app_and_serve_our_homepage}}
 
 ```typescript
 // ./server/app.ts
@@ -63,11 +63,11 @@ app.get('/', (_req: Request, res: Response) => {
 app.use(express.static(path.resolve(__dirname, 'public')))
 ```
 
-Notice that we are calling the `.toString()` on the template which takes a snapshot of the current state of the template and returns a HTML string representation.
+{{t.pages.documentation.capabilities.server_side_rendering.content.notice_that_we_are_calling_the_tostring_on_the_template_which_takes_a_snapshot_of_the_current_st}}
 
-This also means that you can render templates on the server and take snapshots on updates to server-side render.
+{{t.pages.documentation.capabilities.server_side_rendering.content.this_also_means_that_you_can_render_templates_on_the_server_and_take_snapshots_on_updates_to_ser}}
 
-Now, we can serve our express app with Node like so:
+{{t.pages.documentation.capabilities.server_side_rendering.content.now_we_can_serve_our_express_app_with_node_like_so}}
 
 ```typescript
 // ./server/index.ts
@@ -83,8 +83,8 @@ server.listen(3000, () => {
 })
 ```
 
-Notice that there is a `global-jsdom` package and all it does is make DOM APIs global that Markup can use to function normally. This is actually required for Node since Markup depend heavily on DOM APIs. Please find the right way to load DOM APIs depending on the JavaScript environment you use.
+{{t.pages.documentation.capabilities.server_side_rendering.content.notice_that_there_is_a_global_jsdom_package_and_all_it_does_is_make_dom_apis_global_that_markup}}
 
-This is a simple example on how to approach rendering things on the server. The main requirement is to have some type of DOM API that can render on the server environment you use (Deno, Bun, Node, etc). From there, making such APIs globally available will cover everything, and you can use Markup freely.
+{{t.pages.documentation.capabilities.server_side_rendering.content.this_is_a_simple_example_on_how_to_approach_rendering_things_on_the_server_the_main_requirement}}
 
-[Try it Out](https://stackblitz.com/edit/stackblitz-starters-a6rvq7)
+{{t.pages.documentation.capabilities.server_side_rendering.content.try_it_out_https_stackblitz_com_edit_stackblitz_starters_a6rvq7}}

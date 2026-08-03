@@ -1,14 +1,14 @@
 ---
-name: Is & IsNot
+name: '{{t.pages.documentation.utilities.is_isnot.meta.is_isnot}}'
 order: 8.5
-title: Is & IsNot Utility - Markup by Before Semicolon
-description: Use the Markup is and isNot helpers to render content from truthy or falsy state values with concise reactive conditional logic.
+title: '{{t.pages.documentation.utilities.is_isnot.meta.is_isnot_utility_markup_by_before_semicolon}}'
+description: '{{t.pages.documentation.utilities.is_isnot.meta.use_the_markup_is_and_isnot_helpers_to_render_content_from_truthy_or_falsy_state_values_with_con}}'
 layout: document
 ---
 
-## Is & IsNot Utilities
+## {{t.pages.documentation.utilities.is_isnot.content.is_isnot_utilities}}
 
-The `is` and `isNot` are one of the simplest utilities that allows you to quickly check truthiness about values, especially states.
+{{t.pages.documentation.utilities.is_isnot.content.the_is_and_isnot_are_one_of_the_simplest_utilities_that_allows_you_to_quickly_check_truthiness_a}}
 
 ```javascript
 const [status, setStatus] = state('pending')
@@ -16,11 +16,11 @@ const [status, setStatus] = state('pending')
 html`${when(is(status, 'pending'), html`<p>loading...</p>`, html`<p>done</p>`)}`
 ```
 
-Both the `is` and `isNot` take two arguments, a state or some data, and a value or a checker. They will always return a boolean as the result. The second argument is optional and when not provided, it will check if the value is [truthy](https://developer.mozilla.org/en-US/docs/Glossary/Truthy) or [falsy](https://developer.mozilla.org/en-US/docs/Glossary/Falsy)
+{{t.pages.documentation.utilities.is_isnot.content.both_the_is_and_isnot_take_two_arguments_a_state_or_some_data_and_a_value_or_a_checker_they_will}}
 
-### RegExp
+### {{t.pages.documentation.utilities.is_isnot.content.regexp}}
 
-You can also use `is` and `isNot` with regular expressions to check if a string matches a pattern.
+{{t.pages.documentation.utilities.is_isnot.content.you_can_also_use_is_and_isnot_with_regular_expressions_to_check_if_a_string_matches_a_pattern}}
 
 ```javascript
 const [email, setEmail] = state('')
@@ -29,11 +29,11 @@ const isEmailValid = is(email, /^[^\s@]+@[^\s@]+\.[^\s@]+$/)
 const isEmailInvalid = isNot(email, /^[^\s@]+@[^\s@]+\.[^\s@]+$/)
 ```
 
-### Checker
+### {{t.pages.documentation.utilities.is_isnot.content.checker}}
 
-The more advance way to use the `is` and `isNot` utilities is by providing a function as second argument that is called with the value and must return a boolean.
+{{t.pages.documentation.utilities.is_isnot.content.the_more_advance_way_to_use_the_is_and_isnot_utilities_is_by_providing_a_function_as_second_argu}}
 
-This checker allows you to perform custom checks instead of the default strict equality.
+{{t.pages.documentation.utilities.is_isnot.content.this_checker_allows_you_to_perform_custom_checks_instead_of_the_default_strict_equality}}
 
 ```javascript
 const [count, setCount] = state(0)
@@ -43,4 +43,4 @@ const isGreaterThanTen = is(count, (n) => n > 10)
 const isNotPending = isNot(status, (st) => st !== 'pending')
 ```
 
-When they consume `StateGetter` as first argument, their result get re-evaluated with every change which allows it to be handy in quick validators.
+{{t.pages.documentation.utilities.is_isnot.content.when_they_consume_stategetter_as_first_argument_their_result_get_re_evaluated_with_every_change}}

@@ -1,36 +1,36 @@
 ---
-name: Guide & Best Practices
+name: '{{t.pages.documentation.guide.meta.guide_best_practices}}'
 order: 5
-title: Markup Guide and Best Practices - JavaScript Reactive UI
-description: Comprehensive Markup guide covering installation, html templates, state, effects, utilities, WebComponent integration, Router patterns, and best practices.
+title: '{{t.pages.documentation.guide.meta.markup_guide_and_best_practices_javascript_reactive_ui}}'
+description: '{{t.pages.documentation.guide.meta.comprehensive_markup_guide_covering_installation_html_templates_state_effects_utilities_webcompo}}'
 layout: document
 ---
 
-## Guide & Best Practices
+## {{t.pages.documentation.guide.content.guide_best_practices}}
 
-This guide outlines core conventions, code design patterns, and common refactoring workflows for writing declarative, clean, and high-performance reactive applications with `@beforesemicolon/markup`.
-
----
-
-## Core Rules
-
-1.  **Prefer Declarative Helpers Over Branching**: Avoid writing inline JavaScript ternary operations or imperative functions inside template HTML strings. Always favor built-in Markup helpers (`when`, `repeat`, `pick`, `is`, etc.).
-2.  **Keep Side Effects Out of Render Functions**: Keep template rendering strictly side-effect-free. Side effects should live inside `effect()` blocks or Web Component lifecycle hooks (such as `onMount`).
-3.  **State Immutability**: Do not mutate objects used as canonical state directly. Track derived/pending changes separately and merge them only at render time.
-4.  **Preserve Source Collections**: Keep source arrays intact when deriving filtered or sorted views. Clearing a filter or search input should restore the full source list without requiring manual data resets.
-5.  **Reactive Value Binding**: Bind props and state directly (e.g. `disabled="${isDisabled}"` instead of `disabled="${isDisabled()}"`) to let Markup set up listeners surgically.
+{{t.pages.documentation.guide.content.this_guide_outlines_core_conventions_code_design_patterns_and_common_refactoring_workflows_for_w}}
 
 ---
 
-## Refactor Workflows
+## {{t.pages.documentation.guide.content.core_rules}}
 
-Here is how you can migrate traditional imperative habits into clean, declarative Markup code.
+1.  {{t.pages.documentation.guide.content.prefer_declarative_helpers_over_branching_avoid_writing_inline_javascript_ternary_operations_or}}
+2.  {{t.pages.documentation.guide.content.keep_side_effects_out_of_render_functions_keep_template_rendering_strictly_side_effect_free_side}}
+3.  {{t.pages.documentation.guide.content.state_immutability_do_not_mutate_objects_used_as_canonical_state_directly_track_derived_pending}}
+4.  {{t.pages.documentation.guide.content.preserve_source_collections_keep_source_arrays_intact_when_deriving_filtered_or_sorted_views_cle}}
+5.  {{t.pages.documentation.guide.content.reactive_value_binding_bind_props_and_state_directly_e_g_disabled_isdisabled_instead_of_disabled}}
 
-### 1. Conditional UI (if/else)
+---
 
-Avoid writing inline JavaScript conditions or logic gates inside templates.
+## {{t.pages.documentation.guide.content.refactor_workflows}}
 
-**Imperative/Avoid:**
+{{t.pages.documentation.guide.content.here_is_how_you_can_migrate_traditional_imperative_habits_into_clean_declarative_markup_code}}
+
+### {{t.pages.documentation.guide.content.text_1_conditional_ui_if_else}}
+
+{{t.pages.documentation.guide.content.avoid_writing_inline_javascript_conditions_or_logic_gates_inside_templates}}
+
+{{t.pages.documentation.guide.content.imperative_avoid}}
 
 ```javascript
 html`
@@ -40,7 +40,7 @@ html`
 `
 ```
 
-**Declarative/Prefer:**
+{{t.pages.documentation.guide.content.declarative_prefer}}
 
 ```javascript
 html`
@@ -48,17 +48,17 @@ html`
 `
 ```
 
-You can use ternary directly if you intend to render once and or dont expect the data update:
+{{t.pages.documentation.guide.content.you_can_use_ternary_directly_if_you_intend_to_render_once_and_or_dont_expect_the_data_update}}
 
 ```javascript
 html` <div>${isLoading ? html`<p>Loading...</p>` : html`<p>Loaded!</p>`}</div> `
 ```
 
-### 2. Rendering Lists
+### {{t.pages.documentation.guide.content.text_2_rendering_lists}}
 
-Avoid using `.map()` inside templates to generate dynamic list nodes. Using `.map()` destroys and rebuilds nodes on every update, whereas `repeat()` uses surgical memoization under the hood.
+{{t.pages.documentation.guide.content.avoid_using_map_inside_templates_to_generate_dynamic_list_nodes_using_map_destroys_and_rebuilds}}
 
-**Imperative/Avoid:**
+{{t.pages.documentation.guide.content.imperative_avoid}}
 
 ```javascript
 html`
@@ -68,7 +68,7 @@ html`
 `
 ```
 
-**Declarative/Prefer:**
+{{t.pages.documentation.guide.content.declarative_prefer}}
 
 ```javascript
 html`
@@ -78,7 +78,7 @@ html`
 `
 ```
 
-You can use the `map` directly if you intend to render once and or dont expect updates:
+{{t.pages.documentation.guide.content.you_can_use_the_map_directly_if_you_intend_to_render_once_and_or_dont_expect_updates}}
 
 ```javascript
 html`
@@ -88,11 +88,11 @@ html`
 `
 ```
 
-### 3. Nested Optional Reads
+### {{t.pages.documentation.guide.content.text_3_nested_optional_reads}}
 
-Avoid using nested optional chaining (`?.`) directly inside UI interpolations. This can lead to runtime errors if parts of the chain become undefined or unresolved.
+{{t.pages.documentation.guide.content.avoid_using_nested_optional_chaining_directly_inside_ui_interpolations_this_can_lead_to_runtime}}
 
-**Imperative/Avoid:**
+{{t.pages.documentation.guide.content.imperative_avoid}}
 
 ```javascript
 html`
@@ -102,7 +102,7 @@ html`
 `
 ```
 
-**Declarative/Prefer:**
+{{t.pages.documentation.guide.content.declarative_prefer}}
 
 ```javascript
 html`
@@ -114,7 +114,7 @@ html`
 `
 ```
 
-The pick option allows you to define fallbacks or handle the value for formatting and or additional processing.
+{{t.pages.documentation.guide.content.the_pick_option_allows_you_to_define_fallbacks_or_handle_the_value_for_formatting_and_or_additio}}
 
 ```javascript
 const over18 = (age) => (age > 18 ? 'Over 18' : 'Under 18')
@@ -126,11 +126,11 @@ html`
 `
 ```
 
-### 4. Boolean Expression Composition
+### {{t.pages.documentation.guide.content.text_4_boolean_expression_composition}}
 
-Avoid writing custom functions that just combine multiple states with `&&` or `||`. Compose them using Markup boolean combinators.
+{{t.pages.documentation.guide.content.avoid_writing_custom_functions_that_just_combine_multiple_states_with_or_compose_them_using_mark}}
 
-**Imperative/Avoid:**
+{{t.pages.documentation.guide.content.imperative_avoid}}
 
 ```javascript
 const canPublish = () => !isSaving() && hasChanges() && hasPermission()
@@ -138,7 +138,7 @@ const canPublish = () => !isSaving() && hasChanges() && hasPermission()
 html` <button disabled="${() => !canPublish()}">Publish</button> `
 ```
 
-**Declarative/Prefer:**
+{{t.pages.documentation.guide.content.declarative_prefer}}
 
 ```javascript
 const canPublish = and(isNot(isSaving), is(hasChanges), is(hasPermission))
@@ -146,15 +146,15 @@ const canPublish = and(isNot(isSaving), is(hasChanges), is(hasPermission))
 html` <button disabled="${isNot(canPublish)}">Publish</button> `
 ```
 
-Markup invites function compososition and working with stateful functions. You should look more into [how to create custom helpers](/documentation/utilities/#custom-utility) to understand more.
+{{t.pages.documentation.guide.content.markup_invites_function_compososition_and_working_with_stateful_functions_you_should_look_more_i}}
 
 ---
 
-## Canonical Patterns
+## {{t.pages.documentation.guide.content.canonical_patterns}}
 
-### Stateful Search & Filter Listing
+### {{t.pages.documentation.guide.content.stateful_search_filter_listing}}
 
-This is the standard pattern for rendering collections with dynamic filtering. The source state (`items`) remains completely immutable.
+{{t.pages.documentation.guide.content.this_is_the_standard_pattern_for_rendering_collections_with_dynamic_filtering_the_source_state_i}}
 
 ```typescript
 import { html, state, when, repeat, is, pick } from '@beforesemicolon/markup'
@@ -182,11 +182,11 @@ const View = html`
 `
 ```
 
-This allows state to remain immutable and you to create derived states that you use for rendering that combines different states to resolve to a desired one.
+{{t.pages.documentation.guide.content.this_allows_state_to_remain_immutable_and_you_to_create_derived_states_that_you_use_for_renderin}}
 
-### Async Slots (Suspense)
+### {{t.pages.documentation.guide.content.async_slots_suspense}}
 
-Use `suspense` to render async UI cleanly with error and fallback(while loading) rendering handlers:
+{{t.pages.documentation.guide.content.use_suspense_to_render_async_ui_cleanly_with_error_and_fallback_while_loading_rendering_handlers}}
 
 ```typescript
 import { html, suspense } from '@beforesemicolon/markup'
@@ -208,11 +208,11 @@ const ResourceView = html`
 `
 ```
 
-### More Common Patterns
+### {{t.pages.documentation.guide.content.more_common_patterns}}
 
-Here are more typical recipes you can copy-paste for common UI requirements:
+{{t.pages.documentation.guide.content.here_are_more_typical_recipes_you_can_copy_paste_for_common_ui_requirements}}
 
-#### Membership Checks & Option Swapping
+#### {{t.pages.documentation.guide.content.membership_checks_option_swapping}}
 
 ```typescript
 import { html, state, when, oneOf } from '@beforesemicolon/markup'
@@ -228,7 +228,7 @@ const View = html`
 `
 ```
 
-#### Reactive CSS Variables & Styles
+#### {{t.pages.documentation.guide.content.reactive_css_variables_styles}}
 
 ```typescript
 import { html, state } from '@beforesemicolon/markup'
@@ -243,7 +243,7 @@ const Box = html`
 `
 ```
 
-#### Nested Value Rendering
+#### {{t.pages.documentation.guide.content.nested_value_rendering}}
 
 ```typescript
 import { html, state, pick } from '@beforesemicolon/markup'
@@ -256,7 +256,7 @@ const AuthorHeader = html`
 `
 ```
 
-#### Shared State Store
+#### {{t.pages.documentation.guide.content.shared_state_store}}
 
 ```typescript
 import { state } from '@beforesemicolon/markup'
@@ -281,13 +281,13 @@ export const fetchTodos = async () => {
 
 ---
 
-## Conventions & Guardrails
+## {{t.pages.documentation.guide.content.conventions_guardrails}}
 
--   **Pass Getters/Functions directly**: Do not execute getters inside template attributes when subscription/reactivity is intended. Pass `disabled="${isDisabled}"`, not `disabled="${isDisabled()}"`.
--   **Clean Event Bindings**: Do not wrap callbacks in redundant closures unless passing arguments:
-    -   _Good_: `<button onclick="${logout}">Logout</button>`
-    -   _Good_: `<button onclick="${() => handleSelect(item)}">Select</button>`
-    -   _Avoid_: `<button onclick="${() => logout()}">Logout</button>`
--   **Direct Property Bindings**: Do not pre-normalize simple template attributes in setup/getters just to render them. Markup handles `undefined`, empty, and falsy attribute values correctly.
--   **Boolean Attributes**: Markup core automatically unwraps and evaluates boolean states. Do not add `Boolean(val(this.props.someBoolean()))`-style wrappers; bind properties directly.
--   **Static vs. Reactive**: If a value is static (never changes after initialization), render its evaluated state: `html`<p>${state()}</p>`. If it is reactive and should dynamically update, bind the getter: `html`<p>${state}</p>`.
+-   {{t.pages.documentation.guide.content.pass_getters_functions_directly_do_not_execute_getters_inside_template_attributes_when_subscript}}
+-   {{t.pages.documentation.guide.content.clean_event_bindings_do_not_wrap_callbacks_in_redundant_closures_unless_passing_arguments}}
+    -   {{t.pages.documentation.guide.content.good_logout}}
+    -   {{t.pages.documentation.guide.content.good_handleselect_item_select}}
+    -   {{t.pages.documentation.guide.content.avoid_logout_logout}}
+-   {{t.pages.documentation.guide.content.direct_property_bindings_do_not_pre_normalize_simple_template_attributes_in_setup_getters_just_t}}
+-   {{t.pages.documentation.guide.content.boolean_attributes_markup_core_automatically_unwraps_and_evaluates_boolean_states_do_not_add_boo}}
+-   {{t.pages.documentation.guide.content.static_vs_reactive_if_a_value_is_static_never_changes_after_initialization_render_its_evaluated}}

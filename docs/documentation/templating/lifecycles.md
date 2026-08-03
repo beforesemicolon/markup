@@ -1,24 +1,24 @@
 ---
-name: Lifecycles
+name: '{{t.common.content.lifecycles}}'
 order: 6.1
-title: Template Lifecycles - Markup by Before Semicolon
-description: Use Markup template lifecycle hooks such as onMount and onUpdate to run setup, cleanup, and side effects when templates render or change.
+title: '{{t.pages.documentation.templating.lifecycles.meta.template_lifecycles_markup_by_before_semicolon}}'
+description: '{{t.pages.documentation.templating.lifecycles.meta.use_markup_template_lifecycle_hooks_such_as_onmount_and_onupdate_to_run_setup_cleanup_and_side_e}}'
 layout: document
 ---
 
-## Lifecycles
+## {{t.common.content.lifecycles}}
 
-Markup exposes few methods you can use to tap into the lifecycles of the template:
+{{t.pages.documentation.templating.lifecycles.content.markup_exposes_few_methods_you_can_use_to_tap_into_the_lifecycles_of_the_template}}
 
--   `onMount`: method that takes a function to call when the template is mounted that can return another function to be called when the template is unmounted;
--   `onUpdate`: method that takes a function to call when something in the rendered template changes;
--   `onMove`: method that takes a function to call when the template content is moved from one location to another in the DOM.
+-   {{t.pages.documentation.templating.lifecycles.content.onmount_method_that_takes_a_function_to_call_when_the_template_is_mounted_that_can_return_anothe}}
+-   {{t.pages.documentation.templating.lifecycles.content.onupdate_method_that_takes_a_function_to_call_when_something_in_the_rendered_template_changes}}
+-   {{t.pages.documentation.templating.lifecycles.content.onmove_method_that_takes_a_function_to_call_when_the_template_content_is_moved_from_one_location}}
 
-All lifecycle callbacks will be called with the instance of the template as the first argument that you can use to operate on the template itself.
+{{t.pages.documentation.templating.lifecycles.content.all_lifecycle_callbacks_will_be_called_with_the_instance_of_the_template_as_the_first_argument_t}}
 
-### onMount
+### {{t.pages.documentation.templating.lifecycles.content.onmount}}
 
-The `onMount` method takes a function to be called when the template is rendered via any of the [render methods](./index.md#rendering). This function can return another function to be called when the template gets unmounted.
+{{t.pages.documentation.templating.lifecycles.content.the_onmount_method_takes_a_function_to_be_called_when_the_template_is_rendered_via_any_of_the_re}}
 
 ```javascript
 const temp = html`<h1>Hello World</h1>`
@@ -38,9 +38,9 @@ temp.render(document.body) // triggers mount
 temp.unmount() // trigger unmount
 ```
 
-The unmount event can be triggered by calling the `unmount` or when the template was removed part of some change in the parent template.
+{{t.pages.documentation.templating.lifecycles.content.the_unmount_event_can_be_triggered_by_calling_the_unmount_or_when_the_template_was_removed_part}}
 
-These livecycles are perfect for setups and cleanups around the template. These are things like working with timers or other event driven actions that stay in the background.
+{{t.pages.documentation.templating.lifecycles.content.these_livecycles_are_perfect_for_setups_and_cleanups_around_the_template_these_are_things_like_w}}
 
 ```javascript
 const [count, setCount] = state(0)
@@ -64,9 +64,9 @@ setTimeout(() => {
 }, 10000)
 ```
 
-### onUpdate
+### {{t.pages.documentation.templating.lifecycles.content.onupdate}}
 
-The `onUpdate` method takes a function to be called whenever something in the template changes. This could attribute or node added, removed, or updated.
+{{t.pages.documentation.templating.lifecycles.content.the_onupdate_method_takes_a_function_to_be_called_whenever_something_in_the_template_changes_thi}}
 
 ```javascript
 const [count, updateCount] = state(0)
@@ -83,11 +83,11 @@ temp.render(document.body)
 updateCount(10)
 ```
 
-If you want to react to a specific state change, you can use the [effect](../state/effect.md). The `onUpdate` is perfect for when you want to take snapshots of the template or perform generic template related side effects.
+{{t.pages.documentation.templating.lifecycles.content.if_you_want_to_react_to_a_specific_state_change_you_can_use_the_effect_state_effect_md_the_onupd}}
 
-### onMove
+### {{t.pages.documentation.templating.lifecycles.content.onmove}}
 
-The `onMove` method takes a function to be called whenever the template render target changes.
+{{t.pages.documentation.templating.lifecycles.content.the_onmove_method_takes_a_function_to_be_called_whenever_the_template_render_target_changes}}
 
 ```javascript
 const temp = html`<h1>Hello World</h1>`
@@ -103,11 +103,11 @@ setTimeout(() => {
 }, 1000)
 ```
 
-This livecycle is perfect to perform action dependent on the template location. These can be things like DOM reordering or when working with drag and drop.
+{{t.pages.documentation.templating.lifecycles.content.this_livecycle_is_perfect_to_perform_action_dependent_on_the_template_location_these_can_be_thin}}
 
-### Chaining
+### {{t.pages.documentation.templating.lifecycles.content.chaining}}
 
-All template livecycles and [render methods](./index.md#rendering) can be chained and you should always set the livecycles before rendering anything.
+{{t.pages.documentation.templating.lifecycles.content.all_template_livecycles_and_render_methods_index_md_rendering_can_be_chained_and_you_should_alwa}}
 
 ```javascript
 const [count, updateCount] = state(0)

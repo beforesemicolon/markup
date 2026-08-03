@@ -1,24 +1,24 @@
 ---
-name: Pick
+name: '{{t.pages.documentation.utilities.pick.meta.pick}}'
 order: 8.7
-title: Pick Utility - Markup by Before Semicolon
-description: Use the Markup pick utility to select deep object state paths while preserving reactivity for nested properties and derived template values.
+title: '{{t.pages.documentation.utilities.pick.meta.pick_utility_markup_by_before_semicolon}}'
+description: '{{t.pages.documentation.utilities.pick.meta.use_the_markup_pick_utility_to_select_deep_object_state_paths_while_preserving_reactivity_for_ne}}'
 layout: document
 ---
 
-## Pick Utility
+## {{t.pages.documentation.utilities.pick.content.pick_utility}}
 
-The `pick` utility simplifies working with object states by allowing you to read deep property values while keeping the reactivity of the states.
+{{t.pages.documentation.utilities.pick.content.the_pick_utility_simplifies_working_with_object_states_by_allowing_you_to_read_deep_property_val}}
 
-### Why use `pick` utility?
+### {{t.pages.documentation.utilities.pick.content.why_use_pick_utility}}
 
-Let's look at a simple user object state.
+{{t.pages.documentation.utilities.pick.content.let_s_look_at_a_simple_user_object_state}}
 
 ```javascript
 const [currentUser] = state(null)
 ```
 
-The user data model looks something like this:
+{{t.pages.documentation.utilities.pick.content.the_user_data_model_looks_something_like_this}}
 
 ```typescript
 interface User {
@@ -42,7 +42,7 @@ interface User {
 }
 ```
 
-Now we can try to display this user information that was set in the state.
+{{t.pages.documentation.utilities.pick.content.now_we_can_try_to_display_this_user_information_that_was_set_in_the_state}}
 
 ```javascript
 html`
@@ -55,7 +55,7 @@ html`
 `.render(document.body)
 ```
 
-This displays everything perfectly. However, if this is an object that changes, nothing will re-render because everything was rendered statically. The simple solution is to render everything dynamically using functions.
+{{t.pages.documentation.utilities.pick.content.this_displays_everything_perfectly_however_if_this_is_an_object_that_changes_nothing_will_re_ren}}
 
 ```javascript
 html`
@@ -68,7 +68,7 @@ html`
 `.render(document.body)
 ```
 
-Alternatively, you can use `pick` to pick the properties you want to render from a state.
+{{t.pages.documentation.utilities.pick.content.alternatively_you_can_use_pick_to_pick_the_properties_you_want_to_render_from_a_state}}
 
 ```javascript
 html`
@@ -81,36 +81,36 @@ html`
 `.render(document.body)
 ```
 
-The `pick` utility is just a function and can be used outside the templates as well.
+{{t.pages.documentation.utilities.pick.content.the_pick_utility_is_just_a_function_and_can_be_used_outside_the_templates_as_well}}
 
 ```javascript
 console.log(pick(currentUser, 'jobs')())
 ```
 
-### Deep values
+### {{t.pages.documentation.utilities.pick.content.deep_values}}
 
-The best part of using `pick` is its ability to let you pick deep values. For example, let's access our current user third job company website.
+{{t.pages.documentation.utilities.pick.content.the_best_part_of_using_pick_is_its_ability_to_let_you_pick_deep_values_for_example_let_s_access}}
 
 ```javascript
 html`${pick(currentUser, 'jobs.2.company.website')}`
 ```
 
-As you can see, you can use [dot notation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Property_accessors#dot_notation) to access properties deeply and everything will re-render when these values change.
+{{t.pages.documentation.utilities.pick.content.as_you_can_see_you_can_use_dot_notation_https_developer_mozilla_org_en_us_docs_web_javascript_re}}
 
-### Undefined values
+### {{t.pages.documentation.utilities.pick.content.undefined_values}}
 
-The `pick` utility also offers protection against undefined values by preventing things from throwing errors when trying to read a property that does not exist.
+{{t.pages.documentation.utilities.pick.content.the_pick_utility_also_offers_protection_against_undefined_values_by_preventing_things_from_throw}}
 
-The `pick` helper will catch the error and simply returns `undefined` that can be rendered or read by your code.
+{{t.pages.documentation.utilities.pick.content.the_pick_helper_will_catch_the_error_and_simply_returns_undefined_that_can_be_rendered_or_read_b}}
 
 ```javascript
 html`${pick(currentUser, 'jobs.2.company.url')}`.render(document.body)
 // renders "undefined"
 ```
 
-### Mapper function
+### {{t.pages.documentation.utilities.pick.content.mapper_function}}
 
-The `pick` utility accepts an optional third argument - a mapper function that transforms the picked value before returning it.
+{{t.pages.documentation.utilities.pick.content.the_pick_utility_accepts_an_optional_third_argument_a_mapper_function_that_transforms_the_picked}}
 
 ```javascript
 html`
@@ -124,4 +124,4 @@ html`
 `.render(document.body)
 ```
 
-This is useful for formatting values, converting types, or applying any transformation to the picked value before it's rendered or used.
+{{t.pages.documentation.utilities.pick.content.this_is_useful_for_formatting_values_converting_types_or_applying_any_transformation_to_the_pick}}

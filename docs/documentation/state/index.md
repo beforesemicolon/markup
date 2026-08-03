@@ -1,18 +1,18 @@
 ---
-name: Intro to States
+name: '{{t.pages.documentation.state.index.meta.intro_to_states}}'
 order: 7
-title: State - Markup by Before Semicolon
-description: Learn Markup state getter, setter, and unsubscribe behavior for reactive rendering, direct reads, functional updates, subscriptions, and template updates.
+title: '{{t.pages.documentation.state.index.meta.state_markup_by_before_semicolon}}'
+description: '{{t.pages.documentation.state.index.meta.learn_markup_state_getter_setter_and_unsubscribe_behavior_for_reactive_rendering_direct_reads_fu}}'
 layout: document
 ---
 
-## State
+## {{t.pages.documentation.state.index.content.state}}
 
-Something that is truly missing in web APIs is reactivity, the ability to react to changes instead of listening to events. A big promise is the [tc39 proposal](https://github.com/tc39/proposal-signals) which is attempting to bring signals to JavaScript.
+{{t.pages.documentation.state.index.content.something_that_is_truly_missing_in_web_apis_is_reactivity_the_ability_to_react_to_changes_instea}}
 
-Until then, Markup exposes a standalone API that gives you that capability called `state`.
+{{t.pages.documentation.state.index.content.until_then_markup_exposes_a_standalone_api_that_gives_you_that_capability_called_state}}
 
-The state API can be used with or without templates allowing you to create [state stores](../capabilities/state-store.md), enhance Web Components, and even provide reactivity with raw DOM manipulation.
+{{t.pages.documentation.state.index.content.the_state_api_can_be_used_with_or_without_templates_allowing_you_to_create_state_stores_capabili}}
 
 ```javascript
 const [count, setCount] = state(0)
@@ -31,7 +31,7 @@ effect(() => {
 document.body.append(btn)
 ```
 
-The best part is when you combine state and templates to render DOM nodes that react to updates as they happen without having to manipulate the DOM yourself.
+{{t.pages.documentation.state.index.content.the_best_part_is_when_you_combine_state_and_templates_to_render_dom_nodes_that_react_to_updates}}
 
 ```javascript
 const handleClick = () => {
@@ -41,11 +41,11 @@ const handleClick = () => {
 html`<button type="button" onclick="${handleClick}">count: ${count}</button>`
 ```
 
-Markup templates do not traverse the DOM to check for updates. Instead, it creates [render effects](./effect.md) in place to update the DOM exactly where and when needed.
+{{t.pages.documentation.state.index.content.markup_templates_do_not_traverse_the_dom_to_check_for_updates_instead_it_creates_render_effects}}
 
-### Input
+### {{t.pages.documentation.state.index.content.input}}
 
-To initialize a state, you can optionally provide an `initialValue` as well as a `StateSubscriber` which is a function that will be called every time the state changes.
+{{t.pages.documentation.state.index.content.to_initialize_a_state_you_can_optionally_provide_an_initialvalue_as_well_as_a_statesubscriber_wh}}
 
 ```typescript
 const [count] = state<number>(0, () => {
@@ -53,11 +53,11 @@ const [count] = state<number>(0, () => {
 })
 ```
 
-When no input value provided, the default value is an empty string.
+{{t.pages.documentation.state.index.content.when_no_input_value_provided_the_default_value_is_an_empty_string}}
 
-### Return
+### {{t.pages.documentation.state.index.content.return}}
 
-The `state` function will return and array with three functions, a `StateGetter`, `StateSetter`, and a `StateUnSubscriber`.
+{{t.pages.documentation.state.index.content.the_state_function_will_return_and_array_with_three_functions_a_stategetter_statesetter_and_a_st}}
 
 ```javascript
 const [count, updateCount, unsubscribe] = state(0, () => {
@@ -69,9 +69,9 @@ updateCount(10)
 unsubscribe()
 ```
 
-#### StateGetter
+#### {{t.pages.documentation.state.index.content.stategetter}}
 
-The `StateGetter` is a function you must call to get the current value of the state.
+{{t.pages.documentation.state.index.content.the_stategetter_is_a_function_you_must_call_to_get_the_current_value_of_the_state}}
 
 ```javascript
 const [count] = state(0)
@@ -79,9 +79,9 @@ const [count] = state(0)
 console.log(count()) // logs 0
 ```
 
-#### StateSetter
+#### {{t.pages.documentation.state.index.content.statesetter}}
 
-The `StateSetter` is a function you call with the new value for the state or a function that gets called with the current value and must return a new value.
+{{t.pages.documentation.state.index.content.the_statesetter_is_a_function_you_call_with_the_new_value_for_the_state_or_a_function_that_gets}}
 
 ```javascript
 const [count, updateCount] = state(0)
@@ -96,7 +96,7 @@ updateCount(count() + 5)
 updateCount((prev) => prev + 5)
 ```
 
-Calling the `StateSetter` with same value will not cause the subscribers to be called. A shallow comparison is made before updating the current value which prevents unnecessary updates.
+{{t.pages.documentation.state.index.content.calling_the_statesetter_with_same_value_will_not_cause_the_subscribers_to_be_called_a_shallow_co}}
 
 ```javascript
 const [count, updateCount] = state(0, () => {
@@ -110,9 +110,9 @@ setInterval(() => {
 }, 1000)
 ```
 
-#### StateUnSubscriber
+#### {{t.pages.documentation.state.index.content.stateunsubscriber}}
 
-In case you provide a `StateSubscriber` as a second argument for the `state`, you can then use the `StateUnSubscriber` to stop listening to the state changes.
+{{t.pages.documentation.state.index.content.in_case_you_provide_a_statesubscriber_as_a_second_argument_for_the_state_you_can_then_use_the_st}}
 
 ```javascript
 const [count, updateCount, unsubscribeFromCount] = state(0, () => {
@@ -122,20 +122,20 @@ const [count, updateCount, unsubscribeFromCount] = state(0, () => {
 unsubscribeFromCount()
 ```
 
-### How it works?
+### {{t.common.content.how_it_works}}
 
-The state is a synchronous value which means you can update it in one line and read it on the next.
+{{t.pages.documentation.state.index.content.the_state_is_a_synchronous_value_which_means_you_can_update_it_in_one_line_and_read_it_on_the_ne}}
 
 ```javascript
 setCount(10)
 console.log(count()) // logs 10
 ```
 
-Behind the scenes, `state` is just a self managed subscription that works seamlessly with `effect` and `html` APIs.
+{{t.pages.documentation.state.index.content.behind_the_scenes_state_is_just_a_self_managed_subscription_that_works_seamlessly_with_effect_an}}
 
-### Examples
+### {{t.common.content.examples}}
 
-Form input value and validation:
+{{t.pages.documentation.state.index.content.form_input_value_and_validation}}
 
 ```javascript
 const [valid, setValid] = state(true)

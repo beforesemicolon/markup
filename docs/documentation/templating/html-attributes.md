@@ -1,18 +1,18 @@
 ---
-name: Attributes
+name: '{{t.pages.documentation.templating.html_attributes.meta.attributes}}'
 order: 6.3
-title: HTML Attributes - Markup by Before Semicolon
-description: Work with Markup template attributes, boolean attributes, dynamic values, object attributes, refs, classes, and native inline event attributes.
+title: '{{t.pages.documentation.templating.html_attributes.meta.html_attributes_markup_by_before_semicolon}}'
+description: '{{t.pages.documentation.templating.html_attributes.meta.work_with_markup_template_attributes_boolean_attributes_dynamic_values_object_attributes_refs_cl}}'
 layout: document
 ---
 
-## HTML Attributes
+## {{t.pages.documentation.templating.html_attributes.content.html_attributes}}
 
-HTML attributes in Markup templates are just HTML attributes. One specific behavior change is related to [boolean attributes](https://developer.mozilla.org/en-US/docs/Glossary/Boolean/HTML) and besides that, your knowledge about HTML attributes transfer as is.
+{{t.pages.documentation.templating.html_attributes.content.html_attributes_in_markup_templates_are_just_html_attributes_one_specific_behavior_change_is_rel}}
 
-### Boolean attributes
+### {{t.pages.documentation.templating.html_attributes.content.boolean_attributes}}
 
-Boolean attributes in HTML are attributes that represent `true` or `false` values.
+{{t.pages.documentation.templating.html_attributes.content.boolean_attributes_in_html_are_attributes_that_represent_true_or_false_values}}
 
 ```javascript
 html`
@@ -25,9 +25,9 @@ html`
 // <input type="checkbox" checked="false">  <- still checked
 ```
 
-The issue with boolean attributes in HTML is that giving them the value of `false` does not stop their effect on the element. If they are present in the tag they work as having the value of `true` no matter their value.
+{{t.pages.documentation.templating.html_attributes.content.the_issue_with_boolean_attributes_in_html_is_that_giving_them_the_value_of_false_does_not_stop_t}}
 
-Markup honors the `true` or `false` values and allows you to add or remove these attributes just by specifying their boolean values.
+{{t.pages.documentation.templating.html_attributes.content.markup_honors_the_true_or_false_values_and_allows_you_to_add_or_remove_these_attributes_just_by}}
 
 ```javascript
 const hidden = false
@@ -44,7 +44,7 @@ html`
 // <input type="checkbox">
 ```
 
-Setting an attribute value to `false` (as string or boolean) or nil (`undefined` or `null`) will remove the attribute.
+{{t.pages.documentation.templating.html_attributes.content.setting_an_attribute_value_to_false_as_string_or_boolean_or_nil_undefined_or_null_will_remove_th}}
 
 ```
 const disabled = false
@@ -60,9 +60,9 @@ html`
 // <input type="checkbox">
 ```
 
-### Value attributes
+### {{t.pages.documentation.templating.html_attributes.content.value_attributes}}
 
-Markup is aware of value you inject in the template as attribute values and will track and update them accordingly. There is no extra syntax necessary to make this happen.
+{{t.pages.documentation.templating.html_attributes.content.markup_is_aware_of_value_you_inject_in_the_template_as_attribute_values_and_will_track_and_updat}}
 
 ```javascript
 const type = 'button'
@@ -81,9 +81,9 @@ html`
 // <button type="button" class="btn active common" style="border: none; color: white; background: black">click me</button>
 ```
 
-### Event attributes
+### {{t.pages.documentation.templating.html_attributes.content.event_attributes}}
 
-HTML allows you to declare inline event attributes and they work the same with markup. No extra syntax is needed to add attach events but Markup does additional things in the background you can learn more about by reading the [events](./events.md) docs.
+{{t.pages.documentation.templating.html_attributes.content.html_allows_you_to_declare_inline_event_attributes_and_they_work_the_same_with_markup_no_extra_s}}
 
 ```javascript
 const handleClick = (event) => {
@@ -93,17 +93,17 @@ const handleClick = (event) => {
 html`<button onclick="${handleClick}">click me</button>`
 ```
 
-### Reference attribute
+### {{t.pages.documentation.templating.html_attributes.content.reference_attribute}}
 
-One thing that exists in Markup and not in HTML is the `ref` attribute that allows you to create a reference to an element you can use to access the rendered DOM element for whatever operation you need. You can read about [references](./ref.md) for more details.
+{{t.pages.documentation.templating.html_attributes.content.one_thing_that_exists_in_markup_and_not_in_html_is_the_ref_attribute_that_allows_you_to_create_a}}
 
 ```javascript
 html`<button ref="btn">click me</button>`
 ```
 
-### Attributes as object
+### {{t.pages.documentation.templating.html_attributes.content.attributes_as_object}}
 
-It is good to know all the possible attributes in advance but sometimes that's not possible. For that, you can collect attributes as objects and just inject them as is overriding as needed.
+{{t.pages.documentation.templating.html_attributes.content.it_is_good_to_know_all_the_possible_attributes_in_advance_but_sometimes_that_s_not_possible_for}}
 
 ```javascript
 const [count, setCount] = state(0)
@@ -127,6 +127,6 @@ const temp = html`
 temp.render(document.body)
 ```
 
-Any attribute you set after injecting the attribute object will override the object attribute name value. In the example above, we ensure that the `type` of the button is always `button` by setting it after injecting the `props` object.
+{{t.pages.documentation.templating.html_attributes.content.any_attribute_you_set_after_injecting_the_attribute_object_will_override_the_object_attribute_na}}
 
-Also, you can use camelcase attribute name to changed to kebab-case. In the example above `ariaLabel` will become `aria-label` when the button renders. The `onClick` will change to `onclick` and handled like an [event attributes](#event-attributes).
+{{t.pages.documentation.templating.html_attributes.content.also_you_can_use_camelcase_attribute_name_to_changed_to_kebab_case_in_the_example_above_arialabe}}

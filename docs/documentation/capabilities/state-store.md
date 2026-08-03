@@ -1,20 +1,20 @@
 ---
-name: State Store
+name: '{{t.pages.documentation.capabilities.state_store.meta.state_store}}'
 order: 5.5
-title: State Store - Markup by Before Semicolon
-description: Build shared state stores with Markup state, derived getters, update functions, effects, and repeat rendering patterns for application state management.
+title: '{{t.pages.documentation.capabilities.state_store.meta.state_store_markup_by_before_semicolon}}'
+description: '{{t.pages.documentation.capabilities.state_store.meta.build_shared_state_stores_with_markup_state_derived_getters_update_functions_effects_and_repeat}}'
 layout: document
 ---
 
-## State Store
+## {{t.pages.documentation.capabilities.state_store.content.state_store}}
 
-The great thing about Markup [state](../state/index) is the fact that it is a standalone API that works great witht the template itself.
+{{t.pages.documentation.capabilities.state_store.content.the_great_thing_about_markup_state_state_index_is_the_fact_that_it_is_a_standalone_api_that_work}}
 
-What this allows you to do is manage shared/global state away from the component and inject them directly into the template or perform side effects where needed. All that without worrying about subcriptions and cleanups.
+{{t.pages.documentation.capabilities.state_store.content.what_this_allows_you_to_do_is_manage_shared_global_state_away_from_the_component_and_inject_them}}
 
-### Create a state store
+### {{t.pages.documentation.capabilities.state_store.content.create_a_state_store}}
 
-Take for example this `todos` state store:
+{{t.pages.documentation.capabilities.state_store.content.take_for_example_this_todos_state_store}}
 
 ```typescript
 // src/stores/todos.ts
@@ -35,11 +35,11 @@ const [todos, updateTodos] = state<Todo[]>([])
 export const todoList = todos
 ```
 
-As you can see, we can create a file dedicated to manage a particular state we want to use in multiple places in our application.
+{{t.pages.documentation.capabilities.state_store.content.as_you_can_see_we_can_create_a_file_dedicated_to_manage_a_particular_state_we_want_to_use_in_mul}}
 
-### Consuming the store state
+### {{t.pages.documentation.capabilities.state_store.content.consuming_the_store_state}}
 
-We don't have to worry about subscription when it comes to rendering this data, we can inject it directly into the template.
+{{t.pages.documentation.capabilities.state_store.content.we_don_t_have_to_worry_about_subscription_when_it_comes_to_rendering_this_data_we_can_inject_it}}
 
 ```javascript
 import {todoList} from "./stores/todos"
@@ -58,7 +58,7 @@ const App = () => {
 }
 ```
 
-Easy enough, to perform something whenever this list changes, we can just use the [effect](../state/effect.md).
+{{t.pages.documentation.capabilities.state_store.content.easy_enough_to_perform_something_whenever_this_list_changes_we_can_just_use_the_effect_state_eff}}
 
 ```javascript
 import { todoList } from './stores/todos'
@@ -85,9 +85,9 @@ const unsubFromEffect = effect(() => {
 // call "unsubFromEffect" to unsubscribe from todoList state
 ```
 
-### Define store actions
+### {{t.pages.documentation.capabilities.state_store.content.define_store_actions}}
 
-Because the store is simply a file, we can expose functions that perform changes in the data without exposing the logic or complexity of the state.
+{{t.pages.documentation.capabilities.state_store.content.because_the_store_is_simply_a_file_we_can_expose_functions_that_perform_changes_in_the_data_with}}
 
 ```typescript
 // src/stores/todos.ts
@@ -135,15 +135,15 @@ export const clearTodos = () => {
 }
 ```
 
-These actions can be whatever you want. They can
+{{t.pages.documentation.capabilities.state_store.content.these_actions_can_be_whatever_you_want_they_can}}
 
--   store data in `localstorage` or `indexedDB`;
--   be asynchronous;
--   call servers APIs to save data;
--   perform validations;
--   map the data;
--   etc
+-   {{t.pages.documentation.capabilities.state_store.content.store_data_in_localstorage_or_indexeddb}}
+-   {{t.pages.documentation.capabilities.state_store.content.be_asynchronous}}
+-   {{t.pages.documentation.capabilities.state_store.content.call_servers_apis_to_save_data}}
+-   {{t.pages.documentation.capabilities.state_store.content.perform_validations}}
+-   {{t.pages.documentation.capabilities.state_store.content.map_the_data}}
+-   {{t.pages.documentation.capabilities.state_store.content.etc}}
 
-Data storage and state management does not have to be complex and all you need from here is use the APIs readily available in the environment to do whatever you want.
+{{t.pages.documentation.capabilities.state_store.content.data_storage_and_state_management_does_not_have_to_be_complex_and_all_you_need_from_here_is_use}}
 
-Look at this example of [todo state store with localstorage](https://stackblitz.com/edit/web-platform-lvonxr?file=index.html).
+{{t.pages.documentation.capabilities.state_store.content.look_at_this_example_of_todo_state_store_with_localstorage_https_stackblitz_com_edit_web_platfor}}
