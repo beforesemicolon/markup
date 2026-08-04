@@ -32,29 +32,29 @@ layout: landing
 
 === code filename=counter.js lang=javascript
 
-```text
-import { html, state, effect } from '@beforesemicolon/markup';
+```javascript
+import { html, state, effect } from '@beforesemicolon/markup'
 
-const [count, updateCount] = state(0);
+const [count, updateCount] = state(0)
 
-const doubleCount = () => count() * 2;
+const doubleCount = () => count() * 2
 
 effect(() => {
     console.log(count())
 })
 
-const countUp = () => updateCount(prev => prev + 1);
-const countDown = () => updateCount(prev => prev - 1);
+const countUp = () => updateCount((prev) => prev + 1)
+const countDown = () => updateCount((prev) => prev - 1)
 
 const App = html`
-  <h1>Conunter</h1>
-  <p><strong>Current count</strong>: ${count}</p>
-  <p><strong>Double count</strong>: ${doubleCount}</p>
-  <button type="button" onclick="${countDown}">-</button>
-  <button type="button" onclick="${countUp}">+</button>
-`;
+    <h1>Conunter</h1>
+    <p><strong>Current count</strong>: ${count}</p>
+    <p><strong>Double count</strong>: ${doubleCount}</p>
+    <button type="button" onclick="${countDown}">-</button>
+    <button type="button" onclick="${countUp}">+</button>
+`
 
-App.render(document.getElementById('app'));
+App.render(document.getElementById('app'))
 ```
 
 :::
