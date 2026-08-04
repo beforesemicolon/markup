@@ -1,0 +1,869 @@
+{
+    "_routes": {
+        "documentation/ai": "/文档/ai",
+        "documentation/capabilities/function-component": "/文档/功能/功能组件",
+        "documentation/capabilities/index": "/文档/功能/",
+        "documentation/capabilities/server-side-rendering": "/文档/功能/服务器端渲染",
+        "documentation/capabilities/state-store": "/文档/功能/状态存储",
+        "documentation/get-started": "/文档/快速开始",
+        "documentation/guide": "/文档/指南",
+        "documentation/index": "/文档/",
+        "documentation/installation": "/文档/安装",
+        "documentation/state/effect": "/文档/状态/effect",
+        "documentation/state/index": "/文档/状态/",
+        "documentation/templating/events": "/文档/模板/事件",
+        "documentation/templating/html-attributes": "/文档/模板/html属性",
+        "documentation/templating/index": "/文档/模板/",
+        "documentation/templating/lifecycles": "/文档/模板/生命周期",
+        "documentation/templating/ref": "/文档/模板/ref",
+        "documentation/templating/values": "/文档/模板/值",
+        "documentation/utilities/and-or-&-oneof": "/文档/工具/and-or-&-oneof",
+        "documentation/utilities/element": "/文档/工具/元素",
+        "documentation/utilities/index": "/文档/工具/",
+        "documentation/utilities/is-&-isnot": "/文档/工具/is-&-isnot",
+        "documentation/utilities/pick": "/文档/工具/pick",
+        "documentation/utilities/repeat": "/文档/工具/repeat",
+        "documentation/utilities/suspense": "/文档/工具/suspense",
+        "documentation/utilities/visible": "/文档/工具/visible",
+        "documentation/utilities/when": "/文档/工具/when",
+        "index": "/"
+    },
+    "common": {
+        "navigation": {
+            "home": "首页",
+            "content": "目录",
+            "features": "功能",
+            "code": "代码",
+            "install": "安装",
+            "documentation": "文档",
+            "docs": "文档",
+            "learningResources": "学习资源",
+            "essentialsTraining": "基础培训",
+            "aboutBeforeSemicolon": "关于 Before Semicolon",
+            "openSource": "开源",
+            "website": "网站",
+            "blog": "博客",
+            "youtubeChannel": "YouTube 频道"
+        },
+        "actions": {
+            "editDoc": "编辑本文档",
+            "getStarted": "开始使用",
+            "readDocs": "阅读文档",
+            "copy": "复制",
+            "copied": "已复制",
+            "copyCode": "复制代码",
+            "codeCopied": "代码已复制",
+            "commandCopied": "命令已复制",
+            "copyInstallCommand": "复制 {{manager}} 安装命令",
+            "previousExample": "上一个示例",
+            "nextExample": "下一个示例"
+        },
+        "accessibility": {
+            "installationPackageManager": "安装包管理器",
+            "goToSlide": "转到第 {{number}} 张幻灯片",
+            "mobileMenu": {
+                "open": "打开文档菜单",
+                "close": "关闭文档菜单"
+            }
+        },
+        "labels": {
+            "exampleUppercase": "示例"
+        },
+        "footer": {
+            "description": "一个使用纯 JavaScript 构建动态 UI 的响应式 HTML 模板系统。无需构建步骤，也不使用虚拟 DOM。",
+            "copyright": "版权所有 © 2026 Before Semicolon。保留所有权利。"
+        },
+        "content": {
+            "lifecycles": "生命周期",
+            "examples": "示例",
+            "get_started": "开始使用",
+            "how_it_works": "它是如何运作的？"
+        }
+    },
+    "pages": {
+        "documentation": {
+            "ai": {
+                "meta": {
+                    "ai_guide": "人工智能指南",
+                    "ai_guide_markup_by_before_semicolon": "人工智能指南 - Markup by Before Semicolon",
+                    "ai_first_guide_to_markup_apis_package_boundaries_rendering_rules_state_patterns_companion_packag": "有关 Markup API、包边界、渲染规则、状态模式、配套包和常见实现错误的 AI 优先指南。"
+                },
+                "content": {
+                    "ai_guide": "人工智能指南",
+                    "use_this_page_first_if_you_are_an_ai_agent_scanning_the_docs": "如果您是扫描文档的 AI 代理，请首先使用此页面。",
+                    "read_first": "首先阅读",
+                    "what_is_markup_index_md": "[Markup是什么？](./index.md)",
+                    "get_started_get_started_md": "[开始](./get-started.md)",
+                    "guide_best_practices_guide_md": "[指南和最佳实践](./guide.md)",
+                    "what_each_package_owns": "每个包拥有什么",
+                    "beforesemicolon_markup_templates_state_effect_and_helpers_like_when_repeat_pick_is_isnot_visible": "`@beforesemicolon/markup`：模板、`state`、`effect` 以及 `when`、`repeat`、`pick`、`is`、`isNot`、`visible`、`and` 等帮助程序， `or`、`oneOf`、`element` 和 `suspense`",
+                    "beforesemicolon_web_component_custom_elements_props_state_lifecycles_events_slots_parts_refs_and": "`@beforesemicolon/web-component`：自定义元素、props、状态、生命周期、事件、槽、部件、引用和表单相关控件。使用 [web-component.beforesemicolon.com](https://web-component.beforesemicolon.com/) 获取特定于包的文档。",
+                    "beforesemicolon_router_route_matching_navigation_page_data_redirects_query_state_and_route_aware": "`@beforesemicolon/router`：路由匹配、导航、页面数据、重定向、查询状态和路由感知渲染。使用 [router.beforesemicolon.com](https://router.beforesemicolon.com/) 获取特定于包的文档。",
+                    "common_tasks": "常见任务",
+                    "conditional_ui_use_when": "条件 UI：使用 `when`",
+                    "lists_use_repeat": "列表：使用 `repeat`",
+                    "nested_reads_use_pick": "嵌套读取：使用 `pick`",
+                    "boolean_logic_use_is_isnot_and_or_oneof": "布尔逻辑：使用 `is`、`isNot`、`and`、`or`、`oneOf`",
+                    "dynamic_tags_use_element": "动态标签：使用`element`",
+                    "async_states_use_suspense": "异步状态：使用 `suspense`",
+                    "deferred_lazy_rendering_use_visible": "延迟/延迟渲染：使用 `visible`",
+                    "canonical_pages": "规范页面",
+                    "templating_templating_index_md": "[模板](./templating/index.md)",
+                    "state_state_index_md": "[状态](./state/index.md)",
+                    "utilities_utilities_index_md": "[实用程序](./utilities/index.md)",
+                    "rules_for_agents": "代理人规则",
+                    "prefer_the_narrowest_page_that_answers_the_task": "更喜欢能够回答任务的最窄页面。",
+                    "read_the_package_specific_page_before_editing_related_code": "在编辑相关代码之前，请阅读特定于包的页面。",
+                    "do_not_scan_the_whole_site_unless_the_task_spans_multiple_packages": "除非任务跨越多个包，否则不要扫描整个站点。",
+                    "when_in_doubt_follow_the_examples_on_the_relevant_api_page": "如有疑问，请按照相关 API 页面上的示例进行操作。"
+                }
+            },
+            "capabilities": {
+                "function_component": {
+                    "meta": {
+                        "function_component": "功能组件",
+                        "function_components_with_markup_javascript_template_factories": "Markup 的功能组件 - JavaScript 模板工厂",
+                        "learn_how_to_build_reusable_markup_components_as_plain_javascript_functions_that_return_html_tem": "了解如何将可重用 Markup 组件构建为普通 JavaScript 函数，该函数返回带有 props、状态、生命周期挂钩和事件的 HTML 模板。"
+                    },
+                    "content": {
+                        "function_component": "功能组件",
+                        "markup_does_not_ship_with_a_dedicated_component_api_components_are_simply_functions_that_return": "Markup 不附带专用组件 API。组件只是返回 `HTMLTemplate` 实例的函数。",
+                        "it_is_totally_up_to_you_what_these_functions_can_do_or_look_like_from_the_example_above_you_can": "这些函数的用途或外观完全取决于您。从上面的示例中，您可以使用 `render` 方法简单地渲染组件。",
+                        "inputs_props": "输入（props）",
+                        "since_its_functions_you_can_take_arguments_and_inject_them_directly_into_the_template_with_prope": "由于它的功能，您可以获取参数并通过适当的默认处理将它们直接注入到模板中。",
+                        "templates_can_take_raw_values_or_functions_that_returns_some_value_which_can_be_a_state_or_simpl": "模板可以采用原始值或返回某个值的函数，该值可以是 `state` 或只是 `dynamic value`，在这种情况下，您可以让输入类型定义使用 `StateGetter` 类型。",
+                        "the_stategetter_allows_you_to_communicate_that_your_component_takes_function_values_as_input_whi": "`StateGetter` 允许您传达组件将函数值作为输入的信息，这使得处理状态变得更加容易。",
+                        "you_can_take_advantage_of_both_effect_state_effect_md_and_html_lifecycles_templating_lifecycles": "您可以利用 [effect](../state/effect.md) 和 `html` [lifecycles](../templating/lifecycles.md) 对组件安装、卸载和更新等操作做出反应，以完成您需要的一切。",
+                        "markup_template_has_powerful_lifecycles_and_because_a_function_is_called_once_and_with_power_of": "Markup 模板具有强大的生命周期，并且由于函数被调用一次并具有反应能力，因此您可以将所有内容封装在函数内，将所有内容留给 Markup 来管理。"
+                    }
+                },
+                "index": {
+                    "meta": {
+                        "what_s_possible": "有什么可能？",
+                        "capabilities_markup_by_before_semicolon": "功能 - Markup by Before Semicolon",
+                        "explore_what_you_can_build_with_markup_including_function_components_companion_web_components_co": "探索可以使用 Markup 构建什么，包括功能组件、配套 Web Components、配套 Router、状态存储和服务器渲染模板。"
+                    },
+                    "content": {
+                        "capabilities": "能力",
+                        "markup_is_a_highly_flexible_performant_and_lightweight_templating_system_that_can_serve_as_the_c": "Markup 是一个高度灵活、高性能、轻量级的模板系统，可以作为从快速单文件小部件到大型企业就绪系统的核心。",
+                        "from_tiny_solutions_to_enterprise_systems": "从小型解决方案到企业系统",
+                        "because_markup_requires_no_compile_or_build_step_and_is_only_7_6kb_gzip_it_has_zero_package_fric": "由于 Markup 需要**无需编译或构建步骤**并且只有**7.6KB gzip**，因此它具有零包摩擦。这使得它非常适合广泛的应用：",
+                        "text_1_lightweight_specialized_environments": "1. 轻量级和专业化环境",
+                        "modern_web_frameworks_often_carry_a_heavy_penalty_in_bundle_size_and_setup_complexity_markup_s_f": "现代 Web 框架通常会在包大小和设置复杂性方面带来严重损失。 Markup 的占用空间足够小，可以简化资源受限或专门环境中的开发：",
+                        "browser_extensions_build_manifest_v3_content_scripts_side_panels_and_popups_without_packaging_a": "**浏览器扩展**：构建 Manifest V3 内容脚本、侧面板和弹出窗口，无需打包大量运行时或复杂的捆绑器设置。",
+                        "embeddable_widgets_create_chat_widgets_calculators_feedback_forms_or_interactive_cards_that_can": "**可嵌入的小部件**：创建聊天小部件、计算器、反馈表或交互式卡，这些小部件可以注入到任何客户端网站中，而不会增加页面加载时间。",
+                        "cms_plugins_themes_add_rich_reactivity_to_shopify_wordpress_or_custom_headless_cms_templates_sea": "**CMS 插件和主题**：无缝地向 Shopify、WordPress 或自定义无头 CMS 模板添加丰富的反应性。",
+                        "micro_frontends_ship_independent_highly_isolated_components_that_initialize_instantly_and_share": "**微前端**：交付独立、高度隔离的组件，这些组件可立即初始化并共享几乎零开销。",
+                        "text_2_large_scale_enterprise_applications": "2. 大规模和企业应用",
+                        "at_the_other_end_of_the_spectrum_markup_s_simplicity_and_flexibility_scale_cleanly_to_large_scal": "另一方面，Markup 的简单性和灵活性可以干净地扩展到大规模代码库。由于它完全依赖于本机 JavaScript 原语和标准 API，因此它与专业架构模式自然集成：",
+                        "composition_build_scalable_ui_using_function_components_function_component_md_or_companion_web_c": "**组合**：使用 [函数组件](./function-component.md) 或配套的 [Web Components](https://web-component.beforesemicolon.com/) 构建可扩展的 UI。",
+                        "state_management_create_robust_predictable_unidirectional_data_flows_using_state_stores_state_st": "**状态管理**：使用[状态存储](./state-store.md)创建强大的、可预测的单向数据流。",
+                        "declarative_routing_power_complex_single_page_applications_spas_using_the_companion_beforesemico": "**声明式路由**：使用配套产品 [`@beforesemicolon/router`](https://router.beforesemicolon.com/) 为复杂的单页应用程序 (SPA) 提供支持。",
+                        "performance_surgical_dom_reconciliation_ensures_that_enterprise_dashboards_complex_forms_and_dat": "**性能**：精确的 DOM 协调可确保企业仪表板、复杂表单和数据密集型表格保持极快的速度和响应能力。",
+                        "server_side_rendering_ssr_boost_seo_and_initial_load_times_for_massive_web_apps_with_native_serv": "**服务器端渲染 (SSR)**：通过本机[服务器端渲染](./server-side-rendering.md) 功能，提高大型 Web 应用程序的 SEO 和初始加载时间。",
+                        "before_semicolon_offers_additional_libraries_built_on_top_of_markup_to_provide_full_framework_li": "Before Semicolon 提供了构建在 Markup 之上的附加库，以提供完整的类似框架的功能：",
+                        "web_components_integration_https_web_component_beforesemicolon_com_enhance_custom_elements_with": "[Web Components 集成](https://web-component.beforesemicolon.com/) — 通过自动反应式渲染增强自定义元素。",
+                        "spa_router_https_router_beforesemicolon_com_manage_path_matching_query_state_and_route_aware_tem": "[SPA Router](https://router.beforesemicolon.com/) — 管理路径匹配、查询状态和路由感知模板交换机。",
+                        "additionally_here_are_examples_of_architecture_patterns_you_can_build_using_only_core_markup_api": "此外，以下是您可以仅使用核心 Markup API 构建的架构模式示例：",
+                        "function_components_function_component_md": "[函数组件](./function-component.md)",
+                        "state_management_stores_state_store_md": "[状态管理存储](./state-store.md)",
+                        "server_side_rendering_ssr_server_side_rendering_md": "[服务器端渲染（SSR）](./server-side-rendering.md)",
+                        "here_are_more_examples_you_can_draw_inspiration_from": "您可以从以下更多示例中汲取灵感：",
+                        "node_ssr_website_https_stackblitz_com_edit_stackblitz_starters_a6rvq7": "[节点SSR网站](https://stackblitz.com/edit/stackblitz-starters-a6rvq7)",
+                        "todo_app_with_localstorage_https_codepen_io_beforesemicolon_pen_baxjxwx_editors_0010": "[带有本地存储的待办事项应用程序](https://codepen.io/beforesemicolon/pen/BaXJxwx?editors=0010)",
+                        "todo_app_with_state_management_https_stackblitz_com_edit_web_platform_lvonxr": "[带状态管理的待办事项应用程序](https://stackblitz.com/edit/web-platform-lvonxr)",
+                        "tic_tac_toe_app_https_codepen_io_beforesemicolon_pen_eyqyreo_editors_0010": "[井字棋应用程序](https://codepen.io/beforesemicolon/pen/eYqyreO?editors=0010)",
+                        "calculator_app_https_codepen_io_beforesemicolon_pen_abeegmb": "[计算器应用程序](https://codepen.io/beforesemicolon/pen/abeEGMB)",
+                        "spa_router_app_https_stackblitz_com_edit_vitejs_vite_4jvsfp_file_index_html": "[SPA (Router) 应用程序](https://stackblitz.com/edit/vitejs-vite-4jvsfp?file=index.html)",
+                        "counter_app_https_stackblitz_com_edit_web_platform_ixypdh": "[计数器应用程序](https://stackblitz.com/edit/web-platform-ixypdh)",
+                        "timer_app_https_codepen_io_beforesemicolon_pen_ylqzqzv": "[定时器应用程序](https://codepen.io/beforesemicolon/pen/yLQzQZV)"
+                    }
+                },
+                "server_side_rendering": {
+                    "meta": {
+                        "server_side_rendering": "服务器端渲染",
+                        "server_side_rendering_markup_by_before_semicolon": "服务器端渲染 - Markup by Before Semicolon",
+                        "render_markup_templates_on_the_server_in_javascript_environments_serialize_html_output_and_under": "在 JavaScript 环境中的服务器上渲染 Markup 模板，序列化 HTML 输出，并了解 Markup 如何支持服务器端渲染工作流程。"
+                    },
+                    "content": {
+                        "server_side_rendering": "服务器端渲染",
+                        "markup_can_run_in_any_javascript_environment_which_means_you_can_also_server_side_render_the_tem": "Markup 可以在任何 JavaScript 环境中运行，这意味着您还可以在服务器端渲染页面的模板。",
+                        "take_for_example_this_simple_page_created_with_markup": "以使用 Markup 创建的这个简单页面为例。",
+                        "we_can_follow_by_creating_a_simple_express_app_and_serve_our_homepage": "接下来我们可以创建一个简单的 Express 应用程序并为我们的 `HomePage` 提供服务。",
+                        "notice_that_we_are_calling_the_tostring_on_the_template_which_takes_a_snapshot_of_the_current_st": "请注意，我们在模板上调用 `.toString()`，它会拍摄模板当前状态的快照并返回 HTML 字符串表示形式。",
+                        "this_also_means_that_you_can_render_templates_on_the_server_and_take_snapshots_on_updates_to_ser": "这也意味着您可以在服务器上渲染模板并拍摄服务器端渲染更新的快照。",
+                        "now_we_can_serve_our_express_app_with_node_like_so": "现在，我们可以使用 Node 来为我们的 Express 应用程序提供服务，如下所示：",
+                        "notice_that_there_is_a_global_jsdom_package_and_all_it_does_is_make_dom_apis_global_that_markup": "请注意，有一个 `global-jsdom` 包，它所做的只是使 DOM API 全局化，以便 Markup 可以正常运行。这实际上是 Node 所必需的，因为 Markup 严重依赖 DOM API。请根据您使用的 JavaScript 环境找到正确的方式加载 DOM API。",
+                        "this_is_a_simple_example_on_how_to_approach_rendering_things_on_the_server_the_main_requirement": "这是一个关于如何在服务器上渲染事物的简单示例。主要要求是拥有某种类型的 DOM API，可以在您使用的服务器环境（Deno、Bun、Node 等）上呈现。从那时起，使此类 API 在全球范围内可用将涵盖一切，您可以自由使用 Markup。",
+                        "try_it_out_https_stackblitz_com_edit_stackblitz_starters_a6rvq7": "[尝试一下](https://stackblitz.com/edit/stackblitz-starters-a6rvq7)"
+                    }
+                },
+                "state_store": {
+                    "meta": {
+                        "state_store": "国营商店",
+                        "state_store_markup_by_before_semicolon": "国家商店 - Markup by Before Semicolon",
+                        "build_shared_state_stores_with_markup_state_derived_getters_update_functions_effects_and_repeat": "使用 Markup 状态、派生 getter、更新函数、效果和重复渲染模式构建共享状态存储，以进行应用程序状态管理。"
+                    },
+                    "content": {
+                        "state_store": "国营商店",
+                        "the_great_thing_about_markup_state_state_index_is_the_fact_that_it_is_a_standalone_api_that_work": "Markup [state](../state/index.md) 的伟大之处在于它是一个独立的 API，可以与模板本身完美配合。",
+                        "what_this_allows_you_to_do_is_manage_shared_global_state_away_from_the_component_and_inject_them": "这允许您做的是管理远离组件的共享/全局状态，并将它们直接注入到模板中或在需要时执行副作用。所有这一切都无需担心订阅和清理。",
+                        "create_a_state_store": "创建状态存储",
+                        "take_for_example_this_todos_state_store": "以 `todos` 状态存储为例：",
+                        "as_you_can_see_we_can_create_a_file_dedicated_to_manage_a_particular_state_we_want_to_use_in_mul": "正如您所看到的，我们可以创建一个专用于管理我们想要在应用程序中的多个位置使用的特定状态的文件。",
+                        "consuming_the_store_state": "消费存储状态",
+                        "we_don_t_have_to_worry_about_subscription_when_it_comes_to_rendering_this_data_we_can_inject_it": "在渲染这些数据时，我们不必担心订阅，我们可以将其直接注入到模板中。",
+                        "easy_enough_to_perform_something_whenever_this_list_changes_we_can_just_use_the_effect_state_eff": "很简单，只要这个列表发生变化就执行一些操作，我们只需使用 [effect](../state/effect.md) 即可。",
+                        "define_store_actions": "定义商店操作",
+                        "because_the_store_is_simply_a_file_we_can_expose_functions_that_perform_changes_in_the_data_with": "因为存储只是一个文件，所以我们可以公开执行数据更改的函数，而无需公开状态的逻辑或复杂性。",
+                        "these_actions_can_be_whatever_you_want_they_can": "这些操作可以是您想要的任何操作。他们可以",
+                        "store_data_in_localstorage_or_indexeddb": "将数据存储在`localstorage`或`indexedDB`中；",
+                        "be_asynchronous": "是异步的；",
+                        "call_servers_apis_to_save_data": "调用服务器API保存数据；",
+                        "perform_validations": "执行验证；",
+                        "map_the_data": "映射数据；",
+                        "etc": "等",
+                        "data_storage_and_state_management_does_not_have_to_be_complex_and_all_you_need_from_here_is_use": "数据存储和状态管理不必很复杂，您所需要的只是使用环境中现成的 API 来执行您想要的操作。",
+                        "look_at_this_example_of_todo_state_store_with_localstorage_https_stackblitz_com_edit_web_platfor": "看一下这个 [todo state store with localstorage](https://stackblitz.com/edit/web-platform-lvonxr?file=index.html) 的示例。"
+                    }
+                }
+            },
+            "get_started": {
+                "meta": {
+                    "get_started_with_markup_install_and_render_your_first_template": "开始使用 Markup - 安装并渲染您的第一个模板",
+                    "start_using_markup_with_a_simple_html_page_load_it_from_a_cdn_create_reactive_state_and_render_y": "开始将 Markup 与简单的 HTML 页面结合使用，从 CDN 加载它，创建反应状态，然后渲染您的第一个 JavaScript 模板，而无需构建步骤。"
+                },
+                "content": {
+                    "markup_is_a_plug_and_play_library_which_means_you_don_t_need_to_build_or_compile_it_into_anythin": "Markup 是一个 **即插即用** 库，这意味着，您无需将其构建或编译成任何内容即可查看您构建的内容。您编写的内容将发送给客户。不多不少。",
+                    "additionally_you_can_run_it_on_the_client_and_server_to_produce_any_type_of_application": "此外，您可以在客户端和服务器上运行它以生成任何类型的应用程序。",
+                    "try_examples_in_the_browser": "在浏览器中尝试示例",
+                    "the_simplest_way_to_start_is_by_trying_it_in_browser_and_there_are_few_project_you_can_get_start": "最简单的开始方法是在浏览器中尝试，您可以开始使用的项目很少：",
+                    "client_todo_app_with_state_management_https_stackblitz_com_edit_web_platform_lvonxr_stackblitz": "[具有状态管理的客户端待办事项应用程序](https://stackblitz.com/edit/web-platform-lvonxr) (StackBlitz)",
+                    "client_counter_app_https_stackblitz_com_edit_web_platform_ixypdh_stackblitz": "[客户计数器应用程序](https://stackblitz.com/edit/web-platform-ixypdh) (StackBlitz)",
+                    "client_timer_app_https_codepen_io_beforesemicolon_pen_ylqzqzv_codepen": "[客户端定时器应用程序](https://codepen.io/beforesemicolon/pen/yLQzQZV) (CodePen)",
+                    "node_ssr_website_https_stackblitz_com_edit_stackblitz_starters_a6rvq7_stackblitz": "[节点SSR网站](https://stackblitz.com/edit/stackblitz-starters-a6rvq7) (StackBlitz)",
+                    "html_file": "HTML 文件",
+                    "the_simplest_way_to_start_is_by_creating_an_html_file_and_adding_the_following_content_you_can_t": "最简单的开始方法是创建一个 html 文件并添加以下内容。然后就可以在浏览器中打开查看了。"
+                }
+            },
+            "guide": {
+                "meta": {
+                    "guide_best_practices": "指南和最佳实践",
+                    "markup_guide_and_best_practices_javascript_reactive_ui": "Markup 指南和最佳实践 - JavaScript 响应式 UI",
+                    "comprehensive_markup_guide_covering_installation_html_templates_state_effects_utilities_webcompo": "全面的 Markup 指南，涵盖安装、html 模板、状态、效果、实用程序、WebComponent 集成、Router 模式和最佳实践。"
+                },
+                "content": {
+                    "guide_best_practices": "指南和最佳实践",
+                    "this_guide_outlines_core_conventions_code_design_patterns_and_common_refactoring_workflows_for_w": "本指南概述了使用 `@beforesemicolon/markup` 编写声明式、干净且高性能的反应式应用程序的核心约定、代码设计模式和常见重构工作流程。",
+                    "core_rules": "核心规则",
+                    "prefer_declarative_helpers_over_branching_avoid_writing_inline_javascript_ternary_operations_or": "**优先选择声明式帮助程序而不是分支**：避免在模板 HTML 字符串内编写内联 JavaScript 三元操作或命令式函数。始终青睐内置 Markup 帮助程序（`when`、`repeat`、`pick`、`is` 等）。",
+                    "keep_side_effects_out_of_render_functions_keep_template_rendering_strictly_side_effect_free_side": "**将副作用排除在渲染函数之外**：保持模板渲染严格无副作用。副作用应存在于 `effect()` 块或 Web Component 生命周期挂钩（例如 `onMount`）内。",
+                    "state_immutability_do_not_mutate_objects_used_as_canonical_state_directly_track_derived_pending": "**状态不变性**：不要直接改变用作规范状态的对象。单独跟踪派生/挂起的更改并仅在渲染时合并它们。",
+                    "preserve_source_collections_keep_source_arrays_intact_when_deriving_filtered_or_sorted_views_cle": "**保留源集合**：在派生过滤或排序视图时保持源数组完整。清除过滤器或搜索输入应恢复完整的源列表，而不需要手动数据重置。",
+                    "reactive_value_binding_bind_props_and_state_directly_e_g_disabled_isdisabled_instead_of_disabled": "**反应式值绑定**：直接绑定 props 和 state（例如 `disabled=\"${isDisabled}\"` 而不是 `disabled=\"${isDisabled()}\"`），让 Markup 通过手术设置侦听器。",
+                    "refactor_workflows": "重构工作流程",
+                    "here_is_how_you_can_migrate_traditional_imperative_habits_into_clean_declarative_markup_code": "以下是如何将传统的命令式习惯迁移到干净的声明式 Markup 代码中。",
+                    "text_1_conditional_ui_if_else": "1. 条件UI（if/else）",
+                    "avoid_writing_inline_javascript_conditions_or_logic_gates_inside_templates": "避免在模板内编写内联 JavaScript 条件或逻辑门。",
+                    "imperative_avoid": "**必须/避免：**",
+                    "declarative_prefer": "**声明式/首选：**",
+                    "you_can_use_ternary_directly_if_you_intend_to_render_once_and_or_dont_expect_the_data_update": "如果您打算渲染一次并且不希望数据更新，您可以直接使用三元：",
+                    "text_2_rendering_lists": "2. 渲染列表",
+                    "avoid_using_map_inside_templates_to_generate_dynamic_list_nodes_using_map_destroys_and_rebuilds": "避免在模板内使用 `.map()` 生成动态列表节点。使用 `.map()` 会在每次更新时销毁并重建节点，而 `repeat()` 在幕后使用外科手术记忆。",
+                    "you_can_use_the_map_directly_if_you_intend_to_render_once_and_or_dont_expect_updates": "如果您打算渲染一次并且/或不期望更新，则可以直接使用 `map`：",
+                    "text_3_nested_optional_reads": "3. 嵌套可选读取",
+                    "avoid_using_nested_optional_chaining_directly_inside_ui_interpolations_this_can_lead_to_runtime": "避免直接在 UI 插值内使用嵌套可选链接 (`?.`)。如果链的某些部分未定义或未解析，这可能会导致运行时错误。",
+                    "the_pick_option_allows_you_to_define_fallbacks_or_handle_the_value_for_formatting_and_or_additio": "选择选项允许您定义后备或处理格式化和/或其他处理的值。",
+                    "text_4_boolean_expression_composition": "4. 布尔表达式组合",
+                    "avoid_writing_custom_functions_that_just_combine_multiple_states_with_or_compose_them_using_mark": "避免编写仅将多个状态与 `&&` 或 `||` 组合的自定义函数。使用 Markup 布尔组合器组合它们。",
+                    "markup_invites_function_compososition_and_working_with_stateful_functions_you_should_look_more_i": "Markup 邀请函数组合并使用有状态函数。您应该更多地了解[如何创建自定义帮助程序](/documentation/utilities/#custom-utility) 以了解更多信息。",
+                    "canonical_patterns": "规范模式",
+                    "stateful_search_filter_listing": "状态搜索和过滤列表",
+                    "this_is_the_standard_pattern_for_rendering_collections_with_dynamic_filtering_the_source_state_i": "这是使用动态过滤渲染集合的标准模式。源状态 (`items`) 保持完全不可变。",
+                    "this_allows_state_to_remain_immutable_and_you_to_create_derived_states_that_you_use_for_renderin": "这允许状态保持不可变，并且您可以创建用于渲染的派生状态，组合不同的状态以解析为所需的状态。",
+                    "async_slots_suspense": "异步老虎机（悬念）",
+                    "use_suspense_to_render_async_ui_cleanly_with_error_and_fallback_while_loading_rendering_handlers": "使用 `suspense` 通过错误和回退（加载时）渲染处理程序干净地渲染异步 UI：",
+                    "more_common_patterns": "更常见的模式",
+                    "here_are_more_typical_recipes_you_can_copy_paste_for_common_ui_requirements": "您可以复制粘贴以下更典型的配方来满足常见的 UI 要求：",
+                    "membership_checks_option_swapping": "会员资格检查和选项交换",
+                    "reactive_css_variables_styles": "反应式 CSS 变量和样式",
+                    "nested_value_rendering": "嵌套值渲染",
+                    "shared_state_store": "共享状态存储",
+                    "conventions_guardrails": "会议及护栏",
+                    "pass_getters_functions_directly_do_not_execute_getters_inside_template_attributes_when_subscript": "**直接传递 Getters/Functions**：当需要订阅/反应性时，不要在模板属性内执行 getters。通过 `disabled=\"${isDisabled}\"`，而不是 `disabled=\"${isDisabled()}\"`。",
+                    "clean_event_bindings_do_not_wrap_callbacks_in_redundant_closures_unless_passing_arguments": "**干净的事件绑定**：不要将回调包装在冗余闭包中，除非传递参数：",
+                    "good_logout": "_好_：`<button onclick=\"${logout}\">Logout</button>`",
+                    "good_handleselect_item_select": "_好_：`<button onclick=\"${() => handleSelect(item)}\">Select</button>`",
+                    "avoid_logout_logout": "_避免_：`<button onclick=\"${() => logout()}\">Logout</button>`",
+                    "direct_property_bindings_do_not_pre_normalize_simple_template_attributes_in_setup_getters_just_t": "**直接属性绑定**：不要在 setup/getters 中预先规范化简单的模板属性只是为了渲染它们。 Markup 正确处理 `undefined`、空和假属性值。",
+                    "boolean_attributes_markup_core_automatically_unwraps_and_evaluates_boolean_states_do_not_add_boo": "**布尔属性**：Markup 内核自动解包并评估布尔状态。不要添加 `Boolean(val(this.props.someBoolean()))` 风格的包装纸；直接绑定属性。",
+                    "static_vs_reactive_if_a_value_is_static_never_changes_after_initialization_render_its_evaluated": "**静态与反应式**：如果值是静态的（初始化后永不更改），则呈现其评估状态：`html`<p>${state()}</p>`. If it is reactive and should dynamically update, bind the getter: `html`<p>${state}</p>`。"
+                }
+            },
+            "index": {
+                "meta": {
+                    "what_is_markup": "什么是Markup？",
+                    "markup_documentation_reactive_html_templating_for_javascript": "Markup 文档 - JavaScript 的反应式 HTML 模板",
+                    "learn_what_markup_is_why_it_exists_and_how_it_uses_javascript_template_literals_functions_and_we": "了解 Markup 是什么、它为何存在以及它如何使用 JavaScript 模板文字、函数和 Web 标准来构建反应式用户界面。"
+                },
+                "content": {
+                    "what_is_markup": "什么是Markup？",
+                    "markup_is_a_javascript_reactive_templating_system_built_to_simplify_how_you_build_web_user_inter": "Markup 是一个 JavaScript 反应式模板系统，旨在简化使用 Web 标准构建 Web 用户界面的方式，并尽可能减少对本机 Web API 的增强。",
+                    "it_consists_of_3_main_apis_with_additional_utilities_to_simplify_things_even_further": "它由 3 个主要 API 和附加实用程序组成，可进一步简化事情：",
+                    "html_a_javascript_tagged_function_that_allows_you_to_represent_the_dom_using_template_literal_st": "`html` JavaScript 标记函数，允许您使用模板文字字符串表示 DOM。",
+                    "state_a_simple_state_tracking_api_that_lets_you_define_reactive_data_however_you_want": "`state` 一个简单的状态跟踪 API，可让您根据需要定义反应数据。",
+                    "effect_a_straightforward_way_to_define_things_that_need_to_happen_when_certain_states_change": "`effect` 一种简单的方法来定义某些状态发生变化时需要发生的事情。",
+                    "why_do_we_need_another_tool": "为什么我们需要另一个工具？",
+                    "modern_web_development_has_become_heavily_reliant_on_complex_build_steps_compiler_configuration": "现代 Web 开发已经严重依赖于复杂的构建步骤、编译器配置和大量的框架依赖性。通常，您想要做的就是构建一个反应式接口，但最终您必须设置 Vite、Babel、Webpack、Svelte 或 React 才能获得基本的状态反应性。",
+                    "markup_exists_to_solve_this_pain_point_it_bridges_the_gap_between_raw_tedious_dom_manipulation_a": "Markup 的存在就是为了解决这个痛点。它弥合了原始、繁琐的 DOM 操作和重型组件框架之间的差距。通过利用现代 JavaScript 原语（特别是**模板文字**和**函数**），Markup 提供干净、声明性和精确的反应性**无需任何构建步骤**。",
+                    "compare_how_you_build_a_simple_counter": "比较如何构建一个简单的计数器。",
+                    "the_tedious_vanilla_way": "繁琐的原生 JavaScript 方式",
+                    "the_markup_way_simple_reactive": "Markup 方式（简单且反应式）",
+                    "core_concepts": "核心概念",
+                    "text_1_functions_for_lazy_evaluation": "1. 惰性求值函数",
+                    "reactivity_in_markup_is_powered_by_native_javascript_functions_since_functions_represent_lazy_ev": "Markup 中的反应性由本机 JavaScript 功能提供支持。由于函数代表惰性求值，因此只要其底层状态发生变化，它们就可以运行。将您的值或模板包装在函数中是 Markup 的外科手术 DOM 更新背后的秘密。",
+                    "text_2_tagged_template_literals": "2. 标记模板文字",
+                    "markup_uses_the_standard_html_tagged_template_literal_to_represent_the_dom_no_jsx_parser_no_prop": "Markup 使用标准 `html` 标记模板文字来表示 DOM。没有 JSX 解析器，没有专有模板语法，也没有虚拟 DOM。您编写的内容将直接解析为本机 HTML 模板并进行更新。",
+                    "key_benefits": "主要优点",
+                    "zero_build_step_no_compilers_no_bundlers_no_npm_install_required_to_get_started_drop_the_cdn_lin": "🚀 **零构建步骤**：无需编译器，无需捆绑器，无需安装 npm 即可开始使用。将 CDN 链接放入 `<script>` 标签并开始编码。",
+                    "surgical_dom_updates_no_virtual_dom_diffing_markup_target_updates_only_the_specific_nodes_and_at": "⚡ **手术 DOM 更新**：没有虚拟 DOM 差异。 Markup 目标仅更新已更改的特定节点和属性。",
+                    "ultra_lightweight_at_only_7_6kb_gzip_18kb_uncompressed_it_is_perfect_for_micro_frontends_widgets": "📦 **超轻量级**：仅**7.6KB gzip**（未压缩时为 18KB），非常适合微前端、小部件、原型和轻量级 Web 应用程序。",
+                    "standard_web_components_easily_integrates_with_web_components_to_provide_reactive_rendering_and": "🔌 **标准 Web Components**：轻松与 Web Components 集成，提供反应式渲染和简化的生命周期管理。"
+                }
+            },
+            "installation": {
+                "meta": {
+                    "installation": "安装",
+                    "installation_markup_by_before_semicolon": "安装 - Markup by Before Semicolon",
+                    "install_markup_from_a_cdn_or_package_manager_pin_versions_import_the_javascript_apis_and_use_the": "从 CDN 或包管理器、引脚版本安装 Markup，导入 JavaScript API，并使用包中包含的 TypeScript 定义。"
+                },
+                "content": {
+                    "installation": "安装",
+                    "markup_is_a_plug_and_play_package_that_does_not_need_to_be_built_there_is_no_need_to_any_additio": "Markup 是一个即插即用的软件包，无需构建。无需任何额外的设置或要求即可开始。只需将其添加到您的项目中并开始编写代码即可。",
+                    "via_cdn": "通过CDN",
+                    "this_method_is_the_quickest_loading_option_and_can_be_placed_in_the_head_tag_of_the_document": "此方法是最快的加载选项，可以放置在文档的 head 标签中。",
+                    "you_may_also_specify_a_specific_version_you_want": "您还可以指定您想要的特定版本。",
+                    "you_can_use_various_cdn_providers_like_unpkg_jsdelivr": "您可以使用各种 CDN 提供商，例如 **unpkg**、**jsDelivr**。",
+                    "the_client_cdn_link_will_create_a_global_bfs_markup_variable_you_can_access_for_all_the_internal": "客户端 CDN 链接将创建一个全局 BFS.MARKUP 变量，您可以访问所有内部函数。",
+                    "via_npm": "通过 npm",
+                    "this_package_is_also_available_via_npm_which_will_allow_you_to_use_it_in_server_side_javascript": "该软件包还可通过 **npm** 获取，这将允许您在服务器端 JavaScript 环境中使用它。",
+                    "via_yarn": "通过 yarn",
+                    "typescript": "打字稿",
+                    "this_package_was_built_using_typescript_you_don_t_need_to_install_a_separate_types_package_for_i": "这个包是使用打字稿构建的。您不需要为其安装单独的“类型”包。"
+                }
+            },
+            "state": {
+                "effect": {
+                    "meta": {
+                        "effect": "效果",
+                        "state_effect_markup_by_before_semicolon": "状态效应 - Markup by Before Semicolon",
+                        "use_markup_effect_to_track_state_dependencies_react_to_multiple_state_changes_clean_up_subscript": "使用 Markup 效果跟踪状态依赖性、对多个状态更改做出反应、清理订阅、消除异步工作并控制嵌套效果。"
+                    },
+                    "content": {
+                        "effect": "效果",
+                        "the_effect_api_complements_the_state_index_api_by_providing_a_better_way_to_react_to_multiple_st": "`effect` API 补充了 [state](./index.md) API，提供了一种更好的方法来根据您需要执行的内容对多个状态更改做出反应。",
+                        "the_state_api_allows_you_to_subscribe_to_changes_of_its_value": "`state` API 允许您订阅其值的更改。",
+                        "this_is_great_if_you_want_to_perform_side_effects_related_to_a_single_state_to_perform_side_effe": "如果您想执行与单个状态相关的副作用，这非常有用。要执行多个状态的副作用，您将需要 `effect` API。",
+                        "effectunsubscriber": "EffectUnSubscriber",
+                        "some_side_effects_can_stay_there_continuosly_as_a_global_effect_to_something_specific_others_nee": "一些副作用可能会持续存在，作为对特定事物的全局影响。每当定义其他对象的范围消失时，就需要清理它们。",
+                        "when_you_call_a_stategetter_inside_the_effect_callback_function_the_effect_becomes_aware_of_the": "当您在 `effect` 回调函数内调用 `StateGetter` 时，`effect` 会意识到该状态，并且此检测是同步完成的。",
+                        "the_effect_calls_the_provided_callback_as_soon_as_its_declared_so_it_becomes_aware_of_the_states": "该效果在声明后立即调用提供的回调，以便它了解内部调用的状态。",
+                        "the_effect_also_batches_updates_which_allows_you_to_update_multiple_state_at_once_and_only_have": "`effect` 还可以批量更新，使您可以一次更新多个状态并且只有一个反应。",
+                        "the_batch_update_is_useful_but_the_effect_also_understand_initialization_which_allows_you_to_mak": "批量更新很有用，但 `effect` 也理解初始化，这允许您在加载时进行大量计算，并且只在完成后运行一次。",
+                        "caching": "缓存",
+                        "the_effect_allows_you_to_return_values_that_are_cached_and_provided_in_the_callback_for_the_next": "`effect` 允许您返回缓存的值并在下次回调中提供。这对于跟踪更新中的更改非常有用。",
+                        "for_example_perform_a_debounce_effect_on_search_value_changes": "例如，对搜索值更改执行去抖效果。",
+                        "async_effect": "异步效果",
+                        "the_effect_works_synchronously_that_s_how_it_detects_the_states_inside_and_caches_data": "`effect` 同步工作。这就是它检测内部状态并缓存数据的方式。",
+                        "however_callback_you_provide_to_the_effect_can_be_asynchronous_if_you_really_want_to": "但是，如果您确实愿意，向 `effect` 提供的回调可以是异步的。",
+                        "if_you_do_so_the_cached_data_will_be_the_promise_returned_by_the_function_and_not_the_data_you_r": "如果这样做，缓存的数据将是函数返回的 Promise，而不是从异步回调返回的数据。这意味着您需要解析缓存的数据才能获取值。",
+                        "nested_effect": "嵌套效应",
+                        "you_can_nest_effect_to_track_different_values_this_allows_for_the_body_of_your_effect_to_react_i": "您可以嵌套 `effect` 来跟踪不同的值。这允许 `effect` 的主体独立反应，同时不同的效果跟踪不同的状态。",
+                        "if_you_want_to_clear_all_effects_you_can_unsubscribe_from_the_outer_most_effect_and_which_will_t": "如果您想清除所有效果，您可以从最外层的`effect`取消订阅，它将为您照顾所有子`effect`。但是，您必须跟踪内部效果，因为每当调用外部效果时，都会创建一个新的内部效果。"
+                    }
+                },
+                "index": {
+                    "meta": {
+                        "intro_to_states": "各州简介",
+                        "state_markup_by_before_semicolon": "状态 - Markup by Before Semicolon",
+                        "learn_markup_state_getter_setter_and_unsubscribe_behavior_for_reactive_rendering_direct_reads_fu": "了解 Markup 状态getter、设置器和取消订阅行为，以实现反应式渲染、直接读取、功能更新、订阅和模板更新。"
+                    },
+                    "content": {
+                        "state": "State",
+                        "something_that_is_truly_missing_in_web_apis_is_reactivity_the_ability_to_react_to_changes_instea": "Web API 真正缺少的是反应性，即对变化做出反应而不是监听事件的能力。一个很大的承诺是 [tc39 提案](https://github.com/tc39/proposal-signals)，它试图向 JavaScript 带来信号。",
+                        "until_then_markup_exposes_a_standalone_api_that_gives_you_that_capability_called_state": "在此之前，Markup 会公开一个独立的 API，为您提供名为 `state` 的功能。",
+                        "the_state_api_can_be_used_with_or_without_templates_allowing_you_to_create_state_stores_capabili": "状态 API 可以与模板一起使用，也可以不与模板一起使用，从而允许您创建[状态存储](../capabilities/state-store.md)、增强 Web Components，甚至为原始 DOM 操作提供响应式能力。",
+                        "the_best_part_is_when_you_combine_state_and_templates_to_render_dom_nodes_that_react_to_updates": "最好的部分是，当您组合状态和模板来渲染 DOM 节点时，这些节点可以对发生的更新做出反应，而无需自己操作 DOM。",
+                        "markup_templates_do_not_traverse_the_dom_to_check_for_updates_instead_it_creates_render_effects": "Markup 模板不会遍历 DOM 来检查更新。相反，它会创建[渲染效果](./effect.md)，以便在需要的时间和地点准确更新 DOM。",
+                        "input": "输入",
+                        "to_initialize_a_state_you_can_optionally_provide_an_initialvalue_as_well_as_a_statesubscriber_wh": "要初始化状态，您可以选择提供 `initialValue` 以及 `StateSubscriber`，这是每次状态更改时都会调用的函数。",
+                        "when_no_input_value_provided_the_default_value_is_an_empty_string": "当未提供输入值时，默认值为空字符串。",
+                        "return": "返回",
+                        "the_state_function_will_return_and_array_with_three_functions_a_stategetter_statesetter_and_a_st": "`state` 函数将返回包含三个函数的数组：`StateGetter`、`StateSetter` 和 `StateUnSubscriber`。",
+                        "stategetter": "StateGetter",
+                        "the_stategetter_is_a_function_you_must_call_to_get_the_current_value_of_the_state": "`StateGetter` 是您必须调用才能获取状态的当前值的函数。",
+                        "statesetter": "StateSetter",
+                        "the_statesetter_is_a_function_you_call_with_the_new_value_for_the_state_or_a_function_that_gets": "`StateSetter` 是您使用状态的新值调用的函数，或者是使用当前值调用且必须返回新值的函数。",
+                        "calling_the_statesetter_with_same_value_will_not_cause_the_subscribers_to_be_called_a_shallow_co": "以相同值呼叫 `StateSetter` 不会导致用户被呼叫。在更新当前值之前进行浅比较，以防止不必要的更新。",
+                        "stateunsubscriber": "StateUnSubscriber",
+                        "in_case_you_provide_a_statesubscriber_as_a_second_argument_for_the_state_you_can_then_use_the_st": "如果您提供 `StateSubscriber` 作为 `state` 的第二个参数，则可以使用 `StateUnSubscriber` 停止侦听状态更改。",
+                        "the_state_is_a_synchronous_value_which_means_you_can_update_it_in_one_line_and_read_it_on_the_ne": "状态是一个同步值，这意味着您可以在一行中更新它并在下一行中读取它。",
+                        "behind_the_scenes_state_is_just_a_self_managed_subscription_that_works_seamlessly_with_effect_an": "在幕后，`state` 只是一个自我管理的订阅，可与 `effect` 和 `html` API 无缝协作。",
+                        "form_input_value_and_validation": "表单输入值和验证："
+                    }
+                }
+            },
+            "templating": {
+                "events": {
+                    "meta": {
+                        "events": "活动",
+                        "html_events_markup_by_before_semicolon": "HTML 活动 - Markup 由 Before Semicolon",
+                        "attach_native_event_handlers_in_markup_templates_with_inline_on_attributes_pass_listener_options": "使用内联 on* 属性在 Markup 模板中附加本机事件处理程序、传递侦听器选项、使用 AbortController 并安全地处理 DOM 事件。"
+                    },
+                    "content": {
+                        "events": "活动",
+                        "html_allows_you_set_inline_event_listeners_using_on_attributes_this_is_pretty_much_how_you_set_e": "HTML 允许您使用 `on*` 属性设置内联事件侦听器。这几乎就是在 Markup 中的标签上设置事件侦听器的方式。",
+                        "the_big_difference_with_markup_is_that_these_attributes_are_not_rendered_and_behind_the_scenes_m": "与 Markup 的最大区别在于，这些属性不会渲染，并且在幕后 Markup 使用 [addEventListener](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener) 在标签上设置事件侦听器。",
+                        "this_allows_your_html_to_have_event_listeners_and_be_safe_by_not_allowing_unsafe_inline_event_li": "这允许您的 HTML 拥有事件侦听器，并且通过不允许不安全的内联事件侦听器属性来确保安全，同时仍然享受使用 `addEventListener` API 的所有优势。",
+                        "event_options": "活动选项",
+                        "because_markup_is_using_addeventlistener_behind_the_scenes_it_offers_a_special_syntax_that_allow": "由于 Markup 在后台使用 `addEventListener`，因此它提供了一种特殊的语法，允许您设置本机 HTML 无法设置的选项。",
+                        "by_providing_a_tuple_array_with_two_values_you_can_specify_the_handler_and_its_options_to_be_use": "通过提供元组（具有两个值的数组），您可以指定设置事件侦听器时要使用的处理程序及其选项。",
+                        "these_options_are_just_addeventlistener_options_https_developer_mozilla_org_en_us_docs_web_api_e": "这些选项只是 [addEventListener 选项](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#options)，允许您指定如何处理事件，包括定义信号。"
+                    }
+                },
+                "html_attributes": {
+                    "meta": {
+                        "attributes": "属性",
+                        "html_attributes_markup_by_before_semicolon": "HTML 属性 - Markup by Before Semicolon",
+                        "work_with_markup_template_attributes_boolean_attributes_dynamic_values_object_attributes_refs_cl": "使用 Markup 模板属性、布尔属性、动态值、对象属性、引用、类和本机内联事件属性。"
+                    },
+                    "content": {
+                        "html_attributes": "HTML 属性",
+                        "html_attributes_in_markup_templates_are_just_html_attributes_one_specific_behavior_change_is_rel": "Markup 模板中的 HTML 属性只是 HTML 属性。一项特定的行为更改与 [布尔属性](https://developer.mozilla.org/en-US/docs/Glossary/Boolean/HTML) 有关，除此之外，您有关 HTML 属性的知识按原样传输。",
+                        "boolean_attributes": "布尔属性",
+                        "boolean_attributes_in_html_are_attributes_that_represent_true_or_false_values": "HTML 中的布尔属性是表示 `true` 或 `false` 值的属性。",
+                        "the_issue_with_boolean_attributes_in_html_is_that_giving_them_the_value_of_false_does_not_stop_t": "HTML 中布尔属性的问题在于，为它们提供 `false` 的值并不会阻止它们对元素的影响。如果它们出现在标签中，则无论其值如何，它们都具有 `true` 的值。",
+                        "markup_honors_the_true_or_false_values_and_allows_you_to_add_or_remove_these_attributes_just_by": "Markup 遵循 `true` 或 `false` 值，并允许您仅通过指定布尔值来添加或删除这些属性。",
+                        "setting_an_attribute_value_to_false_as_string_or_boolean_or_nil_undefined_or_null_will_remove_th": "将属性值设置为 `false`（字符串或布尔值）或 nil（`undefined` 或 `null`）将删除该属性。",
+                        "value_attributes": "值属性",
+                        "markup_is_aware_of_value_you_inject_in_the_template_as_attribute_values_and_will_track_and_updat": "Markup 知道您在模板中作为属性值注入的值，并将相应地跟踪和更新它们。不需要额外的语法来实现这一点。",
+                        "event_attributes": "事件属性",
+                        "html_allows_you_to_declare_inline_event_attributes_and_they_work_the_same_with_markup_no_extra_s": "HTML 允许您声明内联事件属性，它们与标记的工作方式相同。添加附加事件不需要额外的语法，但 Markup 在后台执行其他操作，您可以通过阅读 [events](./events.md) 文档了解更多信息。",
+                        "reference_attribute": "参考属性",
+                        "one_thing_that_exists_in_markup_and_not_in_html_is_the_ref_attribute_that_allows_you_to_create_a": "Markup 中存在而不是 HTML 中存在的一件事是 `ref` 属性，该属性允许您创建对元素的引用，您可以使用该引用来访问呈现的 DOM 元素以执行您需要的任何操作。您可以阅读[参考文献](./ref.md) 了解更多详细信息。",
+                        "attributes_as_object": "属性作为对象",
+                        "it_is_good_to_know_all_the_possible_attributes_in_advance_but_sometimes_that_s_not_possible_for": "提前知道所有可能的属性是件好事，但有时这是不可能的。为此，您可以将属性收集为对象，然后根据需要注入它们作为重写。",
+                        "any_attribute_you_set_after_injecting_the_attribute_object_will_override_the_object_attribute_na": "注入属性对象后设置的任何属性都将覆盖对象属性名称值。在上面的示例中，我们通过在注入 `props` 对象后设置它来确保按钮的 `type` 始终为 `button`。",
+                        "also_you_can_use_camelcase_attribute_name_to_changed_to_kebab_case_in_the_example_above_arialabe": "另外，您可以使用camelcase属性名称更改为kebab-case。在上面的示例中，当按钮呈现时，`ariaLabel` 将变为 `aria-label`。 `onClick` 将更改为 `onclick` 并像[事件属性](#event-attributes) 一样处理。"
+                    }
+                },
+                "index": {
+                    "meta": {
+                        "create_render": "创建和渲染",
+                        "markup_templating_create_render_replace_and_nest_templates": "Markup 模板 - 创建、渲染、替换和嵌套模板",
+                        "learn_how_the_markup_html_tagged_template_creates_templates_renders_dom_replaces_content_nests_t": "了解 Markup html 标记模板如何创建模板、呈现 DOM、替换内容、嵌套模板以及更新反应值。"
+                    },
+                    "content": {
+                        "templating": "模板化",
+                        "markup_uses_tagged_template_literals_https_developer_mozilla_org_en_us_docs_web_javascript_refer": "Markup 使用名为 `html` 的[标记模板文字](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates) 来描述要渲染的 HTML。",
+                        "the_html_returns_an_htmltemplate_instance_containing_methods_and_properties_you_can_use_to_acces": "`html` 返回一个 `HTMLTemplate` 实例，其中包含可用于访问或执行许多操作的方法和属性。",
+                        "rendering": "渲染",
+                        "there_are_few_ways_to_render_a_template_after_you_define_it": "定义模板后，有几种渲染模板的方法：",
+                        "render_takes_a_htmlelement_to_append_the_template_to": "`render`：采用 HTMLElement 将模板附加到；",
+                        "replace_takes_any_node_or_another_htmltemplate_instance_to_replace_in_the_dom": "`replace`：将DOM中的任何节点或另一个`HTMLTemplate`实例替换；",
+                        "insertafter_takes_any_node_or_another_htmltemplate_instance_to_insert_the_template_after": "`insertAfter`：采用任意 Node 或另一个 `HTMLTemplate` 实例来插入模板；",
+                        "render": "render",
+                        "the_render_method_will_take_either_a_shadowroot_htmlelement_or_documentfragment_to_append_the_co": "`render` 方法将采用 `ShadowRoot`、`HTMLElement` 或 `DocumentFragment` 来附加内容。",
+                        "the_parsing_of_the_template_happens_at_render_time_and_will_only_happen_once_this_is_also_true_f": "模板的解析发生在渲染时，并且只会发生一次。对于其他渲染方法也是如此。",
+                        "calling_the_render_method_with_same_target_repeatedly_will_only_work_once_you_can_call_it_with_a": "重复调用同一目标的 `render` 方法只能工作一次。您可以使用不同的目标调用它，以将内容移动到不同的位置。",
+                        "replace": "replace",
+                        "the_replace_method_takes_any_htmltemplate_or_node_https_developer_mozilla_org_en_us_docs_web_api": "`replace` 方法采用任何 `HTMLTemplate` 或 [Node](https://developer.mozilla.org/en-US/docs/Web/API/Node)，只要它不是 `ShadowRoot`、`HTMLBodyElement`、`HTMLHeadElement` 或 `HTMLHtmlElement` 即可在 DOM 中进行替换。",
+                        "similar_to_render_method_it_will_only_parse_content_once": "与 `render` 方法类似，它只会解析一次内容。",
+                        "the_replace_method_is_powerful_especially_when_working_with_asynchronous_rendering_you_can_rende": "`replace` 方法非常强大，尤其是在使用异步渲染时，您可以临时渲染某些内容（例如加载指示器），然后在获得数据后替换它。这正是 [suspense](../utilities/suspense.md) 实用程序的作用。",
+                        "insertafter": "insertAfter",
+                        "the_insertafter_method_works_exactly_like_the_render_method_the_only_difference_is_that_it_adds": "`insertAfter` 方法的工作原理与 `render` 方法完全相同。唯一的区别是它在提供的目标节点之后添加了模板内容。",
+                        "another_difference_is_that_it_can_also_take_a_htmltemplate_instance_as_target_allowing_to_render": "另一个区别是它还可以将 `HTMLTemplate` 实例作为目标，从而允许依次渲染模板。",
+                        "parentnode": "parentNode",
+                        "the_parentnode_property_will_tell_you_where_the_template_was_rendered_it_will_return_the_element": "`parentNode` 属性将告诉您模板的渲染位置。它将返回添加模板节点的元素。",
+                        "mounted": "mounted",
+                        "after_you_render_your_template_you_can_use_the_mounted_property_to_check_if_your_template_was_ad": "渲染模板后，您可以使用 `mounted` 属性来检查您的模板是否已根据需要添加到目标。",
+                        "the_mounted_property_will_not_tell_you_if_the_template_is_actually_attached_to_a_document_for_th": "`mounted` 属性不会告诉您模板是否实际附加到文档。为此，您可以使用 `parentNode?.isConnected`。",
+                        "childnodes": "childNodes",
+                        "the_childnodes_will_give_you_an_array_of_top_level_nodes_rendered_by_the_template": "`childNodes` 将为您提供由模板呈现的顶级节点数组。",
+                        "unmount": "unmount",
+                        "to_remove_your_template_from_the_target_you_can_use_the_unmount_method": "要从目标中删除模板，您可以使用 `unmount` 方法。",
+                        "the_unmount_should_be_the_only_way_you_go_about_removing_the_template_from_the_dom_this_is_becau": "`unmount` 应该是从 DOM 中删除模板的唯一方法。这是因为它还会递归地取消订阅任何状态。这意味着即使您嵌套模板，也会为所有模板调用 `unmount`。",
+                        "directly_manipulating_the_dom_may_have_undesired_results": "直接操作 DOM 可能会产生不良结果。",
+                        "tostring": "toString",
+                        "conveniently_you_can_get_a_string_representation_of_your_template_in_its_current_rendered_state": "您可以方便地获取模板当前渲染状态的字符串表示形式。",
+                        "livecycles": "生命周期",
+                        "there_are_additional_methods_available_for_lifecycle_purpose_you_can_learn_more_by_checking_the": "还有其他方法可用于生命周期目的。您可以通过查看 [lifecycle](./lifecycles.md) 文档了解更多信息。"
+                    }
+                },
+                "lifecycles": {
+                    "meta": {
+                        "template_lifecycles_markup_by_before_semicolon": "模板生命周期 - Markup by Before Semicolon",
+                        "use_markup_template_lifecycle_hooks_such_as_onmount_and_onupdate_to_run_setup_cleanup_and_side_e": "使用 Markup 模板生命周期挂钩（例如 onMount 和 onUpdate）在模板呈现或更改时运行设置、清理和副作用。"
+                    },
+                    "content": {
+                        "markup_exposes_few_methods_you_can_use_to_tap_into_the_lifecycles_of_the_template": "Markup 公开了一些可用于深入了解模板生命周期的方法：",
+                        "onmount_method_that_takes_a_function_to_call_when_the_template_is_mounted_that_can_return_anothe": "`onMount`：在安装模板时调用一个函数的方法，该方法可以在卸载模板时返回另一个要调用的函数；",
+                        "onupdate_method_that_takes_a_function_to_call_when_something_in_the_rendered_template_changes": "`onUpdate`：当渲染模板中的某些内容发生变化时，该方法需要调用一个函数；",
+                        "onmove_method_that_takes_a_function_to_call_when_the_template_content_is_moved_from_one_location": "`onMove`：当模板内容从 DOM 中的一个位置移动到另一个位置时调用函数的方法。",
+                        "all_lifecycle_callbacks_will_be_called_with_the_instance_of_the_template_as_the_first_argument_t": "所有生命周期回调都将使用模板实例作为第一个参数来调用，您可以使用该实例对模板本身进行操作。",
+                        "onmount": "onMount",
+                        "the_onmount_method_takes_a_function_to_be_called_when_the_template_is_rendered_via_any_of_the_re": "当通过任何[渲染方法](./index.md#rendering)渲染模板时，`onMount` 方法需要调用一个函数。该函数可以返回另一个在模板卸载时调用的函数。",
+                        "the_unmount_event_can_be_triggered_by_calling_the_unmount_or_when_the_template_was_removed_part": "可以通过调用 `unmount` 或当模板因父模板中的某些更改而被删除时触发卸载事件。",
+                        "these_livecycles_are_perfect_for_setups_and_cleanups_around_the_template_these_are_things_like_w": "这些生命周期非常适合围绕模板进行设置和清理。这些是诸如使用计时器或其他留在后台的事件驱动操作之类的事情。",
+                        "onupdate": "onUpdate",
+                        "the_onupdate_method_takes_a_function_to_be_called_whenever_something_in_the_template_changes_thi": "每当模板中的某些内容发生更改时，`onUpdate` 方法就会调用一个函数。这可以添加、删除或更新属性或节点。",
+                        "if_you_want_to_react_to_a_specific_state_change_you_can_use_the_effect_state_effect_md_the_onupd": "如果你想对特定的状态变化做出反应，你可以使用[effect](../state/effect.md)。当您想要拍摄模板快照或执行与模板相关的通用副作用时，`onUpdate` 非常适合。",
+                        "onmove": "onMove",
+                        "the_onmove_method_takes_a_function_to_be_called_whenever_the_template_render_target_changes": "每当模板渲染目标发生更改时，`onMove` 方法都会调用一个函数。",
+                        "this_livecycle_is_perfect_to_perform_action_dependent_on_the_template_location_these_can_be_thin": "该生命周期非常适合根据模板位置执行操作。这些可以是 DOM 重新排序或拖放操作等。",
+                        "chaining": "链接",
+                        "all_template_livecycles_and_render_methods_index_md_rendering_can_be_chained_and_you_should_alwa": "所有模板生命周期和[渲染方法](./index.md#rendering)都可以链接，并且您应该始终在渲染任何内容之前设置生命周期。"
+                    }
+                },
+                "ref": {
+                    "meta": {
+                        "references": "参考文献",
+                        "template_dom_references_markup_by_before_semicolon": "模板 DOM 参考 - Markup by Before Semicolon",
+                        "use_the_markup_ref_attribute_to_capture_dom_element_references_from_rendered_templates_and_safel": "使用 Markup ref 属性从呈现的模板捕获 DOM 元素引用并安全地访问由 html 模板创建的元素。"
+                    },
+                    "content": {
+                        "ref": "参考号",
+                        "markup_templates_will_handle_all_dom_elements_rendering_for_you_but_if_you_really_need_to_access": "Markup 模板将为您处理所有 DOM 元素渲染，但如果您确实需要访问模板渲染的元素，则可以使用 `ref` 属性提供一个句柄键，然后可以使用该句柄键来获取元素。",
+                        "multiple_references": "多重参考",
+                        "the_ref_attribute_always_return_an_array_therefore_you_can_use_the_same_key_to_grab_multiple_ite": "`ref` 属性始终返回一个数组。因此，您可以使用同一把钥匙一次抓取多个物品。",
+                        "references_are_not_created_until_the_template_is_rendered_this_is_because_creating_a_template_si": "在呈现模板之前不会创建引用。这是因为创建模板只是注册一个模板，并在渲染阶段收集元素。",
+                        "access_references": "访问参考文献",
+                        "to_access_these_reference_elements_you_can_read_the_refs_property_in_the_template_instance": "要访问这些参考元素，您可以读取模板实例中的 `refs` 属性。",
+                        "the_refs_property_returns_an_object_literal_with_array_of_elements_keyed_by_the_value_you_provid": "`refs` 属性返回一个对象文字，其中包含由您在 `ref` 属性中提供的值键入的元素数组。",
+                        "nested_references": "嵌套引用",
+                        "you_can_access_any_reference_via_the_template_instance_including_its_child_templates": "您可以通过模板实例（包括其子模板）访问任何引用。",
+                        "this_capability_allows_you_to_focus_on_your_top_template_and_work_everything_from_there_this_doe": "此功能使您可以专注于顶级模板并从那里开始处理所有事情。这并不意味着您无法访问每个单独模板级别的参考。只是更方便而已。",
+                        "dynamic_references": "动态参考",
+                        "all_references_are_dynamic_and_this_means_that_as_things_render_or_unmount_from_the_template_ref": "所有引用都是动态的，这意味着当事物从模板中渲染或卸载时，引用会被添加或删除。",
+                        "for_this_reason_you_should_always_check_for_the_reference_being_there_before_doing_anything_this": "因此，在执行任何操作之前，您应该始终检查参考是否存在。这将指示该元素是否仍在模板中呈现。"
+                    }
+                },
+                "values": {
+                    "meta": {
+                        "values": "价值观",
+                        "template_values_markup_by_before_semicolon": "模板值 - Markup by Before Semicolon",
+                        "understand_how_markup_renders_template_values_including_strings_numbers_dom_nodes_arrays_functio": "了解 Markup 如何呈现模板值，包括字符串、数字、DOM 节点、数组、函数、状态 getter、嵌套模板和对象值。"
+                    },
+                    "content": {
+                        "values": "价值观",
+                        "if_you_ever_worked_with_javascript_template_literals_https_developer_mozilla_org_en_us_docs_web": "如果您曾经使用过 JavaScript [模板文字](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals)，您可能已经知道可以注入值。由于标记模板只是模板文字，因此您可以注入任何您想要的内容，Markup 将为您处理每个值。",
+                        "parsing": "解析",
+                        "before_we_jump_into_specific_values_lets_talk_about_how_markup_parses_the_html_string_in_the_tem": "在我们讨论具体值之前，我们先讨论一下 Markup 如何解析模板文本中的 HTML 字符串。",
+                        "just_because_you_can_inject_values_anywhere_in_the_string_does_not_mean_it_will_be_parsed_the_wa": "仅仅因为您可以在字符串中的任何位置注入值并不意味着它将按照您想要的方式进行解析。 Markup 在模板文字中看到 HTML，就像在 `.html` 文件中编写的 HTML 一样。",
+                        "this_means_you_can_only_inject_values_around_tags_openings_or_as_attribute_value_for_example_inj": "这意味着，您只能在标签开头周围注入值或作为属性值注入。例如，注入标签名称的值不会导致解析的 DOM 元素。",
+                        "the_above_will_simply_result_in_hello_world_string_and_not_the_paragraph_element_with_hello_worl": "上面的代码只会生成 `<p>hello world</p>` 字符串，而不是内部包含“hello world”文本的段落元素。",
+                        "similarly_you_cannot_have_a_string_representation_of_attribute_key_value_and_inject_it_in_the_bo": "同样，您不能拥有属性键值的字符串表示形式并将其注入要解释的标签正文中。下面的例子会抛出一个错误：",
+                        "there_is_a_way_to_inject_attribute_objects_you_can_learn_about_by_reading_the_attributes_html_at": "有一种注入属性对象的方法，您可以通过阅读 [attributes](./html-attributes.md#attributes-as-object) 文档来了解。",
+                        "to_conclude_write_html_as_you_know_and_inject_value_where_you_would_write_values_in_html_those_a": "最后，如您所知写入 HTML 并在您将在 HTML 中写入值的位置注入值。它们作为属性值（在括号之间）位于标签之前、之后或内部。",
+                        "node": "Node",
+                        "markup_templates_work_seamlessly_with_dom_nodes_and_this_ability_is_what_allows_you_to_migrate_a": "Markup 模板与 DOM 节点无缝协作，这种功能使您可以轻松地将任何普通 JavaScript 解决方案迁移到 Markup 模板。",
+                        "you_can_inject_any_node_directly_in_the_template_and_they_will_be_rendered_as_so": "您可以直接在模板中注入任何节点，它们将按原样渲染。",
+                        "if_you_want_a_better_and_quicker_way_to_create_htmlelement_we_suggest_taking_a_look_at_the_eleme": "如果您想要更好更快地创建 `HTMLElement`，我们建议您查看 [element utility](../utilities/element.md)。",
+                        "htmltemplate": "HTMLTemplate",
+                        "the_best_thing_about_markup_templates_is_the_ability_to_nest_them_to_compose_more_complex_views": "Markup 模板的最大优点是能够嵌套它们以组成更复杂的视图，同时每个模板都保持其生命周期，并进行跟踪，从而实现更高效的更新以及跟踪视图每个部分的精细方式。",
+                        "this_capability_resembles_the_native_dom_node_instead_the_difference_is_instead_of_tracking_indi": "此功能类似于本机 DOM 节点。不同之处在于，您可以跟踪有意义的节点集合，而不是跟踪单个节点。",
+                        "arrays": "数组",
+                        "injecting_arrays_in_templates_is_a_powerful_way_to_quickly_render_a_collection_of_things_quickly": "在模板中注入数组是一种快速渲染需要一起跟踪和更新的事物集合的强大方法。\n数组将按原样渲染其项目。这使得渲染列表变得非常容易，并且对于数据处理来说非常方便。",
+                        "the_list_is_rendered_without_space_or_commas_you_can_also_collect_a_list_of_templates_to_render": "该列表呈现时不带空格或逗号。您还可以收集模板列表以直接呈现为嵌套模板。",
+                        "this_parsing_only_happens_up_to_one_level_though_if_what_you_wish_to_render_is_one_level_deeper": "不过，这种解析只发生到一个级别。如果您希望渲染的内容更深一层，它将渲染为 JavaScript 中该数据的字符串版本。",
+                        "functions": "功能",
+                        "functions_are_first_class_citizens_in_markup_it_is_used_for_reactivity_and_lazy_evaluations_and": "Markup 中的功能是一等公民。它用于反应性和惰性评估，它们几乎是 Markup 背后的秘密。",
+                        "every_function_injected_in_the_template_is_called_and_its_value_is_rendered_and_tracked_accordin": "调用模板中注入的每个函数，并相应地呈现和跟踪其值。",
+                        "when_you_learn_about_state_state_index_md_and_effect_state_effect_md_you_will_notice_that_its_al": "当您了解 [state](../state/index.md) 和 [effect](../state/effect.md) 时，您会注意到它都是关于函数的，而使它更强大的一件事是使用执行状态计算的函数。",
+                        "markup_understands_that_functions_may_contain_states_that_change_and_will_evaluate_them_whenever": "Markup 了解函数可能包含会发生变化的状态，并且每当这些状态发生变化时就会对其进行评估，然后相应地在 DOM 中执行更改。",
+                        "primitives": "基元",
+                        "when_you_inject_primitive_value_they_will_all_be_rendered_as_their_string_version": "当您注入原始值时，它们都将呈现为其字符串版本。",
+                        "you_need_to_be_specifically_careful_with_nil_values_like_undefined_and_null_resulting_of_accessi": "您需要特别小心由于访问不存在的值而导致的 nil 值，例如 `undefined` 和 `null` 。它们是渲染出来的，可能不是你想要的。如果您不想渲染任何内容，请始终使用空字符串。",
+                        "non_primitives": "非原语",
+                        "array_functions_nodes_and_htmltemplate_are_the_only_non_primitive_values_that_do_not_receive_a_s": "数组、函数、节点和 HTMLTemplate 是唯一不接受特殊处理的非原始值。其他所有内容都将以与在 JavaScript 中字符串化时相同的方式呈现。"
+                    }
+                }
+            },
+            "utilities": {
+                "and_or_oneof": {
+                    "meta": {
+                        "oneof_and_or": "oneOf、and 与 or",
+                        "oneof_and_or_utility_markup_by_before_semicolon": "OneOf、And & Or 实用程序 - Markup by Before Semicolon",
+                        "use_the_markup_and_or_and_oneof_helpers_to_combine_reactive_boolean_conditions_and_render_templa": "当多个状态检查通过时，使用 Markup and、or 和 oneOf 帮助器组合反应式布尔条件和渲染模板。"
+                    },
+                    "content": {
+                        "oneof_and_or_utilities": "OneOf、And & Or 实用程序",
+                        "markup_comes_with_additional_utilities_that_work_as_operators_and_allows_you_to_check_a_value_fr": "Markup 附带了作为运算符的附加实用程序，并允许您检查一组值。它以 `and`、`or` 和 `oneOf` 实用程序的形式出现。",
+                        "oneof": "oneOf",
+                        "the_oneof_works_like_the_is_and_isnot_is_isnot_md_utilities_but_instead_of_checking_a_one_value": "`oneOf` 的工作方式类似于 [is 和 isNot](./is-&-isnot.md) 实用程序，但它不是检查一个值，而是检查多个值。",
+                        "it_takes_the_value_state_you_want_to_check_and_an_array_of_values_to_check_against_the_utility_s": "它需要您想要检查的值/状态以及要检查的值数组。该实用程序只是准确地检查该值。",
+                        "and": "and",
+                        "the_and_utility_works_like_the_logical_and_https_developer_mozilla_org_en_us_docs_web_javascript": "`and` 实用程序的工作方式类似于 `&&`（[逻辑 AND](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_AND)）。仅当所有值均为 [TRUTHY](https://developer.mozilla.org/en-US/docs/Glossary/Truthy) 时，才会返回 `true`。",
+                        "you_can_list_any_amount_of_values_for_the_check": "您可以列出任意数量的支票金额：",
+                        "and_value1_value2_valuen": "`and(value1, value2, ..., valueN)`",
+                        "or": "or",
+                        "the_or_utility_works_like_the_logical_or_https_developer_mozilla_org_en_us_docs_web_javascript_r": "`or` 实用程序的工作方式类似于 `||`（[逻辑或](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_OR)）。仅当至少其中一个值为 [TRUTHY](https://developer.mozilla.org/en-US/docs/Glossary/Truthy) 时，才会返回 `true`。",
+                        "or_value1_value2_valuen": "`or(value1, value2, ..., valueN)`"
+                    }
+                },
+                "element": {
+                    "meta": {
+                        "element": "Element",
+                        "element_utility_markup_by_before_semicolon": "元素实用程序 - Markup by Before Semicolon",
+                        "use_the_markup_element_utility_to_create_dom_elements_programmatically_with_attributes_children": "当静态模板不够时，使用 Markup 元素实用程序以编程方式创建带有属性、子项、引用和事件处理程序的 DOM 元素。"
+                    },
+                    "content": {
+                        "element_utility": "元素实用程序",
+                        "the_element_attribute_is_simply_a_function_that_allows_you_to_create_dom_elements_in_one_call": "`element` 属性只是一个函数，允许您在一次调用中创建 DOM 元素。",
+                        "normally_when_working_with_dom_elements_we_create_and_piece_them_together_after": "通常，在使用 DOM 元素时，我们会创建并将它们拼凑在一起。",
+                        "this_is_a_lot_of_steps_to_create_a_simple_button_here_is_the_same_thing_using_element": "创建一个简单的按钮需要很多步骤。使用 `element` 也是如此：",
+                        "the_element_uses_addeventlistener_behind_the_scenes_and_handles_non_primitive_values_for_you_by": "`element` 在后台使用 `addEventListener`，并通过轻松检测 Web 组件元素来为您处理非原始值。",
+                        "childnodes_and_htmlcontent": "childNodes 和 htmlContent",
+                        "the_childnodes_and_htmlcontent_options_allows_you_to_component_more_complex_elements_easily_depe": "`childNodes` 和 `htmlContent` 选项允许您根据您想要的处理方式轻松组件更复杂的元素。",
+                        "here_is_a_example_using_the_childnodes_option": "以下是使用 `childNodes` 选项的示例：",
+                        "now_an_example_of_the_same_thing_using_the_htmlcontent_option": "现在是使用 `htmlContent` 选项的相同示例：",
+                        "the_main_difference_here_is_the_fact_the_using_childnodes_you_can_specify_function_and_property": "这里的主要区别在于，使用 `childNodes` 可以为属性指定函数和属性值，而 `htmlContent` 仅采用您想要使用的静态 HTML。",
+                        "web_components": "网络组件",
+                        "the_best_part_of_working_with_element_is_with_web_components_it_will_handle_all_non_primitive_pr": "使用 `element` 的最佳部分是使用 Web 组件。它将处理所有非原始 props 以确保 Web 组件按其应有的方式获取数据。",
+                        "svg_elements": "SVG 元素",
+                        "to_create_svg_elements_you_can_specify_the_ns_option_with_the_value_of_http_www_w3_org_2000_svg": "要创建 SVG 元素，您可以指定 `ns` 选项及其值 `http://www.w3.org/2000/svg`，这将为您提供任何 SVG 元素。"
+                    }
+                },
+                "index": {
+                    "meta": {
+                        "intro_to_utilities": "实用程序简介",
+                        "markup_utilities_conditional_async_repeated_and_lazy_rendering": "Markup 实用程序 - 条件、异步、重复和延迟渲染",
+                        "overview_of_markup_helper_utilities_for_conditional_rendering_repeated_rendering_async_suspense": "用于条件渲染、重复渲染、异步悬念、基于可见性的延迟渲染、DOM 元素和状态选择的 Markup 帮助程序实用程序概述。"
+                    },
+                    "content": {
+                        "utilities": "公用事业",
+                        "markup_offers_many_utility_functions_that_aid_you_in_templating_or_work_with_the_dom_in_general": "Markup 提供了许多实用函数，可帮助您进行模板化或一般使用 DOM：",
+                        "element_element_md_allows_you_to_easily_create_dom_elements": "[element](./element.md)：允许您轻松创建DOM元素；",
+                        "suspense_suspense_md_allows_you_to_lazy_render_content": "[suspense](./suspense.md)：允许您延迟渲染内容；",
+                        "repeat_repeat_md_allows_you_to_handle_lists_or_repeat_content": "[repeat](./repeat.md)：允许您处理列表或重复内容；",
+                        "when_when_md_allows_you_to_conditionally_render_content": "[when](./when.md)：允许您有条件地渲染内容；",
+                        "visible_visible_md_allows_you_to_defer_rendering_until_elements_enter_viewport": "[visible](./visible.md)：允许您推迟渲染直到元素进入视口；",
+                        "is_and_isnot_is_isnot_md_allows_you_to_quickly_check_truthiness_of_states": "[is and isNot](./is-&-isnot.md)：允许您快速检查状态的真实性",
+                        "and_or_oneof_and_or_oneof_md_allows_you_to_quickly_check_conditions_of_states": "[and, or, & oneOf](./and-or-&-oneof.md)：允许您快速检查状态的条件",
+                        "pick_pick_md_allows_you_deeply_read_state_object_key_values": "[pick](./pick.md)：允许您深入读取状态对象键值",
+                        "why_you_need_utilities": "为什么需要公用事业？",
+                        "in_markup_functions_are_first_class_citizens_which_means_that_reactive_data_are_represented_with": "在 Markup 中，函数是一等公民，这意味着反应数据由函数表示。为了简单起见，您可以创建处理模板之外的特定逻辑的函数，这样事情看起来很干净，并且逻辑是可重用的。",
+                        "you_can_create_utility_functions_to_handle_things_like": "您可以创建实用函数来处理以下事情：",
+                        "validation": "验证；",
+                        "data_transformation": "数据转换；",
+                        "logic_base_rendering": "逻辑基础渲染；",
+                        "caching": "缓存；",
+                        "etc": "等等；",
+                        "you_only_need_to_define_utilities_when_working_with_states_everything_else_can_remain_as_static": "您只需要在处理状态时定义实用程序。其他一切都可以保留为静态数据。",
+                        "utilities_are_just_functions_that_rendered_in_template_and_that_need_to_be_called_whenever_the_s": "实用程序只是在模板中呈现的函数，只要它们所依赖的状态发生变化就需要调用它们。",
+                        "custom_utility": "自定义实用程序",
+                        "the_power_with_working_with_states_and_template_comes_when_you_start_defining_your_own_utilities": "当您开始定义自己的实用程序时，使用状态和模板的力量就会显现出来。让我们看一个简单的例子：",
+                        "we_have_a_common_scenario_where_we_have_a_input_field_that_uses_state_and_we_need_to_display_a_c": "我们有一个常见的场景，我们有一个使用状态的输入字段，并且我们需要显示特定的消息，无论该值是否有效。",
+                        "we_could_just_go_ahead_and_add_the_logic_for_the_message_right_in_template": "我们可以直接在模板中添加消息的逻辑：",
+                        "this_is_not_bad_but_logic_in_the_template_takes_space_and_lots_of_them_makes_template_hard_to_re": "这还不错，但模板中的逻辑占用空间，而且很多逻辑使模板难以阅读。",
+                        "i_realized_that_i_want_to_mark_the_field_red_when_the_input_is_invalid_and_that_relies_on_the_sa": "我意识到，当输入无效时，我想将字段标记为红色，并且这依赖于我们在函数中具有的相同逻辑。因此，我可以将该逻辑提取到一个函数中以实现可重用性：",
+                        "now_i_have_two_utilities_that_tell_me_whether_the_value_has_ever_been_changed_or_if_it_is_valid": "现在我有两个实用程序可以告诉我该值是否已更改，或者我可以在任何地方使用它来渲染任何内容是否有效。",
+                        "but_i_don_t_need_to_stop_there_i_can_use_function_to_represent_anything_i_want_and_end_up_with_s": "但我不需要停在那里，我可以使用函数来表示我想要的任何东西，最终得到这样的结果：",
+                        "you_can_see_that_we_have_functions_that_handle_different_logic_composing_them_for_even_more_comp": "您可以看到我们有处理不同逻辑的函数，将它们组合成依赖于状态的更复杂的逻辑。",
+                        "this_ability_to_just_create_and_compose_functions_to_handle_everything_is_what_further_makes_tem": "这种只需创建和组合函数来处理所有事情的能力进一步使 Markup 中的模板变得简单而有趣。",
+                        "we_can_further_things_up_by_wrapping_everything_in_a_reusable_utility_for_handling_form_input_va": "我们可以进一步将所有内容包装在可重用实用程序中，以处理可与多个表单字段一起使用的任何类型的表单输入值。",
+                        "and_this_allows_me_to_easily_create_fields_handlers_for_any_field_like_so": "这使我可以轻松地为任何字段创建字段处理程序，如下所示：",
+                        "as_you_can_see_when_it_comes_to_reactivity_markup_relies_heavily_and_solely_on_functions_to_get": "正如您所看到的，当谈到反应性时，Markup 严重且完全依赖于函数来完成工作。这种面向功能的性质使模板变得简单并且对任何人来说都熟悉。尝试一下！"
+                    }
+                },
+                "is_isnot": {
+                    "meta": {
+                        "is_isnot": "is 与 isNot",
+                        "is_isnot_utility_markup_by_before_semicolon": "Is & IsNot 实用程序 - Markup by Before Semicolon",
+                        "use_the_markup_is_and_isnot_helpers_to_render_content_from_truthy_or_falsy_state_values_with_con": "使用 Markup is 和 isNot 帮助程序通过简洁的反应条件逻辑呈现真实或虚假状态值的内容。"
+                    },
+                    "content": {
+                        "is_isnot_utilities": "is 与 isNot 实用程序",
+                        "the_is_and_isnot_are_one_of_the_simplest_utilities_that_allows_you_to_quickly_check_truthiness_a": "`is` 和 `isNot` 是最简单的实用程序之一，可让您快速检查值（尤其是状态）的真实性。",
+                        "both_the_is_and_isnot_take_two_arguments_a_state_or_some_data_and_a_value_or_a_checker_they_will": "`is` 和 `isNot` 都采用两个参数：一个状态或某些数据，以及一个值或检查器。他们总是返回一个布尔值作为结果。第二个参数是可选的，如果未提供，它将检查该值是否为 [truthy](https://developer.mozilla.org/en-US/docs/Glossary/Truthy) 或 [falsy](https://developer.mozilla.org/en-US/docs/Glossary/Falsy)",
+                        "regexp": "RegExp",
+                        "you_can_also_use_is_and_isnot_with_regular_expressions_to_check_if_a_string_matches_a_pattern": "您还可以将 `is` 和 `isNot` 与正则表达式结合使用来检查字符串是否与模式匹配。",
+                        "checker": "检查者",
+                        "the_more_advance_way_to_use_the_is_and_isnot_utilities_is_by_providing_a_function_as_second_argu": "使用 `is` 和 `isNot` 实用程序的更高级方法是提供一个函数作为第二个参数，该函数使用值调用并且必须返回布尔值。",
+                        "this_checker_allows_you_to_perform_custom_checks_instead_of_the_default_strict_equality": "此检查器允许您执行自定义检查而不是默认的严格相等。",
+                        "when_they_consume_stategetter_as_first_argument_their_result_get_re_evaluated_with_every_change": "当他们使用 `StateGetter` 作为第一个参数时，他们的结果会随着每次更改而重新评估，这使得它在快速验证器中非常方便。"
+                    }
+                },
+                "pick": {
+                    "meta": {
+                        "pick": "挑选",
+                        "pick_utility_markup_by_before_semicolon": "拾取实用程序 - Markup by Before Semicolon",
+                        "use_the_markup_pick_utility_to_select_deep_object_state_paths_while_preserving_reactivity_for_ne": "使用 Markup 选择实用程序选择深层对象状态路径，同时保留嵌套属性和派生模板值的反应性。"
+                    },
+                    "content": {
+                        "pick_utility": "选择实用程序",
+                        "the_pick_utility_simplifies_working_with_object_states_by_allowing_you_to_read_deep_property_val": "`pick` 实用程序允许您读取深层属性值，同时保持状态的反应性，从而简化了对象状态的处理。",
+                        "why_use_pick_utility": "为什么使用 `pick` 实用程序？",
+                        "let_s_look_at_a_simple_user_object_state": "让我们看一个简单的用户对象状态。",
+                        "the_user_data_model_looks_something_like_this": "用户数据模型看起来像这样：",
+                        "now_we_can_try_to_display_this_user_information_that_was_set_in_the_state": "现在我们可以尝试显示状态中设置的这个用户信息。",
+                        "this_displays_everything_perfectly_however_if_this_is_an_object_that_changes_nothing_will_re_ren": "这完美地显示了一切。但是，如果这是一个发生变化的对象，则不会重新渲染任何内容，因为所有内容都是静态渲染的。简单的解决方案是使用函数动态渲染所有内容。",
+                        "alternatively_you_can_use_pick_to_pick_the_properties_you_want_to_render_from_a_state": "或者，您可以使用 `pick` 选择要从状态渲染的属性。",
+                        "the_pick_utility_is_just_a_function_and_can_be_used_outside_the_templates_as_well": "`pick` 实用程序只是一个函数，也可以在模板之外使用。",
+                        "deep_values": "深刻的价值观",
+                        "the_best_part_of_using_pick_is_its_ability_to_let_you_pick_deep_values_for_example_let_s_access": "使用 `pick` 的最佳部分是它能够让您选择深度值。例如，让我们访问我们当前用户的第三份工作公司网站。",
+                        "as_you_can_see_you_can_use_dot_notation_https_developer_mozilla_org_en_us_docs_web_javascript_re": "正如您所看到的，您可以使用[点符号](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Property_accessors#dot_notation)来深入访问属性，并且当这些值发生变化时，所有内容都会重新渲染。",
+                        "undefined_values": "未定义的值",
+                        "the_pick_utility_also_offers_protection_against_undefined_values_by_preventing_things_from_throw": "`pick` 实用程序还通过防止在尝试读取不存在的属性时抛出错误来提供针对未定义值的保护。",
+                        "the_pick_helper_will_catch_the_error_and_simply_returns_undefined_that_can_be_rendered_or_read_b": "`pick` 帮助程序将捕获错误并简单地返回可由代码呈现或读取的 `undefined`。",
+                        "mapper_function": "映射器功能",
+                        "the_pick_utility_accepts_an_optional_third_argument_a_mapper_function_that_transforms_the_picked": "`pick` 实用程序接受可选的第三个参数 - 一个映射器函数，用于在返回所选值之前对其进行转换。",
+                        "this_is_useful_for_formatting_values_converting_types_or_applying_any_transformation_to_the_pick": "这对于在呈现或使用选取的值之前格式化值、转换类型或对其应用任何转换非常有用。"
+                    }
+                },
+                "repeat": {
+                    "meta": {
+                        "repeat": "重复",
+                        "repeat_utility_markup_by_before_semicolon": "重复实用程序 - Markup by Before Semicolon",
+                        "render_lists_with_the_markup_repeat_utility_including_arrays_sets_maps_objects_numeric_ranges_em": "使用 Markup 重复实用程序渲染列表，包括数组、集、映射、对象、数值范围、空状态、键和缓存项模板。"
+                    },
+                    "content": {
+                        "repeat_utility": "重复实用程序",
+                        "the_repeat_utility_is_markup_recommended_way_to_render_iterable_data_or_repeating_content_it_han": "`repeat` 实用程序是 Markup 推荐的呈现可迭代数据或重复内容的方法。它处理模板的缓存和跟踪等事务，确保列表更改仅发生在需要它们的项目上。",
+                        "why_use_repeat": "为什么要使用重复？",
+                        "markup_templates_already_handle_arrays_but_like_any_other_injected_value_markup_track_the_whole": "Markup 模板已经处理数组，但与任何其他注入值一样，Markup 跟踪整个事物，而不是其单个项目。",
+                        "the_above_code_will_work_just_fine_as_far_as_rendering_a_list_the_issue_becomes_evident_when_a_s": "就渲染列表而言，上面的代码可以正常工作。当单个项目发生更改、添加或删除时，问题就会变得明显。这是因为该函数将再次被调用，生成一个全新的要渲染的内容列表。如果 Markup 看到新列表，它将重新渲染所有内容。",
+                        "the_better_way_is_to_not_dynamically_map_the_list_on_render_but_on_creation_so_markup_always_hav": "更好的方法是不在渲染时动态映射列表，而是在创建时动态映射列表，这样 Markup 始终拥有您想要渲染的内容，以便它可以检查其是否与以前不同。",
+                        "this_is_exactly_what_repeat_utility_does_for_you_by_just_taking_the_data_and_the_render_function": "这正是 `repeat` 实用程序通过获取数据和渲染函数为您所做的事情。",
+                        "numbers": "数字",
+                        "the_repeat_helper_accepts_a_number_among_many_things_this_number_represents_the_number_of_times": "`repeat` 帮助程序接受许多事物中的一些。该数字表示您希望回调渲染函数需要被调用的次数。",
+                        "the_callback_function_will_be_called_with_numbers_from_1_to_the_number_you_provided_along_with_t": "回调函数将使用从 1 到您随索引提供的数字进行调用。",
+                        "iterables_and_object_literals": "可迭代对象和对象字面量",
+                        "additionally_repeat_can_consume_any_object_literal_or_iterable_object_https_developer_mozilla_or": "此外，`repeat` 可以使用任何对象文字或[可迭代对象](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols)，这包括：",
+                        "array": "数组",
+                        "set": "套装",
+                        "map": "地图",
+                        "string": "字符串",
+                        "any_object_with_symbol_iterator_https_developer_mozilla_org_en_us_docs_web_javascript_reference": "具有 [Symbol.iterator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol/iterator) 的任何对象",
+                        "since_markup_template_do_not_handle_rendering_such_objects_except_array_this_is_an_additional_ad": "由于 Markup 模板不处理渲染此类对象（数组除外），因此这是使用 `repeat` 的另一个优势。您不必担心将任何数据转换为数组，这样您就可以迭代和渲染。",
+                        "the_callback_function_will_always_get_called_with_the_entries_and_the_index": "回调函数将始终使用条目和索引来调用。",
+                        "empty_state": "空状态",
+                        "the_repeat_also_consumes_an_optional_third_argument_which_is_a_function_that_will_get_called_to": "`repeat` 还使用一个可选的第三个参数，该函数将被调用以返回数据为空时要呈现的内容。",
+                        "keys_and_options": "按键和选项",
+                        "by_default_repeat_uses_the_list_items_themselves_as_identity_keys_to_track_updates_if_your_items": "默认情况下，`repeat` 使用列表项本身作为身份密钥来跟踪更新。如果您的项目是对象或者您想通过唯一标识符跟踪它们，则可以传递选项对象作为第三个参数：",
+                        "the_options_object_supports_the_following_properties": "选项对象支持以下属性：",
+                        "key_function_a_selector_function_that_returns_a_unique_key_for_each_item_highly_recommended_for": "`key`（函数）：一个选择器函数，为每个项目返回唯一的键。强烈推荐用于可以重新排序、添加或删除项目的动态列表。",
+                        "empty_function_a_function_returning_the_template_or_node_to_render_when_the_collection_is_empty": "`empty`（函数）：当集合为空时返回要渲染的模板或节点的函数。",
+                        "lazy_list_rendering": "惰性列表渲染",
+                        "to_optimize_lists_with_a_large_number_of_complex_items_you_can_combine_the_repeat_utility_with_t": "要优化包含大量复杂项目的列表，您可以将 `repeat` 实用程序与 [visible](./visible.md) 实用程序结合使用。这会推迟屏幕外列表项的渲染，直到它们即将滚动到视图中："
+                    }
+                },
+                "suspense": {
+                    "meta": {
+                        "suspense": "悬念",
+                        "suspense_utility_markup_by_before_semicolon": "Suspense 实用程序 - Markup by Before Semicolon",
+                        "use_the_markup_suspense_utility_to_render_async_content_with_loading_templates_error_templates_l": "使用 Markup 悬念实用程序通过加载模板、错误模板、延迟数据获取和模板替换来呈现异步内容。"
+                    },
+                    "content": {
+                        "suspense_utility": "悬疑实用程序",
+                        "the_suspense_utility_allows_you_to_lazy_render_content_by_using_the_replace_templating_index_md": "`suspense` 实用程序允许您在模板实例中使用 [replace](../templating/index.md#replace) 方法延迟渲染内容，同时处理加载和错误状态。",
+                        "loading_state": "加载状态",
+                        "you_can_pass_a_custom_loading_content_to_render_while_the_asynchronous_work_is_being_performed_t": "您可以在执行异步工作时传递自定义加载内容以进行渲染。 `suspense` 有一个默认的加载指示器，可能不是您想要的。",
+                        "error_state": "错误状态",
+                        "you_can_also_provide_a_function_as_third_argument_to_handle_how_you_want_to_display_any_errors_t": "您还可以提供一个函数作为第三个参数来处理您想要如何显示任何错误。 `suspense` 的默认方式可能不是您想要的。"
+                    }
+                },
+                "visible": {
+                    "meta": {
+                        "visible": "可见",
+                        "visible_utility_markup_by_before_semicolon": "可见实用程序 - Markup by Before Semicolon",
+                        "use_the_markup_visible_utility_to_defer_rendering_until_content_enters_the_viewport_with_interse": "使用 Markup 可见实用程序推迟渲染，直到内容通过 IntersectionObserver 支持的惰性 UI 进入视口。"
+                    },
+                    "content": {
+                        "visible_utility": "可见效用",
+                        "the_visible_utility_allows_you_to_defer_the_rendering_of_content_until_its_placeholder_element_e": "`visible` 实用程序允许您推迟内容的渲染，直到其占位符元素进入或即将进入视口（在后台使用 `IntersectionObserver`）。",
+                        "this_is_incredibly_useful_for_improving_page_load_speed_and_memory_consumption_when_rendering_la": "在渲染大型复杂项目列表、渲染折叠下的内容或延迟加载离屏组件时，这对于提高页面加载速度和内存消耗非常有用。",
+                        "options": "选项",
+                        "the_third_argument_is_an_optional_options_object_which_supports_standard_intersectionobserver_op": "第三个参数是一个可选选项对象，它支持标准 `IntersectionObserver` 选项，以及 `eager` 标志：",
+                        "eager_boolean_when_set_to_true_the_content_will_render_immediately_upon_mount_completely_bypassi": "`eager`（布尔值）：当设置为 `true` 时，内容将在安装后立即渲染，完全绕过观察者设置。",
+                        "root_element_document_null_the_element_that_is_used_as_the_viewport_for_checking_visibility_of_t": "`root` (Element | Document | null)：用作检查目标可见性视口的元素。",
+                        "rootmargin_string_margin_around_the_root": "`rootMargin`（字符串）：根周围的边距。",
+                        "threshold_number_number_numeric_value_or_array_of_values_indicating_what_percentage_of_the_targe": "`threshold` (number | number[])：数字值或值数组，指示应执行观察者回调的目标可见性的百分比。",
+                        "observer_deduplication": "观察者重复数据删除",
+                        "to_ensure_maximum_performance_and_minimal_browser_overhead_the_visible_utility_maintains_a_modul": "为了确保最大性能和最小浏览器开销，`visible` 实用程序维护活动 `IntersectionObserver` 实例的模块级注册表。如果多个 `visible` 元素共享相同的选项（例如，它们都使用 `rootMargin: '600px 0px'`），则它们将在后台共享一个全局 `IntersectionObserver` 实例。",
+                        "automatic_cleanup": "自动清理",
+                        "when_the_wrapping_template_is_unmounted_from_the_dom_the_visible_utility_automatically_unobserve": "当从 DOM 卸载包装模板时，`visible` 实用程序会自动取消观察元素并清除观察者注册表中的所有引用，从而防止内存泄漏。"
+                    }
+                },
+                "when": {
+                    "meta": {
+                        "when": "当",
+                        "when_utility_markup_by_before_semicolon": "当实用程序 - Markup by Before Semicolon",
+                        "use_the_markup_when_helper_for_conditional_rendering_with_state_getters_fallback_templates_lazy": "使用 Markup when 帮助器通过状态getter、后备模板、惰性分支和反应式 UI 决策进行条件渲染。"
+                    },
+                    "content": {
+                        "when_utility": "当效用",
+                        "the_when_helper_is_markup_out_of_the_box_utility_to_do_conditional_rendering_in_or_outside_templ": "`when` 帮助程序是 Markup 开箱即用的实用程序，用于在模板内或模板外进行条件渲染。",
+                        "it_mimics_an_if_and_else_statement_with_the_else_being_conditional": "它模仿 if-else 语句，其中 else 是有条件的。",
+                        "condition": "条件",
+                        "the_condition_is_the_first_argument_and_it_can_be_a_static_value_or_a_function_for_something_tha": "条件是第一个参数，它可以是静态值，也可以是会改变的函数，例如 [StateGetter](../state/index.md#stategetter)。",
+                        "the_when_helper_will_re_evaluate_whenever_the_condition_changes_for_an_accurate_render": "每当条件发生变化时，`when` 助手都会重新评估，以实现准确的渲染。",
+                        "then_else": "然后&其他",
+                        "the_second_argument_is_required_and_represent_the_then_value_while_the_third_argument_is_optiona": "第二个参数是必需的，代表“then”值，而第三个参数是可选的，因为它代表“else”主体。"
+                    }
+                }
+            }
+        },
+        "home": {
+            "meta": {
+                "markup": "Markup",
+                "markup_by_before_semicolon": "Markup 由 Before Semicolon",
+                "markup_is_an_under_8kb_gzip_reactive_html_templating_system_for_building_web_standard_javascript": "Markup 是一个小于 8KB 的 gzip 反应式 HTML 模板系统，用于构建具有状态、效果、组件且无构建步骤的 Web 标准 JavaScript 用户界面。"
+            },
+            "content": {
+                "reactive_dom": "响应式 DOM。",
+                "zero_build": "无需构建。",
+                "a_tiny_web_standards_first_templating_system_that_brings_reactivity_state_and_components_to_vani": "一个微型的、网络标准优先的模板系统，为普通 JavaScript 带来反应性、状态和组件。 **没有捆绑商。没有 JSX。没有魔法。**",
+                "text_7_6kb": "7.6KB",
+                "cdn_gzip": "CDN gzip",
+                "third_party_deps": "第三方部门",
+                "web_standards": "网络标准",
+                "the_ecosystem": "`// the ecosystem`",
+                "extend_the_way_you_build": "拓展您的构建方式。",
+                "use_markup_on_its_own_for_reactive_templates_or_add_focused_companion_packages_when_your_app_nee": "单独使用 Markup 作为反应式模板，或者在您的应用程序需要自定义元素、路由或本地化时添加重点配套包。",
+                "web_components": "Web Components",
+                "a_reactive_layer_over_the_native_web_components_api_keep_markup_s_template_model_while_adding_pr": "原生 Web Components API 之上的反应层。保留 Markup 的模板模型，同时添加props、状态、生命周期和范围样式。",
+                "declarative_routing_as_web_component_tags_compose_pages_nested_layouts_query_routes_and_lazy_loa": "作为 Web 组件标签的声明式路由。无需采用框架路由器即可编写页面、嵌套布局、查询路由和延迟加载视图。",
+                "localization_for_component_first_interfaces_add_locale_scopes_translated_messages_and_formatter": "组件优先接口的本地化。添加区域设置范围、翻译的消息和格式化程序帮助程序，以自然地融入 Markup 驱动的 UI。",
+                "why_markup": "`// why markup`",
+                "the_platform_is_the_framework": "平台就是框架。",
+                "web_standards_web_apis_and_modern_javascript_are_all_you_need_markup_just_adds_the_reactivity": "Web 标准、Web API 和现代 JavaScript 就是您所需要的。 Markup 只是增加反应性。",
+                "reactive": "反应性",
+                "template_literals_and_functions_create_reactive_dom_with_state_lifecycles_and_side_effects": "模板文字和函数创建具有状态、生命周期和副作用的反应式 DOM。",
+                "tiny_under_8kb_gzip": "很小 - 8KB 以下 gzip",
+                "the_cdn_browser_build_transfers_at_about_7_6kb_gzip_ship_enterprise_apps_without_a_megabyte_of_f": "CDN 浏览器构建以大约 7.6KB gzip 传输。无需一兆字节的框架即可交付企业应用程序。",
+                "web_standards_2": "网络标准",
+                "three_simple_apis_that_extend_the_platform_you_already_know_no_proprietary_abstractions": "三个简单的 API 可以扩展您已知的平台。没有专有抽象。",
+                "plug_play": "即插即用",
+                "drop_in_a_script_tag_and_go_no_build_step_no_jsx_no_configuration_files": "放入脚本标签并开始。没有构建步骤，没有 JSX，没有配置文件。",
+                "supercharge_native_web_components_with_reactivity_skip_manual_dom_manipulation": "增强原生 Web Components 的反应性。跳过手动 DOM 操作。",
+                "surgical_updates": "手术更新",
+                "data_driven_rendering_means_the_dom_updates_only_where_and_when_it_actually_needs_to": "数据驱动渲染意味着 DOM 仅在实际需要的地点和时间进行更新。",
+                "see_it_in_action": "`// see it in action`",
+                "looks_like_html_feels_like_magic": "看起来像 HTML。感觉就像魔法一样。",
+                "reactive_state_component_composition_and_lifecycle_all_from_the_javascript_primitives_you_alread": "反应状态、组件组成和生命周期——所有这些都来自您已经了解的 JavaScript 原语。",
+                "todos_localstorage": "待办事项 + localStorage",
+                "button_component_using_webcomponent": "使用WebComponent的按钮组件",
+                "suspense_async": "悬念（异步）",
+                "page_routing": "页面路由",
+                "template_lifecycles": "模板生命周期",
+                "quick_start": "`// quick start`",
+                "install_in_seconds": "只需几秒钟即可安装。",
+                "pick_your_weapon_markup_works_everywhere_javascript_runs": "选择你的武器。 Markup 可在 JavaScript 运行的任何地方工作。",
+                "build_the_web": "构建网络，",
+                "your_way": "你的方式。",
+                "join_developers_shipping_faster_with_a_framework_that_respects_the_platform_and_your_time": "加入开发人员，使用尊重平台和您时间的框架更快地交付。"
+            }
+        }
+    }
+}

@@ -29,6 +29,50 @@
         "index": "/"
     },
     "common": {
+        "navigation": {
+            "home": "Home",
+            "content": "Content",
+            "features": "Features",
+            "code": "Code",
+            "install": "Install",
+            "documentation": "Documentation",
+            "docs": "Docs",
+            "learningResources": "Learning Resources",
+            "essentialsTraining": "Essentials Training",
+            "aboutBeforeSemicolon": "About Before Semicolon",
+            "openSource": "Open Source",
+            "website": "Website",
+            "blog": "Blog",
+            "youtubeChannel": "YouTube Channel"
+        },
+        "actions": {
+            "editDoc": "edit this doc",
+            "getStarted": "Get Started",
+            "readDocs": "Read the Docs",
+            "copy": "Copy",
+            "copied": "Copied",
+            "copyCode": "Copy code",
+            "codeCopied": "Code copied",
+            "commandCopied": "Command copied",
+            "copyInstallCommand": "Copy {{manager}} install command",
+            "previousExample": "Previous example",
+            "nextExample": "Next example"
+        },
+        "accessibility": {
+            "installationPackageManager": "Installation package manager",
+            "goToSlide": "Go to slide {{number}}",
+            "mobileMenu": {
+                "open": "Open documentation menu",
+                "close": "Close documentation menu"
+            }
+        },
+        "labels": {
+            "exampleUppercase": "EXAMPLE"
+        },
+        "footer": {
+            "description": "A reactive HTML templating system for building dynamic UIs with pure JavaScript. No build step. No virtual DOM.",
+            "copyright": "Copyright © 2026 Before Semicolon. All rights reserved."
+        },
         "content": {
             "lifecycles": "Lifecycles",
             "examples": "Examples",
@@ -64,9 +108,9 @@
                     "async_states_use_suspense": "Async states: use `suspense`",
                     "deferred_lazy_rendering_use_visible": "Deferred/lazy rendering: use `visible`",
                     "canonical_pages": "Canonical pages",
-                    "templating_templating_index_md": "[Templating](../templating/index.md)",
-                    "state_state_index_md": "[State](../state/index.md)",
-                    "utilities_utilities_index_md": "[Utilities](../utilities/index.md)",
+                    "templating_templating_index_md": "[Templating](./templating/index.md)",
+                    "state_state_index_md": "[State](./state/index.md)",
+                    "utilities_utilities_index_md": "[Utilities](./utilities/index.md)",
                     "rules_for_agents": "Rules for agents",
                     "prefer_the_narrowest_page_that_answers_the_task": "Prefer the narrowest page that answers the task.",
                     "read_the_package_specific_page_before_editing_related_code": "Read the package-specific page before editing related code.",
@@ -162,7 +206,7 @@
                     },
                     "content": {
                         "state_store": "State Store",
-                        "the_great_thing_about_markup_state_state_index_is_the_fact_that_it_is_a_standalone_api_that_work": "The great thing about Markup [state](../state/index) is the fact that it is a standalone API that works great witht the template itself.",
+                        "the_great_thing_about_markup_state_state_index_is_the_fact_that_it_is_a_standalone_api_that_work": "The great thing about Markup [state](../state/index.md) is the fact that it is a standalone API that works great witht the template itself.",
                         "what_this_allows_you_to_do_is_manage_shared_global_state_away_from_the_component_and_inject_them": "What this allows you to do is manage shared/global state away from the component and inject them directly into the template or perform side effects where needed. All that without worrying about subcriptions and cleanups.",
                         "create_a_state_store": "Create a state store",
                         "take_for_example_this_todos_state_store": "Take for example this `todos` state store:",
@@ -317,7 +361,7 @@
                     },
                     "content": {
                         "effect": "Effect",
-                        "the_effect_api_complements_the_state_index_api_by_providing_a_better_way_to_react_to_multiple_st": "The `effect` API complements the [state](./index) API by providing a better way to react to multiple state changes based on what you need to be executed.",
+                        "the_effect_api_complements_the_state_index_api_by_providing_a_better_way_to_react_to_multiple_st": "The `effect` API complements the [state](./index.md) API by providing a better way to react to multiple state changes based on what you need to be executed.",
                         "the_state_api_allows_you_to_subscribe_to_changes_of_its_value": "The `state` API allows you to subscribe to changes of its value.",
                         "this_is_great_if_you_want_to_perform_side_effects_related_to_a_single_state_to_perform_side_effe": "This is great if you want to perform side effects related to a single state. To perform side effects for multiple states you will need the `effect` API.",
                         "effectunsubscriber": "EffectUnSubscriber",

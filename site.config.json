@@ -3,7 +3,7 @@
     "mode": "static",
     "siteUrl": "https://markup.beforesemicolon.com",
     "defaultLocale": "en",
-    "locales": ["en"],
+    "locales": ["en", "zh", "es", "pt", "fr"],
     "docs": {
         "sourceDir": "docs",
         "outputDir": "website",
