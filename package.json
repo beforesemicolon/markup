@@ -3,7 +3,8 @@
     "version": "1.18.4",
     "description": "Reactive HTML Templating System",
     "engines": {
-        "node": ">=18.16.0"
+        "node": ">=22.13.0",
+        "npm": ">=10.0.0"
     },
     "type": "module",
     "types": "./dist/types/index.d.ts",
