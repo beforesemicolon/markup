@@ -126,3 +126,10 @@ This library requires no build or parsing. The CDN package is one digit killobyt
     html`<h1>Hello World</h1>`.render(document.getElementById('app'))
 </script>
 ```
+
+## Community
+
+-   [Contributing guidelines](CONTRIBUTING.md)
+-   [Code of Conduct](CODE_OF_CONDUCT.md)
+-   [Security policy](SECURITY.md)
+-   [BSD 3-Clause License](LICENSE)
