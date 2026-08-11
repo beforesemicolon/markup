@@ -2,6 +2,31 @@
     "schemaVersion": "1.0",
     "mode": "static",
     "siteUrl": "https://markup.beforesemicolon.com",
+    "document": {
+        "links": [
+            {
+                "rel": "icon",
+                "href": "/assets/markup-favicon.png",
+                "type": "image/png"
+            }
+        ],
+        "csp": {
+            "style-src": ["'self'", "https://fonts.googleapis.com"],
+            "font-src": ["'self'", "data:", "https://fonts.gstatic.com"]
+        },
+        "analytics": {
+            "providers": [
+                {
+                    "type": "google-analytics",
+                    "tagId": "G-N3MXGDP5PS",
+                    "enabled": true,
+                    "config": {
+                        "send_page_view": true
+                    }
+                }
+            ]
+        }
+    },
     "defaultLocale": "en",
     "locales": ["en", "zh", "es", "pt", "fr"],
     "localeDetails": {

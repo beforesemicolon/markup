@@ -1,4 +1,4 @@
 {
-    "watch": ["docs"],
+    "watch": ["docs", "site.config.json"],
     "ext": "js,css,md,json,svg,png,jpg,jpeg,webp,ico"
 }

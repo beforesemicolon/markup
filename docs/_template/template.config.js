@@ -1,14 +1,3 @@
-const renderGoogleAnalyticsScript = () => `
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-N3MXGDP5PS"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-N3MXGDP5PS');
-</script>`
-
 export default {
     meta: {
         siteName: 'Markup',
@@ -103,8 +92,5 @@ export default {
             },
         ],
         copyright: `Copyright &copy; ${new Date().getFullYear()} Before Semicolon. All rights reserved.`,
-    },
-    headScripts: {
-        analytics: renderGoogleAnalyticsScript,
     },
 }
