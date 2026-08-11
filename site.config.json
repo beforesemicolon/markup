@@ -4,6 +4,29 @@
     "siteUrl": "https://markup.beforesemicolon.com",
     "defaultLocale": "en",
     "locales": ["en", "zh", "es", "pt", "fr"],
+    "localeDetails": {
+        "en": {
+            "label": "English",
+            "icon": "🇺🇸",
+            "selectorLabel": "Choose language"
+        },
+        "zh": { "label": "中文", "icon": "🇨🇳", "selectorLabel": "选择语言" },
+        "es": {
+            "label": "Español",
+            "icon": "🇪🇸",
+            "selectorLabel": "Elegir idioma"
+        },
+        "pt": {
+            "label": "Português",
+            "icon": "🇵🇹",
+            "selectorLabel": "Escolher idioma"
+        },
+        "fr": {
+            "label": "Français",
+            "icon": "🇫🇷",
+            "selectorLabel": "Choisir la langue"
+        }
+    },
     "docs": {
         "sourceDir": "docs",
         "outputDir": "website",
