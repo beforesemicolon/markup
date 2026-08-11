@@ -1,0 +1,45 @@
+name: Bug report
+description: Report reproducible incorrect behavior
+title: '[Bug]: '
+labels: [bug]
+body:
+    - type: markdown
+      attributes:
+          value: Thanks for taking the time to report a bug. Do not disclose security vulnerabilities here; follow SECURITY.md instead.
+    - type: input
+      id: version
+      attributes:
+          label: Package version
+          placeholder: 1.2.3
+      validations:
+          required: true
+    - type: textarea
+      id: description
+      attributes:
+          label: What happened?
+          description: Describe the actual and expected behavior.
+      validations:
+          required: true
+    - type: textarea
+      id: reproduction
+      attributes:
+          label: Minimal reproduction
+          description: Provide a repository, playground, or concise steps that reproduce the problem.
+      validations:
+          required: true
+    - type: textarea
+      id: environment
+      attributes:
+          label: Environment
+          description: Include browser or runtime, operating system, and other relevant versions.
+      validations:
+          required: true
+    - type: checkboxes
+      id: checks
+      attributes:
+          label: Checklist
+          options:
+              - label: I searched existing issues for duplicates.
+                required: true
+              - label: This is not a security vulnerability.
+                required: true
