@@ -1,6 +1,5 @@
 import { val } from './val.ts'
 import { ObjectLiteral, StateGetter } from '../types.ts'
-import { HtmlTemplate } from '../html.ts'
 
 export type RepeatData<T, K = string> =
     | number
@@ -21,6 +20,17 @@ interface RepeatEntry<T, TKey> {
     index: number
     rendered: unknown
 }
+
+interface RebindableTemplate {
+    constructor: unknown
+    __rebind__(next: unknown): boolean
+}
+
+const isRebindableTemplate = (value: unknown): value is RebindableTemplate =>
+    typeof value === 'object' &&
+    value !== null &&
+    '__rebind__' in value &&
+    typeof (value as { __rebind__?: unknown }).__rebind__ === 'function'
 
 const getList = (data: unknown) => {
     if (data) {
@@ -106,13 +116,16 @@ export const repeat = <T, TKey = T, K = string>(
                 rendered = previous.rendered
             } else {
                 const nextRendered = cb(item, index)
+                const previousRendered = previous?.rendered
 
                 if (
-                    previous?.rendered instanceof HtmlTemplate &&
-                    nextRendered instanceof HtmlTemplate &&
-                    previous.rendered.__rebind__(nextRendered)
+                    isRebindableTemplate(previousRendered) &&
+                    nextRendered !== null &&
+                    typeof nextRendered === 'object' &&
+                    nextRendered.constructor === previousRendered.constructor &&
+                    previousRendered.__rebind__(nextRendered)
                 ) {
-                    rendered = previous.rendered
+                    rendered = previousRendered
                 } else {
                     rendered = nextRendered
                 }
