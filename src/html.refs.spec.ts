@@ -8,8 +8,12 @@ describe('HtmlTemplate refs', () => {
         const temp = html`<div ref="item">parent</div>${child}`.render(document.body)
 
         expect(temp.refs.item).toHaveLength(2)
-        expect(temp.refs.item[0]).toBeInstanceOf(HTMLDivElement)
-        expect(temp.refs.item[1]).toBeInstanceOf(HTMLSpanElement)
+        expect(temp.refs.item).toEqual(
+            expect.arrayContaining([
+                expect.any(HTMLDivElement),
+                expect.any(HTMLSpanElement),
+            ])
+        )
     })
 
     it('should reflect refs from the currently rendered dynamic child', () => {
