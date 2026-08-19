@@ -4,6 +4,7 @@ import { syncNodes } from './utils/sync-nodes.ts'
 import { EffectUnSubscriber } from './types.ts'
 import { renderContent } from './utils/render-content.ts'
 import { DoubleLinkedList } from './DoubleLinkedList.ts'
+import { normalizeContent } from './utils/normalize-content.ts'
 
 export class ReactiveNode {
     #result = new DoubleLinkedList<Node | HtmlTemplate>()
@@ -25,12 +26,12 @@ export class ReactiveNode {
 
         for (const item of this.#result) {
             if (item instanceof HtmlTemplate) {
-                const templateRefs = item.refs // item.refs is Record<string, Array<Element>>
+                const templateRefs = item.refs
                 for (const key in templateRefs) {
                     if (
                         Object.prototype.hasOwnProperty.call(templateRefs, key)
                     ) {
-                        collectedRefs[key] = templateRefs[key] // Assign properties directly
+                        collectedRefs[key] = templateRefs[key]
                     }
                 }
             }
@@ -57,7 +58,7 @@ export class ReactiveNode {
                 if (init) {
                     this.#result = syncNodes(
                         this.#result,
-                        Array.isArray(res) ? res : [res],
+                        normalizeContent(res),
                         this.#anchor,
                         template
                     )
