@@ -1,0 +1,261 @@
+name: Apply repeat rebind patch
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.event.pull_request.head.ref == 'agent/reuse-keyed-repeat-templates'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/reuse-keyed-repeat-templates
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Apply production patch and tests
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+
+          html_path = Path('src/html.ts')
+          html = html_path.read_text()
+
+          old = """interface Template {\n    template: DocumentFragment\n    slots: DoubleLinkedList<TemplateSlot>\n    nodeRefs: Record<string, Node>\n}\n"""
+          new = old + """\ninterface TemplateBinding {\n    canUpdate(values: unknown[]): boolean\n    update(values: unknown[]): boolean\n}\n\nconst isRebindableValue = (value: unknown) =>\n    value === null ||\n    value === undefined ||\n    (typeof value !== 'object' && typeof value !== 'function')\n\nconst getSlotValues = (\n    slot: TemplateSlot,\n    values: unknown[]\n): unknown[] =>\n    slot.valueParts.map((part) =>\n        typeof part === 'number' ? values[part] : part\n    )\n\nconst getAttributeValue = (values: unknown[]) =>\n    values.length === 1 ? val(values[0]) : values.map((item) => val(item)).join('')\n"""
+          assert old in html, 'Template interface anchor not found'
+          html = html.replace(old, new, 1)
+
+          old = """    #refs: Record<string, Set<Element>> = {}\n    #effectUnsubs: Set<EffectUnSubscriber> = new Set()\n    #values: Array<unknown> = []\n    #mounted = false\n"""
+          new = """    #refs: Record<string, Set<Element>> = {}\n    #effectUnsubs: Set<EffectUnSubscriber> = new Set()\n    #bindings: TemplateBinding[] = []\n    #parts: TemplateStringsArray | string[]\n    #rebindable = true\n    #values: Array<unknown> = []\n    #mounted = false\n"""
+          assert old in html, 'HtmlTemplate fields anchor not found'
+          html = html.replace(old, new, 1)
+
+          old = """    constructor(parts: TemplateStringsArray | string[], values: unknown[]) {\n        this.#values = values\n        this.#template = createTemplate(parts, values)\n    }\n\n    /**\n     * appends the template on the provided Element or ShadowRoot instance\n"""
+          new = """    constructor(parts: TemplateStringsArray | string[], values: unknown[]) {\n        this.#parts = parts\n        this.#values = values\n        this.#template = createTemplate(parts, values)\n    }\n\n    /**\n     * Internal optimization used by keyed repeat entries. Reuses the mounted\n     * template only when both instances came from the same template literal and\n     * every dynamic value is safe to patch directly.\n     */\n    __rebind__(next: HtmlTemplate) {\n        if (\n            !this.#mounted ||\n            next.#mounted ||\n            this.#parts !== next.#parts ||\n            !this.#rebindable ||\n            !this.#values.every(isRebindableValue) ||\n            !next.#values.every(isRebindableValue) ||\n            this.#mountSub ||\n            this.#moveSub ||\n            this.#unmountSub ||\n            this.#updateSub ||\n            next.#mountSub ||\n            next.#moveSub ||\n            next.#unmountSub ||\n            next.#updateSub ||\n            !this.#bindings.every((binding) => binding.canUpdate(next.#values))\n        ) {\n            return false\n        }\n\n        let updated = false\n        for (const binding of this.#bindings) {\n            updated = binding.update(next.#values) || updated\n        }\n\n        this.#values = next.#values\n        if (updated) this.#updateSub?.(this)\n        return true\n    }\n\n    /**\n     * appends the template on the provided Element or ShadowRoot instance\n"""
+          assert old in html, 'constructor anchor not found'
+          html = html.replace(old, new, 1)
+
+          old = """    #init(actionType: 'render' | 'replace' | 'after', element: Node) {\n        const { template, slots } = this.#template\n        const frag = template.cloneNode(true) as DocumentFragment\n        const nodes: Record<string, HTMLElement> = {}\n"""
+          new = """    #init(actionType: 'render' | 'replace' | 'after', element: Node) {\n        const { template, slots } = this.#template\n        const frag = template.cloneNode(true) as DocumentFragment\n        const nodes: Record<string, HTMLElement> = {}\n        this.#bindings = []\n        this.#rebindable = this.#values.every(isRebindableValue)\n"""
+          assert old in html, '#init anchor not found'
+          html = html.replace(old, new, 1)
+
+          old = """                    handleElementAttribute(\n                        node,\n                        slot.name,\n                        values,\n                        (item) => this.#effectUnsubs.add(item),\n                        () => this.#updateSub?.(this)\n                    )\n"""
+          new = """                    const initialValue = handleElementAttribute(\n                        node,\n                        slot.name,\n                        values,\n                        (item) => this.#effectUnsubs.add(item),\n                        () => this.#updateSub?.(this)\n                    )\n\n                    if (\n                        slot.name !== 'ref' &&\n                        !slot.prop &&\n                        values.every(isRebindableValue)\n                    ) {\n                        let currentValue = initialValue\n                        this.#bindings.push({\n                            canUpdate: (nextValues) =>\n                                getSlotValues(slot, nextValues).every(\n                                    isRebindableValue\n                                ),\n                            update: (nextValues) => {\n                                const nextValue = getAttributeValue(\n                                    getSlotValues(slot, nextValues)\n                                )\n                                if (Object.is(currentValue, nextValue)) {\n                                    return false\n                                }\n\n                                setElementAttribute(node, slot.name, nextValue)\n                                currentValue = nextValue\n                                return true\n                            },\n                        })\n                    } else {\n                        this.#rebindable = false\n                    }\n"""
+          assert old in html, 'attribute handling anchor not found'
+          html = html.replace(old, new, 1)
+
+          old = """                        if (typeof part === 'function') {\n                            const rn = new ReactiveNode(\n                                part as () => unknown,\n                                cont,\n                                this\n                            )\n\n                            this.__CHILDREN__.add(rn)\n\n                            // the root node will be a document fragment which means\n                            // item will be a direct child\n                            if (parentNode instanceof DocumentFragment) {\n                                rn.updateParentReference(element as HTMLElement)\n                            } else {\n                                rn.updateParentReference(parentNode)\n                            }\n\n                            rn.onUpdate(() => this.#updateSub?.(this))\n                        } else {\n                            renderContent(part, cont, (item) => {\n                                if (item instanceof HtmlTemplate) {\n                                    item.__PARENT__ = this\n                                    this.__CHILDREN__.add(item)\n                                }\n                            })\n                        }\n"""
+          new = """                        if (typeof part === 'function') {\n                            this.#rebindable = false\n                            const rn = new ReactiveNode(\n                                part as () => unknown,\n                                cont,\n                                this\n                            )\n\n                            this.__CHILDREN__.add(rn)\n\n                            // the root node will be a document fragment which means\n                            // item will be a direct child\n                            if (parentNode instanceof DocumentFragment) {\n                                rn.updateParentReference(element as HTMLElement)\n                            } else {\n                                rn.updateParentReference(parentNode)\n                            }\n\n                            rn.onUpdate(() => this.#updateSub?.(this))\n                        } else if (\n                            typeof p === 'number' &&\n                            isRebindableValue(part)\n                        ) {\n                            const valueIndex = p\n                            const textNode = document.createTextNode(String(part))\n                            cont.appendChild(textNode)\n                            let currentValue = part\n\n                            this.#bindings.push({\n                                canUpdate: (nextValues) =>\n                                    isRebindableValue(nextValues[valueIndex]),\n                                update: (nextValues) => {\n                                    const nextValue = nextValues[valueIndex]\n                                    if (Object.is(currentValue, nextValue)) {\n                                        return false\n                                    }\n\n                                    textNode.nodeValue = String(nextValue)\n                                    currentValue = nextValue\n                                    return true\n                                },\n                            })\n                        } else {\n                            if (typeof p === 'number') {\n                                this.#rebindable = false\n                            }\n                            renderContent(part, cont, (item) => {\n                                if (item instanceof HtmlTemplate) {\n                                    item.__PARENT__ = this\n                                    this.__CHILDREN__.add(item)\n                                }\n                            })\n                        }\n"""
+          assert old in html, 'content handling anchor not found'
+          html = html.replace(old, new, 1)
+
+          html_path.write_text(html)
+
+          repeat_path = Path('src/helpers/repeat.helper.ts')
+          repeat = repeat_path.read_text()
+          old = """import { val } from './val.ts'\nimport { ObjectLiteral, StateGetter } from '../types.ts'\n"""
+          new = """import { val } from './val.ts'\nimport { ObjectLiteral, StateGetter } from '../types.ts'\nimport { HtmlTemplate } from '../html.ts'\n"""
+          assert old in repeat, 'repeat import anchor not found'
+          repeat = repeat.replace(old, new, 1)
+
+          old = """            if (previous && previous.item === item) {\n                rendered = previous.rendered\n            } else {\n                rendered = cb(item, index)\n            }\n"""
+          new = """            if (previous && previous.item === item) {\n                rendered = previous.rendered\n            } else {\n                const nextRendered = cb(item, index)\n\n                if (\n                    previous?.rendered instanceof HtmlTemplate &&\n                    nextRendered instanceof HtmlTemplate &&\n                    previous.rendered.__rebind__(nextRendered)\n                ) {\n                    rendered = previous.rendered\n                } else {\n                    rendered = nextRendered\n                }\n            }\n"""
+          assert old in repeat, 'repeat render anchor not found'
+          repeat_path.write_text(repeat.replace(old, new, 1))
+
+          test_path = Path('src/helpers/repeat-rebind.spec.ts')
+          test_path.write_text(r'''import '../../test.common.ts'
+          import { html } from '../html.ts'
+          import { repeat } from './repeat.helper.ts'
+          import { state } from '../state.ts'
+
+          type Item = {
+              id: number
+              name: string
+              active?: boolean
+              kind?: 'span' | 'strong'
+          }
+
+          describe('repeat keyed template rebinding', () => {
+              it('reuses DOM identity for immutable keyed primitive updates', () => {
+                  const [items, setItems] = state<Item[]>([
+                      { id: 1, name: 'first', active: false },
+                  ])
+                  const renderer = jest.fn(
+                      (item: Item) => html`<span
+                          class="${item.active ? 'active' : ''}"
+                          data-name="${item.name}"
+                      >${item.name}</span>`
+                  )
+                  const view = html`${repeat(items, renderer, {
+                      key: (item) => item.id,
+                  })}`
+
+                  view.render(document.body)
+                  const firstNode = document.body.querySelector('span')
+
+                  setItems([{ id: 1, name: 'updated', active: true }])
+                  jest.advanceTimersToNextTimer()
+
+                  const updatedNode = document.body.querySelector('span')
+                  expect(updatedNode).toBe(firstNode)
+                  expect(updatedNode?.textContent).toBe('updated')
+                  expect(updatedNode?.className).toBe('active')
+                  expect(updatedNode?.getAttribute('data-name')).toBe('updated')
+                  expect(renderer).toHaveBeenCalledTimes(2)
+              })
+
+              it('reuses each keyed row independently', () => {
+                  const [items, setItems] = state<Item[]>([
+                      { id: 1, name: 'one' },
+                      { id: 2, name: 'two' },
+                  ])
+                  const view = html`${repeat(
+                      items,
+                      (item) => html`<span>${item.name}</span>`,
+                      { key: (item) => item.id }
+                  )}`
+
+                  view.render(document.body)
+                  const before = Array.from(document.body.querySelectorAll('span'))
+
+                  setItems([
+                      { id: 1, name: 'ONE' },
+                      { id: 2, name: 'TWO' },
+                  ])
+                  jest.advanceTimersToNextTimer()
+
+                  const after = Array.from(document.body.querySelectorAll('span'))
+                  expect(after[0]).toBe(before[0])
+                  expect(after[1]).toBe(before[1])
+                  expect(after.map((node) => node.textContent)).toEqual([
+                      'ONE',
+                      'TWO',
+                  ])
+              })
+
+              it('falls back to replacement when the template shape changes', () => {
+                  const [items, setItems] = state<Item[]>([
+                      { id: 1, name: 'one', kind: 'span' },
+                  ])
+                  const view = html`${repeat(
+                      items,
+                      (item) =>
+                          item.kind === 'span'
+                              ? html`<span>${item.name}</span>`
+                              : html`<strong>${item.name}</strong>`,
+                      { key: (item) => item.id }
+                  )}`
+
+                  view.render(document.body)
+                  const firstNode = document.body.querySelector('span')
+
+                  setItems([{ id: 1, name: 'one', kind: 'strong' }])
+                  jest.advanceTimersToNextTimer()
+
+                  const strong = document.body.querySelector('strong')
+                  expect(strong).not.toBeNull()
+                  expect(strong).not.toBe(firstNode)
+                  expect(document.body.querySelector('span')).toBeNull()
+              })
+
+              it('falls back for lifecycle templates to preserve mount cleanup behavior', () => {
+                  const mount = jest.fn(() => cleanup)
+                  const cleanup = jest.fn()
+                  const [items, setItems] = state<Item[]>([
+                      { id: 1, name: 'one' },
+                  ])
+                  const view = html`${repeat(
+                      items,
+                      (item) => html`<span>${item.name}</span>`.onMount(mount),
+                      { key: (item) => item.id }
+                  )}`
+
+                  view.render(document.body)
+                  const firstNode = document.body.querySelector('span')
+
+                  setItems([{ id: 1, name: 'ONE' }])
+                  jest.advanceTimersToNextTimer()
+
+                  expect(document.body.querySelector('span')).not.toBe(firstNode)
+                  expect(mount).toHaveBeenCalledTimes(2)
+                  expect(cleanup).toHaveBeenCalledTimes(1)
+              })
+
+              it('falls back for reactive function slots', () => {
+                  const [items, setItems] = state<Item[]>([
+                      { id: 1, name: 'one' },
+                  ])
+                  const view = html`${repeat(
+                      items,
+                      (item) => html`<span>${() => item.name}</span>`,
+                      { key: (item) => item.id }
+                  )}`
+
+                  view.render(document.body)
+                  const firstNode = document.body.querySelector('span')
+
+                  setItems([{ id: 1, name: 'ONE' }])
+                  jest.advanceTimersToNextTimer()
+
+                  expect(document.body.querySelector('span')).not.toBe(firstNode)
+                  expect(document.body.textContent).toBe('ONE')
+              })
+
+              it('falls back for nested template values', () => {
+                  const [items, setItems] = state<Item[]>([
+                      { id: 1, name: 'one' },
+                  ])
+                  const view = html`${repeat(
+                      items,
+                      (item) => html`<span>${html`<b>${item.name}</b>`}</span>`,
+                      { key: (item) => item.id }
+                  )}`
+
+                  view.render(document.body)
+                  const firstNode = document.body.querySelector('span')
+
+                  setItems([{ id: 1, name: 'ONE' }])
+                  jest.advanceTimersToNextTimer()
+
+                  expect(document.body.querySelector('span')).not.toBe(firstNode)
+                  expect(document.body.innerHTML).toBe('<span><b>ONE</b></span>')
+              })
+
+              it('keeps the existing stable-reference renderer cache behavior', () => {
+                  const item = { id: 1, name: 'one' }
+                  const renderer = jest.fn(
+                      (value: Item) => html`<span>${value.name}</span>`
+                  )
+                  const read = repeat([item], renderer, {
+                      key: (value) => value.id,
+                  })
+
+                  const first = read()
+                  const second = read()
+
+                  expect(second[0]).toBe(first[0])
+                  expect(renderer).toHaveBeenCalledTimes(1)
+              })
+          })
+          ''')
+          PY
+          npx prettier --write src/html.ts src/helpers/repeat.helper.ts src/helpers/repeat-rebind.spec.ts
+          npm test -- --runInBand
+          rm .github/workflows/apply-repeat-rebind.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/html.ts src/helpers/repeat.helper.ts src/helpers/repeat-rebind.spec.ts .github/workflows/apply-repeat-rebind.yml
+          git commit -m "reuse keyed repeat templates"
+          git push origin HEAD:agent/reuse-keyed-repeat-templates
