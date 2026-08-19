@@ -1,5 +1,6 @@
 import { val } from './val.ts'
 import { ObjectLiteral, StateGetter } from '../types.ts'
+import { HtmlTemplate } from '../html.ts'
 
 export type RepeatData<T, K = string> =
     | number
@@ -104,7 +105,17 @@ export const repeat = <T, TKey = T, K = string>(
             if (previous && previous.item === item) {
                 rendered = previous.rendered
             } else {
-                rendered = cb(item, index)
+                const nextRendered = cb(item, index)
+
+                if (
+                    previous?.rendered instanceof HtmlTemplate &&
+                    nextRendered instanceof HtmlTemplate &&
+                    previous.rendered.__rebind__(nextRendered)
+                ) {
+                    rendered = previous.rendered
+                } else {
+                    rendered = nextRendered
+                }
             }
 
             const entry: RepeatEntry<T, unknown> = {
