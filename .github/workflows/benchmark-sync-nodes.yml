@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - agent/benchmark-sync-nodes
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
