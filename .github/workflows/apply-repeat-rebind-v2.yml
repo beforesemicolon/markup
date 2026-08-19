@@ -1,0 +1,55 @@
+name: Apply repeat rebind patch v2
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.event.pull_request.head.ref == 'agent/reuse-keyed-repeat-templates'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/reuse-keyed-repeat-templates
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Apply corrected production patch
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+
+          workflow = Path('.github/workflows/apply-repeat-rebind.yml').read_text()
+          start = workflow.index("          python <<'PY'\n") + len("          python <<'PY'\n")
+          end = workflow.index("          PY\n", start)
+          script = workflow[start:end]
+          script = '\n'.join(line[10:] if line.startswith('          ') else line for line in script.splitlines())
+          exec(compile(script, '<repeat-rebind-patch>', 'exec'))
+
+          html_path = Path('src/html.ts')
+          html = html_path.read_text().replace('        if (updated) this.#updateSub?.(this)\n', '')
+          html_path.write_text(html)
+
+          test_path = Path('src/helpers/repeat-rebind.spec.ts')
+          test = test_path.read_text()
+          test = test.replace(
+              '        const first = read()\n        const second = read()\n',
+              '        const first = read() as unknown[]\n        const second = read() as unknown[]\n',
+          )
+          test_path.write_text(test)
+          PY
+          npx prettier --write src/html.ts src/helpers/repeat.helper.ts src/helpers/repeat-rebind.spec.ts
+          npm test -- --runInBand
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/html.ts src/helpers/repeat.helper.ts src/helpers/repeat-rebind.spec.ts
+          git commit -m "reuse keyed repeat templates"
+          git push origin HEAD:agent/reuse-keyed-repeat-templates
