@@ -5,6 +5,7 @@ import { syncNodes } from '../src/utils/sync-nodes.ts'
 import { html } from '../src/html.ts'
 
 const SIZES = [20, 60, 250, 1000]
+const owner = html``
 
 type Scenario = {
     name: string
@@ -45,34 +46,10 @@ function setup(size: number) {
 }
 
 /**
- * Prototype: Set membership + one left-to-right native DOM placement pass.
- * It intentionally has no linked-list bookkeeping so we can measure whether
- * that bookkeeping is where the current reconciler is paying its cost.
+ * Naive prototype from the first experiment. Kept as a control because it
+ * shows that "simpler" alone is not sufficient: rotations cause many moves.
  */
-function syncNodesCandidate(current: Node[], desired: Node[], anchor: Node) {
-    const desiredSet = new Set(desired)
-
-    for (const node of current) {
-        if (!desiredSet.has(node)) node.parentNode?.removeChild(node)
-    }
-
-    let previous = anchor
-    for (const node of desired) {
-        if (previous.nextSibling !== node) {
-            previous.parentNode?.insertBefore(node, previous.nextSibling)
-        }
-        previous = node
-    }
-
-    return desired
-}
-
-/**
- * Vanilla lower bound: same DOM semantics, deliberately minimal bookkeeping.
- * This is intentionally identical in DOM operations to the candidate for the
- * Node-only benchmark; any remaining gap to Markup is reconciler bookkeeping.
- */
-function syncVanilla(current: Node[], desired: Node[], anchor: Node) {
+function syncNodesNaive(current: Node[], desired: Node[], anchor: Node) {
     const desiredSet = new Set(desired)
 
     for (const node of current) {
@@ -88,6 +65,44 @@ function syncVanilla(current: Node[], desired: Node[], anchor: Node) {
     }
 
     return desired
+}
+
+/**
+ * Targeted prototype: preserve the current reconciler for overlapping sets,
+ * but fast-path a complete identity replacement. Current syncNodes handles
+ * rotations very efficiently; its clearest loss is when no old node survives.
+ */
+function syncNodesWithDisjointFastPath(
+    current: DoubleLinkedList<Node>,
+    desired: Node[],
+    anchor: Node
+) {
+    if (
+        current.size > 0 &&
+        desired.length > 0 &&
+        !desired.some((node) => current.has(node))
+    ) {
+        for (const node of current) node.remove()
+        current.clear()
+
+        const fragment = document.createDocumentFragment()
+        for (const node of desired) {
+            fragment.appendChild(node)
+            current.push(node)
+        }
+        anchor.parentNode?.insertBefore(fragment, anchor.nextSibling)
+        return current
+    }
+
+    return syncNodes(current, desired, anchor, owner)
+}
+
+/**
+ * Straightforward hand-written DOM comparison. This is not an optimal lower
+ * bound for every reorder (notably rotations); it is a minimal generic pass.
+ */
+function syncVanilla(current: Node[], desired: Node[], anchor: Node) {
+    return syncNodesNaive(current, desired, anchor)
 }
 
 function assertOrder(parent: Element, expected: Node[]) {
@@ -106,15 +121,25 @@ async function benchmarkScenario(size: number, scenario: Scenario) {
     bench.add(`current:${scenario.name}:${size}`, () => {
         const { parent, anchor, nodes } = setup(size)
         const desired = scenario.next(nodes)
-        const owner = html``
         syncNodes(DoubleLinkedList.fromArray(nodes), desired, anchor, owner)
         assertOrder(parent, desired)
     })
 
-    bench.add(`candidate:${scenario.name}:${size}`, () => {
+    bench.add(`fast-path:${scenario.name}:${size}`, () => {
         const { parent, anchor, nodes } = setup(size)
         const desired = scenario.next(nodes)
-        syncNodesCandidate(nodes, desired, anchor)
+        syncNodesWithDisjointFastPath(
+            DoubleLinkedList.fromArray<Node>(nodes),
+            desired,
+            anchor
+        )
+        assertOrder(parent, desired)
+    })
+
+    bench.add(`naive:${scenario.name}:${size}`, () => {
+        const { parent, anchor, nodes } = setup(size)
+        const desired = scenario.next(nodes)
+        syncNodesNaive(nodes, desired, anchor)
         assertOrder(parent, desired)
     })
 
@@ -132,7 +157,7 @@ async function benchmarkScenario(size: number, scenario: Scenario) {
         bench.tasks.map((task) => ({
             name: task.name,
             hz: Math.round(task.result?.hz ?? 0),
-            meanMs: Number(((task.result?.mean ?? 0) * 1000).toFixed(4)),
+            meanMs: Number((task.result?.mean ?? 0).toFixed(4)),
         }))
     )
 }
@@ -140,13 +165,25 @@ async function benchmarkScenario(size: number, scenario: Scenario) {
 function correctnessSmoke() {
     for (const size of [0, 1, 5, 20]) {
         for (const scenario of scenarios) {
-            const { parent, anchor, nodes } = setup(size)
-            const desired = scenario.next(nodes)
-            syncNodesCandidate(nodes, desired, anchor)
-            assertOrder(parent, desired)
+            {
+                const { parent, anchor, nodes } = setup(size)
+                const desired = scenario.next(nodes)
+                syncNodesNaive(nodes, desired, anchor)
+                assertOrder(parent, desired)
+            }
+            {
+                const { parent, anchor, nodes } = setup(size)
+                const desired = scenario.next(nodes)
+                syncNodesWithDisjointFastPath(
+                    DoubleLinkedList.fromArray<Node>(nodes),
+                    desired,
+                    anchor
+                )
+                assertOrder(parent, desired)
+            }
         }
     }
-    console.log('candidate correctness smoke: PASS')
+    console.log('prototype correctness smoke: PASS')
 }
 
 async function run() {
