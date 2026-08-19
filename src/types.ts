@@ -20,7 +20,7 @@ export interface DynamicValue<T = unknown, D = unknown> {
 }
 
 export type StateGetter<T> = () => T
-export type StateSetter<T> = (newVal: T | ((val: T) => T)) => void
+export type StateSetter<T> = (newVal: T | ((val: T) => T)) => T
 export type StateSubscriber = () => void
 export type StateUnSubscriber = () => void
 
