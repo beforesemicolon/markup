@@ -24,7 +24,7 @@ import { isObjectLiteral } from './utils/is-object-literal.ts'
 const isKnownHTMLEventName = (name: string) =>
     typeof (document ?? {})[name as keyof Document] !== 'undefined'
 
-const templateRegistry: Record<string, Template> = {}
+const templateRegistry = new WeakMap<TemplateStringsArray, Template>()
 
 interface AttributeSlot {
     type: 'attribute'
@@ -86,15 +86,23 @@ const handleAppendChild = (
     parentNode.appendChild(n)
 }
 
+const isTemplateStringsArray = (
+    parts: TemplateStringsArray | string[]
+): parts is TemplateStringsArray =>
+    Object.prototype.hasOwnProperty.call(parts, 'raw')
+
 function createTemplate(
     parts: TemplateStringsArray | string[],
     values: unknown[]
 ) {
-    const tempId = parts.toString()
+    const cacheableParts = isTemplateStringsArray(parts) ? parts : null
+    const cached = cacheableParts ? templateRegistry.get(cacheableParts) : null
 
-    if (templateRegistry[tempId]) {
-        return templateRegistry[tempId]
+    if (cached) {
+        return cached
     }
+
+    let canCache = Boolean(cacheableParts)
 
     // Build templateString efficiently
     let templateString = parts[0]
@@ -149,6 +157,11 @@ function createTemplate(
                     if (dynamicValue) {
                         const idx = Number(dynamicValue[1])
                         const attrs = values[idx]
+
+                        // Attribute-object shape is value-dependent today, so do not
+                        // cache the compiled template until object spreads become
+                        // value-independent slots.
+                        canCache = false
 
                         if (isObjectLiteral(attrs)) {
                             let markSlot = false
@@ -217,15 +230,18 @@ function createTemplate(
         },
     })
 
-    // Always clone the parsed template in #init, do not cache a pre-cloned fragment
-    templateRegistry[tempId] = {
+    const compiledTemplate = {
         // @ts-expect-error all elements have __self__
         template: temp.__self__ as DocumentFragment,
         slots,
         nodeRefs,
     }
 
-    return templateRegistry[tempId]
+    if (canCache && cacheableParts) {
+        templateRegistry.set(cacheableParts, compiledTemplate)
+    }
+
+    return compiledTemplate
 }
 
 function handleElementEventListener(
