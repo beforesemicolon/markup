@@ -98,6 +98,50 @@ function protoRepeat(
     }
 }
 
+function snapshot(container: Element) {
+    return Array.from(container.querySelectorAll('span')).map((node) => [
+        node.textContent,
+        node.className,
+    ])
+}
+
+async function correctnessSmoke() {
+    let currentItems = createItems(20)
+    const [currentState, setCurrent] = state(currentItems)
+    const currentContainer = document.createElement('div')
+    const currentTemplate = html`${repeat(
+        currentState,
+        (item: Item) => html`<span class="${item.active ? 'active' : ''}">${item.name}</span>`,
+        { key: (item: Item) => item.id }
+    )}`
+    currentTemplate.render(currentContainer)
+
+    let protoItems = createItems(20)
+    const protoContainer = document.createElement('div')
+    const updateProto = protoRepeat(
+        () => protoItems,
+        (item) => new ProtoTemplate(item),
+        (item) => item.id,
+        protoContainer
+    )
+    updateProto()
+
+    for (let i = 0; i < 4; i++) {
+        currentItems = nextItems(currentItems)
+        protoItems = nextItems(protoItems)
+        setCurrent(currentItems)
+        await flush()
+        updateProto()
+
+        if (JSON.stringify(snapshot(currentContainer)) !== JSON.stringify(snapshot(protoContainer))) {
+            throw new Error(`DOM mismatch during correctness pass ${i}`)
+        }
+    }
+
+    currentTemplate.unmount()
+    console.log('rebind correctness smoke: PASS')
+}
+
 async function benchmark(size: number) {
     const initial = createItems(size)
 
@@ -113,9 +157,8 @@ async function benchmark(size: number) {
 
     let protoItems = initial
     const protoContainer = document.createElement('div')
-    const readProto = () => protoItems
     const updateProto = protoRepeat(
-        readProto,
+        () => protoItems,
         (item) => new ProtoTemplate(item),
         (item) => item.id,
         protoContainer
@@ -137,12 +180,6 @@ async function benchmark(size: number) {
 
     await bench.run()
 
-    const currentText = Array.from(currentContainer.querySelectorAll('span')).map((n) => [n.textContent, n.className])
-    const protoText = Array.from(protoContainer.querySelectorAll('span')).map((n) => [n.textContent, n.className])
-    if (JSON.stringify(currentText) !== JSON.stringify(protoText)) {
-        throw new Error(`DOM mismatch at size ${size}`)
-    }
-
     console.log(`\n--- keyed immutable DOM update / size ${size} ---`)
     console.table(
         bench.tasks.map((task) => ({
@@ -156,6 +193,7 @@ async function benchmark(size: number) {
 }
 
 async function run() {
+    await correctnessSmoke()
     for (const size of SIZES) await benchmark(size)
 }
 
