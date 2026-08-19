@@ -98,7 +98,7 @@ export const state = <T>(
                     ? (newVal as (val: T) => T)(value)
                     : newVal
 
-            if (updatedValue !== value) {
+            if (!Object.is(updatedValue, value)) {
                 value = updatedValue
                 if (!subs.size) {
                     return updatedValue
