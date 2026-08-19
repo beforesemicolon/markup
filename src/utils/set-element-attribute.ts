@@ -2,6 +2,42 @@ import { isPrimitive } from './is-primitive.ts'
 import { jsonStringify } from './json-stringify.ts'
 import { booleanAttributes } from './boolean-attributes.ts'
 
+const prototypeDescriptorCache = new WeakMap<
+    object,
+    Map<PropertyKey, PropertyDescriptor | null>
+>()
+
+const getPrototypePropertyDescriptor = (
+    prototype: object | null,
+    key: PropertyKey
+): PropertyDescriptor | undefined => {
+    let current = prototype
+
+    while (current) {
+        let descriptors = prototypeDescriptorCache.get(current)
+
+        if (!descriptors) {
+            descriptors = new Map()
+            prototypeDescriptorCache.set(current, descriptors)
+        }
+
+        if (descriptors.has(key)) {
+            const cached = descriptors.get(key)
+            if (cached) return cached
+        } else {
+            const descriptor = Object.getOwnPropertyDescriptor(current, key)
+            descriptors.set(key, descriptor ?? null)
+            if (descriptor) return descriptor
+        }
+
+        current = Object.getPrototypeOf(current)
+    }
+}
+
+const getPropertyDescriptor = (el: Element, key: PropertyKey) =>
+    Object.getOwnPropertyDescriptor(el, key) ??
+    getPrototypePropertyDescriptor(Object.getPrototypeOf(el), key)
+
 /**
  * sets attribute on an element. Handles web component element properties as well
  * @param el
@@ -13,10 +49,7 @@ export const setElementAttribute = (
     key: string,
     value: unknown
 ) => {
-    const descriptor =
-        Object.getOwnPropertyDescriptor(el, key) ??
-        // describe properties defined as setter/getter by checking the prototype
-        Object.getOwnPropertyDescriptors(Object.getPrototypeOf(el))[key]
+    const descriptor = getPropertyDescriptor(el, key)
     const isWritable =
         descriptor?.writable || typeof descriptor?.set === 'function'
 
