@@ -1,0 +1,21 @@
+name: Benchmark syncNodes experiment
+
+on:
+  push:
+    branches:
+      - agent/benchmark-sync-nodes
+  workflow_dispatch:
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Run syncNodes candidate benchmark
+        run: npx tsx benchmarks/sync-nodes-candidate.bench.ts
