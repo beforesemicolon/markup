@@ -2,10 +2,18 @@ import 'global-jsdom/register'
 import { Bench } from 'tinybench'
 import { html as currentHtml, HtmlTemplate as CurrentHtmlTemplate } from '../src/html.ts'
 
+type LifecycleCallback = (template: HtmlV2) => void | (() => void)
+
 type PartDescriptor =
     | { type: 'child'; nodeIndex: number; valueIndex: number }
-    | { type: 'attribute'; nodeIndex: number; name: string; pieces: Array<string | number> }
+    | {
+          type: 'attribute'
+          nodeIndex: number
+          name: string
+          pieces: Array<string | number>
+      }
     | { type: 'event'; nodeIndex: number; name: string; valueIndex: number }
+    | { type: 'ref'; nodeIndex: number; valueIndex: number }
 
 interface Definition {
     template: HTMLTemplateElement
@@ -15,6 +23,7 @@ interface Definition {
 const registry = new WeakMap<TemplateStringsArray, Definition>()
 const TOKEN_PREFIX = '__BFS_V2_'
 const TOKEN_RE = /__BFS_V2_(\d+)__/g
+
 const exactToken = (value: string) => {
     const match = /^__BFS_V2_(\d+)__$/.exec(value)
     return match ? Number(match[1]) : null
@@ -51,7 +60,10 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
     template.innerHTML = markup.trim()
 
     const textNodes: Text[] = []
-    const collectText = document.createTreeWalker(template.content, NodeFilter.SHOW_TEXT)
+    const collectText = document.createTreeWalker(
+        template.content,
+        NodeFilter.SHOW_TEXT
+    )
     while (collectText.nextNode()) {
         const text = collectText.currentNode as Text
         if (text.data.includes(TOKEN_PREFIX)) textNodes.push(text)
@@ -92,7 +104,10 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
         for (const attr of Array.from(node.attributes)) {
             if (!attr.value.includes(TOKEN_PREFIX)) continue
             const exact = exactToken(attr.value)
-            if (attr.name.startsWith('on') && exact !== null) {
+            if (attr.name === 'ref' && exact !== null) {
+                partsOut.push({ type: 'ref', nodeIndex, valueIndex: exact })
+                node.removeAttribute(attr.name)
+            } else if (attr.name.startsWith('on') && exact !== null) {
                 partsOut.push({
                     type: 'event',
                     nodeIndex,
@@ -129,10 +144,41 @@ const attrValue = (pieces: Array<string | number>, values: unknown[]) => {
     return result
 }
 
+interface ChildBinding {
+    type: 'child'
+    start: Text
+    end: Text
+    valueIndex: number
+    current: unknown
+    children: HtmlV2[]
+}
+
 type Binding =
-    | { type: 'child'; node: Text; valueIndex: number; current: unknown }
-    | { type: 'attribute'; node: Element; name: string; pieces: Array<string | number>; current: string }
-    | { type: 'event'; node: Element; name: string; valueIndex: number; current: EventListener }
+    | ChildBinding
+    | {
+          type: 'attribute'
+          node: Element
+          name: string
+          pieces: Array<string | number>
+          current: string
+      }
+    | {
+          type: 'event'
+          node: Element
+          name: string
+          valueIndex: number
+          current: EventListener
+      }
+
+const isPrimitive = (value: unknown) =>
+    value == null ||
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean' ||
+    typeof value === 'bigint'
+
+const flattenOne = (value: unknown): unknown[] =>
+    Array.isArray(value) ? value : [value]
 
 class HtmlV2 {
     #definition: Definition
@@ -141,6 +187,13 @@ class HtmlV2 {
     #bindings: Binding[] = []
     #markers = [document.createTextNode(''), document.createTextNode('')]
     #mounted = false
+    #refs: Record<string, Set<Element>> = {}
+    #mountSub: LifecycleCallback | undefined
+    #moveSub: LifecycleCallback | undefined
+    #updateSub: LifecycleCallback | undefined
+    #unmountSub: (() => void) | undefined
+    __PARENT__: HtmlV2 | null = null
+    __CHILDREN__: Set<HtmlV2> = new Set()
 
     constructor(parts: TemplateStringsArray | string[], values: unknown[]) {
         this.#parts = parts
@@ -150,6 +203,10 @@ class HtmlV2 {
 
     get mounted() {
         return this.#mounted
+    }
+
+    get parentNode() {
+        return this.#markers[0].parentNode
     }
 
     get childNodes() {
@@ -162,13 +219,118 @@ class HtmlV2 {
         return nodes
     }
 
+    get refs(): Record<string, Element[]> {
+        const collected: Record<string, Set<Element>> = {}
+        const add = (refs: Record<string, Iterable<Element>>) => {
+            for (const [name, elements] of Object.entries(refs)) {
+                const set = collected[name] ?? (collected[name] = new Set())
+                for (const element of elements) set.add(element)
+            }
+        }
+        add(this.#refs)
+        for (const child of this.__CHILDREN__) add(child.refs)
+
+        return Object.fromEntries(
+            Object.entries(collected).map(([name, elements]) => [
+                name,
+                Array.from(elements),
+            ])
+        )
+    }
+
+    onMount(cb: LifecycleCallback) {
+        this.#mountSub = cb
+        return this
+    }
+
+    onMove(cb: LifecycleCallback) {
+        this.#moveSub = cb
+        return this
+    }
+
+    onUpdate(cb: LifecycleCallback) {
+        this.#updateSub = cb
+        return this
+    }
+
+    #clearChild(binding: ChildBinding) {
+        for (const child of binding.children) {
+            child.unmount()
+            this.__CHILDREN__.delete(child)
+        }
+        binding.children = []
+
+        let node = binding.start.nextSibling
+        while (node && node !== binding.end) {
+            const next = node.nextSibling
+            node.remove()
+            node = next
+        }
+    }
+
+    #appendChildValue(binding: ChildBinding, value: unknown) {
+        const parent = binding.end.parentNode
+        if (!parent || value == null || value === false) return
+
+        if (value instanceof HtmlV2) {
+            const frag = document.createDocumentFragment()
+            value.render(frag)
+            value.__PARENT__ = this
+            this.__CHILDREN__.add(value)
+            binding.children.push(value)
+            parent.insertBefore(frag, binding.end)
+            return
+        }
+
+        if (value instanceof Node) {
+            parent.insertBefore(value, binding.end)
+            return
+        }
+
+        if (Array.isArray(value)) {
+            for (const item of value) this.#appendChildValue(binding, item)
+            return
+        }
+
+        parent.insertBefore(document.createTextNode(String(value)), binding.end)
+    }
+
+    #commitChild(binding: ChildBinding, value: unknown, init = false) {
+        if (!init && isPrimitive(value) && isPrimitive(binding.current)) {
+            const only =
+                binding.start.nextSibling !== binding.end &&
+                binding.start.nextSibling?.nextSibling === binding.end
+                    ? binding.start.nextSibling
+                    : null
+            if (only instanceof Text) {
+                const next = value == null || value === false ? '' : String(value)
+                if (only.data !== next) only.data = next
+                binding.current = value
+                return
+            }
+        }
+
+        this.#clearChild(binding)
+        for (const item of flattenOne(value)) this.#appendChildValue(binding, item)
+        binding.current = value
+    }
+
     render(target: Element | DocumentFragment | ShadowRoot) {
         if (this.#mounted) {
-            target.append(this.#markers[0], ...this.childNodes, this.#markers[1])
+            if (target !== this.parentNode) {
+                target.append(
+                    this.#markers[0],
+                    ...this.childNodes,
+                    this.#markers[1]
+                )
+                if (!(target instanceof DocumentFragment)) this.#moveSub?.(this)
+            }
             return this
         }
 
-        const frag = this.#definition.template.content.cloneNode(true) as DocumentFragment
+        const frag = this.#definition.template.content.cloneNode(
+            true
+        ) as DocumentFragment
         const nodes: Node[] = []
         const walker = document.createTreeWalker(
             frag,
@@ -179,16 +341,21 @@ class HtmlV2 {
         for (const descriptor of this.#definition.parts) {
             const node = nodes[descriptor.nodeIndex]
             if (descriptor.type === 'child') {
-                const value = this.#values[descriptor.valueIndex]
-                const text = document.createTextNode(value == null ? '' : String(value))
-                node.parentNode?.insertBefore(text, node)
+                const start = document.createTextNode('')
+                const end = document.createTextNode('')
+                node.parentNode?.insertBefore(start, node)
+                node.parentNode?.insertBefore(end, node)
                 node.remove()
-                this.#bindings.push({
+                const binding: ChildBinding = {
                     type: 'child',
-                    node: text,
+                    start,
+                    end,
                     valueIndex: descriptor.valueIndex,
-                    current: value,
-                })
+                    current: undefined,
+                    children: [],
+                }
+                this.#bindings.push(binding)
+                this.#commitChild(binding, this.#values[descriptor.valueIndex], true)
             } else if (descriptor.type === 'attribute') {
                 const element = node as Element
                 const value = attrValue(descriptor.pieces, this.#values)
@@ -200,7 +367,7 @@ class HtmlV2 {
                     pieces: descriptor.pieces,
                     current: value,
                 })
-            } else {
+            } else if (descriptor.type === 'event') {
                 const element = node as Element
                 const listener = this.#values[descriptor.valueIndex] as EventListener
                 element.addEventListener(descriptor.name, listener)
@@ -211,6 +378,10 @@ class HtmlV2 {
                     valueIndex: descriptor.valueIndex,
                     current: listener,
                 })
+            } else {
+                const element = node as Element
+                const name = String(this.#values[descriptor.valueIndex])
+                ;(this.#refs[name] ??= new Set()).add(element)
             }
         }
 
@@ -218,24 +389,54 @@ class HtmlV2 {
         frag.append(this.#markers[1])
         target.append(frag)
         this.#mounted = true
+        const cleanup = this.#mountSub?.(this)
+        this.#unmountSub = typeof cleanup === 'function' ? cleanup : undefined
+        return this
+    }
+
+    replace(target: Node | HtmlV2) {
+        const element = target instanceof HtmlV2 ? target.#markers[0] : target
+        const parent = element.parentNode
+        if (!parent) return this
+
+        if (target instanceof HtmlV2) target.unmount()
+        const frag = document.createDocumentFragment()
+        this.render(frag)
+        parent.insertBefore(frag, element)
+        if (!(parent instanceof DocumentFragment)) this.#moveSub?.(this)
+        element.remove()
+        return this
+    }
+
+    insertAfter(target: Node | HtmlV2) {
+        const node = target instanceof HtmlV2 ? target.#markers[1] : target
+        const parent = node.parentNode
+        if (!parent) return this
+        const frag = document.createDocumentFragment()
+        this.render(frag)
+        parent.insertBefore(frag, node.nextSibling)
+        if (!(parent instanceof DocumentFragment)) this.#moveSub?.(this)
         return this
     }
 
     __updateFrom(next: HtmlV2) {
         if (!this.#mounted || this.#parts !== next.#parts) return false
         const nextValues = next.#values
+        let changed = false
+
         for (const binding of this.#bindings) {
             if (binding.type === 'child') {
                 const value = nextValues[binding.valueIndex]
                 if (!Object.is(value, binding.current)) {
-                    binding.node.data = value == null ? '' : String(value)
-                    binding.current = value
+                    this.#commitChild(binding, value)
+                    changed = true
                 }
             } else if (binding.type === 'attribute') {
                 const value = attrValue(binding.pieces, nextValues)
                 if (value !== binding.current) {
                     binding.node.setAttribute(binding.name, value)
                     binding.current = value
+                    changed = true
                 }
             } else {
                 const listener = nextValues[binding.valueIndex] as EventListener
@@ -243,20 +444,27 @@ class HtmlV2 {
                     binding.node.removeEventListener(binding.name, binding.current)
                     binding.node.addEventListener(binding.name, listener)
                     binding.current = listener
+                    changed = true
                 }
             }
         }
+
         this.#values = nextValues
+        if (changed) this.#updateSub?.(this)
         return true
     }
 
     unmount() {
         if (!this.#mounted) return this
+
         for (const binding of this.#bindings) {
             if (binding.type === 'event') {
                 binding.node.removeEventListener(binding.name, binding.current)
+            } else if (binding.type === 'child') {
+                this.#clearChild(binding)
             }
         }
+
         let node: Node | null = this.#markers[0]
         while (node) {
             const next = node.nextSibling
@@ -264,9 +472,34 @@ class HtmlV2 {
             if (node === this.#markers[1]) break
             node = next
         }
+
+        this.#unmountSub?.()
+        this.__PARENT__?.__CHILDREN__.delete(this)
+        this.__PARENT__ = null
+        this.__CHILDREN__.clear()
+        this.#refs = {}
         this.#bindings = []
         this.#mounted = false
         return this
+    }
+
+    toString() {
+        if (this.#mounted) {
+            return this.childNodes
+                .map((node) =>
+                    node instanceof Element ? node.outerHTML : node.nodeValue
+                )
+                .join('')
+        }
+        const host = document.createElement('div')
+        this.render(host)
+        const value = this.childNodes
+            .map((node) =>
+                node instanceof Element ? node.outerHTML : node.nodeValue
+            )
+            .join('')
+        this.unmount()
+        return value
     }
 }
 
@@ -274,8 +507,10 @@ const htmlV2 = (parts: TemplateStringsArray | string[], ...values: unknown[]) =>
     new HtmlV2(parts, values)
 
 const noop = () => {}
-const minimalCurrent = (id: number, name: string) => currentHtml`<span data-id="${id}">${name}</span>`
-const minimalV2 = (id: number, name: string) => htmlV2`<span data-id="${id}">${name}</span>`
+const minimalCurrent = (id: number, name: string) =>
+    currentHtml`<span data-id="${id}">${name}</span>`
+const minimalV2 = (id: number, name: string) =>
+    htmlV2`<span data-id="${id}">${name}</span>`
 const moderateCurrent = (id: number, name: string) => currentHtml`
     <div class="card" data-id="${id}">
         <button onclick="${noop}">Action</button>
@@ -315,15 +550,60 @@ const fsV2 = (id: number, name: string) => htmlV2`
     </article>
 `
 
-function vanillaFs(id: number, name: string) {
-    const article = document.createElement('article')
-    article.className = 'business-asset-card'
-    article.dataset.id = String(id)
-    article.innerHTML = `<div class="icon-area"><span class="icon">📁</span></div><div class="card-details"><h3 class="title"></h3><p class="description"></p><div class="badges"><span class="badge warning">Draft</span><span class="badge info">Asset</span></div><div class="metadata"><span>Size:</span><span>2.4 MB</span><span>Updated:</span><span>2 hours ago</span></div><button class="action-trigger">Actions</button></div>`
-    ;(article.querySelector('.title') as HTMLElement).textContent = name
-    ;(article.querySelector('.description') as HTMLElement).textContent = `Description for item ${id}`
-    article.querySelector('button')!.addEventListener('click', noop)
-    return article
+const richCurrent = (id: number, name: string) => currentHtml`
+    <section ref="row-${id}" data-id="${id}">
+        <h3>${name}</h3>
+        ${[
+            currentHtml`<span ref="nested">${id}</span>`,
+            ' · ',
+            currentHtml`<em>${name}</em>`,
+        ]}
+    </section>
+`
+const richV2 = (id: number, name: string) => htmlV2`
+    <section ref="${`row-${id}`}" data-id="${id}">
+        <h3>${name}</h3>
+        ${[
+            htmlV2`<span ref="${'nested'}">${id}</span>`,
+            ' · ',
+            htmlV2`<em>${name}</em>`,
+        ]}
+    </section>
+`
+
+function assertFeatures() {
+    const root = document.createElement('div')
+    const events: string[] = []
+    const child = htmlV2`<span ref="${'child'}">child</span>`
+        .onMount(() => {
+            events.push('child-mount')
+            return () => events.push('child-cleanup')
+        })
+    const view = htmlV2`<div ref="${'root'}">${['a', child, 'b']}</div>`
+        .onMount(() => {
+            events.push('mount')
+            return () => events.push('cleanup')
+        })
+        .onUpdate(() => events.push('update'))
+        .onMove(() => events.push('move'))
+
+    view.render(root)
+    if (root.textContent !== 'achildb') throw new Error('array/nested render failed')
+    if (view.refs.root.length !== 1 || view.refs.child.length !== 1) {
+        throw new Error('nested refs failed')
+    }
+
+    const next = htmlV2`<div ref="${'root'}">${['x', htmlV2`<b>y</b>`, 'z']}</div>`
+    if (!view.__updateFrom(next) || root.textContent !== 'xyz') {
+        throw new Error('nested/array update failed')
+    }
+
+    const moved = document.createElement('div')
+    view.render(moved)
+    view.unmount()
+    if (!events.includes('mount') || !events.includes('update') || !events.includes('move')) {
+        throw new Error(`lifecycle failed: ${events.join(',')}`)
+    }
 }
 
 async function runBench(title: string, setup: (bench: Bench) => void) {
@@ -332,12 +612,14 @@ async function runBench(title: string, setup: (bench: Bench) => void) {
     await bench.run()
     console.log(`\n===== ${title} =====`)
     for (const task of bench.tasks) {
-        console.log(`${task.name}: ${Math.round(task.result?.hz ?? 0).toLocaleString()} ops/sec`)
+        console.log(
+            `${task.name}: ${Math.round(task.result?.hz ?? 0).toLocaleString()} ops/sec`
+        )
     }
 }
 
 async function run() {
-    // Warm compile the tagged callsites before measuring constructor-only cost.
+    assertFeatures()
     minimalCurrent(0, 'warm')
     minimalV2(0, 'warm')
 
@@ -346,85 +628,45 @@ async function run() {
         bench.add('v2 html()', () => minimalV2(1, 'item-1'))
     })
 
-    for (const size of [20, 250, 1000]) {
-        await runBench(`Initial mount minimal x${size}`, (bench) => {
-            bench.add('current', () => {
-                const root = document.createElement('div')
-                const templates: CurrentHtmlTemplate[] = []
-                for (let i = 0; i < size; i++) {
-                    const t = minimalCurrent(i, `item-${i}`)
-                    templates.push(t)
-                    t.render(root)
-                }
-                for (const t of templates) t.unmount()
+    for (const size of [20, 250]) {
+        for (const [label, currentFactory, v2Factory] of [
+            ['minimal', minimalCurrent, minimalV2],
+            ['moderate', moderateCurrent, moderateV2],
+            ['FS-like', fsCurrent, fsV2],
+            ['nested+refs+arrays', richCurrent, richV2],
+        ] as const) {
+            await runBench(`Initial mount ${label} x${size}`, (bench) => {
+                bench.add('current', () => {
+                    const root = document.createElement('div')
+                    const templates: CurrentHtmlTemplate[] = []
+                    for (let i = 0; i < size; i++) {
+                        const t = currentFactory(i, `item-${i}`)
+                        templates.push(t)
+                        t.render(root)
+                    }
+                    for (const t of templates) t.unmount()
+                })
+                bench.add('v2', () => {
+                    const root = document.createElement('div')
+                    const templates: HtmlV2[] = []
+                    for (let i = 0; i < size; i++) {
+                        const t = v2Factory(i, `item-${i}`)
+                        templates.push(t)
+                        t.render(root)
+                    }
+                    for (const t of templates) t.unmount()
+                })
             })
-            bench.add('v2', () => {
-                const root = document.createElement('div')
-                const templates: HtmlV2[] = []
-                for (let i = 0; i < size; i++) {
-                    const t = minimalV2(i, `item-${i}`)
-                    templates.push(t)
-                    t.render(root)
-                }
-                for (const t of templates) t.unmount()
-            })
-        })
-
-        await runBench(`Initial mount moderate x${size}`, (bench) => {
-            bench.add('current', () => {
-                const root = document.createElement('div')
-                const templates: CurrentHtmlTemplate[] = []
-                for (let i = 0; i < size; i++) {
-                    const t = moderateCurrent(i, `item-${i}`)
-                    templates.push(t)
-                    t.render(root)
-                }
-                for (const t of templates) t.unmount()
-            })
-            bench.add('v2', () => {
-                const root = document.createElement('div')
-                const templates: HtmlV2[] = []
-                for (let i = 0; i < size; i++) {
-                    const t = moderateV2(i, `item-${i}`)
-                    templates.push(t)
-                    t.render(root)
-                }
-                for (const t of templates) t.unmount()
-            })
-        })
-
-        await runBench(`Initial mount FS-like x${size}`, (bench) => {
-            bench.add('current', () => {
-                const root = document.createElement('div')
-                const templates: CurrentHtmlTemplate[] = []
-                for (let i = 0; i < size; i++) {
-                    const t = fsCurrent(i, `item-${i}`)
-                    templates.push(t)
-                    t.render(root)
-                }
-                for (const t of templates) t.unmount()
-            })
-            bench.add('v2', () => {
-                const root = document.createElement('div')
-                const templates: HtmlV2[] = []
-                for (let i = 0; i < size; i++) {
-                    const t = fsV2(i, `item-${i}`)
-                    templates.push(t)
-                    t.render(root)
-                }
-                for (const t of templates) t.unmount()
-            })
-            bench.add('vanilla', () => {
-                const root = document.createElement('div')
-                for (let i = 0; i < size; i++) root.append(vanillaFs(i, `item-${i}`))
-                root.replaceChildren()
-            })
-        })
+        }
 
         const currentRoot = document.createElement('div')
-        const currentRows = Array.from({ length: size }, (_, i) => fsCurrent(i, `item-${i}`).render(currentRoot))
+        const currentRows = Array.from({ length: size }, (_, i) =>
+            fsCurrent(i, `item-${i}`).render(currentRoot)
+        )
         const v2Root = document.createElement('div')
-        const v2Rows = Array.from({ length: size }, (_, i) => fsV2(i, `item-${i}`).render(v2Root))
+        const v2Rows = Array.from({ length: size }, (_, i) =>
+            fsV2(i, `item-${i}`).render(v2Root)
+        )
 
         await runBench(`Same-shape immutable update ceiling x${size}`, (bench) => {
             let generation = 0
