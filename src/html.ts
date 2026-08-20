@@ -732,6 +732,37 @@ export class HtmlTemplate {
                 if (node) {
                     nodes[slot.nodeId] = node
                     const parentNode = node.parentNode as HTMLElement
+
+                    if (
+                        slot.valueParts.length === 1 &&
+                        typeof slot.valueParts[0] === 'number'
+                    ) {
+                        const valueIndex = slot.valueParts[0]
+                        const part = this.#values[valueIndex]
+
+                        if (typeof part !== 'function' && isRebindableValue(part)) {
+                            const textNode = document.createTextNode(String(part))
+                            node.parentNode?.replaceChild(textNode, node)
+                            let currentValue = part
+
+                            this.#bindings.push({
+                                canUpdate: (nextValues) =>
+                                    isRebindableValue(nextValues[valueIndex]),
+                                update: (nextValues) => {
+                                    const nextValue = nextValues[valueIndex]
+                                    if (Object.is(currentValue, nextValue)) {
+                                        return false
+                                    }
+
+                                    textNode.nodeValue = String(nextValue)
+                                    currentValue = nextValue
+                                    return true
+                                },
+                            })
+                            continue
+                        }
+                    }
+
                     const cont = document.createDocumentFragment()
 
                     for (const p of slot.valueParts) {
