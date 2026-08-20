@@ -1,4 +1,4 @@
-import { LifecycleCallback, ObjectLiteral } from './types.ts'
+import { ObjectLiteral } from './types.ts'
 import { setElementAttribute } from './utils/set-element-attribute.ts'
 import { isObjectLiteral } from './utils/is-object-literal.ts'
 import { turnCamelToKebabCasing } from './utils/turn-camel-to-kebab-casing.ts'
@@ -8,7 +8,9 @@ const PREFIX = '__BFS_V2_'
 const TOKEN = /__BFS_V2_(\d+)__/g
 const EXACT = /^__BFS_V2_(\d+)__$/
 const SPREAD = /^__bfs_v2_(\d+)__$/
+
 type Piece = string | number
+type LifecycleCallback = (template: HtmlTemplate) => void | (() => void)
 
 type Descriptor =
     | { type: 'child'; node: number; value: number }
@@ -18,36 +20,54 @@ type Descriptor =
     | { type: 'ref'; node: number; name?: string; value?: number }
     | { type: 'spread'; node: number; value: number; blocked: string[] }
 
-type Definition = { template: HTMLTemplateElement; parts: Descriptor[] }
+type Definition = {
+    template: HTMLTemplateElement
+    parts: Descriptor[]
+}
+
 const registry = new WeakMap<TemplateStringsArray, Definition>()
 
-const tagged = (parts: TemplateStringsArray | string[]): parts is TemplateStringsArray =>
+const isTemplateStringsArray = (
+    parts: TemplateStringsArray | string[]
+): parts is TemplateStringsArray =>
     Object.prototype.hasOwnProperty.call(parts, 'raw')
 
-const pieces = (value: string): Piece[] => {
+const parsePieces = (value: string): Piece[] => {
     const out: Piece[] = []
     let last = 0
     TOKEN.lastIndex = 0
+
     for (let match = TOKEN.exec(value); match; match = TOKEN.exec(value)) {
-        if (match.index > last) out.push(value.slice(last, match.index))
+        if (match.index > last) {
+            out.push(value.slice(last, match.index))
+        }
         out.push(Number(match[1]))
         last = match.index + match[0].length
     }
-    if (last < value.length) out.push(value.slice(last))
+
+    if (last < value.length) {
+        out.push(value.slice(last))
+    }
+
     return out
 }
 
 const resolve = (value: unknown): unknown =>
     typeof value === 'function' ? resolve((value as () => unknown)()) : value
 
-const attrValue = (parts: Piece[], values: unknown[]) => {
+const getAttributeValue = (parts: Piece[], values: unknown[]) => {
     if (parts.length === 1 && typeof parts[0] === 'number') {
         return resolve(values[parts[0]])
     }
+
     let out = ''
     for (const part of parts) {
-        out += typeof part === 'number' ? String(resolve(values[part]) ?? '') : part
+        out +=
+            typeof part === 'number'
+                ? String(resolve(values[part]) ?? '')
+                : part
     }
+
     return out.trim()
 }
 
@@ -68,24 +88,23 @@ const shouldUseEventListener = (node: Element, name: string) => {
 
     return (
         (node.nodeName.includes('-') &&
-            // @ts-expect-error observedAttributes exists on custom element constructors
+            // @ts-expect-error observedAttributes is a custom-element constructor property
             !ctor?.observedAttributes?.includes(name)) ||
         isKnownHTMLEventName(name)
     )
 }
 
 function compile(parts: TemplateStringsArray | string[]): Definition {
-    const key = tagged(parts) ? parts : null
+    const key = isTemplateStringsArray(parts) ? parts : null
     const cached = key ? registry.get(key) : undefined
     if (cached) return cached
 
     let source = parts[0] ?? ''
-    for (let i = 1; i < parts.length; i++) {
-        source += `${PREFIX}${i - 1}__${parts[i]}`
+    for (let index = 1; index < parts.length; index++) {
+        source += `${PREFIX}${index - 1}__${parts[index]}`
     }
 
-    // A dynamic tag name is content, never structure. Escape the opening '<'
-    // before parsing so the browser cannot turn the marker into an element.
+    // Dynamic values are content, never tag names.
     source = source
         .replace(/<(__BFS_V2_\d+__)/g, '&lt;$1')
         .replace(/<\/(__BFS_V2_\d+__)/g, '&lt;/$1')
@@ -98,66 +117,73 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
         template.content,
         NodeFilter.SHOW_TEXT
     )
+
     while (textWalker.nextNode()) {
         const text = textWalker.currentNode as Text
-        if (text.data.includes(PREFIX)) dynamicText.push(text)
+        if (text.data.includes(PREFIX)) {
+            dynamicText.push(text)
+        }
     }
 
     for (const text of dynamicText) {
-        // Script/style are raw-text elements. Keep their Text node intact and
-        // compile the interpolation into a dedicated raw-text part below.
+        // script/style are raw-text elements; keep their text node intact.
         if (text.parentElement?.matches('script,style')) continue
 
-        const frag = document.createDocumentFragment()
-        for (const part of pieces(text.data)) {
-            frag.append(
+        const fragment = document.createDocumentFragment()
+        for (const part of parsePieces(text.data)) {
+            fragment.append(
                 typeof part === 'number'
                     ? document.createComment(`bfs:${part}`)
                     : document.createTextNode(part)
             )
         }
-        text.replaceWith(frag)
+        text.replaceWith(fragment)
     }
 
-    const out: Descriptor[] = []
+    const descriptors: Descriptor[] = []
     const walker = document.createTreeWalker(
         template.content,
         NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT | NodeFilter.SHOW_TEXT
     )
-    let index = -1
+    let nodeIndex = -1
 
     while (walker.nextNode()) {
-        index++
+        nodeIndex++
         const node = walker.currentNode
 
         if (node instanceof Comment && node.data.startsWith('bfs:')) {
-            out.push({
+            descriptors.push({
                 type: 'child',
-                node: index,
+                node: nodeIndex,
                 value: Number(node.data.slice(4)),
             })
             continue
         }
 
         if (node instanceof Text && node.data.includes(PREFIX)) {
-            out.push({ type: 'raw', node: index, pieces: pieces(node.data) })
+            descriptors.push({
+                type: 'raw',
+                node: nodeIndex,
+                pieces: parsePieces(node.data),
+            })
             node.data = ''
             continue
         }
 
         if (!(node instanceof Element)) continue
 
-        const attrs = Array.from(node.attributes)
-        const blocked = attrs
+        const attributes = Array.from(node.attributes)
+        const hasSpread = attributes.some((attr) => SPREAD.test(attr.name))
+        const blocked = attributes
             .filter((attr) => !SPREAD.test(attr.name))
             .map((attr) => attr.name.toLowerCase())
 
-        for (const attr of attrs) {
+        for (const attr of attributes) {
             const spread = SPREAD.exec(attr.name)
             if (spread) {
-                out.push({
+                descriptors.push({
                     type: 'spread',
-                    node: index,
+                    node: nodeIndex,
                     value: Number(spread[1]),
                     blocked,
                 })
@@ -166,25 +192,40 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
             }
 
             const name = attr.name.toLowerCase()
+
             if (name === 'ref') {
                 const exact = EXACT.exec(attr.value)
-                out.push(
+                descriptors.push(
                     exact
                         ? {
                               type: 'ref',
-                              node: index,
+                              node: nodeIndex,
                               value: Number(exact[1]),
                           }
-                        : { type: 'ref', node: index, name: attr.value }
+                        : {
+                              type: 'ref',
+                              node: nodeIndex,
+                              name: attr.value,
+                          }
                 )
                 node.removeAttribute(attr.name)
                 continue
             }
 
             if (!attr.value.includes(PREFIX)) {
-                // Normalize static attributes through the same DOM/property
-                // semantics as dynamic attributes (notably boolean attrs).
-                setElementAttribute(node, attr.name, attr.value)
+                if (hasSpread) {
+                    // Commit explicit attributes after the spread. This preserves
+                    // both source-order serialization and explicit precedence.
+                    descriptors.push({
+                        type: 'attr',
+                        node: nodeIndex,
+                        name: attr.name,
+                        pieces: [attr.value],
+                    })
+                    node.removeAttribute(attr.name)
+                } else {
+                    setElementAttribute(node, attr.name, attr.value)
+                }
                 continue
             }
 
@@ -192,39 +233,41 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
             const valueIndex = exact ? Number(exact[1]) : null
 
             if (name.startsWith('on') && valueIndex !== null) {
-                out.push({
+                descriptors.push({
                     type: 'event',
-                    node: index,
+                    node: nodeIndex,
                     name,
                     value: valueIndex,
                 })
             } else {
-                out.push({
+                descriptors.push({
                     type: 'attr',
-                    node: index,
+                    node: nodeIndex,
                     name: attr.name,
-                    pieces: pieces(attr.value),
+                    pieces: parsePieces(attr.value),
                 })
             }
             node.removeAttribute(attr.name)
         }
     }
 
-    const definition = { template, parts: out }
+    const definition = { template, parts: descriptors }
     if (key) registry.set(key, definition)
     return definition
 }
 
 type Item = Node | HtmlTemplate
 
+type ChildRuntime = {
+    type: 'child'
+    anchor: Text
+    value: number
+    current: unknown
+    items: Item[]
+}
+
 type Runtime =
-    | {
-          type: 'child'
-          anchor: Text
-          value: number
-          current: unknown
-          items: Item[]
-      }
+    | ChildRuntime
     | {
           type: 'raw'
           node: Text
@@ -245,7 +288,7 @@ type Runtime =
           value: number
           fn?: EventListener
           options?: boolean | AddEventListenerOptions
-          asProperty?: boolean
+          asProperty: boolean
           current?: unknown
       }
     | {
@@ -270,15 +313,20 @@ type Runtime =
           >
       }
 
-const eventValue = (raw: unknown, name: string) => {
+const getEventValue = (raw: unknown, name: string) => {
     let fn: unknown = raw
     let options: boolean | AddEventListenerOptions | undefined
-    if (Array.isArray(raw)) [fn, options] = raw
+
+    if (Array.isArray(raw)) {
+        ;[fn, options] = raw
+    }
+
     if (typeof fn !== 'function') {
         throw new Error(
             `Handler for event "${name}" is not a function. Found "${fn}".`
         )
     }
+
     return { fn: fn as EventListener, options }
 }
 
@@ -294,6 +342,7 @@ export class HtmlTemplate {
     #moveSub?: LifecycleCallback
     #updateSub?: LifecycleCallback
     #unmountSub?: LifecycleCallback
+
     __PARENT__: HtmlTemplate | null = null
     __CHILDREN__: Set<HtmlTemplate> = new Set()
 
@@ -303,11 +352,13 @@ export class HtmlTemplate {
         this.#definition = compile(parts)
 
         for (const descriptor of this.#definition.parts) {
-            if (descriptor.type === 'spread') {
-                const value = resolve(values[descriptor.value])
-                if (!isObjectLiteral(value)) {
-                    throw new Error(`Invalid attribute object provided: ${value}`)
-                }
+            if (
+                descriptor.type === 'spread' &&
+                !isObjectLiteral(values[descriptor.value])
+            ) {
+                throw new Error(
+                    `Invalid attribute object provided: ${values[descriptor.value]}`
+                )
             }
         }
     }
@@ -325,27 +376,36 @@ export class HtmlTemplate {
     }
 
     get childNodes() {
-        const out: Node[] = []
+        const nodes: Node[] = []
         let node = this.#markers[0].nextSibling
+
         while (node && node !== this.#markers[1]) {
-            out.push(node)
+            nodes.push(node)
             node = node.nextSibling
         }
-        return out
+
+        return nodes
     }
 
     get refs(): Record<string, Element[]> {
-        const all: Record<string, Set<Element>> = {}
+        const collected: Record<string, Set<Element>> = {}
+
         const add = (refs: Record<string, Iterable<Element>>) => {
             for (const [name, nodes] of Object.entries(refs)) {
-                const target = all[name] ?? (all[name] = new Set())
-                for (const node of nodes) target.add(node)
+                const target = collected[name] ?? (collected[name] = new Set())
+                for (const node of nodes) {
+                    target.add(node)
+                }
             }
         }
+
         add(this.#refs)
-        for (const child of this.__CHILDREN__) add(child.refs)
+        for (const child of this.__CHILDREN__) {
+            add(child.refs)
+        }
+
         return Object.fromEntries(
-            Object.entries(all).map(([name, nodes]) => [name, [...nodes]])
+            Object.entries(collected).map(([name, nodes]) => [name, [...nodes]])
         )
     }
 
@@ -356,10 +416,12 @@ export class HtmlTemplate {
 
     __removeRef(name: string, node: Element) {
         this.#refs[name]?.delete(node)
-        if (!this.#refs[name]?.size) delete this.#refs[name]
+        if (!this.#refs[name]?.size) {
+            delete this.#refs[name]
+        }
     }
 
-    #clearChild(part: Extract<Runtime, { type: 'child' }>) {
+    #clearChild(part: ChildRuntime) {
         for (const item of part.items) {
             if (item instanceof HtmlTemplate) {
                 item.unmount()
@@ -370,7 +432,7 @@ export class HtmlTemplate {
         part.items = []
     }
 
-    #appendChild(part: Extract<Runtime, { type: 'child' }>, value: unknown) {
+    #appendChild(part: ChildRuntime, value: unknown) {
         const parent = part.anchor.parentNode
         if (!parent) return
 
@@ -379,12 +441,13 @@ export class HtmlTemplate {
 
         for (const entry of values) {
             const item = resolve(entry)
+
             if (item instanceof HtmlTemplate) {
                 item.__PARENT__ = this
                 this.__CHILDREN__.add(item)
-                const frag = document.createDocumentFragment()
-                item.render(frag)
-                parent.insertBefore(frag, part.anchor)
+                const fragment = document.createDocumentFragment()
+                item.render(fragment)
+                parent.insertBefore(fragment, part.anchor)
                 part.items.push(item)
             } else if (item instanceof Node) {
                 parent.insertBefore(item, part.anchor)
@@ -445,7 +508,7 @@ export class HtmlTemplate {
         }
 
         if (part.type === 'attr') {
-            const next = attrValue(part.pieces, values)
+            const next = getAttributeValue(part.pieces, values)
             if (Object.is(next, part.current)) return false
             setElementAttribute(part.node, part.name, next)
             part.current = next
@@ -454,6 +517,7 @@ export class HtmlTemplate {
 
         if (part.type === 'event') {
             const raw = values[part.value]
+
             if (part.asProperty) {
                 const next = resolve(raw)
                 if (Object.is(next, part.current)) return false
@@ -462,9 +526,10 @@ export class HtmlTemplate {
                 return true
             }
 
-            const next = eventValue(raw, part.name)
+            const next = getEventValue(raw, part.name)
             const eventName = part.name.slice(2)
             if (next.fn === part.fn && next.options === part.options) return false
+
             if (part.fn) {
                 part.node.removeEventListener(eventName, part.fn, part.options)
             }
@@ -475,26 +540,31 @@ export class HtmlTemplate {
         }
 
         if (part.type === 'ref') {
-            const next = part.staticName ?? String(resolve(values[part.value!]) ?? '')
+            const next =
+                part.staticName ?? String(resolve(values[part.value!]) ?? '')
             if (next === part.name) return false
-            if (part.name) this.__removeRef(part.name, part.node)
+
+            if (part.name) {
+                this.__removeRef(part.name, part.node)
+            }
             this.__addRef(next, part.node)
             part.name = next
             return true
         }
 
-        const source = resolve(values[part.value])
+        const source = values[part.value]
         if (!isObjectLiteral(source)) {
             throw new Error(`Invalid attribute object provided: ${source}`)
         }
 
         const next = new Map(Object.entries(source as ObjectLiteral<unknown>))
 
-        for (const [key, old] of part.current) {
+        for (const [key, oldValue] of part.current) {
             const name = spreadName(key)
             if (part.blocked.has(name) || next.has(key)) continue
+
             if (name === 'ref') {
-                this.__removeRef(String(old), part.node)
+                this.__removeRef(String(oldValue), part.node)
             } else if (name.startsWith('on')) {
                 const event = part.events.get(key)
                 if (event) {
@@ -511,26 +581,41 @@ export class HtmlTemplate {
         }
 
         let changed = false
-        for (const [key, value] of next) {
+
+        for (const [key, rawValue] of next) {
             const name = spreadName(key)
             if (part.blocked.has(name)) continue
-            if (Object.is(part.current.get(key), value)) continue
+            if (Object.is(part.current.get(key), rawValue)) continue
 
             if (name === 'ref') {
-                const old = part.current.get(key)
-                if (old !== undefined) this.__removeRef(String(old), part.node)
-                this.__addRef(String(resolve(value) ?? ''), part.node)
-            } else if (name.startsWith('on') && shouldUseEventListener(part.node, name)) {
-                const old = part.events.get(key)
-                if (old) {
-                    part.node.removeEventListener(name.slice(2), old.fn, old.options)
+                const oldValue = part.current.get(key)
+                if (oldValue !== undefined) {
+                    this.__removeRef(String(oldValue), part.node)
                 }
-                const event = eventValue(value, name)
-                part.node.addEventListener(name.slice(2), event.fn, event.options)
+                this.__addRef(String(resolve(rawValue) ?? ''), part.node)
+            } else if (
+                name.startsWith('on') &&
+                shouldUseEventListener(part.node, name)
+            ) {
+                const oldEvent = part.events.get(key)
+                if (oldEvent) {
+                    part.node.removeEventListener(
+                        name.slice(2),
+                        oldEvent.fn,
+                        oldEvent.options
+                    )
+                }
+                const event = getEventValue(rawValue, name)
+                part.node.addEventListener(
+                    name.slice(2),
+                    event.fn,
+                    event.options
+                )
                 part.events.set(key, event)
             } else {
-                setElementAttribute(part.node, name, resolve(value))
+                setElementAttribute(part.node, name, resolve(rawValue))
             }
+
             changed = true
         }
 
@@ -545,23 +630,34 @@ export class HtmlTemplate {
 
         this.#values = next.#values
         let changed = false
+
         for (const part of this.#runtime) {
             changed = this.#commit(part, this.#values) || changed
         }
-        if (changed) this.#updateSub?.(this)
+
+        if (changed) {
+            this.#updateSub?.(this)
+        }
+
         return true
     }
 
     #mount(action: 'render' | 'replace' | 'after', target: Node) {
-        const frag = this.#definition.template.content.cloneNode(
+        const fragment = this.#definition.template.content.cloneNode(
             true
         ) as DocumentFragment
+
+        customElements.upgrade?.(fragment)
+
         const nodes: Node[] = []
         const walker = document.createTreeWalker(
-            frag,
+            fragment,
             NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT | NodeFilter.SHOW_TEXT
         )
-        while (walker.nextNode()) nodes.push(walker.currentNode)
+
+        while (walker.nextNode()) {
+            nodes.push(walker.currentNode)
+        }
 
         this.#runtime = []
 
@@ -624,27 +720,28 @@ export class HtmlTemplate {
             this.#runtime.push(part)
         }
 
-        frag.prepend(this.#markers[0])
-        frag.append(this.#markers[1])
+        fragment.prepend(this.#markers[0])
+        fragment.append(this.#markers[1])
 
         if (action === 'replace') {
-            target.parentNode?.replaceChild(frag, target)
+            target.parentNode?.replaceChild(fragment, target)
         } else if (action === 'after') {
-            insertNodeAfter(frag, target)
+            insertNodeAfter(fragment, target)
         } else {
-            target.appendChild(frag)
+            target.appendChild(fragment)
         }
 
         this.#mounted = true
 
-        // Commit after insertion. Custom elements are upgraded/connected at this
-        // point, so property setters are available for object/function values.
+        // Commit after insertion so connected custom elements expose their setters.
         for (const part of this.#runtime) {
             this.#commit(part, this.#values)
         }
 
         const cleanup = this.#mountSub?.(this)
-        if (typeof cleanup === 'function') this.#unmountSub = cleanup
+        if (typeof cleanup === 'function') {
+            this.#unmountSub = cleanup
+        }
     }
 
     render(target: ShadowRoot | HTMLElement | Element | DocumentFragment) {
@@ -665,11 +762,14 @@ export class HtmlTemplate {
                     ...this.childNodes,
                     this.#markers[1]
                 )
-                if (!(target instanceof DocumentFragment)) this.#moveSub?.(this)
+                if (!(target instanceof DocumentFragment)) {
+                    this.#moveSub?.(this)
+                }
             }
         } else {
             this.#mount('render', target)
         }
+
         return this
     }
 
@@ -684,6 +784,7 @@ export class HtmlTemplate {
         }
 
         let node: Node = target as Node
+
         if (target instanceof HtmlTemplate) {
             node = document.createTextNode('')
             target.__MARKERS__[0].parentNode?.insertBefore(
@@ -697,17 +798,18 @@ export class HtmlTemplate {
         if (!node.parentNode) return this
 
         if (this.#mounted) {
-            const frag = document.createDocumentFragment()
-            frag.append(
+            const fragment = document.createDocumentFragment()
+            fragment.append(
                 this.#markers[0],
                 ...this.childNodes,
                 this.#markers[1]
             )
-            node.parentNode.replaceChild(frag, node)
+            node.parentNode.replaceChild(fragment, node)
             this.#moveSub?.(this)
         } else {
             this.#mount('replace', node)
         }
+
         return this
     }
 
@@ -728,13 +830,13 @@ export class HtmlTemplate {
 
         if (this.#mounted) {
             if (node.nextSibling !== this.#markers[0]) {
-                const frag = document.createDocumentFragment()
-                frag.append(
+                const fragment = document.createDocumentFragment()
+                fragment.append(
                     this.#markers[0],
                     ...this.childNodes,
                     this.#markers[1]
                 )
-                insertNodeAfter(frag, node)
+                insertNodeAfter(fragment, node)
                 this.#moveSub?.(this)
             }
         } else {
@@ -745,6 +847,7 @@ export class HtmlTemplate {
             this.__PARENT__ = target.__PARENT__
             this.__PARENT__?.__CHILDREN__.add(this)
         }
+
         return this
     }
 
@@ -768,6 +871,7 @@ export class HtmlTemplate {
                         this.__removeRef(String(value), part.node)
                     }
                 }
+
                 for (const [key, event] of part.events) {
                     part.node.removeEventListener(
                         spreadName(key).slice(2),
@@ -793,6 +897,7 @@ export class HtmlTemplate {
         this.#refs = {}
         this.#mounted = false
         this.#unmountSub?.(this)
+
         return this
     }
 
@@ -822,13 +927,13 @@ export class HtmlTemplate {
 
         const host = document.createElement('div')
         this.render(host)
-        const out = this.childNodes
+        const output = this.childNodes
             .map((node) =>
                 node instanceof Element ? node.outerHTML : node.nodeValue
             )
             .join('')
         this.unmount()
-        return out
+        return output
     }
 }
 
