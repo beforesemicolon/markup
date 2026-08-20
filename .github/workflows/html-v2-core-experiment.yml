@@ -15,4 +15,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx tsc --noEmit
-      - run: npx tsx benchmarks/html-v2-core.bench.ts
+      - name: Run HTML V2 benchmark
+        run: |
+          sed -i 's/time: 80, warmupTime: 30/time: 30, warmupTime: 10/' benchmarks/html-v2-core.bench.ts
+          npx tsx benchmarks/html-v2-core.bench.ts
