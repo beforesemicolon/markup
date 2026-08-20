@@ -1,4 +1,4 @@
-name: HTML V2 core experiment
+name: HTML V2 parity and benchmark
 
 on:
   pull_request:
@@ -16,43 +16,56 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Apply verified V2 source changes
+      - name: Preserve spread attribute source order
         run: |
           python - <<'PY'
           from pathlib import Path
           p = Path('src/html-v2.ts')
           s = p.read_text()
+          old = """        const attrs = Array.from(node.attributes)
+        const blocked = attrs
+            .filter((attr) => !SPREAD.test(attr.name))
+            .map((attr) => attr.name.toLowerCase())
 
-          def rep(old, new):
-              global s
-              if old not in s:
-                  raise SystemExit(f'pattern not found: {old[:80]!r}')
-              s = s.replace(old, new)
+        for (const attr of attrs) {"""
+          new = """        const attrs = Array.from(node.attributes)
+        const hasSpread = attrs.some((attr) => SPREAD.test(attr.name))
+        const blocked = attrs
+            .filter((attr) => !SPREAD.test(attr.name))
+            .map((attr) => attr.name.toLowerCase())
 
-          rep("    | { type: 'child'; node: number; value: number }\n", "    | { type: 'child'; node: number; value: number }\n    | { type: 'raw'; node: number; pieces: Piece[] }\n")
-
-          rep("const shouldUseEventListener = (node: Element, name: string) =>\n    (node.nodeName.includes('-') &&\n        // @ts-expect-error observedAttributes exists on custom element constructors\n        !node.constructor?.observedAttributes?.includes(name)) ||\n    isKnownHTMLEventName(name)", "const shouldUseEventListener = (node: Element, name: string) => {\n    const ctor = node.nodeName.includes('-')\n        ? customElements.get(node.localName) ?? node.constructor\n        : node.constructor\n\n    return (\n        (node.nodeName.includes('-') &&\n            // @ts-expect-error observedAttributes exists on custom element constructors\n            !ctor?.observedAttributes?.includes(name)) ||\n        isKnownHTMLEventName(name)\n    )\n}")
-
-          rep("    const template = document.createElement('template')\n    template.innerHTML = source.trim()", "    // A dynamic tag name is content, never structure. Escape the opening '<'\n    // before parsing so the browser cannot turn the marker into an element.\n    source = source\n        .replace(/<(__BFS_V2_\\d+__)/g, '&lt;$1')\n        .replace(/<\\/(__BFS_V2_\\d+__)/g, '&lt;/$1')\n\n    const template = document.createElement('template')\n    template.innerHTML = source.trim()")
-
-          rep("    for (const text of dynamicText) {\n        const frag = document.createDocumentFragment()", "    for (const text of dynamicText) {\n        // Script/style are raw-text elements. Keep their Text node intact and\n        // compile the interpolation into a dedicated raw-text part below.\n        if (text.parentElement?.matches('script,style')) continue\n\n        const frag = document.createDocumentFragment()")
-
-          rep("        if (node instanceof Comment && node.data.startsWith('bfs:')) {\n            out.push({\n                type: 'child',\n                node: index,\n                value: Number(node.data.slice(4)),\n            })\n            continue\n        }\n\n        if (!(node instanceof Element)) continue", "        if (node instanceof Comment && node.data.startsWith('bfs:')) {\n            out.push({\n                type: 'child',\n                node: index,\n                value: Number(node.data.slice(4)),\n            })\n            continue\n        }\n\n        if (node instanceof Text && node.data.includes(PREFIX)) {\n            out.push({ type: 'raw', node: index, pieces: pieces(node.data) })\n            node.data = ''\n            continue\n        }\n\n        if (!(node instanceof Element)) continue")
-
-          rep("            if (!attr.value.includes(PREFIX)) continue", "            if (!attr.value.includes(PREFIX)) {\n                // Normalize static attributes through the same DOM/property\n                // semantics as dynamic attributes (notably boolean attrs).\n                setElementAttribute(node, attr.name, attr.value)\n                continue\n            }")
-
-          rep("    | {\n          type: 'child'\n          anchor: Text\n          value: number\n          current: unknown\n          items: Item[]\n      }\n", "    | {\n          type: 'child'\n          anchor: Text\n          value: number\n          current: unknown\n          items: Item[]\n      }\n    | {\n          type: 'raw'\n          node: Text\n          pieces: Piece[]\n          current: string\n      }\n")
-
-          rep("    #commit(part: Runtime, values: unknown[]) {\n        if (part.type === 'child') {", "    #commit(part: Runtime, values: unknown[]) {\n        if (part.type === 'raw') {\n            let next = ''\n            for (const piece of part.pieces) {\n                next +=\n                    typeof piece === 'number'\n                        ? String(resolve(values[piece]) ?? '')\n                        : piece\n            }\n            if (next === part.current) return false\n            part.node.data = next\n            part.current = next\n            return true\n        }\n\n        if (part.type === 'child') {")
-
-          rep("            if (descriptor.type === 'child') {\n                const anchor = document.createTextNode('')", "            if (descriptor.type === 'child') {\n                const anchor = document.createTextNode('')")
-
-          rep("                part = {\n                    type: 'child',\n                    anchor,\n                    value: descriptor.value,\n                    current: Symbol(),\n                    items: [],\n                }\n            } else if (descriptor.type === 'attr') {", "                part = {\n                    type: 'child',\n                    anchor,\n                    value: descriptor.value,\n                    current: Symbol(),\n                    items: [],\n                }\n            } else if (descriptor.type === 'raw') {\n                part = {\n                    type: 'raw',\n                    node: compiledNode as Text,\n                    pieces: descriptor.pieces,\n                    current: '',\n                }\n            } else if (descriptor.type === 'attr') {")
-
-          rep("            this.#runtime.push(part)\n            this.#commit(part, this.#values)\n", "            this.#runtime.push(part)\n")
-
-          rep("        this.#mounted = true\n        const cleanup = this.#mountSub?.(this)", "        this.#mounted = true\n\n        // Commit after insertion. Custom elements are upgraded/connected at this\n        // point, so property setters are available for object/function values.\n        for (const part of this.#runtime) {\n            this.#commit(part, this.#values)\n        }\n\n        const cleanup = this.#mountSub?.(this)")
-
+        for (const attr of attrs) {"""
+          if old not in s:
+              raise SystemExit('spread setup pattern not found')
+          s = s.replace(old, new)
+          old = """            if (!attr.value.includes(PREFIX)) {
+                // Normalize static attributes through the same DOM/property
+                // semantics as dynamic attributes (notably boolean attrs).
+                setElementAttribute(node, attr.name, attr.value)
+                continue
+            }"""
+          new = """            if (!attr.value.includes(PREFIX)) {
+                // When an element contains a spread, commit its explicit attributes
+                // as Parts too so DOM serialization preserves source order while
+                // explicit attributes still take precedence over spread values.
+                if (hasSpread) {
+                    out.push({
+                        type: 'attr',
+                        node: index,
+                        name: attr.name,
+                        pieces: [attr.value],
+                    })
+                    node.removeAttribute(attr.name)
+                } else {
+                    // Normalize static attributes through the same DOM/property
+                    // semantics as dynamic attributes (notably boolean attrs).
+                    setElementAttribute(node, attr.name, attr.value)
+                }
+                continue
+            }"""
+          if old not in s:
+              raise SystemExit('static attr pattern not found')
+          s = s.replace(old, new)
           p.write_text(s)
           PY
       - name: Validate unchanged HTML tests against V2
@@ -66,12 +79,19 @@ jobs:
           npx jest src/html.spec.ts src/html.refs.spec.ts --runInBand || true
           cp /tmp/html-v1.ts src/html.ts
           cp /tmp/html-v2-new.ts src/html-v2.ts
-      - name: Save V2 progress
+      - name: Verify plain HTML regression cases
+        run: |
+          cp src/html.ts /tmp/html-v1.ts
+          cp src/html-v2.ts src/html.ts
+          rm src/html-v2.ts
+          npx jest src/html.spec.ts --runInBand --testNamePattern='render boolean attributes|handle object attributes|non-primitive attribute value|parse script injected value|ignore dynamically set tag name|render array|render text|render HTML|render element|render attrs object|event listener|attribute event listener|handle refs|input value'
+          cp /tmp/html-v1.ts src/html.ts
+      - name: Save V2 source progress
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/html-v2.ts
           if ! git diff --cached --quiet; then
-            git commit -m "Advance HTML V2 non-reactive parity [skip ci]"
+            git commit -m "Preserve HTML V2 spread source order [skip ci]"
             git push origin HEAD:agent/experiment-html-v2-core
           fi
