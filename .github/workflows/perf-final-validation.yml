@@ -1,0 +1,50 @@
+name: Markup primitive content validation
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    if: github.event.pull_request.head.ref == 'agent/benchmark-repeat-rebind-ablation'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - name: Validate candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=86c1a85dc31e93379d94ca7b1b94de3ab7e2bd22
+          ROOT="$PWD"
+          git worktree add /tmp/final-base "$BASE"
+          git worktree add /tmp/final-candidate "$BASE"
+          cd /tmp/final-base && npm ci --prefer-offline --no-audit --no-fund >/dev/null
+          cd /tmp/final-candidate
+          ln -s /tmp/final-base/node_modules node_modules
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('src/html.ts'); s=p.read_text()
+          old="""                if (node) {\n                    nodes[slot.nodeId] = node\n                    const parentNode = node.parentNode as HTMLElement\n                    const cont = document.createDocumentFragment()\n\n                    for (const p of slot.valueParts) {\n"""
+          new="""                if (node) {\n                    nodes[slot.nodeId] = node\n                    const parentNode = node.parentNode as HTMLElement\n\n                    if (\n                        slot.valueParts.length === 1 &&\n                        typeof slot.valueParts[0] === 'number'\n                    ) {\n                        const valueIndex = slot.valueParts[0]\n                        const part = this.#values[valueIndex]\n\n                        if (typeof part !== 'function' && isRebindableValue(part)) {\n                            const textNode = document.createTextNode(String(part))\n                            node.parentNode?.replaceChild(textNode, node)\n                            let currentValue = part\n\n                            this.#bindings.push({\n                                canUpdate: (nextValues) =>\n                                    isRebindableValue(nextValues[valueIndex]),\n                                update: (nextValues) => {\n                                    const nextValue = nextValues[valueIndex]\n                                    if (Object.is(currentValue, nextValue)) {\n                                        return false\n                                    }\n\n                                    textNode.nodeValue = String(nextValue)\n                                    currentValue = nextValue\n                                    return true\n                                },\n                            })\n                            continue\n                        }\n                    }\n\n                    const cont = document.createDocumentFragment()\n\n                    for (const p of slot.valueParts) {\n"""
+          if old not in s: raise SystemExit('candidate patch pattern not found')
+          p.write_text(s.replace(old,new))
+          PY
+
+          echo '===== TYPECHECK ====='
+          npx tsc --noEmit
+          echo '===== JEST ====='
+          npx jest --runInBand
+          echo '===== LIFECYCLE ====='
+          npm run benchmark:reactive
+
+          run_dom() {
+            local dir="$1" label="$2"
+            echo "===== DOM $label ====="
+            cd "$dir"
+            npm run benchmark:dom
+          }
+          run_dom /tmp/final-base BASE
+          run_dom /tmp/final-candidate CANDIDATE
