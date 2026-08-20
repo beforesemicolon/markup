@@ -21,6 +21,17 @@ interface RepeatEntry<T, TKey> {
     rendered: unknown
 }
 
+interface RebindableTemplate {
+    constructor: unknown
+    __rebind__(next: unknown): boolean
+}
+
+const isRebindableTemplate = (value: unknown): value is RebindableTemplate =>
+    typeof value === 'object' &&
+    value !== null &&
+    '__rebind__' in value &&
+    typeof (value as { __rebind__?: unknown }).__rebind__ === 'function'
+
 const getList = (data: unknown) => {
     if (data) {
         if (typeof data === 'number') {
@@ -104,7 +115,20 @@ export const repeat = <T, TKey = T, K = string>(
             if (previous && previous.item === item) {
                 rendered = previous.rendered
             } else {
-                rendered = cb(item, index)
+                const nextRendered = cb(item, index)
+                const previousRendered = previous?.rendered
+
+                if (
+                    isRebindableTemplate(previousRendered) &&
+                    nextRendered !== null &&
+                    typeof nextRendered === 'object' &&
+                    nextRendered.constructor === previousRendered.constructor &&
+                    previousRendered.__rebind__(nextRendered)
+                ) {
+                    rendered = previousRendered
+                } else {
+                    rendered = nextRendered
+                }
             }
 
             const entry: RepeatEntry<T, unknown> = {
