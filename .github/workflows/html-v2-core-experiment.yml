@@ -25,7 +25,14 @@ jobs:
         run: |
           cp src/html-v2.ts src/html.ts
           rm src/html-v2.ts
-          sed -i 's/item instanceof HtmlTemplate ? item.unmount() : item.remove()/item instanceof HtmlTemplate ? item.unmount() : item.parentNode?.removeChild(item)/' src/html.ts
-          sed -i 's/const next = node.nextSibling; node.remove()/const next: Node | null = node.nextSibling; node.parentNode?.removeChild(node)/' src/html.ts
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('src/html.ts')
+          s = p.read_text()
+          s = s.replace("template.innerHTML = source.trim()", "source = source.replace(/<(__BFS_V2_\\d+__)/g, '&lt;$1').replace(/<\\/(__BFS_V2_\\d+__)/g, '&lt;/$1')\n    template.innerHTML = source.trim()")
+          s = s.replace("const frag = this.#definition.template.content.cloneNode(\n            true\n        ) as DocumentFragment", "const frag = this.#definition.template.content.cloneNode(\n            true\n        ) as DocumentFragment\n        customElements.upgrade(frag)")
+          s = s.replace("if (!attr.value.includes(PREFIX)) continue", "if (!attr.value.includes(PREFIX)) {\n                setElementAttribute(node, attr.name, attr.value)\n                continue\n            }")
+          p.write_text(s)
+          PY
           npx tsc --noEmit
           npx jest src/html.spec.ts src/html.refs.spec.ts src/html.template-cache.spec.ts --runInBand
