@@ -60,6 +60,41 @@ describe('effect scheduler regressions', () => {
         expect(downstream).toHaveBeenLastCalledWith(4)
     })
 
+    it('executes each subscriber at most once when a downstream effect creates a cycle', () => {
+        const [source, setSource] = state(0)
+        const [derived, setDerived] = state(0)
+        const upstream = jest.fn()
+        const downstream = jest.fn()
+
+        effect(() => {
+            const value = source()
+            upstream(value)
+            if (value > 0) setDerived(value)
+        })
+
+        effect(() => {
+            const value = derived()
+            downstream(value)
+            if (value > 0) setSource(value + 1)
+        })
+
+        upstream.mockClear()
+        downstream.mockClear()
+
+        setSource(1)
+        jest.advanceTimersToNextTimer()
+
+        expect(upstream).toHaveBeenCalledTimes(1)
+        expect(upstream).toHaveBeenLastCalledWith(1)
+        expect(downstream).toHaveBeenCalledTimes(1)
+        expect(downstream).toHaveBeenLastCalledWith(1)
+
+        jest.runOnlyPendingTimers()
+
+        expect(upstream).toHaveBeenCalledTimes(1)
+        expect(downstream).toHaveBeenCalledTimes(1)
+    })
+
     it('replaces nested effects created again at the same execution slot', () => {
         const [parentValue, setParentValue] = state(0)
         const [childValue, setChildValue] = state(0)
