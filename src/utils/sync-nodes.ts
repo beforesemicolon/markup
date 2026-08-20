@@ -1,6 +1,5 @@
 import { HtmlTemplate } from '../html.ts'
 import { insertNodeAfter } from './insert-node-after.ts'
-import { getNodeOrTemplate } from '../utils/get-node-or-template.ts'
 import { DoubleLinkedList } from '../DoubleLinkedList.ts'
 
 /**
@@ -10,7 +9,7 @@ import { DoubleLinkedList } from '../DoubleLinkedList.ts'
  * which means querying it would be inaccurate
  *
  * @param currentChildNodes - list of parent node child nodes
- * @param newChildNodesInput - list of nodes of how the parent node child nodes should become
+ * @param newChildNodesInput - normalized list of nodes of how the parent node child nodes should become
  * @param anchorNode - the node to insert new nodes after
  * @param template - the parent HtmlTemplate instance
  */
@@ -28,20 +27,16 @@ export const syncNodes = (
         return currentChildNodes
     }
 
-    // Process newChildNodes once and create a Set for efficient lookups
-    const newChildNodesArray = newChildNodesInput.map((n) =>
-        getNodeOrTemplate(n)
-    )
-    const newChildNodesSet = new Set(newChildNodesArray)
+    const newChildNodesSet = new Set(newChildNodesInput)
 
     if (currentChildNodes.size) {
         let prevN: Node | HtmlTemplate = anchorNode
         let idx = 0
         let currentNode: Node | HtmlTemplate | null = currentChildNodes.head
 
-        while (idx < newChildNodesArray.length || currentNode) {
+        while (idx < newChildNodesInput.length || currentNode) {
             const newNode =
-                idx < newChildNodesArray.length ? newChildNodesArray[idx] : null
+                idx < newChildNodesInput.length ? newChildNodesInput[idx] : null
             const newAdded =
                 newNode &&
                 !currentChildNodes.has(newNode) &&
@@ -113,9 +108,7 @@ export const syncNodes = (
     } else {
         const frag = document.createDocumentFragment()
 
-        for (const newNode of newChildNodesArray) {
-            const node = getNodeOrTemplate(newNode)
-
+        for (const node of newChildNodesInput) {
             if (node instanceof HtmlTemplate) {
                 node.render(frag)
                 node.__PARENT__ = template

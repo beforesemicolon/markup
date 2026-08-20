@@ -26,14 +26,26 @@ const scheduledExecutions = new DoubleLinkedList<
 let flushPending = false
 
 const flushScheduledExecutions = () => {
-    const visited = new DoubleLinkedList<StateSubscriber>()
+    const queued = new DoubleLinkedList<StateSubscriber>()
 
     for (const subs of scheduledExecutions) {
         for (const sub of subs) {
-            if (!visited.has(sub)) {
-                visited.push(sub)
-                sub()
+            queued.push(sub)
+        }
+    }
+
+    for (const sub of queued) {
+        let isStillSubscribed = false
+
+        for (const subs of scheduledExecutions) {
+            if (subs.has(sub)) {
+                isStillSubscribed = true
+                break
             }
+        }
+
+        if (isStillSubscribed) {
+            sub()
         }
     }
 
@@ -86,7 +98,7 @@ export const state = <T>(
                     ? (newVal as (val: T) => T)(value)
                     : newVal
 
-            if (updatedValue !== value) {
+            if (!Object.is(updatedValue, value)) {
                 value = updatedValue
                 if (!subs.size) {
                     return updatedValue
@@ -107,6 +119,17 @@ export const effect = <T>(sub: EffectSubscriber<T>) => {
         let isRunning = false
         let pendingReRun = false
 
+        const clearDependencies = () => {
+            for (const child of res.children) {
+                child.clear()
+            }
+            for (const unsub of res.unsubs) {
+                unsub()
+            }
+            res.children.clear()
+            res.unsubs.clear()
+        }
+
         const run = () => {
             if (isRunning) {
                 pendingReRun = true
@@ -114,6 +137,7 @@ export const effect = <T>(sub: EffectSubscriber<T>) => {
             }
 
             isRunning = true
+            clearDependencies()
 
             const parent = currentResolvers.tail
 
@@ -143,14 +167,7 @@ export const effect = <T>(sub: EffectSubscriber<T>) => {
             unsubs: new DoubleLinkedList(),
             children: new DoubleLinkedList(),
             clear() {
-                for (const child of this.children) {
-                    child.clear()
-                }
-                for (const unsub of this.unsubs) {
-                    unsub()
-                }
-                this.children.clear()
-                this.unsubs.clear()
+                clearDependencies()
                 value = undefined
             },
         }

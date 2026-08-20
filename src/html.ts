@@ -24,7 +24,7 @@ import { isObjectLiteral } from './utils/is-object-literal.ts'
 const isKnownHTMLEventName = (name: string) =>
     typeof (document ?? {})[name as keyof Document] !== 'undefined'
 
-const templateRegistry: Record<string, Template> = {}
+const templateRegistry = new WeakMap<TemplateStringsArray, Template>()
 
 interface AttributeSlot {
     type: 'attribute'
@@ -49,6 +49,26 @@ interface Template {
     slots: DoubleLinkedList<TemplateSlot>
     nodeRefs: Record<string, Node>
 }
+
+interface TemplateBinding {
+    canUpdate(values: unknown[]): boolean
+    update(values: unknown[]): boolean
+}
+
+const isRebindableValue = (value: unknown) =>
+    value === null ||
+    value === undefined ||
+    (typeof value !== 'object' && typeof value !== 'function')
+
+const getSlotValues = (slot: TemplateSlot, values: unknown[]): unknown[] =>
+    slot.valueParts.map((part) =>
+        typeof part === 'number' ? values[part] : part
+    )
+
+const getAttributeValue = (values: unknown[]) =>
+    values.length === 1
+        ? val(values[0])
+        : values.map((item) => val(item)).join('')
 
 // Use a monotonic counter for predictable, fast IDs
 let idCounter = 0
@@ -86,15 +106,23 @@ const handleAppendChild = (
     parentNode.appendChild(n)
 }
 
+const isTemplateStringsArray = (
+    parts: TemplateStringsArray | string[]
+): parts is TemplateStringsArray =>
+    Object.prototype.hasOwnProperty.call(parts, 'raw')
+
 function createTemplate(
     parts: TemplateStringsArray | string[],
     values: unknown[]
 ) {
-    const tempId = parts.toString()
+    const cacheableParts = isTemplateStringsArray(parts) ? parts : null
+    const cached = cacheableParts ? templateRegistry.get(cacheableParts) : null
 
-    if (templateRegistry[tempId]) {
-        return templateRegistry[tempId]
+    if (cached) {
+        return cached
     }
+
+    let canCache = Boolean(cacheableParts)
 
     // Build templateString efficiently
     let templateString = parts[0]
@@ -149,6 +177,11 @@ function createTemplate(
                     if (dynamicValue) {
                         const idx = Number(dynamicValue[1])
                         const attrs = values[idx]
+
+                        // Attribute-object shape is value-dependent today, so do not
+                        // cache the compiled template until object spreads become
+                        // value-independent slots.
+                        canCache = false
 
                         if (isObjectLiteral(attrs)) {
                             let markSlot = false
@@ -217,15 +250,18 @@ function createTemplate(
         },
     })
 
-    // Always clone the parsed template in #init, do not cache a pre-cloned fragment
-    templateRegistry[tempId] = {
+    const compiledTemplate = {
         // @ts-expect-error all elements have __self__
         template: temp.__self__ as DocumentFragment,
         slots,
         nodeRefs,
     }
 
-    return templateRegistry[tempId]
+    if (canCache && cacheableParts) {
+        templateRegistry.set(cacheableParts, compiledTemplate)
+    }
+
+    return compiledTemplate
 }
 
 function handleElementEventListener(
@@ -305,6 +341,9 @@ export class HtmlTemplate {
     #template: Template
     #refs: Record<string, Set<Element>> = {}
     #effectUnsubs: Set<EffectUnSubscriber> = new Set()
+    #bindings: TemplateBinding[] = []
+    #parts: TemplateStringsArray | string[]
+    #rebindable = true
     #values: Array<unknown> = []
     #mounted = false
     #mountSub: LifecycleCallback | undefined
@@ -338,31 +377,31 @@ export class HtmlTemplate {
      * map of DOM element references keyed by the name provided as the ref attribute value
      */
     get refs(): Record<string, Array<Element>> {
-        const refs = [
-            ...Array.from(this.__CHILDREN__, (temp) => temp.refs),
-            Object.entries(this.#refs).reduce(
-                (acc, [key, set]) => ({
-                    ...acc,
-                    [key]: Array.from(set),
-                }),
-                {}
-            ),
-        ] as Array<Record<string, Array<Element>>>
+        const collected: Record<string, Set<Element>> = {}
 
-        return refs.reduce(
-            (acc, item) => {
-                for (const [k, v] of Object.entries(item)) {
-                    if (!acc[k]) {
-                        acc[k] = []
-                    }
+        const addRefs = (refs: Record<string, Iterable<Element>>) => {
+            for (const [name, elements] of Object.entries(refs)) {
+                const target = collected[name] ?? (collected[name] = new Set())
 
-                    acc[k] = Array.from(new Set([...acc[k], ...v]))
+                for (const element of elements) {
+                    target.add(element)
                 }
+            }
+        }
 
-                return acc
-            },
-            {} as Record<string, Element[]>
-        )
+        addRefs(this.#refs)
+
+        for (const child of this.__CHILDREN__) {
+            addRefs(child.refs)
+        }
+
+        const result: Record<string, Array<Element>> = {}
+
+        for (const [name, elements] of Object.entries(collected)) {
+            result[name] = Array.from(elements)
+        }
+
+        return result
     }
 
     get mounted() {
@@ -380,8 +419,44 @@ export class HtmlTemplate {
     }
 
     constructor(parts: TemplateStringsArray | string[], values: unknown[]) {
+        this.#parts = parts
         this.#values = values
         this.#template = createTemplate(parts, values)
+    }
+
+    /**
+     * Internal optimization used by keyed repeat entries. Reuses the mounted
+     * template only when both instances came from the same template literal and
+     * every dynamic value is safe to patch directly.
+     */
+    __rebind__(next: HtmlTemplate) {
+        if (
+            !this.#mounted ||
+            next.#mounted ||
+            this.#parts !== next.#parts ||
+            !this.#rebindable ||
+            !this.#values.every(isRebindableValue) ||
+            !next.#values.every(isRebindableValue) ||
+            this.#mountSub ||
+            this.#moveSub ||
+            this.#unmountSub ||
+            this.#updateSub ||
+            next.#mountSub ||
+            next.#moveSub ||
+            next.#unmountSub ||
+            next.#updateSub ||
+            !this.#bindings.every((binding) => binding.canUpdate(next.#values))
+        ) {
+            return false
+        }
+
+        let updated = false
+        for (const binding of this.#bindings) {
+            updated = binding.update(next.#values) || updated
+        }
+
+        this.#values = next.#values
+        return true
     }
 
     /**
@@ -579,6 +654,8 @@ export class HtmlTemplate {
         const { template, slots } = this.#template
         const frag = template.cloneNode(true) as DocumentFragment
         const nodes: Record<string, HTMLElement> = {}
+        this.#bindings = []
+        this.#rebindable = this.#values.every(isRebindableValue)
 
         for (const slot of slots) {
             if (slot.type === 'attribute') {
@@ -612,13 +689,41 @@ export class HtmlTemplate {
                         values.push(value)
                     }
 
-                    handleElementAttribute(
+                    const initialValue = handleElementAttribute(
                         node,
                         slot.name,
                         values,
                         (item) => this.#effectUnsubs.add(item),
                         () => this.#updateSub?.(this)
                     )
+
+                    if (
+                        slot.name !== 'ref' &&
+                        !slot.prop &&
+                        values.every(isRebindableValue)
+                    ) {
+                        let currentValue = initialValue
+                        this.#bindings.push({
+                            canUpdate: (nextValues) =>
+                                getSlotValues(slot, nextValues).every(
+                                    isRebindableValue
+                                ),
+                            update: (nextValues) => {
+                                const nextValue = getAttributeValue(
+                                    getSlotValues(slot, nextValues)
+                                )
+                                if (Object.is(currentValue, nextValue)) {
+                                    return false
+                                }
+
+                                setElementAttribute(node, slot.name, nextValue)
+                                currentValue = nextValue
+                                return true
+                            },
+                        })
+                    } else {
+                        this.#rebindable = false
+                    }
                 }
             } else {
                 const node =
@@ -633,6 +738,7 @@ export class HtmlTemplate {
                         const part = typeof p === 'number' ? this.#values[p] : p
 
                         if (typeof part === 'function') {
+                            this.#rebindable = false
                             const rn = new ReactiveNode(
                                 part as () => unknown,
                                 cont,
@@ -650,7 +756,35 @@ export class HtmlTemplate {
                             }
 
                             rn.onUpdate(() => this.#updateSub?.(this))
+                        } else if (
+                            typeof p === 'number' &&
+                            isRebindableValue(part)
+                        ) {
+                            const valueIndex = p
+                            const textNode = document.createTextNode(
+                                String(part)
+                            )
+                            cont.appendChild(textNode)
+                            let currentValue = part
+
+                            this.#bindings.push({
+                                canUpdate: (nextValues) =>
+                                    isRebindableValue(nextValues[valueIndex]),
+                                update: (nextValues) => {
+                                    const nextValue = nextValues[valueIndex]
+                                    if (Object.is(currentValue, nextValue)) {
+                                        return false
+                                    }
+
+                                    textNode.nodeValue = String(nextValue)
+                                    currentValue = nextValue
+                                    return true
+                                },
+                            })
                         } else {
+                            if (typeof p === 'number') {
+                                this.#rebindable = false
+                            }
                             renderContent(part, cont, (item) => {
                                 if (item instanceof HtmlTemplate) {
                                     item.__PARENT__ = this
