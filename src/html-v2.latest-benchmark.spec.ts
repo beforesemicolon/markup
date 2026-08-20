@@ -3,9 +3,9 @@ import { html as currentHtml, HtmlTemplate as CurrentTemplate } from './html.ts'
 import { html as v2Html, HtmlTemplate as V2Template } from './html-v2.ts'
 
 const measure = (fn: () => void, iterations: number) => {
-    const start = performance.now()
+    const start = process.hrtime.bigint()
     for (let i = 0; i < iterations; i++) fn()
-    return (performance.now() - start) / iterations
+    return Number(process.hrtime.bigint() - start) / 1_000_000 / iterations
 }
 
 const currentMinimal = (i: number) => currentHtml`<div>${i}</div>`
@@ -78,29 +78,86 @@ const v2FsUpdate = (size: number) => {
 
 describe('HTML V2 latest benchmark', () => {
     it('reports current vs expanded V2 timings', () => {
-        // Warm template definitions/caches before timing.
-        currentMinimal(0); v2Minimal(0)
-        currentModerate(0); v2Moderate(0)
-        currentFs(0); v2Fs(0)
+        currentMinimal(0)
+        v2Minimal(0)
+        currentModerate(0)
+        v2Moderate(0)
+        currentFs(0)
+        v2Fs(0)
 
         const results: Record<string, { current: number; v2: number }> = {}
-        const add = (name: string, current: () => void, v2: () => void, iterations: number) => {
-            current(); v2()
+        const add = (
+            name: string,
+            current: () => void,
+            v2: () => void,
+            iterations: number
+        ) => {
+            current()
+            v2()
             results[name] = {
                 current: measure(current, iterations),
                 v2: measure(v2, iterations),
             }
         }
 
-        add('create x1000', () => { for (let i = 0; i < 1000; i++) currentMinimal(i) }, () => { for (let i = 0; i < 1000; i++) v2Minimal(i) }, 20)
-        add('minimal mount x20', () => mountBatch(currentMinimal, 20), () => mountBatch(v2Minimal, 20), 12)
-        add('moderate mount x20', () => mountBatch(currentModerate, 20), () => mountBatch(v2Moderate, 20), 10)
-        add('fs mount x20', () => mountBatch(currentFs, 20), () => mountBatch(v2Fs, 20), 8)
-        add('minimal mount x250', () => mountBatch(currentMinimal, 250), () => mountBatch(v2Minimal, 250), 4)
-        add('moderate mount x250', () => mountBatch(currentModerate, 250), () => mountBatch(v2Moderate, 250), 3)
-        add('fs mount x250', () => mountBatch(currentFs, 250), () => mountBatch(v2Fs, 250), 2)
-        add('fs immutable update x20', () => currentFsUpdate(20), () => v2FsUpdate(20), 8)
-        add('fs immutable update x250', () => currentFsUpdate(250), () => v2FsUpdate(250), 2)
+        add(
+            'create x1000',
+            () => {
+                for (let i = 0; i < 1000; i++) currentMinimal(i)
+            },
+            () => {
+                for (let i = 0; i < 1000; i++) v2Minimal(i)
+            },
+            20
+        )
+        add(
+            'minimal mount x20',
+            () => mountBatch(currentMinimal, 20),
+            () => mountBatch(v2Minimal, 20),
+            12
+        )
+        add(
+            'moderate mount x20',
+            () => mountBatch(currentModerate, 20),
+            () => mountBatch(v2Moderate, 20),
+            10
+        )
+        add(
+            'fs mount x20',
+            () => mountBatch(currentFs, 20),
+            () => mountBatch(v2Fs, 20),
+            8
+        )
+        add(
+            'minimal mount x250',
+            () => mountBatch(currentMinimal, 250),
+            () => mountBatch(v2Minimal, 250),
+            4
+        )
+        add(
+            'moderate mount x250',
+            () => mountBatch(currentModerate, 250),
+            () => mountBatch(v2Moderate, 250),
+            3
+        )
+        add(
+            'fs mount x250',
+            () => mountBatch(currentFs, 250),
+            () => mountBatch(v2Fs, 250),
+            2
+        )
+        add(
+            'fs immutable update x20',
+            () => currentFsUpdate(20),
+            () => v2FsUpdate(20),
+            8
+        )
+        add(
+            'fs immutable update x250',
+            () => currentFsUpdate(250),
+            () => v2FsUpdate(250),
+            2
+        )
 
         console.log('HTML_V2_LATEST_BENCHMARK', JSON.stringify(results))
         expect(Object.keys(results)).toHaveLength(9)
