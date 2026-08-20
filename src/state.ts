@@ -11,45 +11,23 @@ import { DoubleLinkedList } from './DoubleLinkedList.ts'
 interface Resolver {
     sub: StateSubscriber
     unsubs: DoubleLinkedList<EffectUnSubscriber>
-    children: DoubleLinkedList<Resolver>
-    clear: () => void
+    children: Resolver[]
+    childCursor: number
+    disposed: boolean
+    clearDependencies: () => void
+    dispose: () => void
 }
 
 const currentResolvers = new DoubleLinkedList<Resolver>()
-// will contain unique subscribers so if many states use the same subscribers
-// they will only be called once if all those states update at once
-// and it needs to be dynamic in case the sub lists are cleared due to unmount
-const scheduledExecutions = new DoubleLinkedList<
-    DoubleLinkedList<StateSubscriber>
->()
+const scheduledExecutions = new Set<StateSubscriber>()
 
 let flushPending = false
 
 const flushScheduledExecutions = () => {
-    const queued = new DoubleLinkedList<StateSubscriber>()
-
-    for (const subs of scheduledExecutions) {
-        for (const sub of subs) {
-            queued.push(sub)
-        }
+    for (const sub of scheduledExecutions) {
+        scheduledExecutions.delete(sub)
+        sub()
     }
-
-    for (const sub of queued) {
-        let isStillSubscribed = false
-
-        for (const subs of scheduledExecutions) {
-            if (subs.has(sub)) {
-                isStillSubscribed = true
-                break
-            }
-        }
-
-        if (isStillSubscribed) {
-            sub()
-        }
-    }
-
-    scheduledExecutions.clear()
 }
 
 const scheduleExecution = () => {
@@ -71,11 +49,10 @@ export const state = <T>(
         subs.push(sub)
     }
 
-    const removeSub = (s?: StateSubscriber) => {
-        s && subs.remove(s)
-        if (!subs.size) {
-            scheduledExecutions.remove(subs)
-        }
+    const removeSub = (s?: StateSubscriber, cancelScheduled = false) => {
+        if (!s) return
+        subs.remove(s)
+        if (cancelScheduled) scheduledExecutions.delete(s)
     }
 
     return Object.freeze([
@@ -83,11 +60,11 @@ export const state = <T>(
             const currentResolver = currentResolvers.tail
             if (
                 typeof currentResolver?.sub === 'function' &&
-                !subs.has(currentResolver?.sub)
+                !subs.has(currentResolver.sub)
             ) {
                 subs.push(currentResolver.sub)
                 currentResolver.unsubs.push(() =>
-                    removeSub(currentResolver?.sub)
+                    removeSub(currentResolver.sub)
                 )
             }
             return value
@@ -100,82 +77,90 @@ export const state = <T>(
 
             if (!Object.is(updatedValue, value)) {
                 value = updatedValue
-                if (!subs.size) {
-                    return updatedValue
+                for (const subscriber of subs) {
+                    scheduledExecutions.add(subscriber)
                 }
-                scheduledExecutions.push(subs)
-                scheduleExecution()
+                if (scheduledExecutions.size) scheduleExecution()
             }
 
             return updatedValue
         },
-        () => removeSub(sub),
+        () => removeSub(sub, true),
     ])
 }
 
 export const effect = <T>(sub: EffectSubscriber<T>) => {
-    if (typeof sub === 'function') {
-        let value: T | undefined
-        let isRunning = false
-        let pendingReRun = false
+    if (typeof sub !== 'function') {
+        throw new Error(`effect: callback must be a function`)
+    }
 
-        const clearDependencies = () => {
-            for (const child of res.children) {
-                child.clear()
-            }
+    let value: T | undefined
+    let isRunning = false
+    let pendingReRun = false
+
+    const parent = currentResolvers.tail
+    const childIndex = parent ? parent.childCursor++ : -1
+
+    const res: Resolver = {
+        sub: () => run(),
+        unsubs: new DoubleLinkedList(),
+        children: [],
+        childCursor: 0,
+        disposed: false,
+        clearDependencies() {
             for (const unsub of res.unsubs) {
                 unsub()
             }
-            res.children.clear()
             res.unsubs.clear()
-        }
-
-        const run = () => {
-            if (isRunning) {
-                pendingReRun = true
-                return
+        },
+        dispose() {
+            if (res.disposed) return
+            res.disposed = true
+            res.clearDependencies()
+            scheduledExecutions.delete(res.sub)
+            for (const child of res.children) {
+                child.dispose()
             }
-
-            isRunning = true
-            clearDependencies()
-
-            const parent = currentResolvers.tail
-
-            if (parent && parent !== res) {
-                parent.children.push(res)
-            }
-
-            currentResolvers.push(res)
-
-            try {
-                value = sub(value)
-            } catch (e) {
-                console.error(e)
-            } finally {
-                currentResolvers.pop()
-                isRunning = false
-
-                if (pendingReRun) {
-                    pendingReRun = false
-                    queueMicrotask(run)
-                }
-            }
-        }
-
-        const res: Resolver = {
-            sub: run,
-            unsubs: new DoubleLinkedList(),
-            children: new DoubleLinkedList(),
-            clear() {
-                clearDependencies()
-                value = undefined
-            },
-        }
-
-        run()
-
-        return () => res.clear()
+            res.children = []
+            value = undefined
+        },
     }
 
-    throw new Error(`effect: callback must be a function`)
+    if (parent) {
+        const previous = parent.children[childIndex]
+        if (previous && previous !== res) previous.dispose()
+        parent.children[childIndex] = res
+    }
+
+    const run = () => {
+        if (res.disposed) return
+        if (isRunning) {
+            pendingReRun = true
+            return
+        }
+
+        isRunning = true
+        res.clearDependencies()
+        res.childCursor = 0
+        currentResolvers.push(res)
+
+        try {
+            value = sub(value)
+        } catch (e) {
+            console.error(e)
+        } finally {
+            currentResolvers.pop()
+            isRunning = false
+
+            if (pendingReRun && !res.disposed) {
+                pendingReRun = false
+                scheduledExecutions.add(res.sub)
+                scheduleExecution()
+            }
+        }
+    }
+
+    run()
+
+    return () => res.dispose()
 }
