@@ -22,3 +22,7 @@ renovate.json
 .renovaterc.json
 .renovaterc
 renovate.json5
+site.config.json
+nodemon.json
+netlify.toml
+benchmarks
