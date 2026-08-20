@@ -740,7 +740,10 @@ export class HtmlTemplate {
                         const valueIndex = slot.valueParts[0]
                         const part = this.#values[valueIndex]
 
-                        if (typeof part !== 'function' && isRebindableValue(part)) {
+                        if (
+                            typeof part !== 'function' &&
+                            isRebindableValue(part)
+                        ) {
                             const textNode = document.createTextNode(String(part))
                             node.parentNode?.replaceChild(textNode, node)
                             let currentValue = part
