@@ -354,31 +354,31 @@ export class HtmlTemplate {
      * map of DOM element references keyed by the name provided as the ref attribute value
      */
     get refs(): Record<string, Array<Element>> {
-        const refs = [
-            ...Array.from(this.__CHILDREN__, (temp) => temp.refs),
-            Object.entries(this.#refs).reduce(
-                (acc, [key, set]) => ({
-                    ...acc,
-                    [key]: Array.from(set),
-                }),
-                {}
-            ),
-        ] as Array<Record<string, Array<Element>>>
+        const collected: Record<string, Set<Element>> = {}
 
-        return refs.reduce(
-            (acc, item) => {
-                for (const [k, v] of Object.entries(item)) {
-                    if (!acc[k]) {
-                        acc[k] = []
-                    }
+        const addRefs = (refs: Record<string, Iterable<Element>>) => {
+            for (const [name, elements] of Object.entries(refs)) {
+                const target = collected[name] ?? (collected[name] = new Set())
 
-                    acc[k] = Array.from(new Set([...acc[k], ...v]))
+                for (const element of elements) {
+                    target.add(element)
                 }
+            }
+        }
 
-                return acc
-            },
-            {} as Record<string, Element[]>
-        )
+        addRefs(this.#refs)
+
+        for (const child of this.__CHILDREN__) {
+            addRefs(child.refs)
+        }
+
+        const result: Record<string, Array<Element>> = {}
+
+        for (const [name, elements] of Object.entries(collected)) {
+            result[name] = Array.from(elements)
+        }
+
+        return result
     }
 
     get mounted() {
