@@ -1,0 +1,44 @@
+name: Markup scheduler Set experiment
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  benchmark:
+    if: github.event.pull_request.head.ref == 'agent/benchmark-repeat-rebind-ablation'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - shell: bash
+        run: |
+          set -euo pipefail
+          BASE=86c1a85dc31e93379d94ca7b1b94de3ab7e2bd22
+          ROOT="$PWD"
+          git worktree add /tmp/q-base "$BASE"
+          git worktree add /tmp/q-set "$BASE"
+          cd /tmp/q-base && npm ci --prefer-offline --no-audit --no-fund >/dev/null
+          cd /tmp/q-set
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('src/state.ts'); s=p.read_text()
+          s=s.replace('    const queued = new DoubleLinkedList<StateSubscriber>()', '    const queued = new Set<StateSubscriber>()')
+          s=s.replace('queued.push(sub)', 'queued.add(sub)')
+          p.write_text(s)
+          PY
+          cat > /tmp/reactive-throughput.bench.ts <<'TS'
+          import { Bench } from 'tinybench'
+          import { effect, state } from './src/state.ts'
+          for (const size of [20,250,1000]) {
+            const values=Array.from({length:size},(_,i)=>state(i)); let tick=0; let runs=0
+            const stop=effect(()=>{ runs++; let sum=0; for(const [get] of values) sum+=get(); return sum })
+            const bench=new Bench({time:150})
+            bench.add(`batch ${size}`,async()=>{ tick++; for(let i=0;i<size;i++) values[i][1](i+tick); await new Promise<void>(r=>queueMicrotask(r)) })
+            await bench.run(); console.log(JSON.stringify({size,hz:bench.tasks[0].result?.hz,mean:bench.tasks[0].result?.mean,runs})); stop()
+          }
+          TS
+          run_one(){ name="$1"; dir="/tmp/q-$name"; cd "$dir"; echo "===== $name ====="; [ "$name" = base ] || ln -s /tmp/q-base/node_modules node_modules; cp /tmp/reactive-throughput.bench.ts ./reactive-throughput.bench.ts; npx tsc --noEmit; npx tsx reactive-throughput.bench.ts; cd "$ROOT"; }
+          run_one base; run_one set
