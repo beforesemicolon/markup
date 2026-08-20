@@ -16,68 +16,56 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Run isolated performance experiments
+      - name: Benchmark slot lookup and primitive fast paths
         shell: bash
         run: |
           set -euo pipefail
           BASE=86c1a85dc31e93379d94ca7b1b94de3ab7e2bd22
           ROOT="$PWD"
 
-          for name in base lazy-markers array-slots data-bindings; do
+          for name in base qsa-index primitive-fast combined; do
             git worktree add "/tmp/markup-$name" "$BASE"
           done
 
           cd /tmp/markup-base
           npm ci --prefer-offline --no-audit --no-fund >/dev/null
 
-          # Experiment 1: allocate HtmlTemplate marker Text nodes only when a DOM-facing API needs them.
-          cd /tmp/markup-lazy-markers
-          python3 - <<'PY'
+          apply_qsa_index() {
+            cd "$1"
+            python3 - <<'PY'
           from pathlib import Path
           p = Path('src/html.ts')
           s = p.read_text()
-          s = s.replace("    #markers = [document.createTextNode(''), document.createTextNode('')]", "    #markers: [Text, Text] | null = null")
-          needle = "    /**\n     * the Element or ShadowRoot instance provided in the render method\n     */\n"
-          helper = "    #getMarkers(): [Text, Text] {\n        return (this.#markers ??= [\n            document.createTextNode(''),\n            document.createTextNode(''),\n        ])\n    }\n\n"
-          s = s.replace(needle, helper + needle)
-          s = s.replace('this.#markers[', 'this.#getMarkers()[')
-          s = s.replace('        return this.#markers\n', '        return this.#getMarkers()\n')
-          p.write_text(s)
-          PY
-
-          # Experiment 2: compiled template slots are immutable after compile; use a dense array instead of linked nodes.
-          cd /tmp/markup-array-slots
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path('src/html.ts')
-          s = p.read_text()
-          s = s.replace("import { DoubleLinkedList } from './DoubleLinkedList.ts'\n", '')
-          s = s.replace('    slots: DoubleLinkedList<TemplateSlot>\n', '    slots: TemplateSlot[]\n')
-          s = s.replace('    const slots = new DoubleLinkedList<TemplateSlot>()\n', '    const slots: TemplateSlot[] = []\n')
-          s = s.replace("                    !isRef && slots.remove(attrSlots[name])\n", "                    if (!isRef && attrSlots[name]) {\n                        const previousSlotIndex = slots.indexOf(attrSlots[name])\n                        if (previousSlotIndex >= 0) slots.splice(previousSlotIndex, 1)\n                    }\n")
-          p.write_text(s)
-          PY
-
-          # Experiment 3: replace two closures per primitive dynamic slot with data-only binding descriptors.
-          cd /tmp/markup-data-bindings
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path('src/html.ts')
-          s = p.read_text()
-          old = """interface TemplateBinding {\n    canUpdate(values: unknown[]): boolean\n    update(values: unknown[]): boolean\n}\n"""
-          new = """interface AttributeTemplateBinding {\n    type: 'attribute'\n    node: Element\n    slot: AttributeSlot\n    currentValue: unknown\n}\n\ninterface TextTemplateBinding {\n    type: 'text'\n    node: Text\n    valueIndex: number\n    currentValue: unknown\n}\n\ntype TemplateBinding = AttributeTemplateBinding | TextTemplateBinding\n"""
+          old = """        const frag = template.cloneNode(true) as DocumentFragment\n        const nodes: Record<string, HTMLElement> = {}\n        this.#bindings = []\n"""
+          new = """        const frag = template.cloneNode(true) as DocumentFragment\n        const nodes: Record<string, HTMLElement> = {}\n\n        for (const node of frag.querySelectorAll<HTMLElement>(\n            '[data-slot-id],script[id]'\n        )) {\n            const slotId = node.getAttribute('data-slot-id')\n            if (slotId) {\n                nodes[`[data-slot-id=\\"${slotId}\\"]`] = node\n            }\n            if (node.tagName === 'SCRIPT' && node.id) {\n                nodes[node.id] = node\n            }\n        }\n\n        this.#bindings = []\n"""
           s = s.replace(old, new)
-          old_rebind = """            !this.#bindings.every((binding) => binding.canUpdate(next.#values))\n        ) {\n            return false\n        }\n\n        let updated = false\n        for (const binding of this.#bindings) {\n            updated = binding.update(next.#values) || updated\n        }\n\n        this.#values = next.#values\n        return true\n"""
-          new_rebind = """            !this.#bindings.every((binding) =>\n                binding.type === 'text'\n                    ? isRebindableValue(next.#values[binding.valueIndex])\n                    : getSlotValues(binding.slot, next.#values).every(isRebindableValue)\n            )\n        ) {\n            return false\n        }\n\n        for (const binding of this.#bindings) {\n            if (binding.type === 'text') {\n                const nextValue = next.#values[binding.valueIndex]\n                if (!Object.is(binding.currentValue, nextValue)) {\n                    binding.node.nodeValue = String(nextValue)\n                    binding.currentValue = nextValue\n                }\n            } else {\n                const nextValue = getAttributeValue(\n                    getSlotValues(binding.slot, next.#values)\n                )\n                if (!Object.is(binding.currentValue, nextValue)) {\n                    setElementAttribute(binding.node, binding.slot.name, nextValue)\n                    binding.currentValue = nextValue\n                }\n            }\n        }\n\n        this.#values = next.#values\n        return true\n"""
-          s = s.replace(old_rebind, new_rebind)
-          old_attr = """                        let currentValue = initialValue\n                        this.#bindings.push({\n                            canUpdate: (nextValues) =>\n                                getSlotValues(slot, nextValues).every(\n                                    isRebindableValue\n                                ),\n                            update: (nextValues) => {\n                                const nextValue = getAttributeValue(\n                                    getSlotValues(slot, nextValues)\n                                )\n                                if (Object.is(currentValue, nextValue)) {\n                                    return false\n                                }\n\n                                setElementAttribute(node, slot.name, nextValue)\n                                currentValue = nextValue\n                                return true\n                            },\n                        })\n"""
-          new_attr = """                        this.#bindings.push({\n                            type: 'attribute',\n                            node,\n                            slot,\n                            currentValue: initialValue,\n                        })\n"""
-          s = s.replace(old_attr, new_attr)
-          old_text = """                            let currentValue = part\n\n                            this.#bindings.push({\n                                canUpdate: (nextValues) =>\n                                    isRebindableValue(nextValues[valueIndex]),\n                                update: (nextValues) => {\n                                    const nextValue = nextValues[valueIndex]\n                                    if (Object.is(currentValue, nextValue)) {\n                                        return false\n                                    }\n\n                                    textNode.nodeValue = String(nextValue)\n                                    currentValue = nextValue\n                                    return true\n                                },\n                            })\n"""
-          new_text = """                            this.#bindings.push({\n                                type: 'text',\n                                node: textNode,\n                                valueIndex,\n                                currentValue: part,\n                            })\n"""
-          s = s.replace(old_text, new_text)
+          s = s.replace("""                const node =\n                    nodes[slot.nodeSelector] ??\n                    frag.querySelector(slot.nodeSelector)\n""", """                const node = nodes[slot.nodeSelector]\n""")
+          s = s.replace("""                const node =\n                    nodes[slot.nodeId] ?? frag.getElementById(slot.nodeId)\n""", """                const node = nodes[slot.nodeId]\n""")
           p.write_text(s)
           PY
+          }
+
+          apply_primitive_fast() {
+            cd "$1"
+            python3 - <<'PY'
+          from pathlib import Path
+          p = Path('src/html.ts')
+          s = p.read_text()
+          attr_needle = """                    for (const p of slot.valueParts) {\n                        let value = typeof p === 'number' ? this.#values[p] : p\n"""
+          attr_fast = """                    if (\n                        !slot.prop &&\n                        !slot.name.startsWith('on') &&\n                        slot.valueParts.length === 1 &&\n                        typeof slot.valueParts[0] === 'number'\n                    ) {\n                        const valueIndex = slot.valueParts[0]\n                        const value = this.#values[valueIndex]\n\n                        if (isRebindableValue(value)) {\n                            const initialValue = val(value)\n                            setElementAttribute(node, slot.name, initialValue)\n                            let currentValue = initialValue\n                            this.#bindings.push({\n                                canUpdate: (nextValues) =>\n                                    isRebindableValue(nextValues[valueIndex]),\n                                update: (nextValues) => {\n                                    const nextValue = val(nextValues[valueIndex])\n                                    if (Object.is(currentValue, nextValue)) {\n                                        return false\n                                    }\n                                    setElementAttribute(node, slot.name, nextValue)\n                                    currentValue = nextValue\n                                    return true\n                                },\n                            })\n                            continue\n                        }\n                    }\n\n                    for (const p of slot.valueParts) {\n                        let value = typeof p === 'number' ? this.#values[p] : p\n"""
+          s = s.replace(attr_needle, attr_fast)
+
+          content_needle = """                if (node) {\n                    nodes[slot.nodeId] = node\n                    const parentNode = node.parentNode as HTMLElement\n                    const cont = document.createDocumentFragment()\n\n                    for (const p of slot.valueParts) {\n"""
+          content_fast = """                if (node) {\n                    nodes[slot.nodeId] = node\n                    const parentNode = node.parentNode as HTMLElement\n\n                    if (\n                        slot.valueParts.length === 1 &&\n                        typeof slot.valueParts[0] === 'number'\n                    ) {\n                        const valueIndex = slot.valueParts[0]\n                        const part = this.#values[valueIndex]\n                        if (typeof part !== 'function' && isRebindableValue(part)) {\n                            const textNode = document.createTextNode(String(part))\n                            node.parentNode?.replaceChild(textNode, node)\n                            let currentValue = part\n                            this.#bindings.push({\n                                canUpdate: (nextValues) =>\n                                    isRebindableValue(nextValues[valueIndex]),\n                                update: (nextValues) => {\n                                    const nextValue = nextValues[valueIndex]\n                                    if (Object.is(currentValue, nextValue)) {\n                                        return false\n                                    }\n                                    textNode.nodeValue = String(nextValue)\n                                    currentValue = nextValue\n                                    return true\n                                },\n                            })\n                            continue\n                        }\n                    }\n\n                    const cont = document.createDocumentFragment()\n\n                    for (const p of slot.valueParts) {\n"""
+          s = s.replace(content_needle, content_fast)
+          p.write_text(s)
+          PY
+          }
+
+          apply_qsa_index /tmp/markup-qsa-index
+          apply_primitive_fast /tmp/markup-primitive-fast
+          apply_qsa_index /tmp/markup-combined
+          apply_primitive_fast /tmp/markup-combined
 
           run_variant() {
             local name="$1"
@@ -85,7 +73,6 @@ jobs:
             echo "===== VARIANT: $name ====="
             cd "$dir"
             if [ "$name" != base ]; then ln -s /tmp/markup-base/node_modules node_modules; fi
-            # Keep enough scale to expose both fixed allocation costs and list scaling.
             sed -i 's/const SIZES = \[20, 60, 250, 1000\]/const SIZES = [20, 250]/' benchmarks/repeat-cache.bench.ts
             sed -i 's/const SIZES = \[20, 60, 250, 1000\]/const SIZES = [20, 250]/' benchmarks/repeat-dom.bench.ts
             npx tsc --noEmit
@@ -95,6 +82,6 @@ jobs:
           }
 
           run_variant base
-          run_variant lazy-markers
-          run_variant array-slots
-          run_variant data-bindings
+          run_variant qsa-index
+          run_variant primitive-fast
+          run_variant combined
