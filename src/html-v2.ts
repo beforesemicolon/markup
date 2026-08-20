@@ -12,6 +12,7 @@ type Piece = string | number
 
 type Descriptor =
     | { type: 'child'; node: number; value: number }
+    | { type: 'raw'; node: number; pieces: Piece[] }
     | { type: 'attr'; node: number; name: string; pieces: Piece[] }
     | { type: 'event'; node: number; name: string; value: number }
     | { type: 'ref'; node: number; name?: string; value?: number }
@@ -60,11 +61,18 @@ const spreadName = (name: string) => {
 const isKnownHTMLEventName = (name: string) =>
     typeof (document ?? {})[name as keyof Document] !== 'undefined'
 
-const shouldUseEventListener = (node: Element, name: string) =>
-    (node.nodeName.includes('-') &&
-        // @ts-expect-error observedAttributes exists on custom element constructors
-        !node.constructor?.observedAttributes?.includes(name)) ||
-    isKnownHTMLEventName(name)
+const shouldUseEventListener = (node: Element, name: string) => {
+    const ctor = node.nodeName.includes('-')
+        ? customElements.get(node.localName) ?? node.constructor
+        : node.constructor
+
+    return (
+        (node.nodeName.includes('-') &&
+            // @ts-expect-error observedAttributes exists on custom element constructors
+            !ctor?.observedAttributes?.includes(name)) ||
+        isKnownHTMLEventName(name)
+    )
+}
 
 function compile(parts: TemplateStringsArray | string[]): Definition {
     const key = tagged(parts) ? parts : null
@@ -75,6 +83,12 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
     for (let i = 1; i < parts.length; i++) {
         source += `${PREFIX}${i - 1}__${parts[i]}`
     }
+
+    // A dynamic tag name is content, never structure. Escape the opening '<'
+    // before parsing so the browser cannot turn the marker into an element.
+    source = source
+        .replace(/<(__BFS_V2_\d+__)/g, '&lt;$1')
+        .replace(/<\/(__BFS_V2_\d+__)/g, '&lt;/$1')
 
     const template = document.createElement('template')
     template.innerHTML = source.trim()
@@ -90,6 +104,10 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
     }
 
     for (const text of dynamicText) {
+        // Script/style are raw-text elements. Keep their Text node intact and
+        // compile the interpolation into a dedicated raw-text part below.
+        if (text.parentElement?.matches('script,style')) continue
+
         const frag = document.createDocumentFragment()
         for (const part of pieces(text.data)) {
             frag.append(
@@ -118,6 +136,12 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
                 node: index,
                 value: Number(node.data.slice(4)),
             })
+            continue
+        }
+
+        if (node instanceof Text && node.data.includes(PREFIX)) {
+            out.push({ type: 'raw', node: index, pieces: pieces(node.data) })
+            node.data = ''
             continue
         }
 
@@ -157,7 +181,12 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
                 continue
             }
 
-            if (!attr.value.includes(PREFIX)) continue
+            if (!attr.value.includes(PREFIX)) {
+                // Normalize static attributes through the same DOM/property
+                // semantics as dynamic attributes (notably boolean attrs).
+                setElementAttribute(node, attr.name, attr.value)
+                continue
+            }
 
             const exact = EXACT.exec(attr.value)
             const valueIndex = exact ? Number(exact[1]) : null
@@ -195,6 +224,12 @@ type Runtime =
           value: number
           current: unknown
           items: Item[]
+      }
+    | {
+          type: 'raw'
+          node: Text
+          pieces: Piece[]
+          current: string
       }
     | {
           type: 'attr'
@@ -363,6 +398,20 @@ export class HtmlTemplate {
     }
 
     #commit(part: Runtime, values: unknown[]) {
+        if (part.type === 'raw') {
+            let next = ''
+            for (const piece of part.pieces) {
+                next +=
+                    typeof piece === 'number'
+                        ? String(resolve(values[piece]) ?? '')
+                        : piece
+            }
+            if (next === part.current) return false
+            part.node.data = next
+            part.current = next
+            return true
+        }
+
         if (part.type === 'child') {
             const next = resolve(values[part.value])
             if (Object.is(next, part.current)) return false
@@ -530,6 +579,13 @@ export class HtmlTemplate {
                     current: Symbol(),
                     items: [],
                 }
+            } else if (descriptor.type === 'raw') {
+                part = {
+                    type: 'raw',
+                    node: compiledNode as Text,
+                    pieces: descriptor.pieces,
+                    current: '',
+                }
             } else if (descriptor.type === 'attr') {
                 part = {
                     type: 'attr',
@@ -566,7 +622,6 @@ export class HtmlTemplate {
             }
 
             this.#runtime.push(part)
-            this.#commit(part, this.#values)
         }
 
         frag.prepend(this.#markers[0])
@@ -581,6 +636,13 @@ export class HtmlTemplate {
         }
 
         this.#mounted = true
+
+        // Commit after insertion. Custom elements are upgraded/connected at this
+        // point, so property setters are available for object/function values.
+        for (const part of this.#runtime) {
+            this.#commit(part, this.#values)
+        }
+
         const cleanup = this.#mountSub?.(this)
         if (typeof cleanup === 'function') this.#unmountSub = cleanup
     }
