@@ -1,0 +1,89 @@
+name: Markup reactive core experiment
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  benchmark:
+    if: github.event.pull_request.head.ref == 'agent/benchmark-repeat-rebind-ablation'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - name: Benchmark reactive core
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=86c1a85dc31e93379d94ca7b1b94de3ab7e2bd22
+          ROOT="$PWD"
+          for name in base stack-array queued-set combined; do git worktree add "/tmp/state-$name" "$BASE"; done
+          cd /tmp/state-base && npm ci --prefer-offline --no-audit --no-fund >/dev/null
+
+          stack_array() {
+            cd "$1"
+            python3 - <<'PY'
+          from pathlib import Path
+          p=Path('src/state.ts'); s=p.read_text()
+          s=s.replace('const currentResolvers = new DoubleLinkedList<Resolver>()', 'const currentResolvers: Resolver[] = []')
+          s=s.replace('currentResolvers.tail', 'currentResolvers[currentResolvers.length - 1]')
+          p.write_text(s)
+          PY
+          }
+
+          queued_set() {
+            cd "$1"
+            python3 - <<'PY'
+          from pathlib import Path
+          p=Path('src/state.ts'); s=p.read_text()
+          s=s.replace('    const queued = new DoubleLinkedList<StateSubscriber>()', '    const queued = new Set<StateSubscriber>()')
+          p.write_text(s)
+          PY
+          }
+
+          stack_array /tmp/state-stack-array
+          queued_set /tmp/state-queued-set
+          stack_array /tmp/state-combined
+          queued_set /tmp/state-combined
+
+          write_bench() {
+            cat > benchmarks/reactive-throughput.bench.ts <<'TS'
+          import { Bench } from 'tinybench'
+          import { effect, state } from '../src/state.ts'
+
+          for (const size of [20, 250, 1000]) {
+            const values = Array.from({ length: size }, (_, i) => state(i))
+            let tick = 0
+            let runs = 0
+            const stop = effect(() => {
+              runs++
+              let total = 0
+              for (const [get] of values) total += get()
+              return total
+            })
+
+            const bench = new Bench({ time: 100 })
+            bench.add(`batch ${size} dependencies`, async () => {
+              tick++
+              for (let i = 0; i < values.length; i++) values[i][1](i + tick)
+              await new Promise<void>((resolve) => queueMicrotask(resolve))
+            })
+            await bench.run()
+            const task = bench.tasks[0]
+            console.log(JSON.stringify({ size, hz: task.result?.hz, mean: task.result?.mean, runs }))
+            stop()
+          }
+          TS
+          }
+
+          run_one() {
+            name="$1"; cd "/tmp/state-$name"; echo "===== $name ====="
+            [ "$name" = base ] || ln -s /tmp/state-base/node_modules node_modules
+            write_bench
+            npx tsc --noEmit
+            npx tsx benchmarks/reactive-throughput.bench.ts
+            cd "$ROOT"
+          }
+          run_one base; run_one stack-array; run_one queued-set; run_one combined
