@@ -1,0 +1,61 @@
+name: Markup init fast path experiment
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  benchmark:
+    if: github.event.pull_request.head.ref == 'agent/benchmark-repeat-rebind-ablation'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - name: Benchmark initialization fast paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=86c1a85dc31e93379d94ca7b1b94de3ab7e2bd22
+          ROOT="$PWD"
+          for name in base attr-direct content-direct combined; do git worktree add "/tmp/init-$name" "$BASE"; done
+          cd /tmp/init-base && npm ci --prefer-offline --no-audit --no-fund >/dev/null
+
+          attr_direct() {
+            cd "$1"
+            python3 - <<'PY'
+          from pathlib import Path
+          p=Path('src/html.ts'); s=p.read_text()
+          old="""    let init = false\n\n    const setAttr = (prevValue?: unknown) => {\n        const newValue =\n            values.length === 1\n                ? val(values[0])\n                : values.map((d) => val(d)).join('')\n\n        if (newValue !== prevValue) {\n            setElementAttribute(node, name, newValue)\n            init && onAttrUpdate()\n        }\n\n        init = true\n        return newValue\n    }\n\n    if (values.some((d) => typeof d === 'function')) {\n        return cb(effect(setAttr))\n    }\n\n    return setAttr()\n"""
+          new="""    const isReactive = values.some((d) => typeof d === 'function')\n\n    if (!isReactive) {\n        const value =\n            values.length === 1\n                ? val(values[0])\n                : values.map((d) => val(d)).join('')\n        setElementAttribute(node, name, value)\n        return value\n    }\n\n    let init = false\n    const setAttr = (prevValue?: unknown) => {\n        const newValue =\n            values.length === 1\n                ? val(values[0])\n                : values.map((d) => val(d)).join('')\n        if (newValue !== prevValue) {\n            setElementAttribute(node, name, newValue)\n            init && onAttrUpdate()\n        }\n        init = true\n        return newValue\n    }\n\n    return cb(effect(setAttr))\n"""
+          if old not in s: raise SystemExit('attribute pattern not found')
+          p.write_text(s.replace(old,new))
+          PY
+          }
+
+          content_direct() {
+            cd "$1"
+            python3 - <<'PY'
+          from pathlib import Path
+          p=Path('src/html.ts'); s=p.read_text()
+          old="""                if (node) {\n                    nodes[slot.nodeId] = node\n                    const parentNode = node.parentNode as HTMLElement\n                    const cont = document.createDocumentFragment()\n\n                    for (const p of slot.valueParts) {\n"""
+          new="""                if (node) {\n                    nodes[slot.nodeId] = node\n                    const parentNode = node.parentNode as HTMLElement\n                    if (slot.valueParts.length === 1 && typeof slot.valueParts[0] === 'number') {\n                        const valueIndex = slot.valueParts[0]\n                        const part = this.#values[valueIndex]\n                        if (typeof part !== 'function' && isRebindableValue(part)) {\n                            const textNode = document.createTextNode(String(part))\n                            node.parentNode?.replaceChild(textNode, node)\n                            let currentValue = part\n                            this.#bindings.push({\n                                canUpdate: (nextValues) => isRebindableValue(nextValues[valueIndex]),\n                                update: (nextValues) => {\n                                    const nextValue = nextValues[valueIndex]\n                                    if (Object.is(currentValue, nextValue)) return false\n                                    textNode.nodeValue = String(nextValue)\n                                    currentValue = nextValue\n                                    return true\n                                },\n                            })\n                            continue\n                        }\n                    }\n                    const cont = document.createDocumentFragment()\n                    for (const p of slot.valueParts) {\n"""
+          if old not in s: raise SystemExit('content pattern not found')
+          p.write_text(s.replace(old,new))
+          PY
+          }
+
+          attr_direct /tmp/init-attr-direct
+          content_direct /tmp/init-content-direct
+          attr_direct /tmp/init-combined && content_direct /tmp/init-combined
+
+          run_one() {
+            name="$1"; cd "/tmp/init-$name"; echo "===== $name ====="
+            [ "$name" = base ] || ln -s /tmp/init-base/node_modules node_modules
+            sed -i 's/const SIZES = \[20, 60, 250, 1000\]/const SIZES = [20, 250]/' benchmarks/repeat-dom.bench.ts
+            npx tsc --noEmit
+            npm run benchmark:dom
+            cd "$ROOT"
+          }
+          run_one base; run_one attr-direct; run_one content-direct; run_one combined
