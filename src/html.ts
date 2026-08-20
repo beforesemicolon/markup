@@ -744,7 +744,9 @@ export class HtmlTemplate {
                             typeof part !== 'function' &&
                             isRebindableValue(part)
                         ) {
-                            const textNode = document.createTextNode(String(part))
+                            const textNode = document.createTextNode(
+                                String(part)
+                            )
                             node.parentNode?.replaceChild(textNode, node)
                             let currentValue = part
 
