@@ -78,6 +78,8 @@ const v2FsUpdate = (size: number) => {
 
 describe('HTML V2 latest benchmark', () => {
     it('reports current vs expanded V2 timings', () => {
+        jest.useRealTimers()
+
         currentMinimal(0)
         v2Minimal(0)
         currentModerate(0)
