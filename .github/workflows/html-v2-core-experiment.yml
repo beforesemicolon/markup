@@ -24,7 +24,8 @@ jobs:
         continue-on-error: true
         run: |
           cp src/html-v2.ts src/html.ts
+          rm src/html-v2.ts
           sed -i 's/item instanceof HtmlTemplate ? item.unmount() : item.remove()/item instanceof HtmlTemplate ? item.unmount() : item.parentNode?.removeChild(item)/' src/html.ts
-          sed -i 's/node.remove(); if (node === this.#markers\[1\])/node.parentNode?.removeChild(node); if (node === this.#markers[1])/' src/html.ts
+          sed -i 's/const next = node.nextSibling; node.remove()/const next: Node | null = node.nextSibling; node.parentNode?.removeChild(node)/' src/html.ts
           npx tsc --noEmit
           npx jest src/html.spec.ts src/html.refs.spec.ts src/html.template-cache.spec.ts --runInBand
