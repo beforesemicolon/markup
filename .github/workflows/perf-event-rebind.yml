@@ -1,0 +1,58 @@
+name: Markup event rebind experiment
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  benchmark:
+    if: github.event.pull_request.head.ref == 'agent/benchmark-repeat-rebind-ablation'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - name: Benchmark event-aware keyed rebind
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=86c1a85dc31e93379d94ca7b1b94de3ab7e2bd22
+          ROOT="$PWD"
+          git worktree add /tmp/event-base "$BASE"
+          git worktree add /tmp/event-candidate "$BASE"
+          cd /tmp/event-base && npm ci --prefer-offline --no-audit --no-fund >/dev/null
+          cd /tmp/event-candidate && ln -s /tmp/event-base/node_modules node_modules
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('src/html.ts'); s=p.read_text()
+
+          anchor="""function handleElementEventListener(\n    node: Element,\n    name: string,\n    values: unknown[]\n) {\n"""
+          helper="""interface ElementEventConfig {\n    type: string\n    listener: EventListener\n    options?: boolean | AddEventListenerOptions\n}\n\nfunction getElementEventConfig(\n    node: Element,\n    name: string,\n    values: unknown[]\n): ElementEventConfig | null {\n    if (\n        !((node.nodeName.includes('-') &&\n            // @ts-expect-error observedAttributes is property of web component\n            !node.constructor?.observedAttributes?.includes(name)) ||\n            isKnownHTMLEventName(name))\n    ) {\n        return null\n    }\n\n    let listener: unknown\n    let options: boolean | AddEventListenerOptions | undefined\n    if (Array.isArray(values[0])) {\n        ;[listener, options] = values[0] as [\n            unknown,\n            boolean | AddEventListenerOptions | undefined,\n        ]\n    } else {\n        listener = values[0]\n    }\n\n    if (typeof listener !== 'function') return null\n\n    return {\n        type: name.slice(2),\n        listener: listener as EventListener,\n        options,\n    }\n}\n\n"""
+          if anchor not in s: raise SystemExit('event anchor missing')
+          s=s.replace(anchor,helper+anchor)
+
+          # Keep existing event behavior, but parse through shared config.
+          start=s.index('function handleElementEventListener(')
+          end=s.index('\nexport function handleElementAttribute(', start)
+          replacement="""function handleElementEventListener(\n    node: Element,\n    name: string,\n    values: unknown[]\n) {\n    const config = getElementEventConfig(node, name, values)\n    if (!config) {\n        if (\n            ((node.nodeName.includes('-') &&\n                // @ts-expect-error observedAttributes is property of web component\n                !node.constructor?.observedAttributes?.includes(name)) ||\n                isKnownHTMLEventName(name)) &&\n            typeof (Array.isArray(values[0]) ? values[0][0] : values[0]) !== 'function'\n        ) {\n            throw new Error(\n                `Handler for event "${name}" is not a function. Found "${Array.isArray(values[0]) ? values[0][0] : values[0]}".`\n            )\n        }\n        return false\n    }\n\n    node.addEventListener(config.type, config.listener, config.options)\n    return true\n}\n"""
+          s=s[:start]+replacement+s[end:]
+
+          s=s.replace('        this.#rebindable = this.#values.every(isRebindableValue)', '        this.#rebindable = true')
+          s=s.replace("""            !this.#rebindable ||\n            !this.#values.every(isRebindableValue) ||\n            !next.#values.every(isRebindableValue) ||\n""", """            !this.#rebindable ||\n""")
+
+          old="""                    if (\n                        slot.name !== 'ref' &&\n                        !slot.prop &&\n                        values.every(isRebindableValue)\n                    ) {\n                        let currentValue = initialValue\n                        this.#bindings.push({\n                            canUpdate: (nextValues) =>\n                                getSlotValues(slot, nextValues).every(\n                                    isRebindableValue\n                                ),\n                            update: (nextValues) => {\n                                const nextValue = getAttributeValue(\n                                    getSlotValues(slot, nextValues)\n                                )\n                                if (Object.is(currentValue, nextValue)) {\n                                    return false\n                                }\n\n                                setElementAttribute(node, slot.name, nextValue)\n                                currentValue = nextValue\n                                return true\n                            },\n                        })\n                    } else {\n                        this.#rebindable = false\n                    }\n"""
+          new="""                    const eventConfig = getElementEventConfig(\n                        node,\n                        slot.name,\n                        values\n                    )\n\n                    if (eventConfig) {\n                        let currentConfig = eventConfig\n                        this.#bindings.push({\n                            canUpdate: (nextValues) =>\n                                Boolean(\n                                    getElementEventConfig(\n                                        node,\n                                        slot.name,\n                                        getSlotValues(slot, nextValues)\n                                    )\n                                ),\n                            update: (nextValues) => {\n                                const nextConfig = getElementEventConfig(\n                                    node,\n                                    slot.name,\n                                    getSlotValues(slot, nextValues)\n                                )\n                                if (!nextConfig) return false\n\n                                node.removeEventListener(\n                                    currentConfig.type,\n                                    currentConfig.listener,\n                                    currentConfig.options\n                                )\n                                node.addEventListener(\n                                    nextConfig.type,\n                                    nextConfig.listener,\n                                    nextConfig.options\n                                )\n                                currentConfig = nextConfig\n                                return true\n                            },\n                        })\n                    } else if (\n                        slot.name !== 'ref' &&\n                        !slot.prop &&\n                        values.every(isRebindableValue)\n                    ) {\n                        let currentValue = initialValue\n                        this.#bindings.push({\n                            canUpdate: (nextValues) =>\n                                getSlotValues(slot, nextValues).every(\n                                    isRebindableValue\n                                ),\n                            update: (nextValues) => {\n                                const nextValue = getAttributeValue(\n                                    getSlotValues(slot, nextValues)\n                                )\n                                if (Object.is(currentValue, nextValue)) return false\n                                setElementAttribute(node, slot.name, nextValue)\n                                currentValue = nextValue\n                                return true\n                            },\n                        })\n                    } else {\n                        this.#rebindable = false\n                    }\n"""
+          if old not in s: raise SystemExit('binding block missing')
+          s=s.replace(old,new)
+          p.write_text(s)
+          PY
+
+          echo '===== TYPECHECK ====='
+          npx tsc --noEmit
+          echo '===== TESTS ====='
+          npx jest --runInBand src/helpers/repeat-rebind.spec.ts src/html.spec.ts
+
+          run_one(){ dir="$1" label="$2"; cd "$dir"; echo "===== $label ====="; sed -i 's/const SIZES = \[20, 60, 250, 1000\]/const SIZES = [20, 250]/' benchmarks/repeat-dom.bench.ts; npm run benchmark:dom; cd "$ROOT"; }
+          run_one /tmp/event-base BASE
+          run_one /tmp/event-candidate EVENT_REBIND
