@@ -14,12 +14,6 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Run HTML V2 benchmark
-        run: |
-          sed -i 's/time: 80, warmupTime: 30/time: 30, warmupTime: 10/' benchmarks/html-v2-core.bench.ts
-          sed -i 's/\[20, 250, 1000\]/[20, 250]/' benchmarks/html-v2-core.bench.ts
-          sed -i 's/this.#parts !== next.#parts/this.#definition.template.innerHTML !== next.#definition.template.innerHTML/' benchmarks/html-v2-core.bench.ts
-          npx tsx benchmarks/html-v2-core.bench.ts
       - name: Run existing HTML tests against V2
         continue-on-error: true
         run: |
@@ -31,9 +25,16 @@ jobs:
           s = p.read_text()
           s = s.replace("template.innerHTML = source.trim()", "source = source.replace(/<(__BFS_V2_\\d+__)/g, '&lt;$1').replace(/<\\/(__BFS_V2_\\d+__)/g, '&lt;/$1')\n    template.innerHTML = source.trim()")
           s = s.replace("const shouldUseEventListener = (node: Element, name: string) =>\n    (node.nodeName.includes('-') &&\n        // @ts-expect-error observedAttributes exists on custom element constructors\n        !node.constructor?.observedAttributes?.includes(name)) ||\n    isKnownHTMLEventName(name)", "const shouldUseEventListener = (node: Element, name: string) => {\n    const ctor = node.nodeName.includes('-')\n        ? customElements.get(node.localName) ?? node.constructor\n        : node.constructor\n    return (node.nodeName.includes('-') &&\n        // @ts-expect-error observedAttributes exists on custom element constructors\n        !ctor?.observedAttributes?.includes(name)) || isKnownHTMLEventName(name)\n}")
-          s = s.replace("const compiledNode = nodes[descriptor.node]\n            let part: Runtime", "const compiledNode = nodes[descriptor.node]\n            if (compiledNode instanceof Element && compiledNode.localName.includes('-')) customElements.upgrade(compiledNode)\n            let part: Runtime")
           s = s.replace("if (!attr.value.includes(PREFIX)) continue", "if (!attr.value.includes(PREFIX)) {\n                setElementAttribute(node, attr.name, attr.value)\n                continue\n            }")
+          s = s.replace("            this.#runtime.push(part)\n            this.#commit(part, this.#values)\n", "            this.#runtime.push(part)\n")
+          s = s.replace("        this.#mounted = true\n        const cleanup", "        this.#mounted = true\n        for (const part of this.#runtime) this.#commit(part, this.#values)\n        const cleanup")
           p.write_text(s)
           PY
           npx tsc --noEmit
           npx jest src/html.spec.ts src/html.refs.spec.ts src/html.template-cache.spec.ts --runInBand
+      - name: Run HTML V2 benchmark
+        run: |
+          sed -i 's/time: 80, warmupTime: 30/time: 30, warmupTime: 10/' benchmarks/html-v2-core.bench.ts
+          sed -i 's/\[20, 250, 1000\]/[20, 250]/' benchmarks/html-v2-core.bench.ts
+          sed -i 's/this.#parts !== next.#parts/this.#definition.template.innerHTML !== next.#definition.template.innerHTML/' benchmarks/html-v2-core.bench.ts
+          npx tsx benchmarks/html-v2-core.bench.ts
