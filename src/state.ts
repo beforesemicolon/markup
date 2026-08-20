@@ -26,11 +26,11 @@ const scheduledExecutions = new DoubleLinkedList<
 let flushPending = false
 
 const flushScheduledExecutions = () => {
-    const queued = new DoubleLinkedList<StateSubscriber>()
+    const queued = new Set<StateSubscriber>()
 
     for (const subs of scheduledExecutions) {
         for (const sub of subs) {
-            queued.push(sub)
+            queued.add(sub)
         }
     }
 
