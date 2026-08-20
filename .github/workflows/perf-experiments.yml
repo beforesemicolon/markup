@@ -1,0 +1,100 @@
+name: Markup performance experiments
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  benchmark:
+    if: github.event.pull_request.head.ref == 'agent/benchmark-repeat-rebind-ablation'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Run isolated performance experiments
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=86c1a85dc31e93379d94ca7b1b94de3ab7e2bd22
+          ROOT="$PWD"
+
+          for name in base lazy-markers array-slots data-bindings; do
+            git worktree add "/tmp/markup-$name" "$BASE"
+          done
+
+          cd /tmp/markup-base
+          npm ci --prefer-offline --no-audit --no-fund >/dev/null
+
+          # Experiment 1: allocate HtmlTemplate marker Text nodes only when a DOM-facing API needs them.
+          cd /tmp/markup-lazy-markers
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('src/html.ts')
+          s = p.read_text()
+          s = s.replace("    #markers = [document.createTextNode(''), document.createTextNode('')]", "    #markers: [Text, Text] | null = null")
+          needle = "    /**\n     * the Element or ShadowRoot instance provided in the render method\n     */\n"
+          helper = "    #getMarkers(): [Text, Text] {\n        return (this.#markers ??= [\n            document.createTextNode(''),\n            document.createTextNode(''),\n        ])\n    }\n\n"
+          s = s.replace(needle, helper + needle)
+          s = s.replace('this.#markers[', 'this.#getMarkers()[')
+          s = s.replace('        return this.#markers\n', '        return this.#getMarkers()\n')
+          p.write_text(s)
+          PY
+
+          # Experiment 2: compiled template slots are immutable after compile; use a dense array instead of linked nodes.
+          cd /tmp/markup-array-slots
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('src/html.ts')
+          s = p.read_text()
+          s = s.replace("import { DoubleLinkedList } from './DoubleLinkedList.ts'\n", '')
+          s = s.replace('    slots: DoubleLinkedList<TemplateSlot>\n', '    slots: TemplateSlot[]\n')
+          s = s.replace('    const slots = new DoubleLinkedList<TemplateSlot>()\n', '    const slots: TemplateSlot[] = []\n')
+          s = s.replace("                    !isRef && slots.remove(attrSlots[name])\n", "                    if (!isRef && attrSlots[name]) {\n                        const previousSlotIndex = slots.indexOf(attrSlots[name])\n                        if (previousSlotIndex >= 0) slots.splice(previousSlotIndex, 1)\n                    }\n")
+          p.write_text(s)
+          PY
+
+          # Experiment 3: replace two closures per primitive dynamic slot with data-only binding descriptors.
+          cd /tmp/markup-data-bindings
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('src/html.ts')
+          s = p.read_text()
+          old = """interface TemplateBinding {\n    canUpdate(values: unknown[]): boolean\n    update(values: unknown[]): boolean\n}\n"""
+          new = """interface AttributeTemplateBinding {\n    type: 'attribute'\n    node: Element\n    slot: AttributeSlot\n    currentValue: unknown\n}\n\ninterface TextTemplateBinding {\n    type: 'text'\n    node: Text\n    valueIndex: number\n    currentValue: unknown\n}\n\ntype TemplateBinding = AttributeTemplateBinding | TextTemplateBinding\n"""
+          s = s.replace(old, new)
+          old_rebind = """            !this.#bindings.every((binding) => binding.canUpdate(next.#values))\n        ) {\n            return false\n        }\n\n        let updated = false\n        for (const binding of this.#bindings) {\n            updated = binding.update(next.#values) || updated\n        }\n\n        this.#values = next.#values\n        return true\n"""
+          new_rebind = """            !this.#bindings.every((binding) =>\n                binding.type === 'text'\n                    ? isRebindableValue(next.#values[binding.valueIndex])\n                    : getSlotValues(binding.slot, next.#values).every(isRebindableValue)\n            )\n        ) {\n            return false\n        }\n\n        for (const binding of this.#bindings) {\n            if (binding.type === 'text') {\n                const nextValue = next.#values[binding.valueIndex]\n                if (!Object.is(binding.currentValue, nextValue)) {\n                    binding.node.nodeValue = String(nextValue)\n                    binding.currentValue = nextValue\n                }\n            } else {\n                const nextValue = getAttributeValue(\n                    getSlotValues(binding.slot, next.#values)\n                )\n                if (!Object.is(binding.currentValue, nextValue)) {\n                    setElementAttribute(binding.node, binding.slot.name, nextValue)\n                    binding.currentValue = nextValue\n                }\n            }\n        }\n\n        this.#values = next.#values\n        return true\n"""
+          s = s.replace(old_rebind, new_rebind)
+          old_attr = """                        let currentValue = initialValue\n                        this.#bindings.push({\n                            canUpdate: (nextValues) =>\n                                getSlotValues(slot, nextValues).every(\n                                    isRebindableValue\n                                ),\n                            update: (nextValues) => {\n                                const nextValue = getAttributeValue(\n                                    getSlotValues(slot, nextValues)\n                                )\n                                if (Object.is(currentValue, nextValue)) {\n                                    return false\n                                }\n\n                                setElementAttribute(node, slot.name, nextValue)\n                                currentValue = nextValue\n                                return true\n                            },\n                        })\n"""
+          new_attr = """                        this.#bindings.push({\n                            type: 'attribute',\n                            node,\n                            slot,\n                            currentValue: initialValue,\n                        })\n"""
+          s = s.replace(old_attr, new_attr)
+          old_text = """                            let currentValue = part\n\n                            this.#bindings.push({\n                                canUpdate: (nextValues) =>\n                                    isRebindableValue(nextValues[valueIndex]),\n                                update: (nextValues) => {\n                                    const nextValue = nextValues[valueIndex]\n                                    if (Object.is(currentValue, nextValue)) {\n                                        return false\n                                    }\n\n                                    textNode.nodeValue = String(nextValue)\n                                    currentValue = nextValue\n                                    return true\n                                },\n                            })\n"""
+          new_text = """                            this.#bindings.push({\n                                type: 'text',\n                                node: textNode,\n                                valueIndex,\n                                currentValue: part,\n                            })\n"""
+          s = s.replace(old_text, new_text)
+          p.write_text(s)
+          PY
+
+          run_variant() {
+            local name="$1"
+            local dir="/tmp/markup-$name"
+            echo "===== VARIANT: $name ====="
+            cd "$dir"
+            if [ "$name" != base ]; then ln -s /tmp/markup-base/node_modules node_modules; fi
+            # Keep enough scale to expose both fixed allocation costs and list scaling.
+            sed -i 's/const SIZES = \[20, 60, 250, 1000\]/const SIZES = [20, 250]/' benchmarks/repeat-cache.bench.ts
+            sed -i 's/const SIZES = \[20, 60, 250, 1000\]/const SIZES = [20, 250]/' benchmarks/repeat-dom.bench.ts
+            npx tsc --noEmit
+            npm run benchmark:repeat
+            npm run benchmark:dom
+            cd "$ROOT"
+          }
+
+          run_variant base
+          run_variant lazy-markers
+          run_variant array-slots
+          run_variant data-bindings
