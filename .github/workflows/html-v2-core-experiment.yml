@@ -21,3 +21,8 @@ jobs:
           sed -i 's/\[20, 250, 1000\]/[20, 250]/' benchmarks/html-v2-core.bench.ts
           sed -i 's/this.#parts !== next.#parts/this.#definition.template.innerHTML !== next.#definition.template.innerHTML/' benchmarks/html-v2-core.bench.ts
           npx tsx benchmarks/html-v2-core.bench.ts
+      - name: Run existing HTML tests against V2
+        continue-on-error: true
+        run: |
+          cp src/html-v2.ts src/html.ts
+          npx jest src/html.spec.ts src/html.refs.spec.ts src/html.template-cache.spec.ts --runInBand
