@@ -67,6 +67,41 @@ describe("setElementAttribute", () => {
     expect(el.no).toEqual(null);
     
   });
+
+  it('should set inherited web component setters without reflecting object values', () => {
+    class BaseItem extends HTMLElement {
+      #data: unknown = null
+
+      set data(value: unknown) {
+        this.#data = value
+      }
+
+      get data() {
+        return this.#data
+      }
+    }
+
+    class InheritedItem extends BaseItem {}
+
+    customElements.define('inherited-item', InheritedItem)
+
+    const el = document.createElement('inherited-item') as InheritedItem
+    const value = { title: 'test' }
+
+    setElementAttribute(el, 'data', value)
+
+    expect(el.data).toBe(value)
+    expect(el.hasAttribute('data')).toBe(false)
+  })
+
+  it('should preserve native property writes', () => {
+    const input = document.createElement('input')
+
+    setElementAttribute(input, 'value', 'updated')
+
+    expect(input.value).toBe('updated')
+    expect(input.getAttribute('value')).toBe('updated')
+  })
   
   it('should handle native boolean attrs', () => {
     const button = document.createElement('button');
