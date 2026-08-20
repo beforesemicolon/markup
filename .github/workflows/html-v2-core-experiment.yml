@@ -19,4 +19,5 @@ jobs:
         run: |
           sed -i 's/time: 80, warmupTime: 30/time: 30, warmupTime: 10/' benchmarks/html-v2-core.bench.ts
           sed -i 's/\[20, 250, 1000\]/[20, 250]/' benchmarks/html-v2-core.bench.ts
+          sed -i 's/this.#parts !== next.#parts/this.#definition.template.innerHTML !== next.#definition.template.innerHTML/' benchmarks/html-v2-core.bench.ts
           npx tsx benchmarks/html-v2-core.bench.ts
