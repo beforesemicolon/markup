@@ -24,8 +24,14 @@ const scheduledExecutions = new Set<StateSubscriber>()
 let flushPending = false
 
 const flushScheduledExecutions = () => {
+    const visited = new Set<StateSubscriber>()
+
     for (const sub of scheduledExecutions) {
         scheduledExecutions.delete(sub)
+
+        if (visited.has(sub)) continue
+
+        visited.add(sub)
         sub()
     }
 }
@@ -34,8 +40,12 @@ const scheduleExecution = () => {
     if (flushPending) return
     flushPending = true
     queueMicrotask(() => {
-        flushPending = false
-        flushScheduledExecutions()
+        try {
+            flushScheduledExecutions()
+        } finally {
+            flushPending = false
+            if (scheduledExecutions.size) scheduleExecution()
+        }
     })
 }
 
