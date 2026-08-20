@@ -16,56 +16,72 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Benchmark slot lookup and primitive fast paths
+      - name: Benchmark structural slot addressing
         shell: bash
         run: |
           set -euo pipefail
           BASE=86c1a85dc31e93379d94ca7b1b94de3ab7e2bd22
           ROOT="$PWD"
 
-          for name in base qsa-index primitive-fast combined; do
+          for name in base path path-clean path-primitive; do
             git worktree add "/tmp/markup-$name" "$BASE"
           done
 
           cd /tmp/markup-base
           npm ci --prefer-offline --no-audit --no-fund >/dev/null
 
-          apply_qsa_index() {
+          apply_paths() {
             cd "$1"
             python3 - <<'PY'
           from pathlib import Path
           p = Path('src/html.ts')
           s = p.read_text()
-          old = """        const frag = template.cloneNode(true) as DocumentFragment\n        const nodes: Record<string, HTMLElement> = {}\n        this.#bindings = []\n"""
-          new = """        const frag = template.cloneNode(true) as DocumentFragment\n        const nodes: Record<string, HTMLElement> = {}\n\n        for (const node of frag.querySelectorAll<HTMLElement>(\n            '[data-slot-id],script[id]'\n        )) {\n            const slotId = node.getAttribute('data-slot-id')\n            if (slotId) {\n                nodes[`[data-slot-id=\\"${slotId}\\"]`] = node\n            }\n            if (node.tagName === 'SCRIPT' && node.id) {\n                nodes[node.id] = node\n            }\n        }\n\n        this.#bindings = []\n"""
-          s = s.replace(old, new)
-          s = s.replace("""                const node =\n                    nodes[slot.nodeSelector] ??\n                    frag.querySelector(slot.nodeSelector)\n""", """                const node = nodes[slot.nodeSelector]\n""")
-          s = s.replace("""                const node =\n                    nodes[slot.nodeId] ?? frag.getElementById(slot.nodeId)\n""", """                const node = nodes[slot.nodeId]\n""")
+          s = s.replace("    valueParts: Array<string | number>\n}\n\ninterface ContentSlot", "    valueParts: Array<string | number>\n    nodePath?: number[]\n}\n\ninterface ContentSlot")
+          s = s.replace("    valueParts: Array<string | number>\n}\n\ntype TemplateSlot", "    valueParts: Array<string | number>\n    nodePath?: number[]\n}\n\ntype TemplateSlot")
+          helper_anchor = """const getAttributeValue = (values: unknown[]) =>\n    values.length === 1\n        ? val(values[0])\n        : values.map((item) => val(item)).join('')\n\n"""
+          helpers = """const getNodePath = (root: Node, node: Node): number[] => {\n    const path: number[] = []\n    let current: Node | null = node\n    while (current && current !== root) {\n        const parent: Node | null = current.parentNode\n        if (!parent) return []\n        path.push(Array.prototype.indexOf.call(parent.childNodes, current))\n        current = parent\n    }\n    return path.reverse()\n}\n\nconst resolveNodePath = (root: Node, path: number[]): Node | null => {\n    let current: Node | null = root\n    for (const index of path) {\n        current = current?.childNodes[index] ?? null\n        if (!current) return null\n    }\n    return current\n}\n\n"""
+          s = s.replace(helper_anchor, helper_anchor + helpers)
+          compile_anchor = """    const compiledTemplate = {\n        // @ts-expect-error all elements have __self__\n        template: temp.__self__ as DocumentFragment,\n        slots,\n        nodeRefs,\n    }\n"""
+          compile_new = """    const templateRoot = temp.__self__ as DocumentFragment\n    for (const slot of slots) {\n        const node =\n            slot.type === 'attribute'\n                ? templateRoot.querySelector(slot.nodeSelector)\n                : templateRoot.getElementById(slot.nodeId)\n        if (node) slot.nodePath = getNodePath(templateRoot, node)\n    }\n\n    const compiledTemplate = {\n        template: templateRoot,\n        slots,\n        nodeRefs,\n    }\n"""
+          s = s.replace(compile_anchor, compile_new)
+          s = s.replace("""                const node =\n                    nodes[slot.nodeSelector] ??\n                    frag.querySelector(slot.nodeSelector)\n""", """                const node = slot.nodePath\n                    ? (resolveNodePath(frag, slot.nodePath) as HTMLElement | null)\n                    : null\n""")
+          s = s.replace("""                const node =\n                    nodes[slot.nodeId] ?? frag.getElementById(slot.nodeId)\n""", """                const node = slot.nodePath\n                    ? (resolveNodePath(frag, slot.nodePath) as HTMLElement | null)\n                    : null\n""")
           p.write_text(s)
           PY
           }
 
-          apply_primitive_fast() {
+          apply_clean() {
             cd "$1"
             python3 - <<'PY'
           from pathlib import Path
           p = Path('src/html.ts')
           s = p.read_text()
-          attr_needle = """                    for (const p of slot.valueParts) {\n                        let value = typeof p === 'number' ? this.#values[p] : p\n"""
-          attr_fast = """                    if (\n                        !slot.prop &&\n                        !slot.name.startsWith('on') &&\n                        slot.valueParts.length === 1 &&\n                        typeof slot.valueParts[0] === 'number'\n                    ) {\n                        const valueIndex = slot.valueParts[0]\n                        const value = this.#values[valueIndex]\n\n                        if (isRebindableValue(value)) {\n                            const initialValue = val(value)\n                            setElementAttribute(node, slot.name, initialValue)\n                            let currentValue = initialValue\n                            this.#bindings.push({\n                                canUpdate: (nextValues) =>\n                                    isRebindableValue(nextValues[valueIndex]),\n                                update: (nextValues) => {\n                                    const nextValue = val(nextValues[valueIndex])\n                                    if (Object.is(currentValue, nextValue)) {\n                                        return false\n                                    }\n                                    setElementAttribute(node, slot.name, nextValue)\n                                    currentValue = nextValue\n                                    return true\n                                },\n                            })\n                            continue\n                        }\n                    }\n\n                    for (const p of slot.valueParts) {\n                        let value = typeof p === 'number' ? this.#values[p] : p\n"""
-          s = s.replace(attr_needle, attr_fast)
+          needle = """        if (node) slot.nodePath = getNodePath(templateRoot, node)\n    }\n\n    const compiledTemplate = {\n"""
+          replacement = """        if (node) slot.nodePath = getNodePath(templateRoot, node)\n    }\n\n    for (const node of templateRoot.querySelectorAll('[data-slot-id]')) {\n        node.removeAttribute('data-slot-id')\n    }\n    for (const node of templateRoot.querySelectorAll('script[id]')) {\n        node.removeAttribute('id')\n    }\n\n    const compiledTemplate = {\n"""
+          s = s.replace(needle, replacement)
+          p.write_text(s)
+          PY
+          }
 
+          apply_primitive() {
+            cd "$1"
+            python3 - <<'PY'
+          from pathlib import Path
+          p = Path('src/html.ts')
+          s = p.read_text()
           content_needle = """                if (node) {\n                    nodes[slot.nodeId] = node\n                    const parentNode = node.parentNode as HTMLElement\n                    const cont = document.createDocumentFragment()\n\n                    for (const p of slot.valueParts) {\n"""
-          content_fast = """                if (node) {\n                    nodes[slot.nodeId] = node\n                    const parentNode = node.parentNode as HTMLElement\n\n                    if (\n                        slot.valueParts.length === 1 &&\n                        typeof slot.valueParts[0] === 'number'\n                    ) {\n                        const valueIndex = slot.valueParts[0]\n                        const part = this.#values[valueIndex]\n                        if (typeof part !== 'function' && isRebindableValue(part)) {\n                            const textNode = document.createTextNode(String(part))\n                            node.parentNode?.replaceChild(textNode, node)\n                            let currentValue = part\n                            this.#bindings.push({\n                                canUpdate: (nextValues) =>\n                                    isRebindableValue(nextValues[valueIndex]),\n                                update: (nextValues) => {\n                                    const nextValue = nextValues[valueIndex]\n                                    if (Object.is(currentValue, nextValue)) {\n                                        return false\n                                    }\n                                    textNode.nodeValue = String(nextValue)\n                                    currentValue = nextValue\n                                    return true\n                                },\n                            })\n                            continue\n                        }\n                    }\n\n                    const cont = document.createDocumentFragment()\n\n                    for (const p of slot.valueParts) {\n"""
+          content_fast = """                if (node) {\n                    nodes[slot.nodeId] = node\n                    const parentNode = node.parentNode as HTMLElement\n\n                    if (\n                        slot.valueParts.length === 1 &&\n                        typeof slot.valueParts[0] === 'number'\n                    ) {\n                        const valueIndex = slot.valueParts[0]\n                        const part = this.#values[valueIndex]\n                        if (typeof part !== 'function' && isRebindableValue(part)) {\n                            const textNode = document.createTextNode(String(part))\n                            node.parentNode?.replaceChild(textNode, node)\n                            let currentValue = part\n                            this.#bindings.push({\n                                canUpdate: (nextValues) =>\n                                    isRebindableValue(nextValues[valueIndex]),\n                                update: (nextValues) => {\n                                    const nextValue = nextValues[valueIndex]\n                                    if (Object.is(currentValue, nextValue)) return false\n                                    textNode.nodeValue = String(nextValue)\n                                    currentValue = nextValue\n                                    return true\n                                },\n                            })\n                            continue\n                        }\n                    }\n\n                    const cont = document.createDocumentFragment()\n\n                    for (const p of slot.valueParts) {\n"""
           s = s.replace(content_needle, content_fast)
           p.write_text(s)
           PY
           }
 
-          apply_qsa_index /tmp/markup-qsa-index
-          apply_primitive_fast /tmp/markup-primitive-fast
-          apply_qsa_index /tmp/markup-combined
-          apply_primitive_fast /tmp/markup-combined
+          apply_paths /tmp/markup-path
+          apply_paths /tmp/markup-path-clean
+          apply_clean /tmp/markup-path-clean
+          apply_paths /tmp/markup-path-primitive
+          apply_clean /tmp/markup-path-primitive
+          apply_primitive /tmp/markup-path-primitive
 
           run_variant() {
             local name="$1"
@@ -73,15 +89,13 @@ jobs:
             echo "===== VARIANT: $name ====="
             cd "$dir"
             if [ "$name" != base ]; then ln -s /tmp/markup-base/node_modules node_modules; fi
-            sed -i 's/const SIZES = \[20, 60, 250, 1000\]/const SIZES = [20, 250]/' benchmarks/repeat-cache.bench.ts
             sed -i 's/const SIZES = \[20, 60, 250, 1000\]/const SIZES = [20, 250]/' benchmarks/repeat-dom.bench.ts
             npx tsc --noEmit
-            npm run benchmark:repeat
             npm run benchmark:dom
             cd "$ROOT"
           }
 
           run_variant base
-          run_variant qsa-index
-          run_variant primitive-fast
-          run_variant combined
+          run_variant path
+          run_variant path-clean
+          run_variant path-primitive
