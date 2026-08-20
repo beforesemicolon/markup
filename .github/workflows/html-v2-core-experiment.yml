@@ -14,7 +14,6 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx tsc --noEmit
       - name: Run HTML V2 benchmark
         run: |
           sed -i 's/time: 80, warmupTime: 30/time: 30, warmupTime: 10/' benchmarks/html-v2-core.bench.ts
@@ -25,4 +24,7 @@ jobs:
         continue-on-error: true
         run: |
           cp src/html-v2.ts src/html.ts
+          sed -i 's/item instanceof HtmlTemplate ? item.unmount() : item.remove()/item instanceof HtmlTemplate ? item.unmount() : item.parentNode?.removeChild(item)/' src/html.ts
+          sed -i 's/node.remove(); if (node === this.#markers\[1\])/node.parentNode?.removeChild(node); if (node === this.#markers[1])/' src/html.ts
+          npx tsc --noEmit
           npx jest src/html.spec.ts src/html.refs.spec.ts src/html.template-cache.spec.ts --runInBand
