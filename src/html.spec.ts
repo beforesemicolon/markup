@@ -105,14 +105,23 @@ describe('html', () => {
 		expect(document.body.innerHTML).toBe('&lt;p&gt;sample&lt;/p&gt;')
 	})
 	
-	it.skip('should render html entities', () => {
-		const htmlString = '&lt;'
-		const temp = html`${htmlString}`
+	it('should parse html entities in static template markup', () => {
+		const temp = html`&lt;`
 		
 		temp.render(document.body)
 		
 		expect(document.body.innerHTML).toBe('&lt;')
 		expect(document.body.textContent).toBe('<')
+	})
+
+	it('should render interpolated html entities as literal text', () => {
+		const htmlString = '&lt;'
+		const temp = html`${htmlString}`
+		
+		temp.render(document.body)
+		
+		expect(document.body.innerHTML).toBe('&amp;lt;')
+		expect(document.body.textContent).toBe('&lt;')
 	})
 	
 	it('should render html as HTML', () => {
