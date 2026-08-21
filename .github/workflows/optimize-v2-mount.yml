@@ -1,0 +1,57 @@
+name: Optimize V2 mount
+on:
+  push:
+    branches: [agent/experiment-html-v2-core]
+jobs:
+  optimize:
+    if: github.event.head_commit.message != 'Optimize V2 mount traversal'
+    runs-on: macos-14
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: agent/experiment-html-v2-core
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Patch mount traversal
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('src/html.ts')
+          s = p.read_text()
+
+          s = s.replace("type Definition = {\n    template: HTMLTemplateElement\n    parts: Descriptor[]\n}", "type Definition = {\n    template: HTMLTemplateElement\n    parts: Descriptor[]\n    hasCustomElements: boolean\n}")
+
+          s = s.replace("    const definition = { template, parts: descriptors }", "    const definition = {\n        template,\n        parts: descriptors,\n        hasCustomElements: Boolean(template.content.querySelector('*[is], *')),\n    }")
+
+          # Refine hasCustomElements after construction without a second broad scan at mount.
+          s = s.replace("        hasCustomElements: Boolean(template.content.querySelector('*[is], *')),", "        hasCustomElements: Array.from(template.content.querySelectorAll('*')).some(\n            (element) => element.localName.includes('-')\n        ),")
+
+          old = '''        instantiateDefinedCustomElements(fragment)\n        customElements.upgrade?.(fragment)\n\n        const nodes: Node[] = []\n        const walker = document.createTreeWalker(\n            fragment,\n            NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT | NodeFilter.SHOW_TEXT\n        )\n        while (walker.nextNode()) nodes.push(walker.currentNode)\n\n        this.#runtime = []\n        this.#partEffects.clear()\n\n        for (const descriptor of this.#definition.parts) {\n            const compiledNode = nodes[descriptor.node]\n            let part: Runtime\n'''
+          new = '''        if (this.#definition.hasCustomElements) {\n            instantiateDefinedCustomElements(fragment)\n            customElements.upgrade?.(fragment)\n        }\n\n        this.#runtime = []\n        this.#partEffects.clear()\n\n        const descriptors = this.#definition.parts\n        const walker = document.createTreeWalker(\n            fragment,\n            NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT | NodeFilter.SHOW_TEXT\n        )\n        let nodeIndex = -1\n        let descriptorIndex = 0\n\n        while (descriptorIndex < descriptors.length && walker.nextNode()) {\n            nodeIndex++\n            const descriptor = descriptors[descriptorIndex]\n            if (nodeIndex !== descriptor.node) continue\n\n            const compiledNode = walker.currentNode\n            let part: Runtime\n'''
+          if old not in s:
+              raise SystemExit('mount block not found')
+          s = s.replace(old, new)
+
+          old2 = '''            }\n            this.#runtime.push(part)\n        }\n\n        fragment.prepend(this.#markers[0])'''
+          new2 = '''            }\n            this.#runtime.push(part)\n            descriptorIndex++\n        }\n\n        fragment.prepend(this.#markers[0])'''
+          if old2 not in s:
+              raise SystemExit('runtime tail not found')
+          s = s.replace(old2, new2, 1)
+          p.write_text(s)
+          PY
+      - run: npm run build
+      - name: Benchmark candidate
+        run: npm run benchmark:dom
+      - name: Commit optimized source
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/html.ts
+          git commit -m 'Optimize V2 mount traversal'
+          git push origin HEAD:agent/experiment-html-v2-core
