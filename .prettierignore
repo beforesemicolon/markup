@@ -1,3 +1,4 @@
 src/**/*.spec.ts
 docs/**/*.html
 .netlify
+benchmarks/tmp-v2-compare.ts
