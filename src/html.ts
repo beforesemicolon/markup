@@ -10,6 +10,7 @@ const PREFIX = '__BFS_V2_'
 const TOKEN = /__BFS_V2_(\d+)__/g
 const EXACT = /^__BFS_V2_(\d+)__$/
 const SPREAD = /^__bfs_v2_(\d+)__$/
+const INITIAL = Symbol()
 
 type Piece = string | number
 type LifecycleCallback = (template: HtmlTemplate) => void | (() => void)
@@ -903,13 +904,9 @@ export class HtmlTemplate {
         this.#partEffects.clear()
 
         const descriptors = this.#definition.parts
-        const compiledNodes = new Map<number, Node>()
+        const compiledNodes: Node[] = new Array(descriptors.length)
 
         if (descriptors.length) {
-            const requiredIndexes = new Set(
-                descriptors.map((descriptor) => descriptor.node)
-            )
-            const lastNodeIndex = descriptors[descriptors.length - 1].node
             const walker = document.createTreeWalker(
                 fragment,
                 NodeFilter.SHOW_ELEMENT |
@@ -917,18 +914,22 @@ export class HtmlTemplate {
                     NodeFilter.SHOW_TEXT
             )
             let nodeIndex = -1
+            let descriptorIndex = 0
 
-            while (walker.nextNode()) {
+            while (descriptorIndex < descriptors.length && walker.nextNode()) {
                 nodeIndex++
-                if (requiredIndexes.has(nodeIndex)) {
-                    compiledNodes.set(nodeIndex, walker.currentNode)
+                while (
+                    descriptorIndex < descriptors.length &&
+                    descriptors[descriptorIndex].node === nodeIndex
+                ) {
+                    compiledNodes[descriptorIndex++] = walker.currentNode
                 }
-                if (nodeIndex >= lastNodeIndex) break
             }
         }
 
-        for (const descriptor of descriptors) {
-            const compiledNode = compiledNodes.get(descriptor.node)!
+        for (let index = 0; index < descriptors.length; index++) {
+            const descriptor = descriptors[index]
+            const compiledNode = compiledNodes[index]
             let part: Runtime
 
             if (descriptor.type === 'child') {
@@ -938,7 +939,7 @@ export class HtmlTemplate {
                     type: 'child',
                     anchor,
                     value: descriptor.value,
-                    current: Symbol(),
+                    current: INITIAL,
                     items: new DoubleLinkedList(),
                 }
             } else if (descriptor.type === 'raw') {
@@ -954,7 +955,7 @@ export class HtmlTemplate {
                     node: compiledNode as Element,
                     name: descriptor.name,
                     pieces: descriptor.pieces,
-                    current: Symbol(),
+                    current: INITIAL,
                 }
             } else if (descriptor.type === 'event') {
                 const node = compiledNode as Element
