@@ -25,6 +25,7 @@ type Descriptor =
 type Definition = {
     template: HTMLTemplateElement
     parts: Descriptor[]
+    hasCustomElements: boolean
 }
 
 const registry = new WeakMap<TemplateStringsArray, Definition>()
@@ -216,6 +217,7 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
         NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT | NodeFilter.SHOW_TEXT
     )
     let nodeIndex = -1
+    let hasCustomElements = false
 
     while (walker.nextNode()) {
         nodeIndex++
@@ -241,6 +243,7 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
         }
 
         if (!(node instanceof Element)) continue
+        if (node.localName.includes('-')) hasCustomElements = true
 
         const attributes = Array.from(node.attributes)
         const hasSpread = attributes.some((attr) => SPREAD.test(attr.name))
@@ -319,7 +322,7 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
         }
     }
 
-    const definition = { template, parts: descriptors }
+    const definition = { template, parts: descriptors, hasCustomElements }
     if (key) registry.set(key, definition)
     return definition
 }
@@ -891,75 +894,98 @@ export class HtmlTemplate {
             true
         ) as DocumentFragment
 
-        instantiateDefinedCustomElements(fragment)
-        customElements.upgrade?.(fragment)
-
-        const nodes: Node[] = []
-        const walker = document.createTreeWalker(
-            fragment,
-            NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT | NodeFilter.SHOW_TEXT
-        )
-        while (walker.nextNode()) nodes.push(walker.currentNode)
+        if (this.#definition.hasCustomElements) {
+            instantiateDefinedCustomElements(fragment)
+            customElements.upgrade?.(fragment)
+        }
 
         this.#runtime = []
         this.#partEffects.clear()
 
-        for (const descriptor of this.#definition.parts) {
-            const compiledNode = nodes[descriptor.node]
-            let part: Runtime
+        const descriptors = this.#definition.parts
+        if (descriptors.length) {
+            const walker = document.createTreeWalker(
+                fragment,
+                NodeFilter.SHOW_ELEMENT |
+                    NodeFilter.SHOW_COMMENT |
+                    NodeFilter.SHOW_TEXT
+            )
+            let nodeIndex = -1
+            let descriptorIndex = 0
+            const lastNodeIndex = descriptors[descriptors.length - 1].node
 
-            if (descriptor.type === 'child') {
-                const anchor = document.createTextNode('')
-                compiledNode.parentNode?.replaceChild(anchor, compiledNode)
-                part = {
-                    type: 'child',
-                    anchor,
-                    value: descriptor.value,
-                    current: Symbol(),
-                    items: new DoubleLinkedList(),
-                }
-            } else if (descriptor.type === 'raw') {
-                part = {
-                    type: 'raw',
-                    node: compiledNode as Text,
-                    pieces: descriptor.pieces,
-                    current: '',
-                }
-            } else if (descriptor.type === 'attr') {
-                part = {
-                    type: 'attr',
-                    node: compiledNode as Element,
-                    name: descriptor.name,
-                    pieces: descriptor.pieces,
-                    current: Symbol(),
-                }
-            } else if (descriptor.type === 'event') {
-                const node = compiledNode as Element
-                part = {
-                    type: 'event',
-                    node,
-                    name: descriptor.name,
-                    value: descriptor.value,
-                    asProperty: !shouldUseEventListener(node, descriptor.name),
-                }
-            } else if (descriptor.type === 'ref') {
-                part = {
-                    type: 'ref',
-                    node: compiledNode as Element,
-                    value: descriptor.value,
-                    staticName: descriptor.name,
-                }
-            } else {
-                part = {
-                    type: 'spread',
-                    node: compiledNode as Element,
-                    value: descriptor.value,
-                    blocked: new Set(descriptor.blocked),
-                    current: new Map(),
-                    events: new Map(),
+            while (
+                descriptorIndex < descriptors.length &&
+                walker.nextNode()
+            ) {
+                nodeIndex++
+                if (nodeIndex > lastNodeIndex) break
+
+                while (
+                    descriptorIndex < descriptors.length &&
+                    descriptors[descriptorIndex].node === nodeIndex
+                ) {
+                    const descriptor = descriptors[descriptorIndex++]
+                    const compiledNode = walker.currentNode
+                    let part: Runtime
+
+                    if (descriptor.type === 'child') {
+                        const anchor = document.createTextNode('')
+                        compiledNode.parentNode?.replaceChild(anchor, compiledNode)
+                        part = {
+                            type: 'child',
+                            anchor,
+                            value: descriptor.value,
+                            current: Symbol(),
+                            items: new DoubleLinkedList(),
+                        }
+                    } else if (descriptor.type === 'raw') {
+                        part = {
+                            type: 'raw',
+                            node: compiledNode as Text,
+                            pieces: descriptor.pieces,
+                            current: '',
+                        }
+                    } else if (descriptor.type === 'attr') {
+                        part = {
+                            type: 'attr',
+                            node: compiledNode as Element,
+                            name: descriptor.name,
+                            pieces: descriptor.pieces,
+                            current: Symbol(),
+                        }
+                    } else if (descriptor.type === 'event') {
+                        const node = compiledNode as Element
+                        part = {
+                            type: 'event',
+                            node,
+                            name: descriptor.name,
+                            value: descriptor.value,
+                            asProperty: !shouldUseEventListener(
+                                node,
+                                descriptor.name
+                            ),
+                        }
+                    } else if (descriptor.type === 'ref') {
+                        part = {
+                            type: 'ref',
+                            node: compiledNode as Element,
+                            value: descriptor.value,
+                            staticName: descriptor.name,
+                        }
+                    } else {
+                        part = {
+                            type: 'spread',
+                            node: compiledNode as Element,
+                            value: descriptor.value,
+                            blocked: new Set(descriptor.blocked),
+                            current: new Map(),
+                            events: new Map(),
+                        }
+                    }
+                    this.#runtime.push(part)
                 }
             }
-            this.#runtime.push(part)
         }
 
         fragment.prepend(this.#markers[0])
