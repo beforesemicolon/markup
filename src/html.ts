@@ -530,7 +530,7 @@ export class HtmlTemplate {
     #parts: TemplateStringsArray | string[]
     #values: unknown[]
     #runtime: Runtime[] = []
-    #partEffects = new Map<Runtime, EffectUnSubscriber>()
+    #partEffects?: Map<Runtime, EffectUnSubscriber>
     #markers = [document.createTextNode(''), document.createTextNode('')]
     #refs: Record<string, Set<Element>> = {}
     #mounted = false
@@ -540,7 +540,11 @@ export class HtmlTemplate {
     #unmountSub?: LifecycleCallback
 
     __PARENT__: HtmlTemplate | null = null
-    __CHILDREN__: Set<HtmlTemplate> = new Set()
+    #children?: Set<HtmlTemplate>
+
+    get __CHILDREN__(): Set<HtmlTemplate> {
+        return (this.#children ??= new Set())
+    }
 
     constructor(parts: TemplateStringsArray | string[], values: unknown[]) {
         this.#parts = parts
@@ -682,8 +686,8 @@ export class HtmlTemplate {
     }
 
     #activatePart(part: Runtime) {
-        this.#partEffects.get(part)?.()
-        this.#partEffects.delete(part)
+        this.#partEffects?.get(part)?.()
+        this.#partEffects?.delete(part)
 
         let initialized = false
         let initialChanged = false
@@ -698,7 +702,7 @@ export class HtmlTemplate {
         }
 
         if (this.#isReactive(part)) {
-            this.#partEffects.set(part, effect(commit))
+            ;(this.#partEffects ??= new Map()).set(part, effect(commit))
         } else {
             commit()
         }
@@ -900,7 +904,7 @@ export class HtmlTemplate {
         }
 
         this.#runtime = []
-        this.#partEffects.clear()
+        this.#partEffects?.clear()
 
         const descriptors = this.#definition.parts
         const compiledNodes: Node[] = new Array(descriptors.length)
@@ -1114,8 +1118,8 @@ export class HtmlTemplate {
     #dispose(removeDom: boolean, detachFromParent: boolean) {
         if (!this.#mounted) return
 
-        for (const unsub of this.#partEffects.values()) unsub()
-        this.#partEffects.clear()
+        for (const unsub of this.#partEffects?.values() ?? []) unsub()
+        this.#partEffects?.clear()
 
         // Dispose nested templates without individually removing their DOM. The
         // root range is removed once below, avoiding O(n) descendant DOM teardown.
