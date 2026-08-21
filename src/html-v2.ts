@@ -99,6 +99,18 @@ const setDynamicValue = (node: Element, name: string, value: unknown) => {
     setElementAttribute(node, name, value)
 }
 
+const extractTableContext = (
+    template: HTMLTemplateElement,
+    selector: string
+) => {
+    const context = template.content.querySelector(selector)
+    if (!context) return
+
+    const extracted = document.createDocumentFragment()
+    while (context.firstChild) extracted.appendChild(context.firstChild)
+    template.content.replaceChildren(extracted)
+}
+
 const parseTemplateSource = (template: HTMLTemplateElement, source: string) => {
     const tableRoot = /^<(tr|td|th|tbody|thead|tfoot|colgroup|caption|col)\b/i.exec(
         source
@@ -107,6 +119,29 @@ const parseTemplateSource = (template: HTMLTemplateElement, source: string) => {
     if (!tableRoot) {
         template.innerHTML = source
         return
+    }
+
+    // The existing Markup parser permits text directly inside <tr>. Native HTML
+    // parsing foster-parents that text outside the row. Parse it temporarily in a
+    // cell, then unwrap the cell so the resulting DOM matches existing behavior.
+    if (tableRoot === 'tr') {
+        const row = /^<tr([^>]*)>([\s\S]*)<\/tr>$/i.exec(source)
+        if (row && !/<(?:td|th)\b/i.test(row[2])) {
+            template.innerHTML = `<table><tbody><tr${row[1]}><td data-bfs-row-content>${row[2]}</td></tr></tbody></table>`
+            const tbody = template.content.querySelector('tbody')
+            const tr = tbody?.querySelector('tr')
+            const content = tr?.querySelector('[data-bfs-row-content]')
+
+            if (tr && content) {
+                while (content.firstChild) {
+                    tr.insertBefore(content.firstChild, content)
+                }
+                content.remove()
+            }
+
+            extractTableContext(template, 'tbody')
+            return
+        }
     }
 
     const contexts: Record<string, [string, string, string]> = {
@@ -121,15 +156,8 @@ const parseTemplateSource = (template: HTMLTemplateElement, source: string) => {
         col: ['<table><colgroup>', '</colgroup></table>', 'colgroup'],
     }
     const [before, after, selector] = contexts[tableRoot]
-
     template.innerHTML = `${before}${source}${after}`
-    const context = template.content.querySelector(selector)
-
-    if (context) {
-        const extracted = document.createDocumentFragment()
-        while (context.firstChild) extracted.appendChild(context.firstChild)
-        template.content.replaceChildren(extracted)
-    }
+    extractTableContext(template, selector)
 }
 
 function compile(parts: TemplateStringsArray | string[]): Definition {
