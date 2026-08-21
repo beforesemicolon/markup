@@ -84,7 +84,7 @@ for (const [name, renderer] of [
     ['fs-like', filesystem],
 ] as const) {
     for (const size of [250, 1000]) {
-        const iterations = size === 1000 ? 3 : 6
+        const iterations = size === 1000 ? 3 : 5
         const oldMs = measure(() => mount(baseline, size, renderer), iterations)
         const newMs = measure(() => mount(current, size, renderer), iterations)
         const delta = ((newMs / oldMs - 1) * 100).toFixed(1)
