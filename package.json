@@ -47,7 +47,7 @@
     ],
     "funding": {
         "url": "https://github.com/sponsors/beforesemicolon",
-        "type": "git"
+        "type": "github"
     },
     "devDependencies": {
         "@beforesemicolon/builder": "^1.8.25",
