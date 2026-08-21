@@ -39,7 +39,9 @@ const filesystem = (api: Api, item: Item) => api.html`
                 <span class="meta-label">Updated:</span>
                 <span class="meta-value">2 hours ago</span>
             </div>
-            <button class="action-trigger" onclick="${() => {}}">Actions</button>
+            <button class="action-trigger" onclick="${() => {}}">
+                Actions
+            </button>
         </div>
     </article>
 `
@@ -51,7 +53,8 @@ const mount = (
 ) => {
     const data = items(size)
     const container = document.createElement('div')
-    const template = api.html`<div>${api.repeat(data, (item) => renderer(api, item))}</div>`
+    const template = api.html`<div>${api.repeat(data, (item) =>
+        renderer(api, item))}</div>`
     template.render(container)
     template.unmount()
 }
@@ -85,7 +88,10 @@ for (const [name, renderer] of [
             () => mount(baseline, size, renderer),
             iterations
         )
-        const newMs = measure(() => mount(current, size, renderer), iterations)
+        const newMs = measure(
+            () => mount(current, size, renderer),
+            iterations
+        )
         const delta = ((newMs / oldMs - 1) * 100).toFixed(1)
         console.log(
             `${name} ${size}: 1.19.1=${oldMs.toFixed(2)} current=${newMs.toFixed(2)} delta=${delta}%`
