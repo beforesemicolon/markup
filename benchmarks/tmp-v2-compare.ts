@@ -10,13 +10,15 @@ type Api = Pick<typeof current, 'html' | 'repeat'>
 type Item = { id: number; name: string }
 type Result = Record<string, number>
 
+type Renderer = (api: Api, item: Item) => ReturnType<Api['html']>
+
 const items = (size: number): Item[] =>
     Array.from({ length: size }, (_, index) => ({
         id: index + 1,
         name: `item-${index + 1}`,
     }))
 
-const moderate = (api: Api, item: Item) => api.html`
+const moderate: Renderer = (api, item) => api.html`
     <div class="card" data-id="${item.id}">
         <button onclick="${() => {}}">Action</button>
         <strong>${item.name}</strong>
@@ -24,7 +26,7 @@ const moderate = (api: Api, item: Item) => api.html`
     </div>
 `
 
-const filesystem = (api: Api, item: Item) => api.html`
+const filesystem: Renderer = (api, item) => api.html`
     <article class="business-asset-card" data-id="${item.id}">
         <div class="icon-area"><span class="icon">📁</span></div>
         <div class="card-details">
@@ -47,25 +49,44 @@ const filesystem = (api: Api, item: Item) => api.html`
     </article>
 `
 
-const mount = (
+const profile = (
     api: Api,
-    size: number,
-    renderer: (api: Api, item: Item) => ReturnType<Api['html']>
+    data: Item[],
+    renderer: Renderer,
+    iterations: number
 ) => {
-    const data = items(size)
-    const container = document.createElement('div')
-    const template = api.html`<div>${api.repeat(data, (item) =>
-        renderer(api, item)
-    )}</div>`
-    template.render(container)
-    template.unmount()
-}
+    let create = 0
+    let render = 0
+    let unmount = 0
 
-const measure = (fn: () => void, iterations: number) => {
-    for (let index = 0; index < 2; index++) fn()
-    const start = performance.now()
-    for (let index = 0; index < iterations; index++) fn()
-    return (performance.now() - start) / iterations
+    const run = (record: boolean) => {
+        const container = document.createElement('div')
+        const startCreate = performance.now()
+        const template = api.html`<div>${api.repeat(data, (item) =>
+            renderer(api, item)
+        )}</div>`
+        const startRender = performance.now()
+        template.render(container)
+        const startUnmount = performance.now()
+        template.unmount()
+        const end = performance.now()
+
+        if (record) {
+            create += startRender - startCreate
+            render += startUnmount - startRender
+            unmount += end - startUnmount
+        }
+    }
+
+    run(false)
+    run(false)
+    for (let index = 0; index < iterations; index++) run(true)
+
+    return {
+        create: create / iterations,
+        render: render / iterations,
+        unmount: unmount / iterations,
+    }
 }
 
 const run = (api: Api): Result => {
@@ -75,11 +96,17 @@ const run = (api: Api): Result => {
         ['fs-like', filesystem],
     ] as const) {
         for (const size of [250, 1000]) {
-            const iterations = size === 1000 ? 3 : 5
-            result[`${name}-${size}`] = measure(
-                () => mount(api, size, renderer),
-                iterations
+            const phases = profile(
+                api,
+                items(size),
+                renderer,
+                size === 1000 ? 3 : 5
             )
+            result[`${name}-${size}-create`] = phases.create
+            result[`${name}-${size}-render`] = phases.render
+            result[`${name}-${size}-unmount`] = phases.unmount
+            result[`${name}-${size}-total`] =
+                phases.create + phases.render + phases.unmount
         }
     }
     return result
@@ -115,7 +142,7 @@ if (mode === 'current') {
         })
     ) as Result
 
-    console.log('\nV2 isolated-process benchmark (ms/op; lower is better)')
+    console.log('\nV2 isolated phase benchmark (ms/op; lower is better)')
     for (const key of Object.keys(baseline)) {
         const oldMs = baseline[key]
         const newMs = v2[key]
