@@ -1,0 +1,36 @@
+name: Validate cached descriptor paths
+
+on:
+  push:
+    branches:
+      - agent/experiment-html-v2-core
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: agent/experiment-html-v2-core
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.x
+          cache: npm
+      - run: npm ci
+      - run: python3 scripts/tmp_cached_paths.py
+      - run: npx prettier --write src/html.ts
+      - run: npm test -- --runInBand
+      - run: npx tsx benchmarks/tmp-v2-compare.ts
+      - name: Commit validated cached-path optimization
+        run: |
+          rm scripts/tmp_cached_paths.py
+          rm .github/workflows/tmp-cached-paths.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- src/html.ts scripts/tmp_cached_paths.py .github/workflows/tmp-cached-paths.yml
+          git commit -m 'perf: cache dynamic node paths at compile time'
+          git push origin HEAD:agent/experiment-html-v2-core
