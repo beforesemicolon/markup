@@ -20,7 +20,7 @@
         "local": "run-p local:watch local:serve",
         "local:watch": "NODE_ENV=development node build-docs.js && nodemon --exec 'NODE_ENV=development node build-docs.js'",
         "local:serve": "npx netlify dev --offline --no-open --skip-gitignore --dir website --port 8080 --staticServerPort 3998",
-        "build": "rm -rf dist && npm-run-all lint test && tsc --emitDeclarationOnly && node build.js && tsx benchmarks/tmp-v2-compare.ts",
+        "build": "python3 scripts/tmp_static_part_fastpath.py && npx prettier --write src/html.ts && rm -rf dist && npm-run-all lint test && tsc --emitDeclarationOnly && node build.js && tsx benchmarks/tmp-v2-compare.ts",
         "lint": "eslint ./src && prettier --check .",
         "format": "eslint ./src --fix && prettier --write .",
         "benchmark": "npm-run-all benchmark:repeat benchmark:dom benchmark:reactive",
