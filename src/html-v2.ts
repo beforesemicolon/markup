@@ -112,9 +112,9 @@ const extractTableContext = (
 }
 
 const parseTemplateSource = (template: HTMLTemplateElement, source: string) => {
-    const tableRoot = /^<(tr|td|th|tbody|thead|tfoot|colgroup|caption|col)\b/i.exec(
-        source
-    )?.[1]?.toLowerCase()
+    const tableRoot = /^<(tr|td|th|tbody|thead|tfoot|colgroup|caption|col)\b/i
+        .exec(source)?.[1]
+        ?.toLowerCase()
 
     if (!tableRoot) {
         template.innerHTML = source
