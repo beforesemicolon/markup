@@ -1,5 +1,6 @@
 import '../test.common.ts'
 import { html } from './html.ts'
+import { state } from './state.ts'
 
 describe('html template cache', () => {
     it('should keep distinct tagged template literal shapes separate', () => {
@@ -36,7 +37,6 @@ describe('html template cache', () => {
     })
 })
 
-
 describe('bulk nested teardown', () => {
     it('runs nested cleanup and supports remount after parent unmount', () => {
         const cleanup = jest.fn()
@@ -56,5 +56,25 @@ describe('bulk nested teardown', () => {
         expect(document.body.innerHTML).toBe('<div><span>child</span></div>')
         parent.unmount()
         expect(cleanup).toHaveBeenCalledTimes(2)
+    })
+
+    it('disposes nested reactive effects when the parent unmounts', () => {
+        const [value, setValue] = state('one')
+        const child = html`<span>${value}</span>`
+        const parent = html`<div>${child}</div>`
+
+        parent.render(document.body)
+        expect(document.body.innerHTML).toBe('<div><span>one</span></div>')
+
+        parent.unmount()
+        setValue('two')
+        jest.advanceTimersToNextTimer()
+
+        expect(child.mounted).toBe(false)
+        expect(document.body.innerHTML).toBe('')
+
+        parent.render(document.body)
+        expect(document.body.innerHTML).toBe('<div><span>two</span></div>')
+        parent.unmount()
     })
 })
