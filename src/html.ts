@@ -1109,54 +1109,41 @@ export class HtmlTemplate {
         return this
     }
 
-    unmount() {
-        if (!this.#mounted) return this
+    #dispose(removeDom: boolean, detachFromParent: boolean) {
+        if (!this.#mounted) return
 
         for (const unsub of this.#partEffects.values()) unsub()
         this.#partEffects.clear()
 
-        for (const part of this.#runtime) {
-            if (part.type === 'child') {
-                this.#clearChild(part)
-            } else if (part.type === 'event' && part.fn) {
-                part.node.removeEventListener(
-                    part.name.slice(2),
-                    part.fn,
-                    part.options
-                )
-            } else if (part.type === 'ref' && part.name) {
-                this.__removeRef(part.name, part.node)
-            } else if (part.type === 'spread') {
-                for (const [key, value] of part.current) {
-                    if (spreadName(key) === 'ref') {
-                        this.__removeRef(String(value), part.node)
-                    }
-                }
-                for (const [key, event] of part.events) {
-                    part.node.removeEventListener(
-                        spreadName(key).slice(2),
-                        event.fn,
-                        event.options
-                    )
-                }
-            }
+        // Dispose nested templates without individually removing their DOM. The
+        // root range is removed once below, avoiding O(n) descendant DOM teardown.
+        for (const child of this.__CHILDREN__) {
+            child.#dispose(false, false)
         }
-
-        let node: Node | null = this.#markers[0]
-        while (node) {
-            const next: Node | null = node.nextSibling
-            node.parentNode?.removeChild(node)
-            if (node === this.#markers[1]) break
-            node = next
-        }
-
-        this.__PARENT__?.__CHILDREN__.delete(this)
-        this.__PARENT__ = null
         this.__CHILDREN__.clear()
+
+        for (const part of this.#runtime) {
+            if (part.type === 'child') part.items.clear()
+        }
+
+        if (removeDom && this.#markers[0].parentNode) {
+            const range = document.createRange()
+            range.setStartBefore(this.#markers[0])
+            range.setEndAfter(this.#markers[1])
+            range.deleteContents()
+            range.detach()
+        }
+
+        if (detachFromParent) this.__PARENT__?.__CHILDREN__.delete(this)
+        this.__PARENT__ = null
         this.#runtime = []
         this.#refs = {}
         this.#mounted = false
         this.#unmountSub?.(this)
+    }
+
+    unmount() {
+        this.#dispose(true, true)
         return this
     }
 

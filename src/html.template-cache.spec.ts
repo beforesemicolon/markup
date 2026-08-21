@@ -35,3 +35,26 @@ describe('html template cache', () => {
         expect(second.toString()).toBe('<strong>two</strong>')
     })
 })
+
+
+describe('bulk nested teardown', () => {
+    it('runs nested cleanup and supports remount after parent unmount', () => {
+        const cleanup = jest.fn()
+        const child = html`<span>child</span>`.onMount(() => cleanup)
+        const parent = html`<div>${child}</div>`
+
+        parent.render(document.body)
+        expect(document.body.innerHTML).toBe('<div><span>child</span></div>')
+
+        parent.unmount()
+        expect(cleanup).toHaveBeenCalledTimes(1)
+        expect(document.body.innerHTML).toBe('')
+        expect(parent.mounted).toBe(false)
+        expect(child.mounted).toBe(false)
+
+        parent.render(document.body)
+        expect(document.body.innerHTML).toBe('<div><span>child</span></div>')
+        parent.unmount()
+        expect(cleanup).toHaveBeenCalledTimes(2)
+    })
+})
