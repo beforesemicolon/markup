@@ -86,7 +86,7 @@ const isKnownHTMLEventName = (name: string) =>
 
 const shouldUseEventListener = (node: Element, name: string) => {
     const ctor = node.nodeName.includes('-')
-        ? customElements.get(node.localName) ?? node.constructor
+        ? (customElements.get(node.localName) ?? node.constructor)
         : node.constructor
 
     return (
@@ -175,14 +175,8 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
     source = source
         .replace(/<(__BFS_V2_\d+__)/g, '&lt;$1')
         .replace(/<\/(__BFS_V2_\d+__)/g, '&lt;/$1')
-        .replace(
-            />(\s*)__BFS_V2_(\d+)__(\s*)</g,
-            '>$1<!--bfs:$2-->$3<'
-        )
-        .replace(
-            /<([a-z][\w.-]*-[\w.-]+)([^>]*)\/>/gi,
-            '<$1$2></$1>'
-        )
+        .replace(/>(\s*)__BFS_V2_(\d+)__(\s*)</g, '>$1<!--bfs:$2-->$3<')
+        .replace(/<([a-z][\w.-]*-[\w.-]+)([^>]*)\/>/gi, '<$1$2></$1>')
 
     const template = document.createElement('template')
     parseTemplateSource(template, source.trim())
@@ -752,7 +746,12 @@ export class HtmlTemplate {
                 return true
             }
 
-            reconcileItems(part.items, normalizeContent(next), part.anchor, this)
+            reconcileItems(
+                part.items,
+                normalizeContent(next),
+                part.anchor,
+                this
+            )
             part.current = next
             return true
         }
@@ -777,7 +776,8 @@ export class HtmlTemplate {
 
             const next = getEventValue(raw, part.name)
             const eventName = part.name.slice(2)
-            if (next.fn === part.fn && next.options === part.options) return false
+            if (next.fn === part.fn && next.options === part.options)
+                return false
             if (part.fn) {
                 part.node.removeEventListener(eventName, part.fn, part.options)
             }
@@ -808,8 +808,7 @@ export class HtmlTemplate {
         )) {
             const name = spreadName(key)
             const value =
-                name.startsWith('on') &&
-                shouldUseEventListener(part.node, name)
+                name.startsWith('on') && shouldUseEventListener(part.node, name)
                     ? rawValue
                     : resolve(rawValue)
             next.set(key, value)
@@ -989,7 +988,8 @@ export class HtmlTemplate {
         fragment.prepend(this.#markers[0])
         fragment.append(this.#markers[1])
 
-        if (action === 'replace') target.parentNode?.replaceChild(fragment, target)
+        if (action === 'replace')
+            target.parentNode?.replaceChild(fragment, target)
         else if (action === 'after') insertNodeAfter(fragment, target)
         else target.appendChild(fragment)
 
@@ -1033,7 +1033,9 @@ export class HtmlTemplate {
             target instanceof HTMLHeadElement ||
             target instanceof HTMLHtmlElement
         ) {
-            throw new Error(`Invalid "replace" target element. Received ${target}`)
+            throw new Error(
+                `Invalid "replace" target element. Received ${target}`
+            )
         }
 
         let node: Node = target as Node
