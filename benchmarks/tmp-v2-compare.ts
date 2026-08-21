@@ -54,7 +54,8 @@ const mount = (
     const data = items(size)
     const container = document.createElement('div')
     const template = api.html`<div>${api.repeat(data, (item) =>
-        renderer(api, item))}</div>`
+        renderer(api, item)
+    )}</div>`
     template.render(container)
     template.unmount()
 }
@@ -84,14 +85,8 @@ for (const [name, renderer] of [
 ] as const) {
     for (const size of [250, 1000]) {
         const iterations = size === 1000 ? 3 : 8
-        const oldMs = measure(
-            () => mount(baseline, size, renderer),
-            iterations
-        )
-        const newMs = measure(
-            () => mount(current, size, renderer),
-            iterations
-        )
+        const oldMs = measure(() => mount(baseline, size, renderer), iterations)
+        const newMs = measure(() => mount(current, size, renderer), iterations)
         const delta = ((newMs / oldMs - 1) * 100).toFixed(1)
         console.log(
             `${name} ${size}: 1.19.1=${oldMs.toFixed(2)} current=${newMs.toFixed(2)} delta=${delta}%`
