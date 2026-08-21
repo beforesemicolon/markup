@@ -16,12 +16,12 @@ type Piece = string | number
 type LifecycleCallback = (template: HtmlTemplate) => void | (() => void)
 
 type Descriptor =
-    | { type: 'child'; node: number; value: number }
-    | { type: 'raw'; node: number; pieces: Piece[] }
-    | { type: 'attr'; node: number; name: string; pieces: Piece[] }
-    | { type: 'event'; node: number; name: string; value: number }
-    | { type: 'ref'; node: number; name?: string; value?: number }
-    | { type: 'spread'; node: number; value: number; blocked: string[] }
+    | { type: 'child'; path: number[]; value: number }
+    | { type: 'raw'; path: number[]; pieces: Piece[] }
+    | { type: 'attr'; path: number[]; name: string; pieces: Piece[] }
+    | { type: 'event'; path: number[]; name: string; value: number }
+    | { type: 'ref'; path: number[]; name?: string; value?: number }
+    | { type: 'spread'; path: number[]; value: number; blocked: string[] }
 
 type Definition = {
     template: HTMLTemplateElement
@@ -162,6 +162,19 @@ const parseTemplateSource = (template: HTMLTemplateElement, source: string) => {
     extractTableContext(template, selector)
 }
 
+const getNodePath = (node: Node, root: Node) => {
+    const path: number[] = []
+    let current = node
+    while (current !== root) {
+        const parent = current.parentNode
+        if (!parent) break
+        path.push(Array.prototype.indexOf.call(parent.childNodes, current))
+        current = parent
+    }
+    path.reverse()
+    return path
+}
+
 function compile(parts: TemplateStringsArray | string[]): Definition {
     const key = isTemplateStringsArray(parts) ? parts : null
     const cached = key ? registry.get(key) : undefined
@@ -221,7 +234,7 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
         if (node instanceof Comment && node.data.startsWith('bfs:')) {
             descriptors.push({
                 type: 'child',
-                node: nodeIndex,
+                path: getNodePath(node, template.content),
                 value: Number(node.data.slice(4)),
             })
             continue
@@ -230,7 +243,7 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
         if (node instanceof Text && node.data.includes(PREFIX)) {
             descriptors.push({
                 type: 'raw',
-                node: nodeIndex,
+                path: getNodePath(node, template.content),
                 pieces: parsePieces(node.data),
             })
             node.data = ''
@@ -251,7 +264,7 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
             if (spread) {
                 descriptors.push({
                     type: 'spread',
-                    node: nodeIndex,
+                    path: getNodePath(node, template.content),
                     value: Number(spread[1]),
                     blocked,
                 })
@@ -267,12 +280,12 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
                     exact
                         ? {
                               type: 'ref',
-                              node: nodeIndex,
+                              path: getNodePath(node, template.content),
                               value: Number(exact[1]),
                           }
                         : {
                               type: 'ref',
-                              node: nodeIndex,
+                              path: getNodePath(node, template.content),
                               name: attr.value,
                           }
                 )
@@ -284,7 +297,7 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
                 if (hasSpread) {
                     descriptors.push({
                         type: 'attr',
-                        node: nodeIndex,
+                        path: getNodePath(node, template.content),
                         name: attr.name,
                         pieces: [attr.value],
                     })
@@ -301,14 +314,14 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
             if (name.startsWith('on') && valueIndex !== null) {
                 descriptors.push({
                     type: 'event',
-                    node: nodeIndex,
+                    path: getNodePath(node, template.content),
                     name,
                     value: valueIndex,
                 })
             } else {
                 descriptors.push({
                     type: 'attr',
-                    node: nodeIndex,
+                    path: getNodePath(node, template.content),
                     name: attr.name,
                     pieces: parsePieces(attr.value),
                 })
@@ -907,28 +920,11 @@ export class HtmlTemplate {
         this.#partEffects?.clear()
 
         const descriptors = this.#definition.parts
-        const compiledNodes: Node[] = new Array(descriptors.length)
-
-        if (descriptors.length) {
-            const walker = document.createTreeWalker(
-                fragment,
-                NodeFilter.SHOW_ELEMENT |
-                    NodeFilter.SHOW_COMMENT |
-                    NodeFilter.SHOW_TEXT
-            )
-            let nodeIndex = -1
-            let descriptorIndex = 0
-
-            while (descriptorIndex < descriptors.length && walker.nextNode()) {
-                nodeIndex++
-                while (
-                    descriptorIndex < descriptors.length &&
-                    descriptors[descriptorIndex].node === nodeIndex
-                ) {
-                    compiledNodes[descriptorIndex++] = walker.currentNode
-                }
-            }
-        }
+        const compiledNodes = descriptors.map((descriptor) => {
+            let node: Node = fragment
+            for (const index of descriptor.path) node = node.childNodes[index]
+            return node
+        })
 
         for (let index = 0; index < descriptors.length; index++) {
             const descriptor = descriptors[index]
