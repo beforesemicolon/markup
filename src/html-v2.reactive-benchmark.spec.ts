@@ -3,17 +3,24 @@ import { html as currentHtml } from './html.ts'
 import { html as v2Html } from './html-v2.ts'
 import { state } from './state.ts'
 
+type TemplateLike = {
+    render(target: HTMLElement): unknown
+    unmount(): unknown
+}
+
+type HtmlFactory = (
+    parts: TemplateStringsArray | string[],
+    ...values: unknown[]
+) => TemplateLike
+
 const now = () => process.hrtime.bigint()
 const elapsedMs = (start: bigint) => Number(now() - start) / 1_000_000
 
-const mountReactive = (
-    html: typeof currentHtml,
-    size: number
-) => {
+const mountReactive = (html: HtmlFactory, size: number) => {
     const [value] = state(0)
     const host = document.createElement('div')
     document.body.append(host)
-    const templates = []
+    const templates: TemplateLike[] = []
     const start = now()
 
     for (let i = 0; i < size; i++) {
@@ -28,11 +35,11 @@ const mountReactive = (
     return ms
 }
 
-const setupReactive = (html: typeof currentHtml, size: number) => {
+const setupReactive = (html: HtmlFactory, size: number) => {
     const [value, setValue] = state(0)
     const host = document.createElement('div')
     document.body.append(host)
-    const templates = []
+    const templates: TemplateLike[] = []
 
     for (let i = 0; i < size; i++) {
         const template = html`<article data-value="${value}"><span>${value}</span><p>${i}</p></article>`
@@ -66,31 +73,34 @@ describe('HTML V2 reactive benchmark', () => {
     it('reports current vs V2 reactive mount and update timings', async () => {
         jest.useRealTimers()
 
+        const current = currentHtml as HtmlFactory
+        const v2 = v2Html as HtmlFactory
         const results: Record<string, { current: number; v2: number }> = {}
 
         for (const size of [20, 250]) {
-            // Warm caches before timing.
-            mountReactive(currentHtml, size)
-            mountReactive(v2Html as typeof currentHtml, size)
+            mountReactive(current, size)
+            mountReactive(v2, size)
 
             results[`reactive mount x${size}`] = {
-                current: mountReactive(currentHtml, size),
-                v2: mountReactive(v2Html as typeof currentHtml, size),
+                current: mountReactive(current, size),
+                v2: mountReactive(v2, size),
             }
 
-            const current = setupReactive(currentHtml, size)
-            const v2 = setupReactive(v2Html as typeof currentHtml, size)
+            const currentSetup = setupReactive(current, size)
+            const v2Setup = setupReactive(v2, size)
 
             results[`reactive update x${size}`] = {
-                current: await measureUpdates(current.setValue, 20),
-                v2: await measureUpdates(v2.setValue, 20),
+                current: await measureUpdates(currentSetup.setValue, 20),
+                v2: await measureUpdates(v2Setup.setValue, 20),
             }
 
-            expect(current.host.querySelector('span')?.textContent).toBe('20')
-            expect(v2.host.querySelector('span')?.textContent).toBe('20')
+            expect(currentSetup.host.querySelector('span')?.textContent).toBe(
+                '20'
+            )
+            expect(v2Setup.host.querySelector('span')?.textContent).toBe('20')
 
-            current.cleanup()
-            v2.cleanup()
+            currentSetup.cleanup()
+            v2Setup.cleanup()
         }
 
         console.log('HTML_V2_REACTIVE_BENCHMARK', JSON.stringify(results))
