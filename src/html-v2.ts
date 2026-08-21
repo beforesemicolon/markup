@@ -1,8 +1,9 @@
-import { ObjectLiteral } from './types.ts'
+import { EffectUnSubscriber, ObjectLiteral } from './types.ts'
 import { setElementAttribute } from './utils/set-element-attribute.ts'
 import { isObjectLiteral } from './utils/is-object-literal.ts'
 import { turnCamelToKebabCasing } from './utils/turn-camel-to-kebab-casing.ts'
 import { insertNodeAfter } from './utils/insert-node-after.ts'
+import { effect } from './state.ts'
 
 const PREFIX = '__BFS_V2_'
 const TOKEN = /__BFS_V2_(\d+)__/g
@@ -335,6 +336,7 @@ export class HtmlTemplate {
     #parts: TemplateStringsArray | string[]
     #values: unknown[]
     #runtime: Runtime[] = []
+    #partEffects = new Map<Runtime, EffectUnSubscriber>()
     #markers = [document.createTextNode(''), document.createTextNode('')]
     #refs: Record<string, Set<Element>> = {}
     #mounted = false
@@ -460,6 +462,77 @@ export class HtmlTemplate {
         }
     }
 
+    #isReactive(part: Runtime) {
+        if (part.type === 'child') {
+            return typeof this.#values[part.value] === 'function'
+        }
+
+        if (part.type === 'raw' || part.type === 'attr') {
+            return part.pieces.some(
+                (piece) =>
+                    typeof piece === 'number' &&
+                    typeof this.#values[piece] === 'function'
+            )
+        }
+
+        if (part.type === 'event') {
+            return (
+                part.asProperty &&
+                typeof this.#values[part.value] === 'function'
+            )
+        }
+
+        if (part.type === 'ref') {
+            return (
+                part.value !== undefined &&
+                typeof this.#values[part.value] === 'function'
+            )
+        }
+
+        const source = this.#values[part.value]
+        if (!isObjectLiteral(source)) return false
+
+        return Object.entries(source as ObjectLiteral<unknown>).some(
+            ([key, value]) => {
+                if (typeof value !== 'function') return false
+                const name = spreadName(key)
+                return !(
+                    name.startsWith('on') &&
+                    shouldUseEventListener(part.node, name)
+                )
+            }
+        )
+    }
+
+    #activatePart(part: Runtime, notifyOnReactiveUpdate = true) {
+        this.#partEffects.get(part)?.()
+        this.#partEffects.delete(part)
+
+        let initialized = false
+        let initialChanged = false
+        const commit = () => {
+            const changed = this.#commit(part, this.#values)
+            if (!initialized) {
+                initialChanged = changed
+                initialized = true
+            } else if (
+                changed &&
+                notifyOnReactiveUpdate &&
+                this.#mounted
+            ) {
+                this.#updateSub?.(this)
+            }
+        }
+
+        if (this.#isReactive(part)) {
+            this.#partEffects.set(part, effect(commit))
+        } else {
+            commit()
+        }
+
+        return initialChanged
+    }
+
     #commit(part: Runtime, values: unknown[]) {
         if (part.type === 'raw') {
             let next = ''
@@ -557,7 +630,18 @@ export class HtmlTemplate {
             throw new Error(`Invalid attribute object provided: ${source}`)
         }
 
-        const next = new Map(Object.entries(source as ObjectLiteral<unknown>))
+        const next = new Map<string, unknown>()
+        for (const [key, rawValue] of Object.entries(
+            source as ObjectLiteral<unknown>
+        )) {
+            const name = spreadName(key)
+            const value =
+                name.startsWith('on') &&
+                shouldUseEventListener(part.node, name)
+                    ? rawValue
+                    : resolve(rawValue)
+            next.set(key, value)
+        }
 
         for (const [key, oldValue] of part.current) {
             const name = spreadName(key)
@@ -582,17 +666,17 @@ export class HtmlTemplate {
 
         let changed = false
 
-        for (const [key, rawValue] of next) {
+        for (const [key, value] of next) {
             const name = spreadName(key)
             if (part.blocked.has(name)) continue
-            if (Object.is(part.current.get(key), rawValue)) continue
+            if (Object.is(part.current.get(key), value)) continue
 
             if (name === 'ref') {
                 const oldValue = part.current.get(key)
                 if (oldValue !== undefined) {
                     this.__removeRef(String(oldValue), part.node)
                 }
-                this.__addRef(String(resolve(rawValue) ?? ''), part.node)
+                this.__addRef(String(value ?? ''), part.node)
             } else if (
                 name.startsWith('on') &&
                 shouldUseEventListener(part.node, name)
@@ -605,7 +689,7 @@ export class HtmlTemplate {
                         oldEvent.options
                     )
                 }
-                const event = getEventValue(rawValue, name)
+                const event = getEventValue(value, name)
                 part.node.addEventListener(
                     name.slice(2),
                     event.fn,
@@ -613,7 +697,7 @@ export class HtmlTemplate {
                 )
                 part.events.set(key, event)
             } else {
-                setElementAttribute(part.node, name, resolve(rawValue))
+                setElementAttribute(part.node, name, value)
             }
 
             changed = true
@@ -632,7 +716,7 @@ export class HtmlTemplate {
         let changed = false
 
         for (const part of this.#runtime) {
-            changed = this.#commit(part, this.#values) || changed
+            changed = this.#activatePart(part) || changed
         }
 
         if (changed) {
@@ -660,6 +744,7 @@ export class HtmlTemplate {
         }
 
         this.#runtime = []
+        this.#partEffects.clear()
 
         for (const descriptor of this.#definition.parts) {
             const compiledNode = nodes[descriptor.node]
@@ -735,7 +820,7 @@ export class HtmlTemplate {
 
         // Commit after insertion so connected custom elements expose their setters.
         for (const part of this.#runtime) {
-            this.#commit(part, this.#values)
+            this.#activatePart(part, false)
         }
 
         const cleanup = this.#mountSub?.(this)
@@ -853,6 +938,11 @@ export class HtmlTemplate {
 
     unmount() {
         if (!this.#mounted) return this
+
+        for (const unsub of this.#partEffects.values()) {
+            unsub()
+        }
+        this.#partEffects.clear()
 
         for (const part of this.#runtime) {
             if (part.type === 'child') {
