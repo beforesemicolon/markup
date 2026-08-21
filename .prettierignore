@@ -1,4 +1,5 @@
 src/**/*.spec.ts
 src/html.ts
+build.js
 docs/**/*.html
 .netlify
