@@ -2,12 +2,12 @@ import '../test.common.ts'
 import { html } from './html-v2.ts'
 import { state } from './state.ts'
 
-const flush = async () => {
-    await Promise.resolve()
+const flush = () => {
+    jest.advanceTimersToNextTimer()
 }
 
 describe('HTML V2 reactive integration', () => {
-    it('updates reactive content and attributes in place', async () => {
+    it('updates reactive content and attributes in place', () => {
         const [count, setCount] = state(1)
         const host = document.createElement('div')
         const template = html`<div data-count="${count}">${count}</div>`
@@ -19,14 +19,14 @@ describe('HTML V2 reactive integration', () => {
         expect(node.getAttribute('data-count')).toBe('1')
 
         setCount(2)
-        await flush()
+        flush()
 
         expect(host.querySelector('div')).toBe(node)
         expect(node.textContent).toBe('2')
         expect(node.getAttribute('data-count')).toBe('2')
     })
 
-    it('reconciles conditional dependencies on each reactive part run', async () => {
+    it('reconciles conditional dependencies on each reactive part run', () => {
         const [useLeft, setUseLeft] = state(true)
         const [left, setLeft] = state('left')
         const [right, setRight] = state('right')
@@ -38,19 +38,19 @@ describe('HTML V2 reactive integration', () => {
         expect(host.textContent).toBe('left')
 
         setUseLeft(false)
-        await flush()
+        flush()
         expect(host.textContent).toBe('right')
 
         setLeft('stale')
-        await flush()
+        flush()
         expect(host.textContent).toBe('right')
 
         setRight('fresh')
-        await flush()
+        flush()
         expect(host.textContent).toBe('fresh')
     })
 
-    it('disposes reactive parts on unmount and recreates them on remount', async () => {
+    it('disposes reactive parts on unmount and recreates them on remount', () => {
         const [value, setValue] = state('one')
         const firstHost = document.createElement('div')
         const secondHost = document.createElement('div')
@@ -61,18 +61,18 @@ describe('HTML V2 reactive integration', () => {
 
         template.unmount()
         setValue('two')
-        await flush()
+        flush()
         expect(firstHost.textContent).toBe('')
 
         template.render(secondHost)
         expect(secondHost.textContent).toBe('two')
 
         setValue('three')
-        await flush()
+        flush()
         expect(secondHost.textContent).toBe('three')
     })
 
-    it('updates reactive spread values without treating event handlers as getters', async () => {
+    it('updates reactive spread values without treating event handlers as getters', () => {
         const [title, setTitle] = state('first')
         const click = jest.fn()
         const attrs = {
@@ -90,12 +90,12 @@ describe('HTML V2 reactive integration', () => {
         expect(click).toHaveBeenCalledTimes(1)
 
         setTitle('second')
-        await flush()
+        flush()
         expect(button.getAttribute('title')).toBe('second')
         expect(click).toHaveBeenCalledTimes(1)
     })
 
-    it('updates reactive refs', async () => {
+    it('updates reactive refs', () => {
         const [name, setName] = state('first')
         const host = document.createElement('div')
         const template = html`<div ref="${name}"></div>`
@@ -105,12 +105,12 @@ describe('HTML V2 reactive integration', () => {
         expect(template.refs.first).toEqual([node])
 
         setName('second')
-        await flush()
+        flush()
         expect(template.refs.first).toBeUndefined()
         expect(template.refs.second).toEqual([node])
     })
 
-    it('updates reactive nested templates while retaining the outer DOM', async () => {
+    it('updates reactive nested templates while retaining the outer DOM', () => {
         const [value, setValue] = state('one')
         const nested = () => html`<strong>${value()}</strong>`
         const host = document.createElement('div')
@@ -121,7 +121,7 @@ describe('HTML V2 reactive integration', () => {
         expect(section.textContent).toBe('one')
 
         setValue('two')
-        await flush()
+        flush()
 
         expect(host.querySelector('section')).toBe(section)
         expect(section.textContent).toBe('two')
