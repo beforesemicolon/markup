@@ -1126,12 +1126,14 @@ export class HtmlTemplate {
             if (part.type === 'child') part.items.clear()
         }
 
-        if (removeDom && this.#markers[0].parentNode) {
-            const range = document.createRange()
-            range.setStartBefore(this.#markers[0])
-            range.setEndAfter(this.#markers[1])
-            range.deleteContents()
-            range.detach()
+        if (removeDom) {
+            let node: Node | null = this.#markers[0]
+            while (node) {
+                const next: Node | null = node.nextSibling
+                node.parentNode?.removeChild(node)
+                if (node === this.#markers[1]) break
+                node = next
+            }
         }
 
         if (detachFromParent) this.__PARENT__?.__CHILDREN__.delete(this)
