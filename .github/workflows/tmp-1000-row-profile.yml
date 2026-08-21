@@ -1,0 +1,23 @@
+name: Temporary 1000-row allocation benchmark
+
+on:
+  push:
+    branches:
+      - agent/experiment-html-v2-core
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: agent/experiment-html-v2-core
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.x
+          cache: npm
+      - run: npm ci
+      - run: python3 scripts/tmp_lazy_alloc.py
+      - run: npx prettier --write src/html.ts
+      - run: npm test -- --runInBand
+      - run: npx tsx benchmarks/tmp-v2-compare.ts
