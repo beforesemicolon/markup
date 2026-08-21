@@ -1,13 +1,14 @@
 import 'global-jsdom/register'
-import { execSync } from 'node:child_process'
+import { execFileSync, execSync } from 'node:child_process'
 import { mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { pathToFileURL } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import * as current from '../src/index.ts'
 
 type Api = Pick<typeof current, 'html' | 'repeat'>
 type Item = { id: number; name: string }
+type Result = Record<string, number>
 
 const items = (size: number): Item[] =>
     Array.from({ length: size }, (_, index) => ({
@@ -67,29 +68,60 @@ const measure = (fn: () => void, iterations: number) => {
     return (performance.now() - start) / iterations
 }
 
-const baselineDir = mkdtempSync(join(tmpdir(), 'markup-1191-'))
-execSync(
-    `npm install --prefix "${baselineDir}" @beforesemicolon/markup@1.19.1 --ignore-scripts --no-audit --no-fund`,
-    { stdio: 'ignore' }
-)
-const baselinePath = join(
-    baselineDir,
-    'node_modules/@beforesemicolon/markup/dist/esm/index.js'
-)
-const baseline = (await import(pathToFileURL(baselinePath).href)) as Api
+const run = (api: Api): Result => {
+    const result: Result = {}
+    for (const [name, renderer] of [
+        ['moderate', moderate],
+        ['fs-like', filesystem],
+    ] as const) {
+        for (const size of [250, 1000]) {
+            const iterations = size === 1000 ? 3 : 5
+            result[`${name}-${size}`] = measure(
+                () => mount(api, size, renderer),
+                iterations
+            )
+        }
+    }
+    return result
+}
 
-console.log('\nV2 standard-pattern benchmark (ms/op; lower is better)')
-for (const [name, renderer] of [
-    ['moderate', moderate],
-    ['fs-like', filesystem],
-] as const) {
-    for (const size of [250, 1000]) {
-        const iterations = size === 1000 ? 3 : 5
-        const oldMs = measure(() => mount(baseline, size, renderer), iterations)
-        const newMs = measure(() => mount(current, size, renderer), iterations)
+const mode = process.argv[2]
+if (mode === 'current') {
+    console.log(JSON.stringify(run(current)))
+} else if (mode === 'baseline') {
+    const baselinePath = process.argv[3]
+    const baseline = (await import(pathToFileURL(baselinePath).href)) as Api
+    console.log(JSON.stringify(run(baseline)))
+} else {
+    const baselineDir = mkdtempSync(join(tmpdir(), 'markup-1191-'))
+    execSync(
+        `npm install --prefix "${baselineDir}" @beforesemicolon/markup@1.19.1 --ignore-scripts --no-audit --no-fund`,
+        { stdio: 'ignore' }
+    )
+    const baselinePath = join(
+        baselineDir,
+        'node_modules/@beforesemicolon/markup/dist/esm/index.js'
+    )
+    const executable = join(process.cwd(), 'node_modules/.bin/tsx')
+    const script = fileURLToPath(import.meta.url)
+    const baseline = JSON.parse(
+        execFileSync(executable, [script, 'baseline', baselinePath], {
+            encoding: 'utf8',
+        })
+    ) as Result
+    const v2 = JSON.parse(
+        execFileSync(executable, [script, 'current'], {
+            encoding: 'utf8',
+        })
+    ) as Result
+
+    console.log('\nV2 isolated-process benchmark (ms/op; lower is better)')
+    for (const key of Object.keys(baseline)) {
+        const oldMs = baseline[key]
+        const newMs = v2[key]
         const delta = ((newMs / oldMs - 1) * 100).toFixed(1)
         console.log(
-            `${name} ${size}: 1.19.1=${oldMs.toFixed(2)} current=${newMs.toFixed(2)} delta=${delta}%`
+            `${key}: 1.19.1=${oldMs.toFixed(2)} current=${newMs.toFixed(2)} delta=${delta}%`
         )
     }
 }
