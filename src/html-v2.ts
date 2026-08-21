@@ -3,6 +3,7 @@ import { setElementAttribute } from './utils/set-element-attribute.ts'
 import { isObjectLiteral } from './utils/is-object-literal.ts'
 import { turnCamelToKebabCasing } from './utils/turn-camel-to-kebab-casing.ts'
 import { insertNodeAfter } from './utils/insert-node-after.ts'
+import { DoubleLinkedList } from './DoubleLinkedList.ts'
 import { effect } from './state.ts'
 
 const PREFIX = '__BFS_V2_'
@@ -95,6 +96,41 @@ const shouldUseEventListener = (node: Element, name: string) => {
     )
 }
 
+const setDynamicValue = (node: Element, name: string, value: unknown) => {
+    setElementAttribute(node, name, value)
+}
+
+const parseTemplateSource = (template: HTMLTemplateElement, source: string) => {
+    const tableRoot = /^<(tr|td|th|tbody|thead|tfoot|colgroup|caption|col)\b/i.exec(
+        source
+    )?.[1]?.toLowerCase()
+
+    if (!tableRoot) {
+        template.innerHTML = source
+        return
+    }
+
+    const contexts: Record<string, [string, string, string]> = {
+        tr: ['<table><tbody>', '</tbody></table>', 'tbody'],
+        td: ['<table><tbody><tr>', '</tr></tbody></table>', 'tr'],
+        th: ['<table><tbody><tr>', '</tr></tbody></table>', 'tr'],
+        tbody: ['<table>', '</table>', 'table'],
+        thead: ['<table>', '</table>', 'table'],
+        tfoot: ['<table>', '</table>', 'table'],
+        colgroup: ['<table>', '</table>', 'table'],
+        caption: ['<table>', '</table>', 'table'],
+        col: ['<table><colgroup>', '</colgroup></table>', 'colgroup'],
+    }
+    const [before, after, selector] = contexts[tableRoot]
+
+    template.innerHTML = `${before}${source}${after}`
+    const context = template.content.querySelector(selector)
+
+    if (context) {
+        template.content.replaceChildren(...Array.from(context.childNodes))
+    }
+}
+
 function compile(parts: TemplateStringsArray | string[]): Definition {
     const key = isTemplateStringsArray(parts) ? parts : null
     const cached = key ? registry.get(key) : undefined
@@ -109,9 +145,15 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
     source = source
         .replace(/<(__BFS_V2_\d+__)/g, '&lt;$1')
         .replace(/<\/(__BFS_V2_\d+__)/g, '&lt;/$1')
+        // Markup historically accepts self-closing custom elements. Native HTML
+        // parsing does not, so normalize only custom-element tags before parsing.
+        .replace(
+            /<([a-z][\w.-]*-[\w.-]+)([^>]*)\/>/gi,
+            '<$1$2></$1>'
+        )
 
     const template = document.createElement('template')
-    template.innerHTML = source.trim()
+    parseTemplateSource(template, source.trim())
 
     const dynamicText: Text[] = []
     const textWalker = document.createTreeWalker(
@@ -215,8 +257,6 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
 
             if (!attr.value.includes(PREFIX)) {
                 if (hasSpread) {
-                    // Commit explicit attributes after the spread. This preserves
-                    // both source-order serialization and explicit precedence.
                     descriptors.push({
                         type: 'attr',
                         node: nodeIndex,
@@ -261,10 +301,11 @@ type Item = Node | HtmlTemplate
 
 type ChildRuntime = {
     type: 'child'
-    anchor: Text
+    start: Text
+    end: Text
     value: number
     current: unknown
-    items: Item[]
+    items: DoubleLinkedList<Item>
 }
 
 type Runtime =
@@ -313,6 +354,145 @@ type Runtime =
               }
           >
       }
+
+const normalizeItem = (value: unknown): Item => {
+    if (value instanceof Node || value instanceof HtmlTemplate) {
+        return value
+    }
+    return document.createTextNode(String(value))
+}
+
+const normalizeContent = (value: unknown): Item[] =>
+    Array.isArray(value) ? value.map(normalizeItem) : [normalizeItem(value)]
+
+const removeItem = (item: Item) => {
+    if (item instanceof HtmlTemplate) {
+        item.unmount()
+    } else {
+        item.parentNode?.removeChild(item)
+    }
+}
+
+const insertItemAfter = (item: Item, previous: Item | Node) => {
+    if (item instanceof HtmlTemplate) {
+        item.insertAfter(previous)
+    } else if (previous instanceof HtmlTemplate) {
+        insertNodeAfter(item, previous.__MARKERS__[1])
+    } else {
+        insertNodeAfter(item, previous)
+    }
+}
+
+const reconcileItems = (
+    current: DoubleLinkedList<Item>,
+    nextItems: Item[],
+    anchor: Node,
+    template: HtmlTemplate
+) => {
+    if (!nextItems.length) {
+        for (const item of current) removeItem(item)
+        current.clear()
+        return
+    }
+
+    const nextSet = new Set(nextItems)
+
+    if (!current.size) {
+        const fragment = document.createDocumentFragment()
+        for (const item of nextItems) {
+            if (item instanceof HtmlTemplate) {
+                item.render(fragment)
+                item.__PARENT__ = template
+                template.__CHILDREN__.add(item)
+            } else {
+                fragment.appendChild(item)
+            }
+            current.push(item)
+        }
+        insertNodeAfter(fragment, anchor)
+        return
+    }
+
+    let previous: Item | Node = anchor
+    let index = 0
+    let currentItem: Item | null = current.head
+
+    while (index < nextItems.length || currentItem) {
+        const nextItem = index < nextItems.length ? nextItems[index] : null
+        const added =
+            Boolean(nextItem) &&
+            !current.has(nextItem as Item) &&
+            currentItem !== nextItem
+        let removed = false
+        let replaced = false
+        let moved = false
+
+        if (!nextItem && currentItem) {
+            removed = true
+        } else if (currentItem && nextItem) {
+            removed = !nextSet.has(currentItem)
+            replaced = removed && !current.has(nextItem)
+            moved = !removed && !replaced && currentItem !== nextItem
+        }
+
+        if (nextItem instanceof HtmlTemplate) {
+            nextItem.__PARENT__ = template
+            template.__CHILDREN__.add(nextItem)
+        }
+
+        if (moved && nextItem) {
+            const nextCurrent = current.getNextValueOf(currentItem)
+
+            if (nextCurrent !== nextItem) {
+                current.insertValueBefore(nextItem, currentItem as Item)
+                insertItemAfter(nextItem, previous)
+            } else {
+                current.remove(currentItem as Item)
+                currentItem = current.getNextValueOf(nextCurrent)
+            }
+        } else if (replaced && nextItem) {
+            insertItemAfter(nextItem, previous)
+            removeItem(currentItem as Item)
+            const nextCurrent = current.getNextValueOf(currentItem)
+            current.insertValueBefore(nextItem, currentItem as Item)
+            current.remove(currentItem as Item)
+            currentItem = nextCurrent
+        } else if (removed) {
+            removeItem(currentItem as Item)
+            const nextCurrent = current.getNextValueOf(currentItem)
+            current.remove(currentItem as Item)
+            currentItem = nextCurrent
+            continue
+        } else if (added && nextItem) {
+            insertItemAfter(nextItem, previous)
+            current.push(nextItem)
+        } else if (currentItem) {
+            currentItem = current.getNextValueOf(currentItem)
+        }
+
+        if (nextItem) previous = nextItem
+        index++
+    }
+}
+
+const instantiateDefinedCustomElements = (fragment: DocumentFragment) => {
+    const elements = Array.from(fragment.querySelectorAll('*'))
+
+    for (const element of elements) {
+        if (!element.localName.includes('-')) continue
+        const ctor = customElements.get(element.localName)
+        if (!ctor || element instanceof ctor) continue
+
+        const replacement = document.createElement(element.localName)
+        for (const attr of Array.from(element.attributes)) {
+            replacement.setAttribute(attr.name, attr.value)
+        }
+        while (element.firstChild) {
+            replacement.appendChild(element.firstChild)
+        }
+        element.replaceWith(replacement)
+    }
+}
 
 const getEventValue = (raw: unknown, name: string) => {
     let fn: unknown = raw
@@ -395,16 +575,12 @@ export class HtmlTemplate {
         const add = (refs: Record<string, Iterable<Element>>) => {
             for (const [name, nodes] of Object.entries(refs)) {
                 const target = collected[name] ?? (collected[name] = new Set())
-                for (const node of nodes) {
-                    target.add(node)
-                }
+                for (const node of nodes) target.add(node)
             }
         }
 
         add(this.#refs)
-        for (const child of this.__CHILDREN__) {
-            add(child.refs)
-        }
+        for (const child of this.__CHILDREN__) add(child.refs)
 
         return Object.fromEntries(
             Object.entries(collected).map(([name, nodes]) => [name, [...nodes]])
@@ -418,48 +594,11 @@ export class HtmlTemplate {
 
     __removeRef(name: string, node: Element) {
         this.#refs[name]?.delete(node)
-        if (!this.#refs[name]?.size) {
-            delete this.#refs[name]
-        }
+        if (!this.#refs[name]?.size) delete this.#refs[name]
     }
 
     #clearChild(part: ChildRuntime) {
-        for (const item of part.items) {
-            if (item instanceof HtmlTemplate) {
-                item.unmount()
-            } else {
-                item.parentNode?.removeChild(item)
-            }
-        }
-        part.items = []
-    }
-
-    #appendChild(part: ChildRuntime, value: unknown) {
-        const parent = part.anchor.parentNode
-        if (!parent) return
-
-        const resolved = resolve(value)
-        const values = Array.isArray(resolved) ? resolved : [resolved]
-
-        for (const entry of values) {
-            const item = resolve(entry)
-
-            if (item instanceof HtmlTemplate) {
-                item.__PARENT__ = this
-                this.__CHILDREN__.add(item)
-                const fragment = document.createDocumentFragment()
-                item.render(fragment)
-                parent.insertBefore(fragment, part.anchor)
-                part.items.push(item)
-            } else if (item instanceof Node) {
-                parent.insertBefore(item, part.anchor)
-                part.items.push(item)
-            } else {
-                const text = document.createTextNode(String(item))
-                parent.insertBefore(text, part.anchor)
-                part.items.push(text)
-            }
-        }
+        reconcileItems(part.items, [], part.start, this)
     }
 
     #isReactive(part: Runtime) {
@@ -504,7 +643,7 @@ export class HtmlTemplate {
         )
     }
 
-    #activatePart(part: Runtime, notifyOnReactiveUpdate = true) {
+    #activatePart(part: Runtime) {
         this.#partEffects.get(part)?.()
         this.#partEffects.delete(part)
 
@@ -515,11 +654,7 @@ export class HtmlTemplate {
             if (!initialized) {
                 initialChanged = changed
                 initialized = true
-            } else if (
-                changed &&
-                notifyOnReactiveUpdate &&
-                this.#mounted
-            ) {
+            } else if (changed && this.#mounted) {
                 this.#updateSub?.(this)
             }
         }
@@ -554,9 +689,9 @@ export class HtmlTemplate {
 
             if (
                 next instanceof HtmlTemplate &&
-                part.items.length === 1 &&
-                part.items[0] instanceof HtmlTemplate &&
-                part.items[0].__updateFrom(next)
+                part.items.size === 1 &&
+                part.items.head instanceof HtmlTemplate &&
+                part.items.head.__updateFrom(next)
             ) {
                 part.current = next
                 return true
@@ -566,16 +701,15 @@ export class HtmlTemplate {
                 !Array.isArray(next) &&
                 !(next instanceof Node) &&
                 !(next instanceof HtmlTemplate) &&
-                part.items.length === 1 &&
-                part.items[0] instanceof Text
+                part.items.size === 1 &&
+                part.items.head instanceof Text
             ) {
-                part.items[0].data = String(next)
+                part.items.head.data = String(next)
                 part.current = next
                 return true
             }
 
-            this.#clearChild(part)
-            this.#appendChild(part, next)
+            reconcileItems(part.items, normalizeContent(next), part.start, this)
             part.current = next
             return true
         }
@@ -583,7 +717,7 @@ export class HtmlTemplate {
         if (part.type === 'attr') {
             const next = getAttributeValue(part.pieces, values)
             if (Object.is(next, part.current)) return false
-            setElementAttribute(part.node, part.name, next)
+            setDynamicValue(part.node, part.name, next)
             part.current = next
             return true
         }
@@ -594,7 +728,7 @@ export class HtmlTemplate {
             if (part.asProperty) {
                 const next = resolve(raw)
                 if (Object.is(next, part.current)) return false
-                setElementAttribute(part.node, part.name, next)
+                setDynamicValue(part.node, part.name, next)
                 part.current = next
                 return true
             }
@@ -617,9 +751,7 @@ export class HtmlTemplate {
                 part.staticName ?? String(resolve(values[part.value!]) ?? '')
             if (next === part.name) return false
 
-            if (part.name) {
-                this.__removeRef(part.name, part.node)
-            }
+            if (part.name) this.__removeRef(part.name, part.node)
             this.__addRef(next, part.node)
             part.name = next
             return true
@@ -660,7 +792,7 @@ export class HtmlTemplate {
                 }
                 part.events.delete(key)
             } else {
-                setElementAttribute(part.node, name, undefined)
+                setDynamicValue(part.node, name, undefined)
             }
         }
 
@@ -697,7 +829,7 @@ export class HtmlTemplate {
                 )
                 part.events.set(key, event)
             } else {
-                setElementAttribute(part.node, name, value)
+                setDynamicValue(part.node, name, value)
             }
 
             changed = true
@@ -719,10 +851,7 @@ export class HtmlTemplate {
             changed = this.#activatePart(part) || changed
         }
 
-        if (changed) {
-            this.#updateSub?.(this)
-        }
-
+        if (changed) this.#updateSub?.(this)
         return true
     }
 
@@ -731,6 +860,10 @@ export class HtmlTemplate {
             true
         ) as DocumentFragment
 
+        // jsdom does not reliably upgrade custom elements cloned from template
+        // contents while detached. Recreate registered custom elements so their
+        // property setters are available before dynamic commits.
+        instantiateDefinedCustomElements(fragment)
         customElements.upgrade?.(fragment)
 
         const nodes: Node[] = []
@@ -739,9 +872,7 @@ export class HtmlTemplate {
             NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT | NodeFilter.SHOW_TEXT
         )
 
-        while (walker.nextNode()) {
-            nodes.push(walker.currentNode)
-        }
+        while (walker.nextNode()) nodes.push(walker.currentNode)
 
         this.#runtime = []
         this.#partEffects.clear()
@@ -751,14 +882,17 @@ export class HtmlTemplate {
             let part: Runtime
 
             if (descriptor.type === 'child') {
-                const anchor = document.createTextNode('')
-                compiledNode.parentNode?.replaceChild(anchor, compiledNode)
+                const start = document.createTextNode('')
+                const end = document.createTextNode('')
+                compiledNode.parentNode?.replaceChild(end, compiledNode)
+                end.parentNode?.insertBefore(start, end)
                 part = {
                     type: 'child',
-                    anchor,
+                    start,
+                    end,
                     value: descriptor.value,
                     current: Symbol(),
-                    items: [],
+                    items: new DoubleLinkedList(),
                 }
             } else if (descriptor.type === 'raw') {
                 part = {
@@ -818,15 +952,11 @@ export class HtmlTemplate {
 
         this.#mounted = true
 
-        // Commit after insertion so connected custom elements expose their setters.
-        for (const part of this.#runtime) {
-            this.#activatePart(part, false)
-        }
+        // Commit after insertion so connected custom elements expose setters.
+        for (const part of this.#runtime) this.#activatePart(part)
 
         const cleanup = this.#mountSub?.(this)
-        if (typeof cleanup === 'function') {
-            this.#unmountSub = cleanup
-        }
+        if (typeof cleanup === 'function') this.#unmountSub = cleanup
     }
 
     render(target: ShadowRoot | HTMLElement | Element | DocumentFragment) {
@@ -847,9 +977,7 @@ export class HtmlTemplate {
                     ...this.childNodes,
                     this.#markers[1]
                 )
-                if (!(target instanceof DocumentFragment)) {
-                    this.#moveSub?.(this)
-                }
+                if (!(target instanceof DocumentFragment)) this.#moveSub?.(this)
             }
         } else {
             this.#mount('render', target)
@@ -869,6 +997,7 @@ export class HtmlTemplate {
         }
 
         let node: Node = target as Node
+        let parentTemplate: HtmlTemplate | null = null
 
         if (target instanceof HtmlTemplate) {
             node = document.createTextNode('')
@@ -876,7 +1005,7 @@ export class HtmlTemplate {
                 node,
                 target.__MARKERS__[0]
             )
-            this.__PARENT__ = target.__PARENT__
+            parentTemplate = target.__PARENT__
             target.unmount()
         }
 
@@ -893,6 +1022,11 @@ export class HtmlTemplate {
             this.#moveSub?.(this)
         } else {
             this.#mount('replace', node)
+        }
+
+        if (parentTemplate) {
+            this.__PARENT__ = parentTemplate
+            parentTemplate.__CHILDREN__.add(this)
         }
 
         return this
@@ -939,9 +1073,7 @@ export class HtmlTemplate {
     unmount() {
         if (!this.#mounted) return this
 
-        for (const unsub of this.#partEffects.values()) {
-            unsub()
-        }
+        for (const unsub of this.#partEffects.values()) unsub()
         this.#partEffects.clear()
 
         for (const part of this.#runtime) {
