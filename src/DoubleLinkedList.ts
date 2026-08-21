@@ -126,7 +126,7 @@ export class DoubleLinkedList<T> {
         if (!element) return
 
         const existingElement = this.#getElement(newValue)
-        if (element.next === existingElement) return
+        if (existingElement && element.next === existingElement) return
         if (existingElement) this.remove(newValue)
 
         const map = this.#ensureMap()
@@ -150,7 +150,7 @@ export class DoubleLinkedList<T> {
         if (!element) return
 
         const existingElement = this.#getElement(newValue)
-        if (element.prev === existingElement) return
+        if (existingElement && element.prev === existingElement) return
         if (existingElement) this.remove(newValue)
 
         const map = this.#ensureMap()
