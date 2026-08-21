@@ -224,11 +224,9 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
         template.content,
         NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT | NodeFilter.SHOW_TEXT
     )
-    let nodeIndex = -1
     let hasCustomElements = false
 
     while (walker.nextNode()) {
-        nodeIndex++
         const node = walker.currentNode
 
         if (node instanceof Comment && node.data.startsWith('bfs:')) {
