@@ -142,18 +142,13 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
         source += `${PREFIX}${index - 1}__${parts[index]}`
     }
 
-    // Dynamic values are content, never tag names.
     source = source
         .replace(/<(__BFS_V2_\d+__)/g, '&lt;$1')
         .replace(/<\/(__BFS_V2_\d+__)/g, '&lt;/$1')
-        // Exact child expressions become comments before native parsing so HTML
-        // table foster-parenting cannot move the dynamic location out of context.
         .replace(
             />(\s*)__BFS_V2_(\d+)__(\s*)</g,
             '>$1<!--bfs:$2-->$3<'
         )
-        // Markup historically accepts self-closing custom elements. Native HTML
-        // parsing does not, so normalize only custom-element tags before parsing.
         .replace(
             /<([a-z][\w.-]*-[\w.-]+)([^>]*)\/>/gi,
             '<$1$2></$1>'
@@ -490,10 +485,7 @@ const instantiateDefinedCustomElements = (fragment: DocumentFragment) => {
 }
 
 const getEventValue = (raw: unknown, name: string) => {
-    let fn: unknown = raw
-    let options: boolean | AddEventListenerOptions | undefined
-
-    if (Array.isArray(raw)) ;[fn, options] = raw
+    const [fn, options] = Array.isArray(raw) ? raw : [raw, undefined]
 
     if (typeof fn !== 'function') {
         throw new Error(
@@ -501,7 +493,10 @@ const getEventValue = (raw: unknown, name: string) => {
         )
     }
 
-    return { fn: fn as EventListener, options }
+    return {
+        fn: fn as EventListener,
+        options: options as boolean | AddEventListenerOptions | undefined,
+    }
 }
 
 export class HtmlTemplate {
@@ -596,10 +591,6 @@ export class HtmlTemplate {
         }
     }
 
-    /**
-     * Compatibility path used by repeat(). V1 deliberately refused rebinding
-     * lifecycle templates, function slots, nested templates and other objects.
-     */
     __rebind__(next: HtmlTemplate) {
         if (
             !this.#mounted ||
