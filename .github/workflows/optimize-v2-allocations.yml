@@ -1,0 +1,38 @@
+name: Optimize V2 mount allocations
+on:
+  push:
+    branches:
+      - agent/experiment-html-v2-core
+jobs:
+  patch:
+    if: github.event.head_commit.message != 'Reduce V2 mount allocation pressure'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: agent/experiment-html-v2-core
+      - name: Patch allocation-heavy mount lookup
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('src/html.ts')
+          s = p.read_text()
+          s = s.replace("const SPREAD = /^__bfs_v2_(\\d+)__$/", "const SPREAD = /^__bfs_v2_(\\d+)__$/\nconst INITIAL = Symbol()")
+          old = '''        const descriptors = this.#definition.parts\n        const compiledNodes = new Map<number, Node>()\n\n        if (descriptors.length) {\n            const requiredIndexes = new Set(\n                descriptors.map((descriptor) => descriptor.node)\n            )\n            const lastNodeIndex = descriptors[descriptors.length - 1].node\n            const walker = document.createTreeWalker(\n                fragment,\n                NodeFilter.SHOW_ELEMENT |\n                    NodeFilter.SHOW_COMMENT |\n                    NodeFilter.SHOW_TEXT\n            )\n            let nodeIndex = -1\n\n            while (walker.nextNode()) {\n                nodeIndex++\n                if (requiredIndexes.has(nodeIndex)) {\n                    compiledNodes.set(nodeIndex, walker.currentNode)\n                }\n                if (nodeIndex >= lastNodeIndex) break\n            }\n        }\n\n        for (const descriptor of descriptors) {\n            const compiledNode = compiledNodes.get(descriptor.node)!\n'''
+          new = '''        const descriptors = this.#definition.parts\n        const compiledNodes: Node[] = new Array(descriptors.length)\n\n        if (descriptors.length) {\n            const walker = document.createTreeWalker(\n                fragment,\n                NodeFilter.SHOW_ELEMENT |\n                    NodeFilter.SHOW_COMMENT |\n                    NodeFilter.SHOW_TEXT\n            )\n            let nodeIndex = -1\n            let descriptorIndex = 0\n\n            while (descriptorIndex < descriptors.length && walker.nextNode()) {\n                nodeIndex++\n                while (\n                    descriptorIndex < descriptors.length &&\n                    descriptors[descriptorIndex].node === nodeIndex\n                ) {\n                    compiledNodes[descriptorIndex++] = walker.currentNode\n                }\n            }\n        }\n\n        for (let index = 0; index < descriptors.length; index++) {\n            const descriptor = descriptors[index]\n            const compiledNode = compiledNodes[index]\n'''
+          if old not in s:
+              raise SystemExit('mount lookup block not found')
+          s = s.replace(old, new)
+          s = s.replace('current: Symbol(),', 'current: INITIAL,')
+          p.write_text(s)
+          PY
+          rm .github/workflows/optimize-v2-allocations.yml
+      - name: Commit optimized source
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/html.ts .github/workflows/optimize-v2-allocations.yml
+          git commit -m 'Reduce V2 mount allocation pressure'
+          git push origin HEAD:agent/experiment-html-v2-core
