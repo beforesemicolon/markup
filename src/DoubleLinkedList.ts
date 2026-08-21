@@ -7,7 +7,7 @@ interface DLLElement<T> {
 export class DoubleLinkedList<T> {
     #head: DLLElement<T> | null = null
     #tail: DLLElement<T> | null = null
-    #map: Map<T, DLLElement<T>> | null = null
+    #map: Map<T, DLLElement<T>> | null = null;
 
     *[Symbol.iterator]() {
         let current = this.#head
