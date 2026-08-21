@@ -1,0 +1,29 @@
+name: Format temporary benchmark
+on:
+  push:
+    branches:
+      - agent/experiment-html-v2-core
+jobs:
+  format:
+    if: github.event.head_commit.message != 'Format temporary V2 benchmark with project Prettier'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: agent/experiment-html-v2-core
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx prettier --write benchmarks/tmp-v2-compare.ts
+      - run: rm .github/workflows/format-temp-benchmark.yml
+      - name: Commit formatted benchmark
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add benchmarks/tmp-v2-compare.ts .github/workflows/format-temp-benchmark.yml
+          git commit -m 'Format temporary V2 benchmark with project Prettier'
+          git push origin HEAD:agent/experiment-html-v2-core
