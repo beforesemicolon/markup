@@ -37,7 +37,7 @@ const isReusableTemplate = (value: unknown): value is ReusableTemplate =>
                 'function'))
 
 const reuseTemplate = (current: ReusableTemplate, next: unknown) =>
-    current.__updateFrom?.(next) ?? current.__rebind__?.(next) ?? false
+    current.__rebind__?.(next) ?? current.__updateFrom?.(next) ?? false
 
 const getList = (data: unknown) => {
     if (data) {
@@ -146,9 +146,7 @@ export const repeat = <T, TKey = T, K = string>(
             }
 
             nextEntries.set(key, entry)
-            if (renderedValues) {
-                renderedValues[index] = rendered
-            }
+            if (renderedValues) renderedValues[index] = rendered
         }
 
         previousEntries = nextEntries
