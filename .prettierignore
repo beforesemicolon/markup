@@ -1,4 +1,3 @@
 src/**/*.spec.ts
-src/html-v2.ts
 docs/**/*.html
 .netlify
