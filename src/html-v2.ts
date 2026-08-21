@@ -40,22 +40,22 @@ const parsePieces = (value: string): Piece[] => {
     TOKEN.lastIndex = 0
 
     for (let match = TOKEN.exec(value); match; match = TOKEN.exec(value)) {
-        if (match.index > last) {
-            out.push(value.slice(last, match.index))
-        }
+        if (match.index > last) out.push(value.slice(last, match.index))
         out.push(Number(match[1]))
         last = match.index + match[0].length
     }
 
-    if (last < value.length) {
-        out.push(value.slice(last))
-    }
-
+    if (last < value.length) out.push(value.slice(last))
     return out
 }
 
 const resolve = (value: unknown): unknown =>
     typeof value === 'function' ? resolve((value as () => unknown)()) : value
+
+const isRebindableValue = (value: unknown) =>
+    value === null ||
+    value === undefined ||
+    (typeof value !== 'object' && typeof value !== 'function')
 
 const getAttributeValue = (parts: Piece[], values: unknown[]) => {
     if (parts.length === 1 && typeof parts[0] === 'number') {
@@ -69,7 +69,6 @@ const getAttributeValue = (parts: Piece[], values: unknown[]) => {
                 ? String(resolve(values[part]) ?? '')
                 : part
     }
-
     return out.trim()
 }
 
@@ -127,7 +126,9 @@ const parseTemplateSource = (template: HTMLTemplateElement, source: string) => {
     const context = template.content.querySelector(selector)
 
     if (context) {
-        template.content.replaceChildren(...Array.from(context.childNodes))
+        const extracted = document.createDocumentFragment()
+        while (context.firstChild) extracted.appendChild(context.firstChild)
+        template.content.replaceChildren(extracted)
     }
 }
 
@@ -145,6 +146,12 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
     source = source
         .replace(/<(__BFS_V2_\d+__)/g, '&lt;$1')
         .replace(/<\/(__BFS_V2_\d+__)/g, '&lt;/$1')
+        // Exact child expressions become comments before native parsing so HTML
+        // table foster-parenting cannot move the dynamic location out of context.
+        .replace(
+            />(\s*)__BFS_V2_(\d+)__(\s*)</g,
+            '>$1<!--bfs:$2-->$3<'
+        )
         // Markup historically accepts self-closing custom elements. Native HTML
         // parsing does not, so normalize only custom-element tags before parsing.
         .replace(
@@ -163,13 +170,10 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
 
     while (textWalker.nextNode()) {
         const text = textWalker.currentNode as Text
-        if (text.data.includes(PREFIX)) {
-            dynamicText.push(text)
-        }
+        if (text.data.includes(PREFIX)) dynamicText.push(text)
     }
 
     for (const text of dynamicText) {
-        // script/style are raw-text elements; keep their text node intact.
         if (text.parentElement?.matches('script,style')) continue
 
         const fragment = document.createDocumentFragment()
@@ -301,8 +305,7 @@ type Item = Node | HtmlTemplate
 
 type ChildRuntime = {
     type: 'child'
-    start: Text
-    end: Text
+    anchor: Text
     value: number
     current: unknown
     items: DoubleLinkedList<Item>
@@ -356,9 +359,7 @@ type Runtime =
       }
 
 const normalizeItem = (value: unknown): Item => {
-    if (value instanceof Node || value instanceof HtmlTemplate) {
-        return value
-    }
+    if (value instanceof Node || value instanceof HtmlTemplate) return value
     return document.createTextNode(String(value))
 }
 
@@ -366,11 +367,8 @@ const normalizeContent = (value: unknown): Item[] =>
     Array.isArray(value) ? value.map(normalizeItem) : [normalizeItem(value)]
 
 const removeItem = (item: Item) => {
-    if (item instanceof HtmlTemplate) {
-        item.unmount()
-    } else {
-        item.parentNode?.removeChild(item)
-    }
+    if (item instanceof HtmlTemplate) item.unmount()
+    else item.parentNode?.removeChild(item)
 }
 
 const insertItemAfter = (item: Item, previous: Item | Node) => {
@@ -442,7 +440,6 @@ const reconcileItems = (
 
         if (moved && nextItem) {
             const nextCurrent = current.getNextValueOf(currentItem)
-
             if (nextCurrent !== nextItem) {
                 current.insertValueBefore(nextItem, currentItem as Item)
                 insertItemAfter(nextItem, previous)
@@ -487,9 +484,7 @@ const instantiateDefinedCustomElements = (fragment: DocumentFragment) => {
         for (const attr of Array.from(element.attributes)) {
             replacement.setAttribute(attr.name, attr.value)
         }
-        while (element.firstChild) {
-            replacement.appendChild(element.firstChild)
-        }
+        while (element.firstChild) replacement.appendChild(element.firstChild)
         element.replaceWith(replacement)
     }
 }
@@ -498,9 +493,7 @@ const getEventValue = (raw: unknown, name: string) => {
     let fn: unknown = raw
     let options: boolean | AddEventListenerOptions | undefined
 
-    if (Array.isArray(raw)) {
-        ;[fn, options] = raw
-    }
+    if (Array.isArray(raw)) ;[fn, options] = raw
 
     if (typeof fn !== 'function') {
         throw new Error(
@@ -560,18 +553,15 @@ export class HtmlTemplate {
     get childNodes() {
         const nodes: Node[] = []
         let node = this.#markers[0].nextSibling
-
         while (node && node !== this.#markers[1]) {
             nodes.push(node)
             node = node.nextSibling
         }
-
         return nodes
     }
 
     get refs(): Record<string, Element[]> {
         const collected: Record<string, Set<Element>> = {}
-
         const add = (refs: Record<string, Iterable<Element>>) => {
             for (const [name, nodes] of Object.entries(refs)) {
                 const target = collected[name] ?? (collected[name] = new Set())
@@ -597,15 +587,49 @@ export class HtmlTemplate {
         if (!this.#refs[name]?.size) delete this.#refs[name]
     }
 
+    __replaceChildReference(previous: HtmlTemplate, next: HtmlTemplate) {
+        for (const part of this.#runtime) {
+            if (part.type !== 'child' || !part.items.has(previous)) continue
+            part.items.insertValueBefore(next, previous)
+            part.items.remove(previous)
+            return
+        }
+    }
+
+    /**
+     * Compatibility path used by repeat(). V1 deliberately refused rebinding
+     * lifecycle templates, function slots, nested templates and other objects.
+     */
+    __rebind__(next: HtmlTemplate) {
+        if (
+            !this.#mounted ||
+            next.#mounted ||
+            this.#parts !== next.#parts ||
+            this.#mountSub ||
+            this.#moveSub ||
+            this.#updateSub ||
+            this.#unmountSub ||
+            next.#mountSub ||
+            next.#moveSub ||
+            next.#updateSub ||
+            next.#unmountSub ||
+            !this.#values.every(isRebindableValue) ||
+            !next.#values.every(isRebindableValue)
+        ) {
+            return false
+        }
+
+        return this.__updateFrom(next)
+    }
+
     #clearChild(part: ChildRuntime) {
-        reconcileItems(part.items, [], part.start, this)
+        reconcileItems(part.items, [], part.anchor, this)
     }
 
     #isReactive(part: Runtime) {
         if (part.type === 'child') {
             return typeof this.#values[part.value] === 'function'
         }
-
         if (part.type === 'raw' || part.type === 'attr') {
             return part.pieces.some(
                 (piece) =>
@@ -613,14 +637,12 @@ export class HtmlTemplate {
                     typeof this.#values[piece] === 'function'
             )
         }
-
         if (part.type === 'event') {
             return (
                 part.asProperty &&
                 typeof this.#values[part.value] === 'function'
             )
         }
-
         if (part.type === 'ref') {
             return (
                 part.value !== undefined &&
@@ -630,7 +652,6 @@ export class HtmlTemplate {
 
         const source = this.#values[part.value]
         if (!isObjectLiteral(source)) return false
-
         return Object.entries(source as ObjectLiteral<unknown>).some(
             ([key, value]) => {
                 if (typeof value !== 'function') return false
@@ -664,7 +685,6 @@ export class HtmlTemplate {
         } else {
             commit()
         }
-
         return initialChanged
     }
 
@@ -709,7 +729,7 @@ export class HtmlTemplate {
                 return true
             }
 
-            reconcileItems(part.items, normalizeContent(next), part.start, this)
+            reconcileItems(part.items, normalizeContent(next), part.anchor, this)
             part.current = next
             return true
         }
@@ -724,7 +744,6 @@ export class HtmlTemplate {
 
         if (part.type === 'event') {
             const raw = values[part.value]
-
             if (part.asProperty) {
                 const next = resolve(raw)
                 if (Object.is(next, part.current)) return false
@@ -736,7 +755,6 @@ export class HtmlTemplate {
             const next = getEventValue(raw, part.name)
             const eventName = part.name.slice(2)
             if (next.fn === part.fn && next.options === part.options) return false
-
             if (part.fn) {
                 part.node.removeEventListener(eventName, part.fn, part.options)
             }
@@ -750,7 +768,6 @@ export class HtmlTemplate {
             const next =
                 part.staticName ?? String(resolve(values[part.value!]) ?? '')
             if (next === part.name) return false
-
             if (part.name) this.__removeRef(part.name, part.node)
             this.__addRef(next, part.node)
             part.name = next
@@ -778,7 +795,6 @@ export class HtmlTemplate {
         for (const [key, oldValue] of part.current) {
             const name = spreadName(key)
             if (part.blocked.has(name) || next.has(key)) continue
-
             if (name === 'ref') {
                 this.__removeRef(String(oldValue), part.node)
             } else if (name.startsWith('on')) {
@@ -797,7 +813,6 @@ export class HtmlTemplate {
         }
 
         let changed = false
-
         for (const [key, value] of next) {
             const name = spreadName(key)
             if (part.blocked.has(name)) continue
@@ -831,7 +846,6 @@ export class HtmlTemplate {
             } else {
                 setDynamicValue(part.node, name, value)
             }
-
             changed = true
         }
 
@@ -846,11 +860,9 @@ export class HtmlTemplate {
 
         this.#values = next.#values
         let changed = false
-
         for (const part of this.#runtime) {
             changed = this.#activatePart(part) || changed
         }
-
         if (changed) this.#updateSub?.(this)
         return true
     }
@@ -860,9 +872,6 @@ export class HtmlTemplate {
             true
         ) as DocumentFragment
 
-        // jsdom does not reliably upgrade custom elements cloned from template
-        // contents while detached. Recreate registered custom elements so their
-        // property setters are available before dynamic commits.
         instantiateDefinedCustomElements(fragment)
         customElements.upgrade?.(fragment)
 
@@ -871,7 +880,6 @@ export class HtmlTemplate {
             fragment,
             NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT | NodeFilter.SHOW_TEXT
         )
-
         while (walker.nextNode()) nodes.push(walker.currentNode)
 
         this.#runtime = []
@@ -882,14 +890,11 @@ export class HtmlTemplate {
             let part: Runtime
 
             if (descriptor.type === 'child') {
-                const start = document.createTextNode('')
-                const end = document.createTextNode('')
-                compiledNode.parentNode?.replaceChild(end, compiledNode)
-                end.parentNode?.insertBefore(start, end)
+                const anchor = document.createTextNode('')
+                compiledNode.parentNode?.replaceChild(anchor, compiledNode)
                 part = {
                     type: 'child',
-                    start,
-                    end,
+                    anchor,
                     value: descriptor.value,
                     current: Symbol(),
                     items: new DoubleLinkedList(),
@@ -935,24 +940,17 @@ export class HtmlTemplate {
                     events: new Map(),
                 }
             }
-
             this.#runtime.push(part)
         }
 
         fragment.prepend(this.#markers[0])
         fragment.append(this.#markers[1])
 
-        if (action === 'replace') {
-            target.parentNode?.replaceChild(fragment, target)
-        } else if (action === 'after') {
-            insertNodeAfter(fragment, target)
-        } else {
-            target.appendChild(fragment)
-        }
+        if (action === 'replace') target.parentNode?.replaceChild(fragment, target)
+        else if (action === 'after') insertNodeAfter(fragment, target)
+        else target.appendChild(fragment)
 
         this.#mounted = true
-
-        // Commit after insertion so connected custom elements expose setters.
         for (const part of this.#runtime) this.#activatePart(part)
 
         const cleanup = this.#mountSub?.(this)
@@ -982,7 +980,6 @@ export class HtmlTemplate {
         } else {
             this.#mount('render', target)
         }
-
         return this
     }
 
@@ -1006,6 +1003,7 @@ export class HtmlTemplate {
                 target.__MARKERS__[0]
             )
             parentTemplate = target.__PARENT__
+            parentTemplate?.__replaceChildReference(target, this)
             target.unmount()
         }
 
@@ -1028,7 +1026,6 @@ export class HtmlTemplate {
             this.__PARENT__ = parentTemplate
             parentTemplate.__CHILDREN__.add(this)
         }
-
         return this
     }
 
@@ -1066,7 +1063,6 @@ export class HtmlTemplate {
             this.__PARENT__ = target.__PARENT__
             this.__PARENT__?.__CHILDREN__.add(this)
         }
-
         return this
     }
 
@@ -1093,7 +1089,6 @@ export class HtmlTemplate {
                         this.__removeRef(String(value), part.node)
                     }
                 }
-
                 for (const [key, event] of part.events) {
                     part.node.removeEventListener(
                         spreadName(key).slice(2),
@@ -1119,7 +1114,6 @@ export class HtmlTemplate {
         this.#refs = {}
         this.#mounted = false
         this.#unmountSub?.(this)
-
         return this
     }
 
