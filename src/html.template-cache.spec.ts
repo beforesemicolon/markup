@@ -77,4 +77,20 @@ describe('bulk nested teardown', () => {
         expect(document.body.innerHTML).toBe('<div><span>two</span></div>')
         parent.unmount()
     })
+
+    it('clears and recreates nested refs across parent unmount', () => {
+        const child = html`<span ref="label">child</span>`
+        const parent = html`<div>${child}</div>`
+
+        parent.render(document.body)
+        expect(parent.refs.label).toHaveLength(1)
+
+        parent.unmount()
+        expect(parent.refs.label).toBeUndefined()
+        expect(child.refs.label).toBeUndefined()
+
+        parent.render(document.body)
+        expect(parent.refs.label).toHaveLength(1)
+        parent.unmount()
+    })
 })
