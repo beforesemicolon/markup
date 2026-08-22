@@ -50,7 +50,7 @@
         "type": "github"
     },
     "devDependencies": {
-        "@beforesemicolon/builder": "^1.8.25",
+        "@beforesemicolon/builder": "^2.0.1",
         "@beforesemicolon/site-builder": "^1.7.7",
         "@gjsify/esbuild-plugin-transform-ext": "0.0.4",
         "@types/jest": "^29.5.11",

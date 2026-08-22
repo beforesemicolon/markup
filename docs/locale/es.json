@@ -147,7 +147,7 @@
                         "capabilities": "Capacidades",
                         "markup_is_a_highly_flexible_performant_and_lightweight_templating_system_that_can_serve_as_the_c": "Markup es un sistema de plantillas liviano, de alto rendimiento y flexible que puede servir como núcleo de cualquier cosa, desde widgets rápidos de un solo archivo hasta sistemas de gran escala listos para empresas.",
                         "from_tiny_solutions_to_enterprise_systems": "De pequeñas soluciones a sistemas empresariales",
-                        "cdn_build_size_description": "Como Markup no requiere **ningún paso de compilación** y ocupa aproximadamente **8,8 KB con gzip** (**25,1 KB sin comprimir**), genera muy poca sobrecarga. Esto lo convierte en una opción perfecta para un amplio espectro de aplicaciones:",
+                        "cdn_build_size_description": "Como Markup no requiere **ningún paso de compilación** y ocupa aproximadamente **8,3 KB con gzip** (**23,8 KB sin comprimir**), genera muy poca sobrecarga. Esto lo convierte en una opción perfecta para un amplio espectro de aplicaciones:",
                         "text_1_lightweight_specialized_environments": "1. Entornos ligeros y especializados",
                         "modern_web_frameworks_often_carry_a_heavy_penalty_in_bundle_size_and_setup_complexity_markup_s_f": "Los frameworks web modernos a menudo conllevan una gran penalización en cuanto al tamaño del paquete y la complejidad de la configuración. El tamaño de Markup es lo suficientemente pequeño como para simplificar el desarrollo en entornos especializados o con recursos limitados:",
                         "browser_extensions_build_manifest_v3_content_scripts_side_panels_and_popups_without_packaging_a": "**Extensiones del navegador**: cree secuencias de comandos de contenido, paneles laterales y ventanas emergentes de Manifest V3 sin empaquetar un tiempo de ejecución masivo ni tener que luchar con configuraciones complejas de paquetes.",
@@ -327,7 +327,7 @@
                     "key_benefits": "Beneficios clave",
                     "zero_build_step_no_compilers_no_bundlers_no_npm_install_required_to_get_started_drop_the_cdn_lin": "🚀 **Paso de compilación cero**: No se requieren compiladores, paquetes ni instalación de npm para comenzar. Coloque el enlace CDN en una etiqueta `<script>` y comience a codificar.",
                     "surgical_dom_updates_no_virtual_dom_diffing_markup_target_updates_only_the_specific_nodes_and_at": "⚡ **Actualizaciones quirúrgicas de DOM**: No hay diferencias virtuales de DOM. Markup target-actualiza solo los nodos y atributos específicos que cambiaron.",
-                    "cdn_build_size_benefit": "📦 **Ultraligero**: Con aproximadamente **8,8 KB con gzip** (**25,1 KB sin comprimir**), es perfecto para microfrontends, widgets, prototipos y aplicaciones web livianas.",
+                    "cdn_build_size_benefit": "📦 **Ultraligero**: Con aproximadamente **8,3 KB con gzip** (**23,8 KB sin comprimir**), es perfecto para microfrontends, widgets, prototipos y aplicaciones web livianas.",
                     "standard_web_components_easily_integrates_with_web_components_to_provide_reactive_rendering_and": "🔌 **Estándar Web Components**: se integra fácilmente con Web Components para proporcionar renderizado reactivo y administración simplificada del ciclo de vida."
                 }
             },
@@ -818,13 +818,13 @@
             "meta": {
                 "markup": "Markup",
                 "markup_by_before_semicolon": "Markup por Before Semicolon",
-                "compact_reactive_html_templating_system": "Markup es un sistema de plantillas HTML reactivo de aproximadamente 9 KB con gzip para crear interfaces de usuario JavaScript basadas en estándares web, con estado, efectos, componentes y sin pasos de compilación."
+                "compact_reactive_html_templating_system": "Markup es un sistema de plantillas HTML reactivo de aproximadamente 8 KB con gzip para crear interfaces de usuario JavaScript basadas en estándares web, con estado, efectos, componentes y sin pasos de compilación."
             },
             "content": {
                 "reactive_dom": "DOM reactivo.",
                 "zero_build": "Sin compilación.",
                 "a_tiny_web_standards_first_templating_system_that_brings_reactivity_state_and_components_to_vani": "Un pequeño sistema de plantillas basado en estándares web que aporta reactividad, estado y componentes al básico JavaScript. **Sin paquetes. Sin JSX. Sin magia.**",
-                "cdn_gzip_size": "8,8 KB",
+                "cdn_gzip_size": "8,3 KB",
                 "cdn_gzip": "CDN-gzip",
                 "third_party_deps": "departamentos de terceros",
                 "web_standards": "estándares web",
@@ -840,8 +840,8 @@
                 "web_standards_web_apis_and_modern_javascript_are_all_you_need_markup_just_adds_the_reactivity": "Estándares web, API web y JavaScript moderno es todo lo que necesita. Markup solo agrega la reactividad.",
                 "reactive": "reactivo",
                 "template_literals_and_functions_create_reactive_dom_with_state_lifecycles_and_side_effects": "Los literales y funciones de plantilla crean DOM reactivo con estado, ciclos de vida y efectos secundarios.",
-                "tiny_cdn_build": "Pequeño: aproximadamente 9 KB con gzip",
-                "cdn_browser_build_size": "La compilación del navegador CDN transfiere aproximadamente 8,8 KB con gzip (25,1 KB sin comprimir). Cree aplicaciones empresariales sin un megabyte de framework.",
+                "tiny_cdn_build": "Pequeño: aproximadamente 8 KB con gzip",
+                "cdn_browser_build_size": "La compilación del navegador CDN transfiere aproximadamente 8,3 KB con gzip (23,8 KB sin comprimir). Cree aplicaciones empresariales sin un megabyte de framework.",
                 "web_standards_2": "Estándares web",
                 "three_simple_apis_that_extend_the_platform_you_already_know_no_proprietary_abstractions": "Tres API simples que amplían la plataforma que ya conoces. Sin abstracciones propietarias.",
                 "plug_play": "Conectar y reproducir",
