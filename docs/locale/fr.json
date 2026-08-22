@@ -147,7 +147,7 @@
                         "capabilities": "Capacités",
                         "markup_is_a_highly_flexible_performant_and_lightweight_templating_system_that_can_serve_as_the_c": "Markup est un système de modèles très flexible, performant et léger qui peut servir de base à tout, des widgets rapides à fichier unique aux systèmes à grande échelle prêts pour l'entreprise.",
                         "from_tiny_solutions_to_enterprise_systems": "Des petites solutions aux systèmes d’entreprise",
-                        "because_markup_requires_no_compile_or_build_step_and_is_only_7_6kb_gzip_it_has_zero_package_fric": "Étant donné que Markup ne nécessite **aucune étape de compilation ou de construction** et ne contient que **7,6 Ko de gzip**, il n'a aucune friction sur le package. Cela en fait une solution idéale pour un large éventail d’applications :",
+                        "cdn_build_size_description": "Comme Markup ne nécessite **aucune étape de compilation ou de construction** et ne pèse qu’environ **8,3 Ko gzip** (**23,8 Ko non compressés**), il ajoute très peu de surcharge. Cela en fait une solution idéale pour un large éventail d’applications :",
                         "text_1_lightweight_specialized_environments": "1. Environnements légers et spécialisés",
                         "modern_web_frameworks_often_carry_a_heavy_penalty_in_bundle_size_and_setup_complexity_markup_s_f": "Les frameworks Web modernes entraînent souvent de lourdes pénalités en termes de taille de bundle et de complexité de configuration. L'empreinte du Markup est suffisamment petite pour simplifier le développement dans des environnements spécialisés ou aux ressources limitées :",
                         "browser_extensions_build_manifest_v3_content_scripts_side_panels_and_popups_without_packaging_a": "**Extensions de navigateur** : créez des scripts de contenu, des panneaux latéraux et des fenêtres contextuelles Manifest V3 sans empaqueter un runtime massif ni lutter contre des paramètres de bundle complexes.",
@@ -327,7 +327,7 @@
                     "key_benefits": "Avantages clés",
                     "zero_build_step_no_compilers_no_bundlers_no_npm_install_required_to_get_started_drop_the_cdn_lin": "🚀 **Zéro étape de construction** : aucun compilateur, aucun bundler, aucune installation npm requise pour commencer. Déposez le lien CDN dans une balise `<script>` et commencez à coder.",
                     "surgical_dom_updates_no_virtual_dom_diffing_markup_target_updates_only_the_specific_nodes_and_at": "⚡ **Mises à jour chirurgicales DOM** : aucune différence virtuelle DOM. La cible Markup met à jour uniquement les nœuds et attributs spécifiques qui ont été modifiés.",
-                    "ultra_lightweight_at_only_7_6kb_gzip_18kb_uncompressed_it_is_perfect_for_micro_frontends_widgets": "📦 **Ultra léger** : avec seulement **7,6 Ko gzip** (18 Ko non compressés), il est parfait pour les micro-frontends, les widgets, les prototypes et les applications Web légères.",
+                    "cdn_build_size_benefit": "📦 **Ultra léger** : avec environ **8,3 Ko gzip** (**23,8 Ko non compressés**), il est parfait pour les micro-frontends, les widgets, les prototypes et les applications Web légères.",
                     "standard_web_components_easily_integrates_with_web_components_to_provide_reactive_rendering_and": "🔌 **Standard Web Components** : s'intègre facilement à Web Components pour fournir un rendu réactif et une gestion simplifiée du cycle de vie."
                 }
             },
@@ -818,13 +818,13 @@
             "meta": {
                 "markup": "Markup",
                 "markup_by_before_semicolon": "Markup par Before Semicolon",
-                "markup_is_an_under_8kb_gzip_reactive_html_templating_system_for_building_web_standard_javascript": "Markup est un système de modèles HTML réactif gzip de moins de 8 Ko permettant de créer des interfaces utilisateur JavaScript standard Web avec état, effets, composants et aucune étape de construction."
+                "compact_reactive_html_templating_system": "Markup est un système de modèles HTML réactif d’environ 8 Ko gzip permettant de créer des interfaces utilisateur JavaScript basées sur les standards du Web, avec état, effets, composants et aucune étape de construction."
             },
             "content": {
                 "reactive_dom": "DOM réactif.",
                 "zero_build": "Sans compilation.",
                 "a_tiny_web_standards_first_templating_system_that_brings_reactivity_state_and_components_to_vani": "Un petit système de création de modèles conforme aux normes Web qui apporte réactivité, état et composants à Vanilla JavaScript. **Aucun bundler. Pas de JSX. Pas de magie.**",
-                "text_7_6kb": "7,6 Ko",
+                "cdn_gzip_size": "8,3 Ko",
                 "cdn_gzip": "gzip CDN",
                 "third_party_deps": "dépôts tiers",
                 "web_standards": "normes du Web",
@@ -840,8 +840,8 @@
                 "web_standards_web_apis_and_modern_javascript_are_all_you_need_markup_just_adds_the_reactivity": "Les normes Web, les API Web et le JavaScript moderne sont tout ce dont vous avez besoin. Markup ajoute simplement de la réactivité.",
                 "reactive": "Réactif",
                 "template_literals_and_functions_create_reactive_dom_with_state_lifecycles_and_side_effects": "Les littéraux et les fonctions de modèle créent un DOM réactif avec un état, des cycles de vie et des effets secondaires.",
-                "tiny_under_8kb_gzip": "Minuscule - moins de 8 Ko gzip",
-                "the_cdn_browser_build_transfers_at_about_7_6kb_gzip_ship_enterprise_apps_without_a_megabyte_of_f": "La version du navigateur CDN transfère environ 7,6 Ko de gzip. Expédiez des applications d’entreprise sans un mégaoctet de framework.",
+                "tiny_cdn_build": "Minuscule - environ 8 Ko gzip",
+                "cdn_browser_build_size": "La version navigateur CDN transfère environ 8,3 Ko gzip (23,8 Ko non compressés). Créez des applications d’entreprise sans un mégaoctet de framework.",
                 "web_standards_2": "Normes Web",
                 "three_simple_apis_that_extend_the_platform_you_already_know_no_proprietary_abstractions": "Trois API simples qui étendent la plateforme que vous connaissez déjà. Aucune abstraction propriétaire.",
                 "plug_play": "Branchez et jouez",

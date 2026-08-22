@@ -12,7 +12,7 @@ layout: document
 
 ### {{t.pages.documentation.capabilities.index.content.from_tiny_solutions_to_enterprise_systems}}
 
-{{t.pages.documentation.capabilities.index.content.because_markup_requires_no_compile_or_build_step_and_is_only_7_6kb_gzip_it_has_zero_package_fric}}
+{{t.pages.documentation.capabilities.index.content.cdn_build_size_description}}
 
 #### {{t.pages.documentation.capabilities.index.content.text_1_lightweight_specialized_environments}}
 

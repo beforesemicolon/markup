@@ -2,7 +2,7 @@
 name: '{{t.pages.home.meta.markup}}'
 order: 0
 title: '{{t.pages.home.meta.markup_by_before_semicolon}}'
-description: '{{t.pages.home.meta.markup_is_an_under_8kb_gzip_reactive_html_templating_system_for_building_web_standard_javascript}}'
+description: '{{t.pages.home.meta.compact_reactive_html_templating_system}}'
 layout: landing
 ---
 
@@ -14,7 +14,7 @@ layout: landing
 
 === stat
 
-## {{t.pages.home.content.text_7_6kb}}
+## {{t.pages.home.content.cdn_gzip_size}}
 
 {{t.pages.home.content.cdn_gzip}}
 
@@ -101,9 +101,9 @@ App.render(document.getElementById('app'))
 
 === feature icon=tiny
 
-### {{t.pages.home.content.tiny_under_8kb_gzip}}
+### {{t.pages.home.content.tiny_cdn_build}}
 
-{{t.pages.home.content.the_cdn_browser_build_transfers_at_about_7_6kb_gzip_ship_enterprise_apps_without_a_megabyte_of_f}}
+{{t.pages.home.content.cdn_browser_build_size}}
 
 === feature icon=standards
 

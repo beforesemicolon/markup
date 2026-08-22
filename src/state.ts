@@ -1,24 +1,18 @@
 import {
     EffectSubscriber,
-    EffectUnSubscriber,
     StateGetter,
     StateSetter,
     StateSubscriber,
     StateUnSubscriber,
 } from './types.ts'
 import { DoubleLinkedList } from './DoubleLinkedList.ts'
+import {
+    EffectResolver,
+    getCurrentResolver,
+    popCurrentResolver,
+    pushCurrentResolver,
+} from './effect-context.ts'
 
-interface Resolver {
-    sub: StateSubscriber
-    unsubs: DoubleLinkedList<EffectUnSubscriber>
-    children: Resolver[]
-    childCursor: number
-    disposed: boolean
-    clearDependencies: () => void
-    dispose: () => void
-}
-
-const currentResolvers = new DoubleLinkedList<Resolver>()
 const scheduledExecutions = new Set<StateSubscriber>()
 
 let flushPending = false
@@ -67,7 +61,7 @@ export const state = <T>(
 
     return Object.freeze([
         () => {
-            const currentResolver = currentResolvers.tail
+            const currentResolver = getCurrentResolver()
             if (
                 typeof currentResolver?.sub === 'function' &&
                 !subs.has(currentResolver.sub)
@@ -108,10 +102,10 @@ export const effect = <T>(sub: EffectSubscriber<T>) => {
     let isRunning = false
     let pendingReRun = false
 
-    const parent = currentResolvers.tail
+    const parent = getCurrentResolver()
     const childIndex = parent ? parent.childCursor++ : -1
 
-    const res: Resolver = {
+    const res: EffectResolver = {
         sub: () => run(),
         unsubs: new DoubleLinkedList(),
         children: [],
@@ -152,14 +146,18 @@ export const effect = <T>(sub: EffectSubscriber<T>) => {
         isRunning = true
         res.clearDependencies()
         res.childCursor = 0
-        currentResolvers.push(res)
+        pushCurrentResolver(res)
 
         try {
             value = sub(value)
         } catch (e) {
             console.error(e)
         } finally {
-            currentResolvers.pop()
+            popCurrentResolver()
+
+            const staleChildren = res.children.splice(res.childCursor)
+            for (const child of staleChildren) child.dispose()
+
             isRunning = false
 
             if (pendingReRun && !res.disposed) {

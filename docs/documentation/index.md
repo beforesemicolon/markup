@@ -89,5 +89,5 @@ html`
 
 -   {{t.pages.documentation.index.content.zero_build_step_no_compilers_no_bundlers_no_npm_install_required_to_get_started_drop_the_cdn_lin}}
 -   {{t.pages.documentation.index.content.surgical_dom_updates_no_virtual_dom_diffing_markup_target_updates_only_the_specific_nodes_and_at}}
--   {{t.pages.documentation.index.content.ultra_lightweight_at_only_7_6kb_gzip_18kb_uncompressed_it_is_perfect_for_micro_frontends_widgets}}
+-   {{t.pages.documentation.index.content.cdn_build_size_benefit}}
 -   {{t.pages.documentation.index.content.standard_web_components_easily_integrates_with_web_components_to_provide_reactive_rendering_and}}
