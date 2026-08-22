@@ -1,60 +1,430 @@
-# Markup by Before Semicolon
+# {{project.name}}
 
-Markup is a small reactive HTML templating system for building browser UI with JavaScript template literals, functions, state, effects, and web standards. It does not require JSX, a virtual DOM, or a build step.
+> A small reactive HTML templating system for browser interfaces built with JavaScript template literals, functions, state, effects, and web standards.
 
-Use these docs when you need accurate answers about:
+Package: `{{project.name}}`
+Version: `{{project.version}}`
+Documentation: https://markup.beforesemicolon.com/documentation/
+Complete context: https://markup.beforesemicolon.com/llms-full.txt
 
-- `html` tagged template literals and render/update behavior
-- reactive `state` and `effect`
-- template values, attributes, refs, and lifecycle hooks
-- utility helpers such as `when`, `repeat`, `suspense`, `visible`, `is`, `isNot`, `and`, `or`, `oneOf`, and `pick`
-- companion packages built on Markup, including Web Component and Router
-- server-side rendering and state-store patterns
+Markup does not require JSX, a virtual DOM, or a build step. Its three primary APIs are `html`, `state`, and `effect`. Use the installed package version and these documents as authoritative; do not substitute React, Lit, Vue, or browser APIs that are not documented here.
 
-## Best entry points
+## Package boundaries
 
-- /documentation/ai - AI-first overview of Markup and companion packages
-- /documentation/guide - project guide, best practices, API patterns, and agent-friendly rules
-- /documentation/get-started - first install and render flow
-- /documentation/installation - CDN, npm, yarn, and TypeScript installation details
-- /documentation/templating/ - `html` templates, rendering, replacement, and interpolation basics
-- /documentation/state/ - reactive state getter/setter behavior
-- /documentation/state/effect - effects, subscriptions, cleanup, and async effect patterns
-- /documentation/utilities/ - helper overview and routing into utility pages
+- `@beforesemicolon/markup`: reactive templates, state, effects, and template helpers.
+- `@beforesemicolon/web-component`: Custom Elements, props, component state, lifecycle callbacks, events, slots, parts, refs, styles, and form-associated controls.
+- `@beforesemicolon/router`: route matching, navigation, page data, redirects, query state, and route-aware rendering.
+- `@beforesemicolon/intl`: locale scopes, translated messages, and internationalized formatting.
 
-## Complete documentation map
+Read the companion package documentation before generating code that uses its APIs:
 
-- / - landing page, product positioning, examples, installation shortcuts
-- /documentation - what Markup is, motivation, AI entry point, and philosophy
-- /documentation/get-started - starter HTML page and first counter render
-- /documentation/installation - CDN and package manager installation
-- /documentation/ai - concise instructions for AI agents using Markup
-- /documentation/guide - comprehensive guide and best practices
-- /documentation/capabilities/ - overview of application patterns possible with Markup
-- /documentation/capabilities/function-component - function components as reusable template factories
+- https://web-component.beforesemicolon.com/
+- https://router.beforesemicolon.com/
+- https://intl.beforesemicolon.com/
 
-External companion docs:
-- https://web-component.beforesemicolon.com/ - Web Component companion package
-- https://router.beforesemicolon.com/ - Router companion package
+The ecosystem dependency direction is:
 
-- /documentation/capabilities/state-store - standalone stores built from `state`
-- /documentation/capabilities/server-side-rendering - server-rendering templates in JavaScript environments
-- /documentation/templating/ - creating, rendering, replacing, and nesting templates
-- /documentation/templating/lifecycles - `onMount`, `onUpdate`, and related template lifecycle hooks
-- /documentation/templating/values - rendering strings, functions, arrays, nodes, templates, and state values
-- /documentation/templating/html-attributes - attributes, boolean attributes, dynamic attributes, and event attributes
-- /documentation/templating/ref - DOM references with the `ref` attribute
-- /documentation/templating/events - inline event handlers and listener options
-- /documentation/state/ - `state(initial)` getter/setter/unsubscribe behavior
-- /documentation/state/effect - tracking dependencies and reacting to state changes
-- /documentation/utilities/ - utility helper overview
-- /documentation/utilities/element - programmatic element creation helper
-- /documentation/utilities/suspense - async rendering with loading and error templates
-- /documentation/utilities/when - conditional rendering helper
-- /documentation/utilities/repeat - keyed and cached repeated rendering
-- /documentation/utilities/is-&-isnot - truthy/falsy conditional helpers
-- /documentation/utilities/visible - viewport-triggered lazy rendering
-- /documentation/utilities/and-or-&-oneof - composed boolean helpers
-- /documentation/utilities/pick - reactive deep property selection
+1. Markup is the rendering and reactivity foundation.
+2. Web Component depends on and re-exports Markup.
+3. Router and Intl depend on Web Component and may be installed together.
 
-Prefer the canonical HTML pages for details. Use `/llms-full.txt` for a generated, page-by-page text summary.
+Choose imports by ownership:
+
+- In a Markup-only application, import rendering APIs from `@beforesemicolon/markup`.
+- In a Web Component application, import Markup APIs from `@beforesemicolon/web-component`; it already re-exports them.
+- Import navigation APIs and register route elements through `@beforesemicolon/router`.
+- Import locale runtimes, formatters, and register Intl elements through `@beforesemicolon/intl`.
+- Router and Intl do not re-export `html` or `WebComponent`.
+
+For direct browser scripts, load Web Component before Router or Intl. Router and Intl can then be loaded in either order.
+
+## Installation and imports
+
+ES modules:
+
+```javascript
+import {
+    html,
+    state,
+    effect,
+    when,
+    repeat,
+    pick,
+    is,
+    isNot,
+    and,
+    or,
+    oneOf,
+    element,
+    suspense,
+    visible,
+} from '@beforesemicolon/markup'
+```
+
+Direct browser usage:
+
+```html
+<script src="https://unpkg.com/@beforesemicolon/markup/dist/client.js"></script>
+<script>
+    const { html, state, effect, when, repeat } = BFS.MARKUP
+</script>
+```
+
+The CDN build exposes the API as `BFS.MARKUP`. npm imports use named exports.
+
+## Core mental model
+
+1. `html` creates an `HtmlTemplate` from an HTML tagged template literal.
+2. Functions interpolated into a template are evaluated lazily.
+3. Calling a state getter while a template binding or effect is running records that dependency.
+4. Updating the state schedules only the dependent template bindings and effects.
+5. State values change immediately; reactive DOM work and subscribers are batched in a microtask.
+6. Template updates run before user effects responding to the same state change.
+
+Markup templates contain HTML, not JSX. Use `class`, `for`, `onclick`, and other HTML attribute names rather than React-specific names such as `className`, `htmlFor`, or `onClick`.
+
+## `html`
+
+```typescript
+html(parts: TemplateStringsArray | string[], ...values: unknown[]): HtmlTemplate
+```
+
+Create and render a template:
+
+```javascript
+const greeting = html`<h1>Hello</h1>`
+greeting.render(document.getElementById('app'))
+```
+
+Interpolations accept primitives, functions, DOM nodes, nested `HtmlTemplate` instances, and one-dimensional arrays containing renderable values.
+
+Reactive and one-time values are intentionally different:
+
+```javascript
+const [count, setCount] = state(0)
+
+html`${count}`   // reactive: Markup calls the getter and tracks it
+html`${count()}` // one-time value: evaluates before the template is created
+
+const doubled = () => count() * 2
+html`<p>${doubled}</p>` // reactive derived value
+```
+
+Pass getters and derived functions directly when a value must remain reactive. Call them before interpolation only when a snapshot is intentional.
+
+Reactive attributes follow the same rule:
+
+```javascript
+const [disabled, setDisabled] = state(false)
+const [theme, setTheme] = state('light')
+
+const button = html`
+    <button disabled="${disabled}" class="button ${theme}">Save</button>
+`
+```
+
+Do not interpolate dynamic tag names into an `html` template. Use the `element` helper for dynamic element names.
+
+## `state`
+
+```typescript
+state<T>(
+    initialValue: T,
+    subscriber?: () => void
+): readonly [
+    getValue: () => T,
+    setValue: (next: T | ((previous: T) => T)) => T,
+    unsubscribeSubscriber: () => void,
+]
+```
+
+```javascript
+const [count, setCount] = state(0)
+
+setCount(1)
+console.log(count()) // 1 immediately
+
+setCount((previous) => previous + 1)
+```
+
+State uses `Object.is` to detect changes. Do not mutate an object or array and set the same reference. Return a new value:
+
+```javascript
+setTodos((previous) => [
+    ...previous,
+    { id: crypto.randomUUID(), name: 'New todo' },
+])
+```
+
+State is independent of templates and components, so it may live in a module and act as a shared store.
+
+## `effect`
+
+```typescript
+effect<T>(
+    callback: (previousResult: T | undefined) => T | undefined
+): () => void
+```
+
+An effect runs immediately, tracks state getters called during that run, and reruns after those states change. Dependencies are collected again on every run.
+
+```javascript
+const [query, setQuery] = state('')
+
+const stop = effect(() => {
+    console.log('Current query:', query())
+})
+
+setQuery('markup')
+stop()
+```
+
+The value returned by the callback is cached and passed as `previousResult` on the next execution. It is not an effect cleanup function. The function returned by `effect` unsubscribes and disposes the effect.
+
+```javascript
+effect((timer) => {
+    clearTimeout(timer)
+    const value = query()
+
+    return setTimeout(() => search(value), 250)
+})
+```
+
+Use effects for side effects. Put rendered derived values directly in templates as functions.
+
+The initial effect execution follows normal JavaScript order. Refs do not exist before rendering. After a template is rendered, state-driven template updates and refs are committed before responding user effects run:
+
+```javascript
+const [open, setOpen] = state(false)
+const form = html`<form ref="form"><input /></form>`
+const view = html`${when(open, form, '')}`.render(document.body)
+
+effect(() => {
+    if (!open()) return
+    const [formElement] = view.refs.form ?? []
+    formElement?.querySelector('input')?.focus()
+})
+```
+
+## Events
+
+Event attributes receive functions and are installed with `addEventListener`. The event attribute is not emitted into the resulting HTML.
+
+```javascript
+const save = (event) => {
+    event.preventDefault()
+}
+
+html`<form onsubmit="${save}"></form>`
+```
+
+Pass listener options as `[handler, options]`:
+
+```javascript
+html`<button onclick="${[handleClick, { once: true }]}">Run once</button>`
+```
+
+Do not call the handler during template creation:
+
+```javascript
+html`<button onclick="${handleClick}">Correct</button>`
+```
+
+## Conditional rendering with `when`
+
+```typescript
+when(condition, thenValue, elseValue?): () => unknown
+```
+
+Use `when` when the condition is reactive:
+
+```javascript
+const [loading, setLoading] = state(false)
+
+const content = html`
+    ${when(
+        loading,
+        html`<p>Loading...</p>`,
+        html`<button>Load</button>`
+    )}
+`
+```
+
+Inactive template branches are unmounted. Their refs are not included until the branch is mounted.
+
+## Reactive collections with `repeat`
+
+```typescript
+repeat(data, renderItem, emptyTemplateOrOptions?): () => unknown
+```
+
+Use `repeat` instead of `.map()` for collections that change:
+
+```javascript
+const [todos, setTodos] = state([])
+
+const list = html`
+    <ul>
+        ${repeat(
+            todos,
+            (todo) => html`<li>${todo.name}</li>`,
+            {
+                key: (todo) => todo.id,
+                empty: () => html`<li>No todos</li>`,
+            }
+        )}
+    </ul>
+`
+```
+
+Prefer an explicit stable key. Without one, Markup uses an object's non-null `id` property when available and otherwise uses the item value or identity. Duplicate explicit or object `id` keys throw an error. Stable keys and stable item references allow rendered item templates to be reused; replacing an item object allows that item template to be recreated or rebound.
+
+`repeat` also accepts numbers, strings, Sets, Maps, object entries, and custom iterables. Use plain `.map()` only for a static collection rendered once.
+
+## Refs
+
+```javascript
+const view = html`
+    <h1 ref="heading">Title</h1>
+    <button ref="action">Save</button>
+`.render(document.body)
+
+const [heading] = view.refs.heading
+```
+
+`refs` is a record of arrays because multiple elements may share a name. A parent template aggregates refs from currently mounted nested templates. The record is dynamic: unmounted branches disappear and newly mounted branches appear. Always handle a missing ref.
+
+## Template lifecycle and placement
+
+An `HtmlTemplate` supports:
+
+- `render(target)` to mount it or move an already mounted template.
+- `replace(nodeOrTemplate)` to replace a node or another template.
+- `insertAfter(nodeOrTemplate)` to insert or move after a target.
+- `unmount()` to remove it and dispose its reactive bindings.
+- `onMount(callback)`; the callback may return an unmount cleanup function.
+- `onUpdate(callback)` after a reactive template binding changes.
+- `onMove(callback)` after an already mounted template moves.
+- `toString()` to serialize its current content.
+- `refs`, `childNodes`, `parentNode`, and `mounted` for current template state.
+
+Lifecycle and placement methods return the template and may be chained:
+
+```javascript
+const view = html`<p>${message}</p>`
+    .onMount(() => {
+        const controller = new AbortController()
+        startWork(controller.signal)
+        return () => controller.abort()
+    })
+    .onUpdate((template) => console.log(template.toString()))
+    .render(document.body)
+```
+
+## Other helpers
+
+- `pick(valueOrGetter, 'nested.path', mapper?)`: creates a reactive deep-property getter.
+- `is(valueOrGetter, expectedOrPredicate?)`: creates a reactive equality, predicate, regular-expression, or truthiness check.
+- `isNot(...)`: negated `is` check.
+- `and(...conditions)`: reactive truthiness conjunction; requires at least two inputs.
+- `or(...conditions)`: reactive truthiness disjunction; requires at least two inputs.
+- `oneOf(valueOrGetter, values)`: reactive membership check.
+- `suspense(asyncAction, loadingTemplate?, errorTemplate?)`: renders loading content and replaces it after the promise settles.
+- `visible(content, placeholder?, options?)`: renders content when it intersects the viewport; `eager: true` renders immediately.
+- `element(tagName, options?)`: creates a DOM element programmatically for dynamic tag names and attributes.
+- `val(valueOrGetter)`: unwraps a value or function, mainly when implementing helpers.
+
+Read the helper's documentation before using advanced arguments or relying on lifecycle behavior.
+
+## Complete application pattern
+
+```javascript
+import { html, state, effect, when, repeat } from '@beforesemicolon/markup'
+
+const [todos, setTodos] = state([])
+const [draft, setDraft] = state('')
+
+const addTodo = (event) => {
+    event.preventDefault()
+    const name = draft().trim()
+    if (!name) return
+
+    setTodos((previous) => [
+        ...previous,
+        { id: crypto.randomUUID(), name },
+    ])
+    setDraft('')
+}
+
+const removeTodo = (id) => {
+    setTodos((previous) => previous.filter((todo) => todo.id !== id))
+}
+
+const renderTodo = (todo) => html`
+    <li>
+        <span>${todo.name}</span>
+        <button type="button" onclick="${() => removeTodo(todo.id)}">
+            Delete
+        </button>
+    </li>
+`
+
+const app = html`
+    <form onsubmit="${addTodo}">
+        <input
+            ref="draft"
+            value="${draft}"
+            oninput="${(event) => setDraft(event.target.value)}"
+        />
+        <button type="submit">Add todo</button>
+    </form>
+
+    ${when(
+        () => todos().length > 0,
+        html`<ul>${repeat(todos, renderTodo, { key: (todo) => todo.id })}</ul>`,
+        html`<p>No todos yet.</p>`
+    )}
+`
+
+app.render(document.getElementById('app'))
+
+effect(() => {
+    todos()
+    const [input] = app.refs.draft ?? []
+    input?.focus()
+})
+```
+
+## Rules for generated code
+
+- Use normal HTML attribute names, not JSX names.
+- Pass state getters or derived functions directly for reactive bindings.
+- Do not call getters in a template unless a one-time snapshot is intended.
+- Use immutable state updates so `Object.is` detects a new value.
+- Use `when` for reactive branches and `repeat` for reactive lists.
+- Prefer stable explicit keys for application collections.
+- Keep side effects in `effect` or lifecycle callbacks.
+- Render a template before expecting its refs to exist.
+- Treat refs as dynamic arrays of currently mounted elements.
+- Return cleanup from `onMount`; call the function returned by `effect` to dispose an effect.
+- Do not return a React-style cleanup function from an effect callback; its return value is cached data.
+- Do not add React Hooks, JSX, a virtual DOM, or framework-specific component conventions.
+- Do not invent Markup APIs. Read the relevant canonical page when uncertain.
+
+## Canonical documentation
+
+- [AI guide](https://markup.beforesemicolon.com/documentation/ai): package boundaries and task routing.
+- [Guide and best practices](https://markup.beforesemicolon.com/documentation/guide): canonical project patterns and guardrails.
+- [Installation](https://markup.beforesemicolon.com/documentation/installation): npm, browser, and TypeScript setup.
+- [Templates](https://markup.beforesemicolon.com/documentation/templating/): creation, rendering, replacement, and interpolation.
+- [Template values](https://markup.beforesemicolon.com/documentation/templating/values): supported values and reactivity.
+- [Attributes](https://markup.beforesemicolon.com/documentation/templating/html-attributes): attributes, properties, boolean values, and spreads.
+- [Events](https://markup.beforesemicolon.com/documentation/templating/events): handlers and listener options.
+- [Refs](https://markup.beforesemicolon.com/documentation/templating/ref): nested and dynamic DOM references.
+- [Lifecycles](https://markup.beforesemicolon.com/documentation/templating/lifecycles): mount, update, move, and cleanup.
+- [State](https://markup.beforesemicolon.com/documentation/state/): getters, setters, subscriptions, and stores.
+- [Effects](https://markup.beforesemicolon.com/documentation/state/effect): dependency tracking, batching, cached values, nesting, and disposal.
+- [Utilities](https://markup.beforesemicolon.com/documentation/utilities/): helper index.
+- [Function components](https://markup.beforesemicolon.com/documentation/capabilities/function-component): plain JavaScript template factories.
+- [State stores](https://markup.beforesemicolon.com/documentation/capabilities/state-store): shared state outside UI templates.
+- [Server rendering](https://markup.beforesemicolon.com/documentation/capabilities/server-side-rendering): serializing templates in a server DOM environment.

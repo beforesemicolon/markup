@@ -128,6 +128,28 @@ gzip (23.8 KB uncompressed).
 </script>
 ```
 
+## AI and agent context
+
+-   [`llms.txt`](https://markup.beforesemicolon.com/llms.txt) is the concise,
+    package-owned API contract and coding guide for AI tools.
+-   [`llms-full.txt`](https://markup.beforesemicolon.com/llms-full.txt) contains
+    the complete resolved documentation and examples.
+
+The source for the concise contract lives in [`docs/llms.txt`](docs/llms.txt),
+so its behavior and recommendations are reviewed and versioned with Markup.
+
+## Ecosystem
+
+-   [Web Component](https://web-component.beforesemicolon.com/) adds reactive
+    native Custom Elements and re-exports Markup.
+-   [Router](https://router.beforesemicolon.com/) adds URL navigation, route
+    elements, guards, and route data on top of Web Component.
+-   [Intl](https://intl.beforesemicolon.com/) adds locale scopes, messages, and
+    internationalized formatting on top of Web Component.
+
+Router and Intl are complementary and can be used together. Markup remains the
+shared rendering and reactivity foundation across all packages.
+
 ## Community
 
 -   [Contributing guidelines](CONTRIBUTING.md)

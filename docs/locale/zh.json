@@ -369,6 +369,7 @@
                         "when_you_call_a_stategetter_inside_the_effect_callback_function_the_effect_becomes_aware_of_the": "当您在 `effect` 回调函数内调用 `StateGetter` 时，`effect` 会意识到该状态，并且此检测是同步完成的。",
                         "the_effect_calls_the_provided_callback_as_soon_as_its_declared_so_it_becomes_aware_of_the_states": "该效果在声明后立即调用提供的回调，以便它了解内部调用的状态。",
                         "the_effect_also_batches_updates_which_allows_you_to_update_multiple_state_at_once_and_only_have": "`effect` 还可以批量更新，使您可以一次更新多个状态并且只有一个反应。",
+                        "reactive_template_updates_finish_before_user_effects_run_so_dom_reads_and_refs_match_the_current_state": "模板完成渲染后，由状态变更触发的响应式模板更新会先于响应该变更的用户 effect 完成。这样，即使 effect 在 `render()` 之前声明，DOM 读取和模板 refs 也会与 effect 中观察到的状态保持一致。effect 的首次即时调用仍遵循正常的 JavaScript 执行顺序，因此在模板首次渲染之前 refs 尚不存在。",
                         "the_batch_update_is_useful_but_the_effect_also_understand_initialization_which_allows_you_to_mak": "批量更新很有用，但 `effect` 也理解初始化，这允许您在加载时进行大量计算，并且只在完成后运行一次。",
                         "caching": "缓存",
                         "the_effect_allows_you_to_return_values_that_are_cached_and_provided_in_the_callback_for_the_next": "`effect` 允许您返回缓存的值并在下次回调中提供。这对于跟踪更新中的更改非常有用。",
@@ -545,6 +546,7 @@
                         "this_capability_allows_you_to_focus_on_your_top_template_and_work_everything_from_there_this_doe": "此功能使您可以专注于顶级模板并从那里开始处理所有事情。这并不意味着您无法访问每个单独模板级别的参考。只是更方便而已。",
                         "dynamic_references": "动态参考",
                         "all_references_are_dynamic_and_this_means_that_as_things_render_or_unmount_from_the_template_ref": "所有引用都是动态的，这意味着当事物从模板中渲染或卸载时，引用会被添加或删除。",
+                        "refs_only_contains_currently_mounted_elements_inactive_conditional_branches_are_excluded_until_rendered": "`refs` 对象只包含当前已挂载的元素。未激活的 `when` 分支不会包含在内，其引用只会在该分支渲染后出现。当状态变更激活某个分支时，该分支的 refs 会在响应该变更的用户 effect 运行之前更新。",
                         "for_this_reason_you_should_always_check_for_the_reference_being_there_before_doing_anything_this": "因此，在执行任何操作之前，您应该始终检查参考是否存在。这将指示该元素是否仍在模板中呈现。"
                     }
                 },

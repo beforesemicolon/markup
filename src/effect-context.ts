@@ -1,8 +1,16 @@
 import { DoubleLinkedList } from './DoubleLinkedList.ts'
-import { EffectUnSubscriber, StateSubscriber } from './types.ts'
+import {
+    EffectSubscriber,
+    EffectUnSubscriber,
+    StateSubscriber,
+} from './types.ts'
 
-export interface EffectResolver {
+export interface ScheduledEffect {
     sub: StateSubscriber
+    render: boolean
+}
+
+export interface EffectResolver extends ScheduledEffect {
     unsubs: DoubleLinkedList<EffectUnSubscriber>
     children: EffectResolver[]
     childCursor: number
@@ -12,6 +20,17 @@ export interface EffectResolver {
 }
 
 const currentResolvers = new DoubleLinkedList<EffectResolver>()
+const renderEffectSubscribers = new WeakSet<object>()
+
+export const markRenderEffect = <T>(
+    subscriber: EffectSubscriber<T>
+): EffectSubscriber<T> => {
+    renderEffectSubscribers.add(subscriber)
+    return subscriber
+}
+
+export const isRenderEffect = <T>(subscriber: EffectSubscriber<T>): boolean =>
+    renderEffectSubscribers.has(subscriber)
 
 export const getCurrentResolver = (): EffectResolver | null =>
     currentResolvers.tail

@@ -6,7 +6,7 @@ description: '{{t.pages.home.meta.compact_reactive_html_templating_system}}'
 layout: landing
 ---
 
-::: layout landing-hero version=v1.18.3 title="{{t.pages.home.content.reactive_dom}}" title2="{{t.pages.home.content.zero_build}}" primaryLabel="{{t.common.content.get_started}}" secondaryLabel="npm i @beforesemicolon/markup"
+::: layout landing-hero version=v1.20.1-next title="{{t.pages.home.content.reactive_dom}}" title2="{{t.pages.home.content.zero_build}}" primaryLabel="{{t.common.content.get_started}}" secondaryLabel="npm i @beforesemicolon/markup"
 
 === copy
 

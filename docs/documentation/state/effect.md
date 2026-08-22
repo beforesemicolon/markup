@@ -65,6 +65,8 @@ effect(() => {
 
 {{t.pages.documentation.state.effect.content.the_effect_also_batches_updates_which_allows_you_to_update_multiple_state_at_once_and_only_have}}
 
+{{t.pages.documentation.state.effect.content.reactive_template_updates_finish_before_user_effects_run_so_dom_reads_and_refs_match_the_current_state}}
+
 ```javascript
 effect(() => {
     console.log(count(), total())

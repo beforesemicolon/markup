@@ -4,7 +4,7 @@ import { isObjectLiteral } from './utils/is-object-literal.ts'
 import { turnCamelToKebabCasing } from './utils/turn-camel-to-kebab-casing.ts'
 import { insertNodeAfter } from './utils/insert-node-after.ts'
 import { DoubleLinkedList } from './DoubleLinkedList.ts'
-import { untrack } from './effect-context.ts'
+import { markRenderEffect, untrack } from './effect-context.ts'
 import { effect } from './state.ts'
 
 const PREFIX = '__BFS_V2_'
@@ -932,7 +932,7 @@ export class HtmlTemplate {
             }
         }
 
-        const unsubscribe = untrack(() => effect(commit))
+        const unsubscribe = untrack(() => effect(markRenderEffect(commit)))
         ;(this.#partEffects ??= new Map()).set(part, unsubscribe)
         return initialChanged
     }
