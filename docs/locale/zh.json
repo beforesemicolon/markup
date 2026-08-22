@@ -147,7 +147,7 @@
                         "capabilities": "能力",
                         "markup_is_a_highly_flexible_performant_and_lightweight_templating_system_that_can_serve_as_the_c": "Markup 是一个高度灵活、高性能、轻量级的模板系统，可以作为从快速单文件小部件到大型企业就绪系统的核心。",
                         "from_tiny_solutions_to_enterprise_systems": "从小型解决方案到企业系统",
-                        "because_markup_requires_no_compile_or_build_step_and_is_only_7_6kb_gzip_it_has_zero_package_fric": "由于 Markup 需要**无需编译或构建步骤**并且只有**7.6KB gzip**，因此它具有零包摩擦。这使得它非常适合广泛的应用：",
+                        "cdn_build_size_description": "由于 Markup **无需编译或构建步骤**，并且 gzip 后约为 **8.8KB**（未压缩为 **25.1KB**），因此几乎不会增加包负担。这使它非常适合广泛的应用：",
                         "text_1_lightweight_specialized_environments": "1. 轻量级和专业化环境",
                         "modern_web_frameworks_often_carry_a_heavy_penalty_in_bundle_size_and_setup_complexity_markup_s_f": "现代 Web 框架通常会在包大小和设置复杂性方面带来严重损失。 Markup 的占用空间足够小，可以简化资源受限或专门环境中的开发：",
                         "browser_extensions_build_manifest_v3_content_scripts_side_panels_and_popups_without_packaging_a": "**浏览器扩展**：构建 Manifest V3 内容脚本、侧面板和弹出窗口，无需打包大量运行时或复杂的捆绑器设置。",
@@ -327,7 +327,7 @@
                     "key_benefits": "主要优点",
                     "zero_build_step_no_compilers_no_bundlers_no_npm_install_required_to_get_started_drop_the_cdn_lin": "🚀 **零构建步骤**：无需编译器，无需捆绑器，无需安装 npm 即可开始使用。将 CDN 链接放入 `<script>` 标签并开始编码。",
                     "surgical_dom_updates_no_virtual_dom_diffing_markup_target_updates_only_the_specific_nodes_and_at": "⚡ **手术 DOM 更新**：没有虚拟 DOM 差异。 Markup 目标仅更新已更改的特定节点和属性。",
-                    "ultra_lightweight_at_only_7_6kb_gzip_18kb_uncompressed_it_is_perfect_for_micro_frontends_widgets": "📦 **超轻量级**：仅**7.6KB gzip**（未压缩时为 18KB），非常适合微前端、小部件、原型和轻量级 Web 应用程序。",
+                    "cdn_build_size_benefit": "📦 **超轻量级**：gzip 后约为 **8.8KB**（未压缩为 **25.1KB**），非常适合微前端、小部件、原型和轻量级 Web 应用程序。",
                     "standard_web_components_easily_integrates_with_web_components_to_provide_reactive_rendering_and": "🔌 **标准 Web Components**：轻松与 Web Components 集成，提供反应式渲染和简化的生命周期管理。"
                 }
             },
@@ -818,13 +818,13 @@
             "meta": {
                 "markup": "Markup",
                 "markup_by_before_semicolon": "Markup 由 Before Semicolon",
-                "markup_is_an_under_8kb_gzip_reactive_html_templating_system_for_building_web_standard_javascript": "Markup 是一个小于 8KB 的 gzip 反应式 HTML 模板系统，用于构建具有状态、效果、组件且无构建步骤的 Web 标准 JavaScript 用户界面。"
+                "compact_reactive_html_templating_system": "Markup 是一个 gzip 后约 9KB 的响应式 HTML 模板系统，用于构建基于 Web 标准、具有状态、效果和组件且无需构建步骤的 JavaScript 用户界面。"
             },
             "content": {
                 "reactive_dom": "响应式 DOM。",
                 "zero_build": "无需构建。",
                 "a_tiny_web_standards_first_templating_system_that_brings_reactivity_state_and_components_to_vani": "一个微型的、网络标准优先的模板系统，为普通 JavaScript 带来反应性、状态和组件。 **没有捆绑商。没有 JSX。没有魔法。**",
-                "text_7_6kb": "7.6KB",
+                "cdn_gzip_size": "8.8KB",
                 "cdn_gzip": "CDN gzip",
                 "third_party_deps": "第三方部门",
                 "web_standards": "网络标准",
@@ -840,8 +840,8 @@
                 "web_standards_web_apis_and_modern_javascript_are_all_you_need_markup_just_adds_the_reactivity": "Web 标准、Web API 和现代 JavaScript 就是您所需要的。 Markup 只是增加反应性。",
                 "reactive": "反应性",
                 "template_literals_and_functions_create_reactive_dom_with_state_lifecycles_and_side_effects": "模板文字和函数创建具有状态、生命周期和副作用的反应式 DOM。",
-                "tiny_under_8kb_gzip": "很小 - 8KB 以下 gzip",
-                "the_cdn_browser_build_transfers_at_about_7_6kb_gzip_ship_enterprise_apps_without_a_megabyte_of_f": "CDN 浏览器构建以大约 7.6KB gzip 传输。无需一兆字节的框架即可交付企业应用程序。",
+                "tiny_cdn_build": "小巧 - gzip 后约 9KB",
+                "cdn_browser_build_size": "CDN 浏览器构建在 gzip 后约为 8.8KB（未压缩为 25.1KB）。无需一兆字节的框架即可交付企业应用程序。",
                 "web_standards_2": "网络标准",
                 "three_simple_apis_that_extend_the_platform_you_already_know_no_proprietary_abstractions": "三个简单的 API 可以扩展您已知的平台。没有专有抽象。",
                 "plug_play": "即插即用",

@@ -147,7 +147,7 @@
                         "capabilities": "Capabilities",
                         "markup_is_a_highly_flexible_performant_and_lightweight_templating_system_that_can_serve_as_the_c": "Markup is a highly flexible, performant, and lightweight templating system that can serve as the core of anything from quick single-file widgets to large-scale, enterprise-ready systems.",
                         "from_tiny_solutions_to_enterprise_systems": "From Tiny Solutions to Enterprise Systems",
-                        "because_markup_requires_no_compile_or_build_step_and_is_only_7_6kb_gzip_it_has_zero_package_fric": "Because Markup requires **no compile or build step** and is only **7.6KB gzip**, it has zero package friction. This makes it a perfect fit for a wide spectrum of applications:",
+                        "cdn_build_size_description": "Because Markup requires **no compile or build step** and is about **8.8 KB gzip** (**25.1 KB uncompressed**), it has very little package friction. This makes it a perfect fit for a wide spectrum of applications:",
                         "text_1_lightweight_specialized_environments": "1. Lightweight & Specialized Environments",
                         "modern_web_frameworks_often_carry_a_heavy_penalty_in_bundle_size_and_setup_complexity_markup_s_f": "Modern web frameworks often carry a heavy penalty in bundle size and setup complexity. Markup's footprint is small enough that it simplifies development in resource-constrained or specialized environments:",
                         "browser_extensions_build_manifest_v3_content_scripts_side_panels_and_popups_without_packaging_a": "**Browser Extensions**: Build Manifest V3 content scripts, side panels, and popups without packaging a massive runtime or fighting complex bundler settings.",
@@ -327,7 +327,7 @@
                     "key_benefits": "Key Benefits",
                     "zero_build_step_no_compilers_no_bundlers_no_npm_install_required_to_get_started_drop_the_cdn_lin": "🚀 **Zero Build Step**: No compilers, no bundlers, no npm install required to get started. Drop the CDN link into a `<script>` tag and start coding.",
                     "surgical_dom_updates_no_virtual_dom_diffing_markup_target_updates_only_the_specific_nodes_and_at": "⚡ **Surgical DOM Updates**: No Virtual DOM diffing. Markup target-updates only the specific nodes and attributes that changed.",
-                    "ultra_lightweight_at_only_7_6kb_gzip_18kb_uncompressed_it_is_perfect_for_micro_frontends_widgets": "📦 **Ultra Lightweight**: At only **7.6KB gzip** (18KB uncompressed), it is perfect for micro-frontends, widgets, prototypes, and lightweight web apps.",
+                    "cdn_build_size_benefit": "📦 **Ultra Lightweight**: At about **8.8 KB gzip** (**25.1 KB uncompressed**), it is perfect for micro-frontends, widgets, prototypes, and lightweight web apps.",
                     "standard_web_components_easily_integrates_with_web_components_to_provide_reactive_rendering_and": "🔌 **Standard Web Components**: Easily integrates with Web Components to provide reactive rendering and simplified lifecycle management."
                 }
             },
@@ -818,13 +818,13 @@
             "meta": {
                 "markup": "Markup",
                 "markup_by_before_semicolon": "Markup by Before Semicolon",
-                "markup_is_an_under_8kb_gzip_reactive_html_templating_system_for_building_web_standard_javascript": "Markup is an under-8KB gzip reactive HTML templating system for building web-standard JavaScript user interfaces with state, effects, components, and no build step."
+                "compact_reactive_html_templating_system": "Markup is an approximately 9 KB gzip reactive HTML templating system for building web-standard JavaScript user interfaces with state, effects, components, and no build step."
             },
             "content": {
                 "reactive_dom": "Reactive DOM.",
                 "zero_build": "Zero build.",
                 "a_tiny_web_standards_first_templating_system_that_brings_reactivity_state_and_components_to_vani": "A tiny, web-standards-first templating system that brings reactivity, state, and components to vanilla JavaScript. **No bundlers. No JSX. No magic.**",
-                "text_7_6kb": "7.6KB",
+                "cdn_gzip_size": "8.8 KB",
                 "cdn_gzip": "CDN gzip",
                 "third_party_deps": "third-party deps",
                 "web_standards": "web standards",
@@ -840,8 +840,8 @@
                 "web_standards_web_apis_and_modern_javascript_are_all_you_need_markup_just_adds_the_reactivity": "Web Standards, Web APIs, and modern JavaScript are all you need. Markup just adds the reactivity.",
                 "reactive": "Reactive",
                 "template_literals_and_functions_create_reactive_dom_with_state_lifecycles_and_side_effects": "Template literals and functions create reactive DOM with state, lifecycles, and side-effects.",
-                "tiny_under_8kb_gzip": "Tiny - under 8KB gzip",
-                "the_cdn_browser_build_transfers_at_about_7_6kb_gzip_ship_enterprise_apps_without_a_megabyte_of_f": "The CDN browser build transfers at about 7.6KB gzip. Ship enterprise apps without a megabyte of framework.",
+                "tiny_cdn_build": "Tiny - about 9 KB gzip",
+                "cdn_browser_build_size": "The CDN browser build transfers at about 8.8 KB gzip (25.1 KB uncompressed). Ship enterprise apps without a megabyte of framework.",
                 "web_standards_2": "Web Standards",
                 "three_simple_apis_that_extend_the_platform_you_already_know_no_proprietary_abstractions": "Three simple APIs that extend the platform you already know. No proprietary abstractions.",
                 "plug_play": "Plug & Play",
