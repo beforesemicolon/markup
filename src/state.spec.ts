@@ -389,4 +389,28 @@ describe('effect', () => {
 
         dispose()
     })
+
+    it('should dispose nested effects omitted by a later parent run', () => {
+        const [enabled, setEnabled] = state(true)
+        const [childValue, setChildValue] = state(0)
+        const childSpy = jest.fn()
+
+        const dispose = effect(() => {
+            if (enabled()) {
+                effect(() => childSpy(childValue()))
+            }
+        })
+
+        expect(childSpy).toHaveBeenCalledTimes(1)
+
+        setEnabled(false)
+        jest.advanceTimersToNextTimer()
+        childSpy.mockClear()
+
+        setChildValue(1)
+        jest.advanceTimersToNextTimer()
+
+        expect(childSpy).not.toHaveBeenCalled()
+        dispose()
+    })
 })

@@ -1122,6 +1122,25 @@ describe('html', () => {
 				'<tr>item 5</tr>' +
 				'</tbody></table>')
 		})
+
+		it('should preserve adjacent dynamic cells inside table rows', () => {
+			const columns = [
+				{header: 'Name'},
+				{header: 'Status'},
+			]
+
+			html`<table><thead><tr>${() => html`<th>Select</th>`}${repeat(
+				columns,
+				column => html`<th>${column.header}</th>`
+			)}</tr></thead></table>`.render(document.body)
+
+			expect(document.body.children).toHaveLength(1)
+			expect(document.querySelectorAll('thead th')).toHaveLength(3)
+			expect(document.body.innerHTML).toBe(
+				'<table><thead><tr><th>Select</th><th>Name</th><th>Status</th></tr></thead></table>'
+			)
+		})
+
 		it('with number value and primitive return', () => {
 			const el = html`${repeat(2, (n) => n)}`
 			
@@ -1803,6 +1822,155 @@ describe('html', () => {
 			
 			expect(document.body.innerHTML).toBe('<span>diff</span>')
 		});
+
+		it('should not track state read by lifecycle callbacks', () => {
+			const [value, setValue] = state('first')
+			const [lifecycleValue, setLifecycleValue] = state('outside')
+			const renderValue = jest.fn(() => value())
+			const update = jest.fn(() => {
+				lifecycleValue()
+			})
+
+			html`${renderValue}`
+				.onUpdate(update)
+				.render(document.body)
+
+			setValue('second')
+			jest.advanceTimersToNextTimer()
+
+			expect(renderValue).toHaveBeenCalledTimes(2)
+			expect(update).toHaveBeenCalledTimes(1)
+
+			setLifecycleValue('changed')
+			jest.advanceTimersToNextTimer()
+
+			expect(renderValue).toHaveBeenCalledTimes(2)
+			expect(update).toHaveBeenCalledTimes(1)
+		})
+
+		it('should not track state read while connecting a custom element', () => {
+			const [externalValue, setExternalValue] = state('outside')
+			const connected = jest.fn()
+			const tagName = 'lifecycle-state-reader'
+
+			class LifecycleStateReader extends HTMLElement {
+				connectedCallback() {
+					connected(externalValue())
+				}
+			}
+
+			customElements.define(tagName, LifecycleStateReader)
+			const template = html`${() => document.createElement(tagName)}`
+			template.render(document.body)
+			const element = document.body.firstElementChild
+
+			expect(connected).toHaveBeenCalledTimes(1)
+			setExternalValue('changed')
+			jest.advanceTimersToNextTimer()
+
+			expect(connected).toHaveBeenCalledTimes(1)
+			expect(document.body.firstElementChild).toBe(element)
+		})
+
+		it('should not track state read while connecting a custom element during an update', () => {
+			const [value, setValue] = state<string | HTMLElement>('initial')
+			const [externalValue, setExternalValue] = state('outside')
+			const renderValue = jest.fn(() => value())
+			const connected = jest.fn()
+			const tagName = 'update-state-reader'
+
+			class UpdateStateReader extends HTMLElement {
+				connectedCallback() {
+					connected(externalValue())
+				}
+			}
+
+			customElements.define(tagName, UpdateStateReader)
+			const template = html`${renderValue}`.render(document.body)
+			const element = document.createElement(tagName)
+
+			setValue(element)
+			jest.advanceTimersToNextTimer()
+
+			expect(renderValue).toHaveBeenCalledTimes(2)
+			expect(connected).toHaveBeenCalledTimes(1)
+			expect(document.body.firstElementChild).toBe(element)
+
+			setExternalValue('changed')
+			jest.advanceTimersToNextTimer()
+
+			expect(renderValue).toHaveBeenCalledTimes(2)
+			expect(connected).toHaveBeenCalledTimes(1)
+			expect(document.body.firstElementChild).toBe(element)
+			template.unmount()
+		})
+
+		it('should preserve effects created while connecting a custom element', () => {
+			const [status, setStatus] = state<'idle' | 'loaded'>('idle')
+			const tagName = 'connected-reactive-render'
+
+			class ConnectedReactiveRender extends HTMLElement {
+				connectedCallback() {
+					html`
+						${when(is(status, 'loaded'), html`<slot></slot>`)}
+						${when(is(status, 'idle'), html`<slot name="hidden"></slot>`)}
+					`.render(this)
+				}
+			}
+
+			customElements.define(tagName, ConnectedReactiveRender)
+			html`${() => html`<connected-reactive-render></connected-reactive-render>`}`
+				.render(document.body)
+
+			const element = document.querySelector(tagName)!
+			expect(element.innerHTML).toContain('<slot name="hidden"></slot>')
+
+			setStatus('loaded')
+			jest.advanceTimersToNextTimer()
+
+			expect(element.innerHTML).toContain('<slot></slot>')
+			expect(element.innerHTML).not.toContain(
+				'<slot name="hidden"></slot>'
+			)
+		})
+
+		it('should preserve custom-element effects connected inside a shadow root', () => {
+			const [renderVersion, setRenderVersion] = state(0)
+			const [status, setStatus] = state('idle')
+			const tagName = 'shadow-root-reactive-render'
+
+			class ShadowRootReactiveRender extends HTMLElement {
+				connectedCallback() {
+					html`${status}`.render(this)
+				}
+			}
+
+			customElements.define(tagName, ShadowRootReactiveRender)
+			const host = document.createElement('div')
+			const root = host.attachShadow({ mode: 'open' })
+			document.body.appendChild(host)
+			const stopRendering = effect(() => {
+				const version = renderVersion()
+				html`<shadow-root-reactive-render
+					data-version="${version}"
+				></shadow-root-reactive-render>`.render(root)
+			})
+
+			setRenderVersion(1)
+			jest.advanceTimersToNextTimer()
+
+			const elements = Array.from(root.querySelectorAll(tagName))
+			expect(elements).toHaveLength(2)
+
+			setStatus('loaded')
+			jest.advanceTimersToNextTimer()
+
+			expect(elements.map((element) => element.textContent)).toEqual([
+				'loaded',
+				'loaded',
+			])
+			stopRendering()
+		})
 		
 		it('onMove', () => {
 			const moveMock = jest.fn();
@@ -1824,6 +1992,25 @@ describe('html', () => {
 			
 			expect(moveMock).toHaveBeenCalledTimes(1)
 		});
+
+		it('should preserve onMove behavior for disconnected elements and shadow roots', () => {
+			const moveMock = jest.fn()
+			const template = html`content`.onMove(moveMock).render(document.body)
+			const detached = document.createElement('div')
+			const host = document.createElement('div')
+			const root = host.attachShadow({ mode: 'open' })
+			document.body.appendChild(host)
+
+			template.render(detached)
+
+			expect(detached.textContent).toBe('content')
+			expect(moveMock).toHaveBeenCalledTimes(1)
+
+			template.render(root)
+
+			expect(root.textContent).toBe('content')
+			expect(moveMock).toHaveBeenCalledTimes(1)
+		})
 		
 		it('should trigger update when attr changes', () => {
 			const [value, setValue] = state("");

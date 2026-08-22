@@ -8,6 +8,7 @@ type Item = {
     name: string
     active?: boolean
     kind?: 'span' | 'strong'
+    onClick?: () => void
 }
 
 describe('repeat keyed template rebinding', () => {
@@ -66,6 +67,35 @@ describe('repeat keyed template rebinding', () => {
             'ONE',
             'TWO',
         ])
+    })
+
+    it('reuses keyed rows while updating event handlers', () => {
+        const firstHandler = jest.fn()
+        const nextHandler = jest.fn()
+        const [items, setItems] = state<Item[]>([
+            { id: 1, name: 'one', onClick: firstHandler },
+        ])
+        const view = html`${repeat(
+            items,
+            (item) =>
+                html`<button onclick="${item.onClick}">${item.name}</button>`,
+            { key: (item) => item.id }
+        )}`
+
+        view.render(document.body)
+        const button = document.body.querySelector('button')!
+        button.click()
+
+        setItems([{ id: 1, name: 'ONE', onClick: nextHandler }])
+        jest.advanceTimersToNextTimer()
+
+        const updatedButton = document.body.querySelector('button')!
+        updatedButton.click()
+
+        expect(updatedButton).toBe(button)
+        expect(updatedButton.textContent).toBe('ONE')
+        expect(firstHandler).toHaveBeenCalledTimes(1)
+        expect(nextHandler).toHaveBeenCalledTimes(1)
     })
 
     it('falls back to replacement when the template shape changes', () => {

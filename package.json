@@ -1,6 +1,6 @@
 {
     "name": "@beforesemicolon/markup",
-    "version": "1.19.0",
+    "version": "1.20.0-next",
     "description": "Reactive HTML Templating System",
     "engines": {
         "node": ">=22.13.0",
@@ -9,10 +9,10 @@
     "type": "module",
     "types": "./dist/types/index.d.ts",
     "exports": {
+        "types": "./dist/types/index.d.ts",
         "import": "./dist/esm/index.js",
         "require": "./dist/cjs/index.js",
-        "default": "./dist/cjs/index.js",
-        "types": "./dist/types/index.d.ts"
+        "default": "./dist/cjs/index.js"
     },
     "scripts": {
         "test": "jest --coverage",
@@ -20,7 +20,7 @@
         "local": "run-p local:watch local:serve",
         "local:watch": "NODE_ENV=development node build-docs.js && nodemon --exec 'NODE_ENV=development node build-docs.js'",
         "local:serve": "npx netlify dev --offline --no-open --skip-gitignore --dir website --port 8080 --staticServerPort 3998",
-        "build": "python3 scripts/tmp_static_part_fastpath.py && npx prettier --write src/html.ts && rm -rf dist && npm-run-all lint test && tsc --emitDeclarationOnly && node build.js && tsx benchmarks/tmp-v2-compare.ts",
+        "build": "rm -rf dist && npm-run-all lint test && tsc --emitDeclarationOnly && node build.js",
         "lint": "eslint ./src && prettier --check .",
         "format": "eslint ./src --fix && prettier --write .",
         "benchmark": "npm-run-all benchmark:repeat benchmark:dom benchmark:reactive",

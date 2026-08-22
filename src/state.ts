@@ -21,6 +21,24 @@ interface Resolver {
 const currentResolvers = new DoubleLinkedList<Resolver>()
 const scheduledExecutions = new Set<StateSubscriber>()
 
+/** Run user callbacks without attaching their reads to the active render effect. */
+export const untrack = <T>(callback: () => T): T => {
+    const active: Resolver[] = []
+
+    while (currentResolvers.tail) {
+        active.push(currentResolvers.tail)
+        currentResolvers.pop()
+    }
+
+    try {
+        return callback()
+    } finally {
+        for (let index = active.length - 1; index >= 0; index--) {
+            currentResolvers.push(active[index])
+        }
+    }
+}
+
 let flushPending = false
 
 const flushScheduledExecutions = () => {
@@ -160,6 +178,10 @@ export const effect = <T>(sub: EffectSubscriber<T>) => {
             console.error(e)
         } finally {
             currentResolvers.pop()
+
+            const staleChildren = res.children.splice(res.childCursor)
+            for (const child of staleChildren) child.dispose()
+
             isRunning = false
 
             if (pendingReRun && !res.disposed) {
