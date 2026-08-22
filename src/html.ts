@@ -4,7 +4,8 @@ import { isObjectLiteral } from './utils/is-object-literal.ts'
 import { turnCamelToKebabCasing } from './utils/turn-camel-to-kebab-casing.ts'
 import { insertNodeAfter } from './utils/insert-node-after.ts'
 import { DoubleLinkedList } from './DoubleLinkedList.ts'
-import { effect, untrack } from './state.ts'
+import { untrack } from './effect-context.ts'
+import { effect } from './state.ts'
 
 const PREFIX = '__BFS_V2_'
 const TOKEN = /__BFS_V2_(\d+)__/g
