@@ -46,7 +46,7 @@ const takeFirstSubscriber = (
     subscribers: Set<SchedulerSubscriber>
 ): SchedulerSubscriber | undefined => {
     const first = subscribers.values().next()
-    if (first.done) return undefined
+    if (first.done) return
     subscribers.delete(first.value)
     return first.value
 }
