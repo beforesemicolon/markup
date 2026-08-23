@@ -7,7 +7,7 @@
         "declarationMap": false,
         "sourceMap": true,
         "outDir": "./dist/types",
-        "removeComments": true,
+        "removeComments": false,
         "downlevelIteration": true,
         "strict": true,
         "alwaysStrict": true,

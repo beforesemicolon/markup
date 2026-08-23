@@ -7,17 +7,18 @@ import { DoubleLinkedList } from './DoubleLinkedList.ts'
 import { markRenderEffect, untrack } from './effect-context.ts'
 import { effect } from './state.ts'
 
-const PREFIX = '__BFS_V2_'
-const TOKEN = /__BFS_V2_(\d+)__/g
-const EXACT = /^__BFS_V2_(\d+)__$/
-// HTML parsing preserves a closing quote after an interpolation used as an
-// attribute spread (e.g. `${props}"`). Accept that parser artifact while
-// identifying the synthetic spread marker.
-const SPREAD = /^__bfs_v2_(\d+)__"?$/
+const BASE_PREFIX = '__BFS_V2_'
 const INITIAL = Symbol()
 
 type Piece = string | number
 type LifecycleCallback = (template: HtmlTemplate) => void | (() => void)
+
+type Markers = {
+    prefix: string
+    token: RegExp
+    exact: RegExp
+    spread: RegExp
+}
 
 type Descriptor =
     | { type: 'child'; node: number; value: number }
@@ -56,17 +57,35 @@ type Definition = {
 
 const registry = new WeakMap<TemplateStringsArray, Definition>()
 
+const createMarkers = (parts: TemplateStringsArray | string[]): Markers => {
+    let prefix = BASE_PREFIX
+    while (parts.some((part) => part.includes(prefix))) prefix = `_${prefix}`
+
+    return {
+        prefix,
+        token: new RegExp(`${prefix}(\\d+)__`, 'g'),
+        exact: new RegExp(`^${prefix}(\\d+)__$`),
+        // HTML parsing preserves a closing quote after an interpolation used as
+        // an attribute spread (e.g. `${props}"`). Accept that parser artifact.
+        spread: new RegExp(`^${prefix.toLowerCase()}(\\d+)__"?$`),
+    }
+}
+
 const isTemplateStringsArray = (
     parts: TemplateStringsArray | string[]
 ): parts is TemplateStringsArray =>
     Object.prototype.hasOwnProperty.call(parts, 'raw')
 
-const parsePieces = (value: string): Piece[] => {
+const parsePieces = (value: string, markers: Markers): Piece[] => {
     const out: Piece[] = []
     let last = 0
-    TOKEN.lastIndex = 0
+    markers.token.lastIndex = 0
 
-    for (let match = TOKEN.exec(value); match; match = TOKEN.exec(value)) {
+    for (
+        let match = markers.token.exec(value);
+        match;
+        match = markers.token.exec(value)
+    ) {
         if (match.index > last) out.push(value.slice(last, match.index))
         out.push(Number(match[1]))
         last = match.index + match[0].length
@@ -141,14 +160,14 @@ const extractTableContext = (
 // Native parsing moves text from structural table containers outside the
 // table. Turn interpolation tokens into comments first so their positions
 // survive parsing and can become normal child-part anchors.
-const preserveTableMarkers = (source: string) => {
+const preserveTableMarkers = (source: string, markers: Markers) => {
     const output: string[] = []
     const stack: string[] = []
     let index = 0
 
     while (index < source.length) {
-        if (source.startsWith('__BFS_V2_', index)) {
-            const end = source.indexOf('__', index + 9)
+        if (source.startsWith(markers.prefix, index)) {
+            const end = source.indexOf('__', index + markers.prefix.length)
             if (end !== -1) {
                 const marker = source.slice(index, end + 2)
                 if (
@@ -156,7 +175,9 @@ const preserveTableMarkers = (source: string) => {
                         stack[stack.length - 1] ?? ''
                     )
                 ) {
-                    output.push(`<!--bfs:${marker.slice(9, -2)}-->`)
+                    output.push(
+                        `<!--bfs:${marker.slice(markers.prefix.length, -2)}-->`
+                    )
                 } else {
                     output.push(marker)
                 }
@@ -208,14 +229,18 @@ const preserveTableMarkers = (source: string) => {
     return output.join('')
 }
 
-const parseTemplateSource = (template: HTMLTemplateElement, source: string) => {
+const parseTemplateSource = (
+    template: HTMLTemplateElement,
+    source: string,
+    markers: Markers
+) => {
     const tableRoot = /^<(tr|td|th|tbody|thead|tfoot|colgroup|caption|col)\b/i
         .exec(source)?.[1]
         ?.toLowerCase()
 
     if (!tableRoot) {
         template.innerHTML = /<table(?:\s|>)/i.test(source)
-            ? preserveTableMarkers(source)
+            ? preserveTableMarkers(source, markers)
             : source
         return
     }
@@ -255,8 +280,40 @@ const parseTemplateSource = (template: HTMLTemplateElement, source: string) => {
         col: ['<table><colgroup>', '</colgroup></table>', 'colgroup'],
     }
     const [before, after, selector] = contexts[tableRoot]
-    template.innerHTML = preserveTableMarkers(`${before}${source}${after}`)
+    template.innerHTML = preserveTableMarkers(
+        `${before}${source}${after}`,
+        markers
+    )
     extractTableContext(template, selector)
+}
+
+const collectNodes = (root: Node, whatToShow: number): Node[] => {
+    const nodes: Node[] = []
+    const pending: Node[] = []
+    const enqueueChildren = (parent: Node): void => {
+        let child = parent.lastChild
+        while (child) {
+            pending.push(child)
+            child = child.previousSibling
+        }
+    }
+
+    enqueueChildren(root)
+    while (pending.length) {
+        const node = pending.pop()
+        if (!node) continue
+
+        const nodeMask = 1 << (node.nodeType - 1)
+        if (whatToShow === NodeFilter.SHOW_ALL || whatToShow & nodeMask) {
+            nodes.push(node)
+        }
+
+        enqueueChildren(
+            node instanceof HTMLTemplateElement ? node.content : node
+        )
+    }
+
+    return nodes
 }
 
 function compile(parts: TemplateStringsArray | string[]): Definition {
@@ -264,38 +321,34 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
     const cached = key ? registry.get(key) : undefined
     if (cached) return cached
 
+    const markers = createMarkers(parts)
     let source = parts[0] ?? ''
     for (let index = 1; index < parts.length; index++) {
-        source += `${PREFIX}${index - 1}__${parts[index]}`
+        source += `${markers.prefix}${index - 1}__${parts[index]}`
     }
 
+    const dynamicOpeningTag = new RegExp(`<(${markers.prefix}\\d+__)`, 'g')
+    const dynamicClosingTag = new RegExp(`</(${markers.prefix}\\d+__)`, 'g')
     source = source
-        .replace(/<(__BFS_V2_\d+__)/g, '&lt;$1')
-        .replace(/<\/(__BFS_V2_\d+__)/g, '&lt;/$1')
+        .replace(dynamicOpeningTag, '&lt;$1')
+        .replace(dynamicClosingTag, '&lt;/$1')
         .replace(/<([a-z][\w.-]*-[\w.-]+)([^>]*)\/>/gi, '<$1$2></$1>')
 
     const template = document.createElement('template')
-    parseTemplateSource(template, source.trim())
+    parseTemplateSource(template, source.trim(), markers)
 
-    const dynamicText: Text[] = []
-    const textWalker = document.createTreeWalker(
-        template.content,
-        NodeFilter.SHOW_TEXT
-    )
-
-    while (textWalker.nextNode()) {
-        const text = textWalker.currentNode as Text
-        if (text.data.includes(PREFIX)) dynamicText.push(text)
-    }
+    const dynamicText = collectNodes(template.content, NodeFilter.SHOW_TEXT)
+        .filter((node): node is Text => node instanceof Text)
+        .filter((text) => text.data.includes(markers.prefix))
 
     for (const text of dynamicText) {
         if (text.parentElement?.matches('script,style')) continue
 
         const fragment = document.createDocumentFragment()
-        for (const part of parsePieces(text.data)) {
+        for (const part of parsePieces(text.data, markers)) {
             fragment.append(
                 typeof part === 'number'
-                    ? document.createTextNode(`${PREFIX}${part}__`)
+                    ? document.createTextNode(`${markers.prefix}${part}__`)
                     : document.createTextNode(part)
             )
         }
@@ -303,29 +356,19 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
     }
 
     const templateNodeIndexes = new WeakMap<Node, number>()
-    const templateNodeWalker = document.createTreeWalker(
-        template.content,
-        NodeFilter.SHOW_ALL
-    )
-
-    let templateNodeIndex = 0
-    while (templateNodeWalker.nextNode()) {
-        templateNodeIndexes.set(
-            templateNodeWalker.currentNode,
-            templateNodeIndex++
-        )
+    const templateNodes = collectNodes(template.content, NodeFilter.SHOW_ALL)
+    for (let index = 0; index < templateNodes.length; index++) {
+        templateNodeIndexes.set(templateNodes[index], index)
     }
 
     const descriptors: Descriptor[] = []
-    const walker = document.createTreeWalker(
+    const descriptorNodes = collectNodes(
         template.content,
         NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT | NodeFilter.SHOW_TEXT
     )
     let hasCustomElements = false
 
-    while (walker.nextNode()) {
-        const node = walker.currentNode
-
+    for (const node of descriptorNodes) {
         if (node instanceof Comment && node.data.startsWith('bfs:')) {
             descriptors.push({
                 type: 'child',
@@ -336,7 +379,7 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
         }
 
         if (node instanceof Text) {
-            const exact = EXACT.exec(node.data)
+            const exact = markers.exact.exec(node.data)
             if (exact) {
                 descriptors.push({
                     type: 'child',
@@ -348,11 +391,11 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
             }
         }
 
-        if (node instanceof Text && node.data.includes(PREFIX)) {
+        if (node instanceof Text && node.data.includes(markers.prefix)) {
             descriptors.push({
                 type: 'raw',
                 node: templateNodeIndexes.get(node)!,
-                pieces: parsePieces(node.data),
+                pieces: parsePieces(node.data, markers),
             })
             node.data = ''
             continue
@@ -362,13 +405,15 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
         if (node.localName.includes('-')) hasCustomElements = true
 
         const attributes = Array.from(node.attributes)
-        const hasSpread = attributes.some((attr) => SPREAD.test(attr.name))
+        const hasSpread = attributes.some((attr) =>
+            markers.spread.test(attr.name)
+        )
         const blocked = attributes
-            .filter((attr) => !SPREAD.test(attr.name))
+            .filter((attr) => !markers.spread.test(attr.name))
             .map((attr) => attr.name.toLowerCase())
 
         for (const attr of attributes) {
-            const spread = SPREAD.exec(attr.name)
+            const spread = markers.spread.exec(attr.name)
             if (spread) {
                 descriptors.push({
                     type: 'spread',
@@ -383,7 +428,7 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
             const name = attr.name.toLowerCase()
 
             if (name === 'ref') {
-                const exact = EXACT.exec(attr.value)
+                const exact = markers.exact.exec(attr.value)
                 descriptors.push(
                     exact
                         ? {
@@ -401,7 +446,7 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
                 continue
             }
 
-            if (!attr.value.includes(PREFIX)) {
+            if (!attr.value.includes(markers.prefix)) {
                 if (hasSpread) {
                     descriptors.push({
                         type: 'attr',
@@ -416,7 +461,7 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
                 continue
             }
 
-            const exact = EXACT.exec(attr.value)
+            const exact = markers.exact.exec(attr.value)
             const valueIndex = exact ? Number(exact[1]) : null
 
             if (name.startsWith('on') && valueIndex !== null) {
@@ -431,7 +476,7 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
                     type: 'attr',
                     node: templateNodeIndexes.get(node)!,
                     name: attr.name,
-                    pieces: parsePieces(attr.value),
+                    pieces: parsePieces(attr.value, markers),
                 })
             }
             node.removeAttribute(attr.name)
@@ -687,7 +732,9 @@ const reconcileItems = (
 }
 
 const instantiateDefinedCustomElements = (fragment: DocumentFragment) => {
-    const elements = Array.from(fragment.querySelectorAll('*'))
+    const elements = collectNodes(fragment, NodeFilter.SHOW_ELEMENT).filter(
+        (node): node is Element => node instanceof Element
+    )
 
     for (const element of elements) {
         if (!element.localName.includes('-')) continue
@@ -700,6 +747,16 @@ const instantiateDefinedCustomElements = (fragment: DocumentFragment) => {
         }
         while (element.firstChild) replacement.appendChild(element.firstChild)
         element.replaceWith(replacement)
+    }
+}
+
+const upgradeCustomElements = (fragment: DocumentFragment): void => {
+    customElements.upgrade?.(fragment)
+
+    for (const node of collectNodes(fragment, NodeFilter.SHOW_ELEMENT)) {
+        if (node instanceof HTMLTemplateElement) {
+            customElements.upgrade?.(node.content)
+        }
     }
 }
 
@@ -1202,7 +1259,7 @@ export class HtmlTemplate {
 
         if (this.#definition.hasCustomElements) {
             instantiateDefinedCustomElements(fragment)
-            customElements.upgrade?.(fragment)
+            upgradeCustomElements(fragment)
         }
 
         const descriptors = this.#definition.parts
@@ -1224,14 +1281,7 @@ export class HtmlTemplate {
             return
         }
 
-        const clonedNodes: Node[] = []
-        const clonedNodeWalker = document.createTreeWalker(
-            fragment,
-            NodeFilter.SHOW_ALL
-        )
-        while (clonedNodeWalker.nextNode()) {
-            clonedNodes.push(clonedNodeWalker.currentNode)
-        }
+        const clonedNodes = collectNodes(fragment, NodeFilter.SHOW_ALL)
 
         for (let index = 0; index < descriptors.length; index++) {
             const descriptor = descriptors[index]
@@ -1529,6 +1579,10 @@ export function html(
  * Use `unsafeHTML` when raw markup is intentional.
  */
 export function html(parts: string[], ...values: unknown[]): HtmlTemplate
+export function html(
+    parts: TemplateStringsArray | string[],
+    ...values: unknown[]
+): HtmlTemplate
 export function html(
     parts: TemplateStringsArray | string[],
     ...values: unknown[]

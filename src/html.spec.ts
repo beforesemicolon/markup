@@ -161,6 +161,40 @@ describe('html', () => {
 
 		expect(document.body.innerHTML).toBe('<strong>trusted</strong>')
 	})
+
+	it('should preserve text that resembles internal interpolation markers', () => {
+		const view = html`
+			<p data-marker="__BFS_V2_0__">__BFS_V2_0__</p>
+			<p>___BFS_V2_1__</p>
+		`
+
+		view.render(document.body)
+
+		expect(document.body.innerHTML).toBe(
+			'<p data-marker="__BFS_V2_0__">__BFS_V2_0__</p>\n' +
+			'\t\t\t<p>___BFS_V2_1__</p>'
+		)
+	})
+
+	it('should compile reactive values inside native template content', () => {
+		const [label, setLabel] = state('one')
+		const view = html`
+			<template>
+				<span data-label="${label}">${label}</span>
+			</template>
+		`
+
+		view.render(document.body)
+
+		const template = document.querySelector('template')
+		const span = template?.content.querySelector('span')
+		expect(span?.outerHTML).toBe('<span data-label="one">one</span>')
+
+		setLabel('two')
+		jest.advanceTimersToNextTimer()
+
+		expect(span?.outerHTML).toBe('<span data-label="two">two</span>')
+	})
 	
 	it('should render dynamic text and update', () => {
 		const [x, setX] = state(15)
@@ -2300,6 +2334,14 @@ describe('html', () => {
 
 			expect(first.toString()).toBe('<span>one</span>')
 			expect(second.toString()).toBe('<strong>two</strong>')
+		})
+
+		it('should accept the established union-typed template parts', () => {
+			const parts: TemplateStringsArray | string[] = [
+				'<span>compatible</span>',
+			]
+
+			expect(html(parts).toString()).toBe('<span>compatible</span>')
 		})
 	})
 
