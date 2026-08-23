@@ -760,6 +760,11 @@ export class HtmlTemplate {
         return (this.#children ??= new Set())
     }
 
+    /**
+     * Manually constructed string arrays are parsed as raw HTML. Prefer the
+     * `html` tag for normal templates and `unsafeHTML` when raw markup is
+     * intentional.
+     */
     constructor(parts: TemplateStringsArray | string[], values: unknown[]) {
         this.#parts = parts
         this.#values = values
@@ -1515,7 +1520,28 @@ export class HtmlTemplate {
     }
 }
 
-export const html = (
+export function html(
+    parts: TemplateStringsArray,
+    ...values: unknown[]
+): HtmlTemplate
+/**
+ * @deprecated Manually constructed template arrays are parsed as raw HTML.
+ * Use `unsafeHTML` when raw markup is intentional.
+ */
+export function html(parts: string[], ...values: unknown[]): HtmlTemplate
+export function html(
     parts: TemplateStringsArray | string[],
     ...values: unknown[]
-) => new HtmlTemplate(parts, values)
+): HtmlTemplate {
+    return new HtmlTemplate(parts, values)
+}
+
+/**
+ * Parses a string as raw HTML.
+ *
+ * Only pass trusted or independently sanitized markup. For ordinary dynamic
+ * values, use the `html` tagged template so interpolations remain outside the
+ * browser's HTML parser.
+ */
+export const unsafeHTML = (source: string): HtmlTemplate =>
+    new HtmlTemplate([source], [])

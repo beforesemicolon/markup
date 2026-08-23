@@ -1,5 +1,5 @@
 import '../test.common.ts';
-import { html, HtmlTemplate } from './html.ts'
+import { html, HtmlTemplate, unsafeHTML } from './html.ts'
 import { effect, state } from './state.ts'
 import {when, repeat, oneOf, is, element, suspense} from './helpers/index.ts'
 import { text } from 'node:stream/consumers'
@@ -125,13 +125,41 @@ describe('html', () => {
 	})
 	
 	it('should render html as HTML', () => {
-		// @ts-ignore
-		const htmlString = html(['<p>sample</p>'])
+		const htmlString = unsafeHTML('<p>sample</p>')
 		const temp = html`${htmlString}`
 		
 		temp.render(document.body)
 		
 		expect(document.body.innerHTML).toBe('<p>sample</p>')
+	})
+
+	it('should keep interpolated table row content outside the HTML parser', () => {
+		const untrusted = '<img src="x" onerror="alert(1)">'
+		const row = html`<tr>${untrusted}</tr>`
+
+		row.render(document.body)
+
+		expect(document.querySelector('img')).toBeNull()
+		expect(document.body.textContent).toBe(untrusted)
+	})
+
+	it('should keep interpolated table row attributes outside the HTML parser', () => {
+		const untrusted = 'safe" onmouseover="alert(1)'
+		const row = html`<tr data-label="${untrusted}">sample</tr>`
+
+		row.render(document.body)
+
+		const element = document.querySelector('tr')
+		expect(element?.getAttribute('data-label')).toBe(untrusted)
+		expect(element?.hasAttribute('onmouseover')).toBe(false)
+	})
+
+	it('should parse explicitly trusted raw HTML', () => {
+		const raw = unsafeHTML('<strong>trusted</strong>')
+
+		raw.render(document.body)
+
+		expect(document.body.innerHTML).toBe('<strong>trusted</strong>')
 	})
 	
 	it('should render dynamic text and update', () => {

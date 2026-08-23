@@ -12,7 +12,7 @@ Markup is a JavaScript reactive templating system built to simplify how you buil
 
 It consists of 3 main APIs with additional utilities to simplify things even further:
 
--   `html`: A JavaScript tagged function that allows you to represent the DOM using template literal string;
+-   `html`: A JavaScript tagged function that allows you to represent the DOM using a template literal string;
 -   `state`: A simple state tracking API that allows you to define reactive data as you wish;
 -   `effect`: A straight forward way to define things that need to happen when certain states change;
 
@@ -126,6 +126,23 @@ gzip (23.8 KB uncompressed).
 
     html`<h1>Hello World</h1>`.render(document.getElementById('app'))
 </script>
+```
+
+Dynamic values belong in `html` interpolations. Markup applies those values
+without parsing them as HTML:
+
+```javascript
+const message = '<strong>hello</strong>'
+html`<p>${message}</p>` // renders the markup characters as text
+```
+
+When trusted or independently sanitized markup must be parsed deliberately,
+use the explicit `unsafeHTML` API. Never pass user-controlled content to it:
+
+```javascript
+import { unsafeHTML } from '@beforesemicolon/markup'
+
+const trustedIcon = unsafeHTML('<svg aria-hidden="true">...</svg>')
 ```
 
 ## AI and agent context

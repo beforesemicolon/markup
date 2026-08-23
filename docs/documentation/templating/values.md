@@ -51,6 +51,26 @@ const type = 'button'
 html`<button type="${type}">${label}</button>`
 ```
 
+### {{t.pages.documentation.templating.values.content.unsafe_raw_html}}
+
+{{t.pages.documentation.templating.values.content.interpolated_strings_are_applied_as_values_and_are_not_parsed_as_html_keep_untrusted_content_i}}
+
+```javascript
+const message = '<img src=x onerror=alert(1)>'
+
+html`<p>${message}</p>` // renders the markup characters as text
+```
+
+{{t.pages.documentation.templating.values.content.use_unsafehtml_only_when_you_intentionally_need_to_parse_trusted_or_independently_sanitized_mar}}
+
+```javascript
+import { unsafeHTML } from '@beforesemicolon/markup'
+
+const trustedIcon = unsafeHTML('<svg aria-hidden="true">...</svg>')
+```
+
+{{t.pages.documentation.templating.values.content.passing_manually_constructed_string_arrays_to_html_is_deprecated_use_unsafehtml_so_raw_html_p}}
+
 ### {{t.pages.documentation.templating.values.content.node}}
 
 {{t.pages.documentation.templating.values.content.markup_templates_work_seamlessly_with_dom_nodes_and_this_ability_is_what_allows_you_to_migrate_a}}

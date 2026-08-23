@@ -58,6 +58,7 @@ import {
     element,
     suspense,
     visible,
+    unsafeHTML,
 } from '@beforesemicolon/markup'
 ```
 
@@ -86,7 +87,7 @@ Markup templates contain HTML, not JSX. Use `class`, `for`, `onclick`, and other
 ## `html`
 
 ```typescript
-html(parts: TemplateStringsArray | string[], ...values: unknown[]): HtmlTemplate
+html(parts: TemplateStringsArray, ...values: unknown[]): HtmlTemplate
 ```
 
 Create and render a template:
@@ -124,6 +125,19 @@ const button = html`
 ```
 
 Do not interpolate dynamic tag names into an `html` template. Use the `element` helper for dynamic element names.
+
+Interpolated strings are rendered as values and are not parsed as HTML. Keep
+untrusted and runtime-provided content in interpolations:
+
+```javascript
+const message = '<img src=x onerror=alert(1)>'
+html`<p>${message}</p>` // rendered as text, not as an img element
+```
+
+Use `unsafeHTML(source)` only when deliberately parsing trusted or independently
+sanitized markup. Never pass user-controlled content to it. Passing manually
+constructed string arrays to `html`, such as `html([source])`, is retained only
+for backward compatibility and is deprecated in favor of `unsafeHTML(source)`.
 
 ## `state`
 
