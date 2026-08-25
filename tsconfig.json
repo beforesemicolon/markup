@@ -4,6 +4,7 @@
         "module": "nodenext",
         "lib": ["dom", "es2015.proxy", "es2021.weakref"],
         "declaration": true,
+        "stripInternal": true,
         "declarationMap": false,
         "sourceMap": true,
         "outDir": "./dist/types",

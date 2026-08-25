@@ -4,8 +4,8 @@ import { isObjectLiteral } from './utils/is-object-literal.ts'
 import { turnCamelToKebabCasing } from './utils/turn-camel-to-kebab-casing.ts'
 import { insertNodeAfter } from './utils/insert-node-after.ts'
 import { DoubleLinkedList } from './DoubleLinkedList.ts'
-import { markRenderEffect, untrack } from './effect-context.ts'
-import { effect } from './state.ts'
+import { untrack } from './effect-context.ts'
+import { createRenderEffect } from './state.ts'
 
 const BASE_PREFIX = '__BFS_V2_'
 const INITIAL = Symbol()
@@ -28,11 +28,14 @@ type Descriptor =
           node: number
           name: string
           pieces: Piece[]
+          attributeOnly: boolean
       }
     | {
           type: 'event'
           node: number
           name: string
+          eventName: string
+          useEventListener?: boolean
           value: number
       }
     | {
@@ -51,11 +54,28 @@ type Descriptor =
 type Definition = {
     template: HTMLTemplateElement
     parts: Descriptor[]
+    nodeCount: number
     hasCustomElements: boolean
+    hasNestedTemplates: boolean
     simpleChild: boolean
+    singleRoot: boolean
 }
 
 const registry = new WeakMap<TemplateStringsArray, Definition>()
+const BATCH_SIZE = 50
+const batchTemplates = new WeakMap<Definition, HTMLTemplateElement>()
+
+const getBatchTemplate = (definition: Definition): HTMLTemplateElement => {
+    const cached = batchTemplates.get(definition)
+    if (cached) return cached
+
+    const batch = document.createElement('template')
+    for (let index = 0; index < BATCH_SIZE; index++) {
+        batch.content.appendChild(definition.template.content.cloneNode(true))
+    }
+    batchTemplates.set(definition, batch)
+    return batch
+}
 
 const createMarkers = (parts: TemplateStringsArray | string[]): Markers => {
     let prefix = BASE_PREFIX
@@ -141,8 +161,14 @@ const shouldUseEventListener = (node: Element, name: string) => {
     )
 }
 
-const setDynamicValue = (node: Element, name: string, value: unknown) => {
-    setElementAttribute(node, name, value)
+const setDynamicValue = (
+    node: Element,
+    name: string,
+    value: unknown,
+    attributeOnly = false,
+    initial = false
+) => {
+    setElementAttribute(node, name, value, attributeOnly, initial)
 }
 
 const extractTableContext = (
@@ -287,6 +313,21 @@ const parseTemplateSource = (
     extractTableContext(template, selector)
 }
 
+const removeStructuralTableWhitespace = (root: DocumentFragment): void => {
+    const structuralElements = root.querySelectorAll(
+        'table,thead,tbody,tfoot,tr,colgroup'
+    )
+
+    for (const element of structuralElements) {
+        let child = element.firstChild
+        while (child) {
+            const next = child.nextSibling
+            if (child instanceof Text && !child.data.trim()) child.remove()
+            child = next
+        }
+    }
+}
+
 const collectNodes = (root: Node, whatToShow: number): Node[] => {
     const nodes: Node[] = []
     const pending: Node[] = []
@@ -316,6 +357,97 @@ const collectNodes = (root: Node, whatToShow: number): Node[] => {
     return nodes
 }
 
+const collectDescriptorNodesDeep = (
+    root: Node,
+    descriptors: Descriptor[]
+): Node[] => {
+    const nodes = new Array<Node>(descriptors.length)
+    const pending: Node[] = []
+    const enqueueChildren = (parent: Node): void => {
+        let child = parent.lastChild
+        while (child) {
+            pending.push(child)
+            child = child.previousSibling
+        }
+    }
+    let nodeIndex = 0
+    let descriptorIndex = 0
+
+    enqueueChildren(root)
+    while (pending.length && descriptorIndex < descriptors.length) {
+        const node = pending.pop()
+        if (!node) continue
+
+        while (descriptors[descriptorIndex]?.node === nodeIndex) {
+            nodes[descriptorIndex] = node
+            descriptorIndex++
+        }
+        nodeIndex++
+        enqueueChildren(
+            node instanceof HTMLTemplateElement ? node.content : node
+        )
+    }
+
+    return nodes
+}
+
+const collectDescriptorNodes = (
+    root: Node,
+    descriptors: Descriptor[]
+): Node[] => {
+    const nodes = new Array<Node>(descriptors.length)
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_ALL)
+    let descriptorIndex = 0
+    let nodeIndex = 0
+    let node = walker.nextNode()
+
+    while (node && descriptorIndex < descriptors.length) {
+        while (descriptors[descriptorIndex]?.node === nodeIndex) {
+            nodes[descriptorIndex] = node
+            descriptorIndex++
+        }
+        nodeIndex++
+        node = walker.nextNode()
+    }
+
+    return descriptorIndex === descriptors.length
+        ? nodes
+        : collectDescriptorNodesDeep(root, descriptors)
+}
+
+const collectBatchDescriptorNodes = (
+    root: DocumentFragment,
+    definition: Definition,
+    count: number
+): Node[] | null => {
+    const descriptors = definition.parts
+    const nodes = new Array<Node>(descriptors.length * count)
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_ALL)
+    let descriptorIndex = 0
+    let nodeIndex = 0
+    let node = walker.nextNode()
+
+    while (node && descriptorIndex < nodes.length) {
+        while (descriptorIndex < nodes.length) {
+            const templateIndex = Math.floor(
+                descriptorIndex / descriptors.length
+            )
+            const descriptor = descriptors[descriptorIndex % descriptors.length]
+            const expectedNodeIndex =
+                templateIndex * definition.nodeCount + descriptor.node
+            if (nodeIndex !== expectedNodeIndex) break
+
+            nodes[descriptorIndex] = node
+            descriptorIndex++
+        }
+
+        nodeIndex++
+        node = walker.nextNode()
+    }
+
+    return descriptorIndex === nodes.length ? nodes : null
+}
+
 function compile(parts: TemplateStringsArray | string[]): Definition {
     const key = isTemplateStringsArray(parts) ? parts : null
     const cached = key ? registry.get(key) : undefined
@@ -336,6 +468,7 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
 
     const template = document.createElement('template')
     parseTemplateSource(template, source.trim(), markers)
+    removeStructuralTableWhitespace(template.content)
 
     const dynamicText = collectNodes(template.content, NodeFilter.SHOW_TEXT)
         .filter((node): node is Text => node instanceof Text)
@@ -453,6 +586,9 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
                         node: templateNodeIndexes.get(node)!,
                         name: attr.name,
                         pieces: [attr.value],
+                        attributeOnly:
+                            !node.localName.includes('-') &&
+                            !(attr.name in node),
                     })
                     node.removeAttribute(attr.name)
                 } else {
@@ -469,6 +605,10 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
                     type: 'event',
                     node: templateNodeIndexes.get(node)!,
                     name,
+                    eventName: name.slice(2),
+                    useEventListener: node.localName.includes('-')
+                        ? undefined
+                        : shouldUseEventListener(node, name),
                     value: valueIndex,
                 })
             } else {
@@ -477,6 +617,8 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
                     node: templateNodeIndexes.get(node)!,
                     name: attr.name,
                     pieces: parsePieces(attr.value, markers),
+                    attributeOnly:
+                        !node.localName.includes('-') && !(attr.name in node),
                 })
             }
             node.removeAttribute(attr.name)
@@ -492,8 +634,13 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
     const definition = {
         template,
         parts: descriptors,
+        nodeCount: templateNodes.length,
         hasCustomElements,
+        hasNestedTemplates: Boolean(template.content.querySelector('template')),
         simpleChild,
+        singleRoot:
+            template.content.childNodes.length === 1 &&
+            template.content.firstChild instanceof Element,
     }
     if (key) registry.set(key, definition)
     return definition
@@ -501,6 +648,7 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
 
 type Item = Node | HtmlTemplate
 const stagedMounts = new WeakSet<HtmlTemplate>()
+let hasStagedMounts = false
 
 type ChildRuntime = {
     type: 'child'
@@ -525,12 +673,14 @@ type Runtime =
           node: Element
           name: string
           pieces: Piece[]
+          attributeOnly: boolean
           current: unknown
       }
     | {
           type: 'event'
           node: Element
           name: string
+          eventName: string
           value: number
           fn?: EventListener
           options?: boolean | AddEventListenerOptions
@@ -560,7 +710,7 @@ type Runtime =
       }
 
 const normalizeItem = (value: unknown): Item => {
-    if (value instanceof Node || value instanceof HtmlTemplate) return value
+    if (value instanceof HtmlTemplate || value instanceof Node) return value
     return document.createTextNode(String(value))
 }
 
@@ -569,10 +719,10 @@ const normalizeContent = (value: unknown): Item[] => {
     if (!value.length) return value as Item[]
 
     const first = value[0]
-    if (first instanceof Node || first instanceof HtmlTemplate) {
+    if (first instanceof HtmlTemplate || first instanceof Node) {
         for (let index = 1; index < value.length; index++) {
             const item = value[index]
-            if (!(item instanceof Node || item instanceof HtmlTemplate)) {
+            if (!(item instanceof HtmlTemplate || item instanceof Node)) {
                 return value.map(normalizeItem)
             }
         }
@@ -601,6 +751,99 @@ const insertItemAfter = (item: Item, previous: Item | Node) => {
     else insert()
 }
 
+const canStageItems = (items: Item[]): boolean => {
+    for (const item of items) {
+        if (item instanceof HtmlTemplate) {
+            if (item.mounted || (hasStagedMounts && stagedMounts.has(item))) {
+                return false
+            }
+        } else if (item.isConnected) {
+            return false
+        }
+    }
+    return true
+}
+
+const stageItems = (
+    items: Item[],
+    template: HtmlTemplate
+): DocumentFragment => {
+    if (
+        items.every(
+            (item): item is HtmlTemplate => item instanceof HtmlTemplate
+        )
+    ) {
+        const batch = HtmlTemplate.__stageBatch__(items, template)
+        if (batch) return batch
+    }
+
+    const fragment = document.createDocumentFragment()
+
+    for (const item of items) {
+        if (item instanceof HtmlTemplate) {
+            item.render(fragment)
+            item.__PARENT__ = template
+            template.__CHILDREN__.add(item)
+        } else {
+            fragment.appendChild(item)
+        }
+    }
+
+    return fragment
+}
+
+const insertFragmentAfter = (
+    fragment: DocumentFragment,
+    anchor: Node
+): void => {
+    const insert = () => insertNodeAfter(fragment, anchor)
+    if (anchor.isConnected) untrack(insert)
+    else insert()
+}
+
+const getItemRange = (item: Item): [Node, Node] =>
+    item instanceof HtmlTemplate ? item.__MARKERS__ : [item, item]
+
+const isContiguousRange = (
+    current: DoubleLinkedList<Item>,
+    anchor: Node
+): boolean => {
+    let expected = anchor.nextSibling
+
+    for (const item of current) {
+        const [first, last] = getItemRange(item)
+        if (first !== expected) return false
+        expected = last.nextSibling
+    }
+
+    return true
+}
+
+const removeContiguousRange = (
+    current: DoubleLinkedList<Item>,
+    anchor: Node,
+    template: HtmlTemplate
+): boolean => {
+    if (!current.size || !isContiguousRange(current, anchor)) return false
+
+    const tail = current.tail
+    if (!tail) return false
+    const first = anchor.nextSibling
+    const last = getItemRange(tail)[1]
+    if (!first) return false
+
+    const range = document.createRange()
+    range.setStartBefore(first)
+    range.setEndAfter(last)
+    range.deleteContents()
+    range.detach()
+
+    template.__disposeChildRange__(current)
+    current.clear()
+
+    return true
+}
+
 const reconcileItems = (
     current: DoubleLinkedList<Item>,
     nextItems: Item[],
@@ -608,33 +851,16 @@ const reconcileItems = (
     template: HtmlTemplate
 ) => {
     if (!nextItems.length) {
+        if (removeContiguousRange(current, anchor, template)) return
         for (const item of current) removeItem(item)
         current.clear()
         return
     }
 
     if (!current.size) {
-        if (
-            nextItems.some(
-                (item) => item instanceof HtmlTemplate && stagedMounts.has(item)
-            )
-        ) {
-            const fragment = document.createDocumentFragment()
-
-            for (const item of nextItems) {
-                if (item instanceof HtmlTemplate) {
-                    item.render(fragment)
-                    item.__PARENT__ = template
-                    template.__CHILDREN__.add(item)
-                } else {
-                    fragment.appendChild(item)
-                }
-                current.push(item)
-            }
-
-            const insert = () => insertNodeAfter(fragment, anchor)
-            if (anchor.isConnected) untrack(insert)
-            else insert()
+        if (canStageItems(nextItems)) {
+            insertFragmentAfter(stageItems(nextItems, template), anchor)
+            for (const item of nextItems) current.push(item)
             return
         }
 
@@ -654,6 +880,33 @@ const reconcileItems = (
         return
     }
 
+    if (nextItems.length > current.size) {
+        let currentItem: Item | null = current.head
+        let prefixMatches = true
+
+        for (let index = 0; index < current.size; index++) {
+            if (nextItems[index] !== currentItem) {
+                prefixMatches = false
+                break
+            }
+            currentItem = current.getNextValueOf(currentItem)
+        }
+
+        if (prefixMatches) {
+            const appended = nextItems.slice(current.size)
+            if (canStageItems(appended)) {
+                const tail = current.tail
+                const insertionPoint = tail ? getItemRange(tail)[1] : anchor
+                insertFragmentAfter(
+                    stageItems(appended, template),
+                    insertionPoint
+                )
+                for (const item of appended) current.push(item)
+                return
+            }
+        }
+    }
+
     if (current.size === nextItems.length) {
         let currentItem: Item | null = current.head
         let same = true
@@ -670,6 +923,17 @@ const reconcileItems = (
     }
 
     const nextSet = new Set(nextItems)
+
+    if (
+        canStageItems(nextItems) &&
+        !Array.from(current).some((item) => nextSet.has(item)) &&
+        removeContiguousRange(current, anchor, template)
+    ) {
+        insertFragmentAfter(stageItems(nextItems, template), anchor)
+        for (const item of nextItems) current.push(item)
+        return
+    }
+
     let previous: Item | Node = anchor
     let index = 0
     let currentItem: Item | null = current.head
@@ -782,7 +1046,9 @@ const mountFragment = (
 }
 
 const getEventValue = (raw: unknown, name: string) => {
-    const [fn, options] = Array.isArray(raw) ? raw : [raw, undefined]
+    const event = Array.isArray(raw) ? raw : undefined
+    const fn = event ? event[0] : raw
+    const options = event?.[1]
 
     if (typeof fn !== 'function') {
         throw new Error(
@@ -801,9 +1067,11 @@ export class HtmlTemplate {
     #parts: TemplateStringsArray | string[]
     #values: unknown[]
     #runtime: Runtime[] = []
-    #partEffects?: Map<Runtime, EffectUnSubscriber>
-    #markers = [document.createTextNode(''), document.createTextNode('')]
-    #refs: Record<string, Set<Element>> = {}
+    #primaryEffectPart?: Runtime
+    #primaryEffectUnsubscribe?: EffectUnSubscriber
+    #additionalPartEffects?: Map<Runtime, EffectUnSubscriber>
+    #markers?: [Node, Node]
+    #refs?: Record<string, Set<Element>>
     #mounted = false
     #mountSub?: LifecycleCallback
     #moveSub?: LifecycleCallback
@@ -839,26 +1107,141 @@ export class HtmlTemplate {
         }
     }
 
+    /** @internal */
+    static __stageBatch__(
+        templates: HtmlTemplate[],
+        parent: HtmlTemplate
+    ): DocumentFragment | null {
+        if (templates.length < BATCH_SIZE) {
+            return null
+        }
+
+        const definition = templates[0].#definition
+        if (
+            !definition.singleRoot ||
+            definition.simpleChild ||
+            !definition.parts.length ||
+            definition.hasCustomElements ||
+            definition.hasNestedTemplates
+        ) {
+            return null
+        }
+
+        for (const template of templates) {
+            if (
+                template.#mounted ||
+                template.#definition !== definition ||
+                template.#mountSub ||
+                template.#moveSub ||
+                template.#updateSub ||
+                template.#unmountSub
+            ) {
+                return null
+            }
+        }
+
+        const output = document.createDocumentFragment()
+        const batch = getBatchTemplate(definition)
+        const descriptorCount = definition.parts.length
+
+        const batchCount =
+            Math.floor(templates.length / BATCH_SIZE) * BATCH_SIZE
+        for (
+            let batchStart = 0;
+            batchStart < batchCount;
+            batchStart += BATCH_SIZE
+        ) {
+            const fragment = batch.content.cloneNode(true) as DocumentFragment
+            const roots = Array.from(fragment.childNodes)
+            if (roots.length !== BATCH_SIZE) return null
+
+            const clonedNodes = collectBatchDescriptorNodes(
+                fragment,
+                definition,
+                BATCH_SIZE
+            )
+            if (!clonedNodes) return null
+
+            for (let index = 0; index < BATCH_SIZE; index++) {
+                const template = templates[batchStart + index]
+                template.#markers = [roots[index], roots[index]]
+                template.#initializeRuntime(
+                    clonedNodes,
+                    index * descriptorCount
+                )
+                template.#mounted = true
+                template.__PARENT__ = parent
+                parent.__CHILDREN__.add(template)
+            }
+
+            output.appendChild(fragment)
+        }
+
+        for (let index = batchCount; index < templates.length; index++) {
+            const template = templates[index]
+            template.render(output)
+            template.__PARENT__ = parent
+            parent.__CHILDREN__.add(template)
+        }
+
+        return output
+    }
+
     get mounted() {
         return this.#mounted
     }
 
+    get #rangeMarkers(): [Node, Node] {
+        return (this.#markers ??= [
+            document.createTextNode(''),
+            document.createTextNode(''),
+        ])
+    }
+
     get parentNode(): ParentNode | null {
-        return this.#markers[0].parentNode
+        return this.#markers?.[0].parentNode ?? null
     }
 
     get __MARKERS__() {
-        return this.#markers
+        return this.#rangeMarkers
     }
 
     get childNodes() {
         const nodes: Node[] = []
+        if (!this.#markers) return nodes
+
+        if (this.#markers[0] === this.#markers[1]) {
+            return this.#markers[0].parentNode ? [this.#markers[0]] : nodes
+        }
+
         let node = this.#markers[0].nextSibling
         while (node && node !== this.#markers[1]) {
             nodes.push(node)
             node = node.nextSibling
         }
         return nodes
+    }
+
+    #appendRangeTo(target: ParentNode): void {
+        const markers = this.#rangeMarkers
+        if (markers[0] === markers[1]) {
+            target.append(markers[0])
+            return
+        }
+
+        target.append(markers[0], ...this.childNodes, markers[1])
+    }
+
+    #setFragmentRange(fragment: DocumentFragment): void {
+        const root = fragment.firstChild
+        if (this.#definition.singleRoot && root) {
+            this.#markers = [root, root]
+            return
+        }
+
+        const markers = this.#rangeMarkers
+        fragment.prepend(markers[0])
+        fragment.append(markers[1])
     }
 
     get refs(): Record<string, Element[]> {
@@ -870,7 +1253,7 @@ export class HtmlTemplate {
             }
         }
 
-        add(this.#refs)
+        if (this.#refs) add(this.#refs)
         for (const child of this.__CHILDREN__) add(child.refs)
 
         return Object.fromEntries(
@@ -880,10 +1263,12 @@ export class HtmlTemplate {
 
     __addRef(name: string, node: Element) {
         if (!name) return
-        ;(this.#refs[name] ??= new Set()).add(node)
+        const refs = (this.#refs ??= {})
+        ;(refs[name] ??= new Set()).add(node)
     }
 
     __removeRef(name: string, node: Element) {
+        if (!this.#refs) return
         this.#refs[name]?.delete(node)
         if (!this.#refs[name]?.size) delete this.#refs[name]
     }
@@ -897,17 +1282,62 @@ export class HtmlTemplate {
         }
     }
 
+    __disposeChildRange__(items: Iterable<Item>): void {
+        const children = this.#children
+        if (children) {
+            let ownedCount = 0
+            let allOwned = true
+            for (const item of items) {
+                if (!(item instanceof HtmlTemplate)) continue
+                ownedCount++
+                if (item.__PARENT__ !== this || !children.has(item)) {
+                    allOwned = false
+                }
+            }
+
+            if (allOwned && ownedCount === children.size) {
+                children.clear()
+                this.#children = undefined
+            } else {
+                for (const item of items) {
+                    if (item instanceof HtmlTemplate) children.delete(item)
+                }
+            }
+        }
+
+        for (const item of items) {
+            if (!(item instanceof HtmlTemplate)) continue
+            if (item.__PARENT__ === this) item.__PARENT__ = null
+            item.#dispose(false, false)
+        }
+    }
+
     #valuesAreRebindable(values: unknown[]) {
         return values.every((value, valueIndex) => {
             if (isRebindableValue(value)) return true
             if (typeof value !== 'function') return false
 
-            return this.#runtime.some(
-                (part) =>
-                    part.type === 'event' &&
-                    part.value === valueIndex &&
-                    !part.asProperty
-            )
+            let referenced = false
+            for (const part of this.#runtime) {
+                const usesValue =
+                    part.type === 'event' || part.type === 'ref'
+                        ? part.value === valueIndex
+                        : (part.type === 'raw' || part.type === 'attr') &&
+                          part.pieces.includes(valueIndex)
+
+                if (!usesValue) continue
+                referenced = true
+
+                if (
+                    part.type === 'child' ||
+                    part.type === 'spread' ||
+                    (part.type === 'event' && part.asProperty)
+                ) {
+                    return false
+                }
+            }
+
+            return referenced
         })
     }
 
@@ -938,11 +1368,15 @@ export class HtmlTemplate {
             return typeof this.#values[part.value] === 'function'
         }
         if (part.type === 'raw' || part.type === 'attr') {
-            return part.pieces.some(
-                (piece) =>
+            for (const piece of part.pieces) {
+                if (
                     typeof piece === 'number' &&
                     typeof this.#values[piece] === 'function'
-            )
+                ) {
+                    return true
+                }
+            }
+            return false
         }
         if (part.type === 'event') {
             return (
@@ -959,21 +1393,34 @@ export class HtmlTemplate {
 
         const source = this.#values[part.value]
         if (!isObjectLiteral(source)) return false
-        return Object.entries(source as ObjectLiteral<unknown>).some(
-            ([key, value]) => {
-                if (typeof value !== 'function') return false
-                const name = spreadName(key)
-                return !(
-                    name.startsWith('on') &&
-                    shouldUseEventListener(part.node, name)
-                )
+        for (const [key, value] of Object.entries(
+            source as ObjectLiteral<unknown>
+        )) {
+            if (typeof value !== 'function') continue
+            const name = spreadName(key)
+            if (
+                !name.startsWith('on') ||
+                !shouldUseEventListener(part.node, name)
+            ) {
+                return true
             }
-        )
+        }
+        return false
     }
 
     #activatePart(part: Runtime) {
-        this.#partEffects?.get(part)?.()
-        this.#partEffects?.delete(part)
+        if (part.type === 'event' && !part.asProperty) {
+            return this.#commit(part, this.#values)
+        }
+
+        if (this.#primaryEffectPart === part) {
+            this.#primaryEffectUnsubscribe?.()
+            this.#primaryEffectPart = undefined
+            this.#primaryEffectUnsubscribe = undefined
+        } else {
+            this.#additionalPartEffects?.get(part)?.()
+            this.#additionalPartEffects?.delete(part)
+        }
 
         const reactive = this.#isReactive(part)
         if (part.type === 'child') part.inline = !reactive
@@ -994,8 +1441,13 @@ export class HtmlTemplate {
             }
         }
 
-        const unsubscribe = untrack(() => effect(markRenderEffect(commit)))
-        ;(this.#partEffects ??= new Map()).set(part, unsubscribe)
+        const unsubscribe = untrack(() => createRenderEffect(commit))
+        if (!this.#primaryEffectUnsubscribe) {
+            this.#primaryEffectPart = part
+            this.#primaryEffectUnsubscribe = unsubscribe
+        } else {
+            ;(this.#additionalPartEffects ??= new Map()).set(part, unsubscribe)
+        }
         return initialChanged
     }
 
@@ -1084,7 +1536,13 @@ export class HtmlTemplate {
         if (part.type === 'attr') {
             const next = getAttributeValue(part.pieces, values)
             if (Object.is(next, part.current)) return false
-            setDynamicValue(part.node, part.name, next)
+            setDynamicValue(
+                part.node,
+                part.name,
+                next,
+                part.attributeOnly,
+                part.current === INITIAL
+            )
             part.current = next
             return true
         }
@@ -1099,16 +1557,28 @@ export class HtmlTemplate {
                 return true
             }
 
-            const next = getEventValue(raw, part.name)
-            const eventName = part.name.slice(2)
-            if (next.fn === part.fn && next.options === part.options)
-                return false
-            if (part.fn) {
-                part.node.removeEventListener(eventName, part.fn, part.options)
+            const event = Array.isArray(raw) ? raw : undefined
+            const fn = event ? event[0] : raw
+            const options = event?.[1] as
+                | boolean
+                | AddEventListenerOptions
+                | undefined
+            if (typeof fn !== 'function') {
+                throw new Error(
+                    `Handler for event "${part.name}" is not a function. Found "${fn}".`
+                )
             }
-            part.node.addEventListener(eventName, next.fn, next.options)
-            part.fn = next.fn
-            part.options = next.options
+            if (fn === part.fn && options === part.options) return false
+            if (part.fn) {
+                part.node.removeEventListener(
+                    part.eventName,
+                    part.fn,
+                    part.options
+                )
+            }
+            part.node.addEventListener(part.eventName, fn, options)
+            part.fn = fn
+            part.options = options
             return true
         }
 
@@ -1214,8 +1684,87 @@ export class HtmlTemplate {
         return true
     }
 
+    #initializeRuntime(clonedNodes: Node[], offset = 0): void {
+        const descriptors = this.#definition.parts
+        this.#runtime = []
+        this.#primaryEffectPart = undefined
+        this.#primaryEffectUnsubscribe = undefined
+        this.#additionalPartEffects = undefined
+
+        for (let index = 0; index < descriptors.length; index++) {
+            const descriptor = descriptors[index]
+            const compiledNode = clonedNodes[offset + index]
+            let part: Runtime
+
+            if (descriptor.type === 'child') {
+                const anchor =
+                    compiledNode instanceof Text
+                        ? compiledNode
+                        : document.createTextNode('')
+                if (!(compiledNode instanceof Text)) {
+                    compiledNode.parentNode?.replaceChild(anchor, compiledNode)
+                }
+                part = {
+                    type: 'child',
+                    anchor,
+                    value: descriptor.value,
+                    current: INITIAL,
+                    inline: false,
+                }
+            } else if (descriptor.type === 'raw') {
+                part = {
+                    type: 'raw',
+                    node: compiledNode as Text,
+                    pieces: descriptor.pieces,
+                    current: '',
+                }
+            } else if (descriptor.type === 'attr') {
+                part = {
+                    type: 'attr',
+                    node: compiledNode as Element,
+                    name: descriptor.name,
+                    pieces: descriptor.pieces,
+                    attributeOnly: descriptor.attributeOnly,
+                    current: INITIAL,
+                }
+            } else if (descriptor.type === 'event') {
+                const node = compiledNode as Element
+                part = {
+                    type: 'event',
+                    node,
+                    name: descriptor.name,
+                    eventName: descriptor.eventName,
+                    value: descriptor.value,
+                    asProperty: !(
+                        descriptor.useEventListener ??
+                        shouldUseEventListener(node, descriptor.name)
+                    ),
+                }
+            } else if (descriptor.type === 'ref') {
+                part = {
+                    type: 'ref',
+                    node: compiledNode as Element,
+                    value: descriptor.value,
+                    staticName: descriptor.name,
+                }
+            } else {
+                part = {
+                    type: 'spread',
+                    node: compiledNode as Element,
+                    value: descriptor.value,
+                    blocked: new Set(descriptor.blocked),
+                    current: new Map(),
+                    events: new Map(),
+                }
+            }
+            this.#runtime.push(part)
+            this.#activatePart(part)
+        }
+    }
+
     #mount(action: 'render' | 'replace' | 'after', target: Node) {
         if (this.#definition.simpleChild) {
+            const markers = this.#rangeMarkers
             const descriptor = this.#definition.parts[0]
             if (descriptor.type !== 'child') return
 
@@ -1229,8 +1778,8 @@ export class HtmlTemplate {
                 canInline ? String(initial) : ''
             )
             const fragment = document.createDocumentFragment()
-            fragment.append(this.#markers[0], anchor)
-            fragment.append(this.#markers[1])
+            fragment.append(markers[0], anchor)
+            fragment.append(markers[1])
 
             mountFragment(action, target, fragment)
 
@@ -1263,12 +1812,13 @@ export class HtmlTemplate {
         }
 
         const descriptors = this.#definition.parts
-        this.#runtime = []
-        this.#partEffects?.clear()
 
         if (!descriptors.length) {
-            fragment.prepend(this.#markers[0])
-            fragment.append(this.#markers[1])
+            this.#runtime = []
+            this.#primaryEffectPart = undefined
+            this.#primaryEffectUnsubscribe = undefined
+            this.#additionalPartEffects = undefined
+            this.#setFragmentRange(fragment)
 
             mountFragment(action, target, fragment)
 
@@ -1281,80 +1831,9 @@ export class HtmlTemplate {
             return
         }
 
-        const clonedNodes = collectNodes(fragment, NodeFilter.SHOW_ALL)
-
-        for (let index = 0; index < descriptors.length; index++) {
-            const descriptor = descriptors[index]
-            const compiledNode = clonedNodes[descriptor.node]
-            let part: Runtime
-
-            if (descriptor.type === 'child') {
-                const anchor =
-                    compiledNode instanceof Text
-                        ? compiledNode
-                        : document.createTextNode('')
-                if (!(compiledNode instanceof Text)) {
-                    compiledNode.parentNode?.replaceChild(anchor, compiledNode)
-                }
-                part = {
-                    type: 'child',
-                    anchor,
-                    value: descriptor.value,
-                    current: INITIAL,
-                    inline: false,
-                }
-            } else if (descriptor.type === 'raw') {
-                part = {
-                    type: 'raw',
-                    node: compiledNode as Text,
-                    pieces: descriptor.pieces,
-                    current: '',
-                }
-            } else if (descriptor.type === 'attr') {
-                part = {
-                    type: 'attr',
-                    node: compiledNode as Element,
-                    name: descriptor.name,
-                    pieces: descriptor.pieces,
-                    current: INITIAL,
-                }
-            } else if (descriptor.type === 'event') {
-                const node = compiledNode as Element
-                part = {
-                    type: 'event',
-                    node,
-                    name: descriptor.name,
-                    value: descriptor.value,
-                    asProperty: !shouldUseEventListener(node, descriptor.name),
-                }
-            } else if (descriptor.type === 'ref') {
-                part = {
-                    type: 'ref',
-                    node: compiledNode as Element,
-                    value: descriptor.value,
-                    staticName: descriptor.name,
-                }
-            } else {
-                part = {
-                    type: 'spread',
-                    node: compiledNode as Element,
-                    value: descriptor.value,
-                    blocked: new Set(descriptor.blocked),
-                    current: new Map(),
-                    events: new Map(),
-                }
-            }
-            this.#runtime.push(part)
-        }
-
-        fragment.prepend(this.#markers[0])
-        fragment.append(this.#markers[1])
-
-        // Apply dynamic parts before connecting custom elements so their
-        // connectedCallback observes the complete initial state.
-        for (const part of this.#runtime) {
-            this.#activatePart(part)
-        }
+        const clonedNodes = collectDescriptorNodes(fragment, descriptors)
+        this.#setFragmentRange(fragment)
+        this.#initializeRuntime(clonedNodes)
 
         mountFragment(action, target, fragment)
 
@@ -1380,12 +1859,7 @@ export class HtmlTemplate {
 
         if (this.#mounted) {
             if (target !== this.parentNode) {
-                const move = () =>
-                    target.append(
-                        this.#markers[0],
-                        ...this.childNodes,
-                        this.#markers[1]
-                    )
+                const move = () => this.#appendRangeTo(target)
 
                 if (target.isConnected) untrack(move)
                 else move()
@@ -1431,13 +1905,14 @@ export class HtmlTemplate {
         if (!node.parentNode) return this
 
         if (this.#mounted) {
-            const fragment = document.createDocumentFragment()
-            fragment.append(
-                this.#markers[0],
-                ...this.childNodes,
-                this.#markers[1]
-            )
-            untrack(() => node.parentNode?.replaceChild(fragment, node))
+            const markers = this.#rangeMarkers
+            if (markers[0] === markers[1]) {
+                untrack(() => node.parentNode?.replaceChild(markers[0], node))
+            } else {
+                const fragment = document.createDocumentFragment()
+                this.#appendRangeTo(fragment)
+                untrack(() => node.parentNode?.replaceChild(fragment, node))
+            }
             untrack(() => this.#moveSub?.(this))
         } else {
             this.#mount('replace', node)
@@ -1467,14 +1942,15 @@ export class HtmlTemplate {
             target instanceof HtmlTemplate ? target.__MARKERS__[1] : target
 
         if (this.#mounted) {
-            if (node.nextSibling !== this.#markers[0]) {
-                const fragment = document.createDocumentFragment()
-                fragment.append(
-                    this.#markers[0],
-                    ...this.childNodes,
-                    this.#markers[1]
-                )
-                untrack(() => insertNodeAfter(fragment, node))
+            const markers = this.#rangeMarkers
+            if (node.nextSibling !== markers[0]) {
+                if (markers[0] === markers[1]) {
+                    untrack(() => insertNodeAfter(markers[0], node))
+                } else {
+                    const fragment = document.createDocumentFragment()
+                    this.#appendRangeTo(fragment)
+                    untrack(() => insertNodeAfter(fragment, node))
+                }
                 untrack(() => this.#moveSub?.(this))
             }
         } else {
@@ -1491,10 +1967,15 @@ export class HtmlTemplate {
     #dispose(removeDom: boolean, detachFromParent: boolean) {
         if (!this.#mounted) return
 
-        if (this.#partEffects) {
-            for (const unsub of this.#partEffects.values()) unsub()
-            this.#partEffects.clear()
-            this.#partEffects = undefined
+        this.#primaryEffectUnsubscribe?.()
+        this.#primaryEffectPart = undefined
+        this.#primaryEffectUnsubscribe = undefined
+        if (this.#additionalPartEffects) {
+            for (const unsubscribe of this.#additionalPartEffects.values()) {
+                unsubscribe()
+            }
+            this.#additionalPartEffects.clear()
+            this.#additionalPartEffects = undefined
         }
 
         // Dispose nested templates without individually removing their DOM. The
@@ -1508,11 +1989,12 @@ export class HtmlTemplate {
         }
 
         if (removeDom) {
-            let node: Node | null = this.#markers[0]
+            const markers = this.#rangeMarkers
+            let node: Node | null = markers[0]
             while (node) {
                 const next: Node | null = node.nextSibling
                 node.parentNode?.removeChild(node)
-                if (node === this.#markers[1]) break
+                if (node === markers[1]) break
                 node = next
             }
         }
@@ -1520,7 +2002,8 @@ export class HtmlTemplate {
         if (detachFromParent) this.__PARENT__?.__CHILDREN__.delete(this)
         this.__PARENT__ = null
         this.#runtime = []
-        this.#refs = {}
+        this.#refs = undefined
+        this.#markers = undefined
         this.#mounted = false
         if (this.#unmountSub) {
             const unmount = this.#unmountSub
@@ -1536,6 +2019,7 @@ export class HtmlTemplate {
     onMount(cb: LifecycleCallback) {
         this.#mountSub = cb
         stagedMounts.add(this)
+        hasStagedMounts = true
         return this
     }
 

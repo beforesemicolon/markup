@@ -1,61 +1,56 @@
-import { DoubleLinkedList } from './DoubleLinkedList.ts'
-import {
-    EffectSubscriber,
-    EffectUnSubscriber,
-    StateSubscriber,
-} from './types.ts'
+import { StateSubscriber } from './types.ts'
 
 export interface ScheduledEffect {
     sub: StateSubscriber
     render: boolean
 }
 
+export interface EffectDependency {
+    unsubscribe: (resolver: EffectResolver) => void
+}
+
 export interface EffectResolver extends ScheduledEffect {
-    unsubs: DoubleLinkedList<EffectUnSubscriber>
-    children: EffectResolver[]
+    primaryDependency?: EffectDependency
+    primaryDependencyEpoch: number
+    additionalDependencies?: Map<EffectDependency, number>
+    dependencyEpoch: number
+    children?: EffectResolver[]
     childCursor: number
     disposed: boolean
+    trackDependency: (dependency: EffectDependency) => void
+    pruneDependencies: () => void
     clearDependencies: () => void
     dispose: () => void
 }
 
-const currentResolvers = new DoubleLinkedList<EffectResolver>()
-const renderEffectSubscribers = new WeakSet<object>()
+let currentResolver: EffectResolver | null = null
+const trackingFloors: Array<EffectResolver | null> = []
 
-export const markRenderEffect = <T>(
-    subscriber: EffectSubscriber<T>
-): EffectSubscriber<T> => {
-    renderEffectSubscribers.add(subscriber)
-    return subscriber
+export const getCurrentResolver = (): EffectResolver | null => {
+    if (!trackingFloors.length) return currentResolver
+    return currentResolver === trackingFloors[trackingFloors.length - 1]
+        ? null
+        : currentResolver
 }
 
-export const isRenderEffect = <T>(subscriber: EffectSubscriber<T>): boolean =>
-    renderEffectSubscribers.has(subscriber)
-
-export const getCurrentResolver = (): EffectResolver | null =>
-    currentResolvers.tail
-
-export const pushCurrentResolver = (resolver: EffectResolver): void => {
-    currentResolvers.push(resolver)
+export const pushCurrentResolver = (
+    resolver: EffectResolver
+): EffectResolver | null => {
+    const previous = currentResolver
+    currentResolver = resolver
+    return previous
 }
 
-export const popCurrentResolver = (): void => {
-    currentResolvers.pop()
+export const popCurrentResolver = (previous: EffectResolver | null): void => {
+    currentResolver = previous
 }
 
 export const untrack = <T>(callback: () => T): T => {
-    const active: EffectResolver[] = []
-
-    while (currentResolvers.tail) {
-        active.push(currentResolvers.tail)
-        currentResolvers.pop()
-    }
+    trackingFloors.push(currentResolver)
 
     try {
         return callback()
     } finally {
-        for (let index = active.length - 1; index >= 0; index--) {
-            currentResolvers.push(active[index])
-        }
+        trackingFloors.pop()
     }
 }

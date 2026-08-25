@@ -45,6 +45,8 @@ const getList = (data: unknown) => {
             return Array.from({ length: data }, (_, i) => i + 1)
         }
 
+        if (Array.isArray(data)) return data
+
         if (
             typeof (data as Iterable<unknown>)[Symbol.iterator] === 'function'
         ) {
@@ -90,11 +92,13 @@ export const repeat = <T, TKey = T, K = string>(
         const list = getList(val(data)) as T[]
 
         if (list.length === 0) {
+            previousEntries.clear()
             return emptyFn?.() ?? []
         }
 
         const nextEntries = new Map<unknown, RepeatEntry<T, unknown>>()
         const renderedValues = keyFn ? new Array(list.length) : null
+        const hasPreviousEntries = previousEntries.size > 0
 
         for (let index = 0; index < list.length; index += 1) {
             const item = list[index]
@@ -116,7 +120,9 @@ export const repeat = <T, TKey = T, K = string>(
                 }
             }
 
-            const previous = previousEntries.get(key)
+            const previous = hasPreviousEntries
+                ? previousEntries.get(key)
+                : undefined
             let rendered: unknown
 
             if (previous && previous.item === item) {
@@ -138,12 +144,15 @@ export const repeat = <T, TKey = T, K = string>(
                 }
             }
 
-            const entry: RepeatEntry<T, unknown> = {
-                key,
-                item,
-                index,
-                rendered,
-            }
+            const entry =
+                previous && previous.item === item && previous.index === index
+                    ? previous
+                    : {
+                          key,
+                          item,
+                          index,
+                          rendered,
+                      }
 
             nextEntries.set(key, entry)
             if (renderedValues) renderedValues[index] = rendered

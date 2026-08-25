@@ -47,9 +47,19 @@ const getPropertyDescriptor = (el: Element, key: PropertyKey) =>
 export const setElementAttribute = (
     el: HTMLElement | Element,
     key: string,
-    value: unknown
+    value: unknown,
+    attributeOnly = false,
+    initial = false
 ) => {
-    const descriptor = getPropertyDescriptor(el, key)
+    if (initial && attributeOnly && !booleanAttributes[key]) {
+        if (value !== undefined && value !== null) {
+            el.setAttribute(key, jsonStringify(value))
+        }
+        return
+    }
+
+    const descriptor =
+        !attributeOnly && key in el ? getPropertyDescriptor(el, key) : undefined
     const isWritable =
         descriptor?.writable || typeof descriptor?.set === 'function'
 
@@ -75,11 +85,14 @@ export const setElementAttribute = (
 
         if (
             // in case !isWritable or setting the property did not also update the attribute
-            strValue !== el.getAttribute(key) &&
+            (initial || strValue !== el.getAttribute(key)) &&
             // only set primitive values
             // only set non-primitive values on non-components
             // only set non-primitive values on web components if the property is !isWritable
-            (isPrimitive(value) || !el.nodeName.includes('-') || !isWritable)
+            (attributeOnly ||
+                isPrimitive(value) ||
+                !el.nodeName.includes('-') ||
+                !isWritable)
         ) {
             el.setAttribute(key, strValue)
         }

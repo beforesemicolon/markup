@@ -1185,6 +1185,47 @@ describe('html', () => {
 				'</tbody></table>')
 		})
 
+		it('should batch homogeneous template instances without changing behavior', () => {
+			const initial = Array.from({length: 57}, (_, id) => ({
+				id,
+				label: `item ${id}`,
+			}))
+			const [items, updateItems] = state(initial)
+			const onClick = jest.fn()
+			const view = html`<ul>${repeat(
+				items,
+				item => html`<li ref="row" data-id="${item.id}" onclick="${onClick}">${item.label}</li>`,
+				{key: item => item.id}
+			)}</ul>`
+
+			view.render(document.body)
+
+			const rows = document.querySelectorAll('li')
+			expect(rows).toHaveLength(57)
+			expect(rows[37].textContent).toBe('item 37')
+			expect(view.refs.row).toHaveLength(57)
+
+			rows[37].dispatchEvent(new MouseEvent('click'))
+			expect(onClick).toHaveBeenCalledTimes(1)
+
+			updateItems(current =>
+				current.map(item =>
+					item.id === 37 ? {...item, label: 'updated'} : item
+				)
+			)
+			jest.advanceTimersToNextTimer()
+
+			expect(document.querySelector('[data-id="37"]')?.textContent).toBe(
+				'updated'
+			)
+
+			updateItems([])
+			jest.advanceTimersToNextTimer()
+
+			expect(document.querySelectorAll('li')).toHaveLength(0)
+			expect(view.refs.row).toBeUndefined()
+		})
+
 		it('should preserve adjacent dynamic cells inside table rows', () => {
 			const columns = [
 				{header: 'Name'},
@@ -1837,6 +1878,38 @@ describe('html', () => {
 			
 			expect(document.body.innerHTML).toBe('threeone')
 		});
+
+		it('runs removed item cleanup after detaching its DOM', () => {
+			const item = html`<span>one</span>`.onMount(
+				(template) => () => {
+					expect(template.parentNode?.isConnected).toBeFalsy()
+					document.body.append('cleanup')
+				}
+			)
+			const [list, updateList] = state([item])
+
+			html`${list}`.render(document.body)
+			updateList([])
+			jest.advanceTimersToNextTimer()
+
+			expect(document.body.textContent).toBe('cleanup')
+		})
+
+		it('mounts appended lifecycle items in connected DOM', () => {
+			const first = html`one`
+			let connectedOnMount = false
+			const second = html`two`.onMount((template) => {
+				connectedOnMount = template.parentNode?.isConnected ?? false
+			})
+			const [list, updateList] = state([first])
+
+			html`${list}`.render(document.body)
+			updateList([first, second])
+			jest.advanceTimersToNextTimer()
+
+			expect(connectedOnMount).toBe(true)
+			expect(document.body.textContent).toBe('onetwo')
+		})
 		
 		it('unmount and resume on mount', () => {
 			const mountMock = jest.fn();
@@ -2408,6 +2481,31 @@ describe('html', () => {
 			parent.render(document.body)
 			expect(parent.refs.label).toHaveLength(1)
 			parent.unmount()
+		})
+	})
+
+	describe('single-root template ranges', () => {
+		it('uses the root as its range while preserving move and remount behavior', () => {
+			const firstHost = document.createElement('div')
+			const secondHost = document.createElement('div')
+			const [value, setValue] = state('one')
+			const template = html`<span>${value}</span>`.render(firstHost)
+
+			expect(firstHost.childNodes).toHaveLength(1)
+			expect(template.childNodes).toEqual([firstHost.firstChild])
+
+			template.render(secondHost)
+			setValue('two')
+			jest.advanceTimersToNextTimer()
+
+			expect(firstHost.childNodes).toHaveLength(0)
+			expect(secondHost.innerHTML).toBe('<span>two</span>')
+
+			template.unmount()
+			template.render(firstHost)
+
+			expect(firstHost.innerHTML).toBe('<span>two</span>')
+			expect(firstHost.childNodes).toHaveLength(1)
 		})
 	})
     

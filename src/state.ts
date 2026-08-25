@@ -5,11 +5,10 @@ import {
     StateSubscriber,
     StateUnSubscriber,
 } from './types.ts'
-import { DoubleLinkedList } from './DoubleLinkedList.ts'
 import {
+    EffectDependency,
     EffectResolver,
     getCurrentResolver,
-    isRenderEffect,
     popCurrentResolver,
     pushCurrentResolver,
     ScheduledEffect,
@@ -38,6 +37,7 @@ const scheduleSubscriber = (subscriber: SchedulerSubscriber): void => {
 }
 
 const removeScheduledSubscriber = (subscriber: SchedulerSubscriber): void => {
+    if (!hasScheduledExecutions()) return
     scheduledRenderExecutions.delete(subscriber)
     scheduledUserExecutions.delete(subscriber)
 }
@@ -64,14 +64,12 @@ const flushScheduledExecutions = (): void => {
     // Keep the DOM current before each user effect while allowing a render
     // invalidated by that effect to run once more without spinning in a cycle.
     while (hasScheduledExecutions()) {
-        const renderSubscriber = takeFirstSubscriber(scheduledRenderExecutions)
-
-        if (renderSubscriber) {
+        for (const renderSubscriber of scheduledRenderExecutions) {
+            scheduledRenderExecutions.delete(renderSubscriber)
             if (renderEpochs.get(renderSubscriber) === renderEpoch) continue
 
             renderEpochs.set(renderSubscriber, renderEpoch)
             runSubscriber(renderSubscriber)
-            continue
         }
 
         const userSubscriber = takeFirstSubscriber(scheduledUserExecutions)
@@ -101,25 +99,29 @@ export const state = <T>(
     value: T,
     sub?: StateSubscriber
 ): Readonly<[StateGetter<T>, StateSetter<T>, StateUnSubscriber]> => {
-    const subs: DoubleLinkedList<SchedulerSubscriber> = new DoubleLinkedList()
+    const subs = new Set<SchedulerSubscriber>()
 
-    if (sub) subs.push(sub)
+    if (sub) subs.add(sub)
 
     const removeSub = (
         subscriber?: SchedulerSubscriber,
         cancelScheduled = false
     ): void => {
         if (!subscriber) return
-        subs.remove(subscriber)
+        subs.delete(subscriber)
         if (cancelScheduled) removeScheduledSubscriber(subscriber)
+    }
+
+    const dependency: EffectDependency = {
+        unsubscribe: (resolver) => removeSub(resolver),
     }
 
     return Object.freeze([
         () => {
             const currentResolver = getCurrentResolver()
-            if (currentResolver && !subs.has(currentResolver)) {
-                subs.push(currentResolver)
-                currentResolver.unsubs.push(() => removeSub(currentResolver))
+            if (currentResolver) {
+                subs.add(currentResolver)
+                currentResolver.trackDependency(dependency)
             }
             return value
         },
@@ -143,84 +145,159 @@ export const state = <T>(
     ])
 }
 
-export const effect = <T>(sub: EffectSubscriber<T>) => {
-    if (typeof sub !== 'function') {
-        throw new Error(`effect: callback must be a function`)
+class RuntimeEffect<T> implements EffectResolver {
+    primaryDependency?: EffectDependency
+    primaryDependencyEpoch = 0
+    additionalDependencies?: Map<EffectDependency, number>
+    dependencyEpoch = 0
+    children?: EffectResolver[]
+    childCursor = 0
+    disposed = false
+
+    #value?: T
+    #running = false
+    #pendingReRun = false
+    readonly #callback: EffectSubscriber<T>
+    readonly render: boolean
+
+    constructor(callback: EffectSubscriber<T>, render: boolean) {
+        this.#callback = callback
+        this.render = render
     }
 
-    let value: T | undefined
-    let isRunning = false
-    let pendingReRun = false
-    const renderEffect = isRenderEffect(sub)
-
-    const parent = getCurrentResolver()
-    const childIndex = parent ? parent.childCursor++ : -1
-
-    const res: EffectResolver = {
-        sub: () => run(),
-        render: renderEffect,
-        unsubs: new DoubleLinkedList(),
-        children: [],
-        childCursor: 0,
-        disposed: false,
-        clearDependencies() {
-            for (const unsub of res.unsubs) {
-                unsub()
-            }
-            res.unsubs.clear()
-        },
-        dispose() {
-            if (res.disposed) return
-            res.disposed = true
-            res.clearDependencies()
-            removeScheduledSubscriber(res)
-            for (const child of res.children) {
-                child.dispose()
-            }
-            res.children = []
-            value = undefined
-        },
-    }
-
-    if (parent) {
-        const previous = parent.children[childIndex]
-        if (previous && previous !== res) previous.dispose()
-        parent.children[childIndex] = res
-    }
-
-    const run = () => {
-        if (res.disposed) return
-        if (isRunning) {
-            pendingReRun = true
+    sub(): void {
+        if (this.disposed) return
+        if (this.#running) {
+            this.#pendingReRun = true
             return
         }
 
-        isRunning = true
-        res.clearDependencies()
-        res.childCursor = 0
-        pushCurrentResolver(res)
+        this.#running = true
+        this.dependencyEpoch++
+        this.childCursor = 0
+        const previousResolver = pushCurrentResolver(this)
 
         try {
-            value = sub(value)
-        } catch (e) {
-            console.error(e)
+            this.#value = this.#callback(this.#value)
+        } catch (error) {
+            console.error(error)
         } finally {
-            popCurrentResolver()
+            popCurrentResolver(previousResolver)
+            this.pruneDependencies()
 
-            const staleChildren = res.children.splice(res.childCursor)
-            for (const child of staleChildren) child.dispose()
+            if (this.children && this.childCursor < this.children.length) {
+                for (
+                    let index = this.childCursor;
+                    index < this.children.length;
+                    index++
+                ) {
+                    this.children[index].dispose()
+                }
+                this.children.length = this.childCursor
+            }
 
-            isRunning = false
+            this.#running = false
 
-            if (pendingReRun && !res.disposed) {
-                pendingReRun = false
-                scheduleSubscriber(res)
+            if (this.#pendingReRun && !this.disposed) {
+                this.#pendingReRun = false
+                scheduleSubscriber(this)
                 scheduleExecution()
             }
         }
     }
 
-    run()
+    trackDependency(dependency: EffectDependency): void {
+        if (this.primaryDependency === dependency) {
+            this.primaryDependencyEpoch = this.dependencyEpoch
+            return
+        }
 
-    return () => res.dispose()
+        if (this.additionalDependencies?.has(dependency)) {
+            this.additionalDependencies.set(dependency, this.dependencyEpoch)
+            return
+        }
+
+        if (!this.primaryDependency) {
+            this.primaryDependency = dependency
+            this.primaryDependencyEpoch = this.dependencyEpoch
+            return
+        }
+
+        ;(this.additionalDependencies ??= new Map()).set(
+            dependency,
+            this.dependencyEpoch
+        )
+    }
+
+    pruneDependencies(): void {
+        if (
+            this.primaryDependency &&
+            this.primaryDependencyEpoch !== this.dependencyEpoch
+        ) {
+            this.primaryDependency.unsubscribe(this)
+            this.primaryDependency = undefined
+        }
+
+        if (this.additionalDependencies) {
+            for (const [dependency, epoch] of this.additionalDependencies) {
+                if (epoch === this.dependencyEpoch) continue
+                dependency.unsubscribe(this)
+                this.additionalDependencies.delete(dependency)
+            }
+
+            if (!this.additionalDependencies.size) {
+                this.additionalDependencies = undefined
+            }
+        }
+    }
+
+    clearDependencies(): void {
+        this.primaryDependency?.unsubscribe(this)
+        this.primaryDependency = undefined
+
+        if (this.additionalDependencies) {
+            for (const dependency of this.additionalDependencies.keys()) {
+                dependency.unsubscribe(this)
+            }
+            this.additionalDependencies.clear()
+            this.additionalDependencies = undefined
+        }
+    }
+
+    dispose(): void {
+        if (this.disposed) return
+        this.disposed = true
+        this.clearDependencies()
+        removeScheduledSubscriber(this)
+        if (this.children) {
+            for (const child of this.children) child.dispose()
+            this.children = undefined
+        }
+        this.#value = undefined
+    }
 }
+
+const createEffect = <T>(sub: EffectSubscriber<T>, renderEffect: boolean) => {
+    if (typeof sub !== 'function') {
+        throw new Error(`effect: callback must be a function`)
+    }
+
+    const parent = getCurrentResolver()
+    const childIndex = parent ? parent.childCursor++ : -1
+    const resolver = new RuntimeEffect(sub, renderEffect)
+
+    if (parent) {
+        const children = (parent.children ??= [])
+        const previous = children[childIndex]
+        if (previous && previous !== resolver) previous.dispose()
+        children[childIndex] = resolver
+    }
+
+    resolver.sub()
+    return () => resolver.dispose()
+}
+
+export const effect = <T>(sub: EffectSubscriber<T>) => createEffect(sub, false)
+
+export const createRenderEffect = <T>(sub: EffectSubscriber<T>) =>
+    createEffect(sub, true)
