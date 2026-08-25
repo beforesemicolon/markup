@@ -172,11 +172,15 @@ setTodos((previous) => [
 
 State is independent of templates and components, so it may live in a module and act as a shared store.
 
+A state getter is a signal read. If a state stores a function, Markup preserves that function as the state value when binding it to a template property; it does not invoke the stored function as another computed layer. Ordinary functions interpolated directly into templates remain lazily evaluated computed values.
+
 ## `effect`
 
 ```typescript
 effect<T>(
-    callback: (previousResult: T | undefined) => T | undefined
+    callback: (
+        previousResult: T | undefined
+    ) => T | undefined | (() => void)
 ): () => void
 ```
 
@@ -193,7 +197,20 @@ setQuery('markup')
 stop()
 ```
 
-The value returned by the callback is cached and passed as `previousResult` on the next execution. It is not an effect cleanup function. The function returned by `effect` unsubscribes and disposes the effect.
+When the callback returns a function, Markup registers it as cleanup. Cleanup runs before the next execution and when the effect is disposed:
+
+```javascript
+const stop = effect(() => {
+    const controller = new AbortController()
+    loadData({ signal: controller.signal })
+
+    return () => controller.abort()
+})
+
+stop()
+```
+
+Any non-function value returned by the callback is cached and passed as `previousResult` on the next execution. The function returned by `effect` unsubscribes and disposes the effect.
 
 ```javascript
 effect((timer) => {

@@ -11,7 +11,10 @@ layout: document
 {{t.pages.documentation.state.effect.content.the_effect_api_complements_the_state_index_api_by_providing_a_better_way_to_react_to_multiple_st}}
 
 ```typescript
-type EffectSubscriber<T> = (value: T | undefined) => undefined | T
+type EffectCleanup = () => void
+type EffectSubscriber<T> = (
+    value: T | undefined
+) => undefined | T | EffectCleanup
 type EffectUnSubscriber = () => void
 
 effect: <T>(sub: EffectSubscriber<T>) => EffectUnSubscriber
@@ -49,6 +52,21 @@ const cleanEffect = effect(() => {
 })
 
 cleanEffect()
+```
+
+#### {{t.pages.documentation.state.effect.content.cleanup}}
+
+{{t.pages.documentation.state.effect.content.returning_a_function_registers_cleanup_instead_of_caching_it_cleanup_runs_before_the_next_effect}}
+
+```javascript
+const stop = effect(() => {
+    const controller = new AbortController()
+    loadData({ signal: controller.signal })
+
+    return () => controller.abort()
+})
+
+stop() // also runs the latest cleanup
 ```
 
 ### {{t.common.content.how_it_works}}
@@ -94,7 +112,7 @@ while (count() < 100) {
 
 #### {{t.pages.documentation.state.effect.content.caching}}
 
-{{t.pages.documentation.state.effect.content.the_effect_allows_you_to_return_values_that_are_cached_and_provided_in_the_callback_for_the_next}}
+{{t.pages.documentation.state.effect.content.the_effect_allows_you_to_return_non_function_values_that_are_cached_and_provided_in_the_callback_for}}
 
 {{t.pages.documentation.state.effect.content.for_example_perform_a_debounce_effect_on_search_value_changes}}
 

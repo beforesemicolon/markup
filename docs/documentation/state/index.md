@@ -79,6 +79,8 @@ const [count] = state(0)
 console.log(count()) // logs 0
 ```
 
+{{t.pages.documentation.state.index.content.state_getters_are_signal_reads_when_a_state_stores_a_function_the_function_is_preserved_as_the_value}}
+
 #### {{t.pages.documentation.state.index.content.statesetter}}
 
 {{t.pages.documentation.state.index.content.the_statesetter_is_a_function_you_call_with_the_new_value_for_the_state_or_a_function_that_gets}}

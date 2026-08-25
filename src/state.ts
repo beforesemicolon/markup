@@ -1,4 +1,5 @@
 import {
+    EffectCleanup,
     EffectSubscriber,
     StateGetter,
     StateSetter,
@@ -12,14 +13,19 @@ import {
     popCurrentResolver,
     pushCurrentResolver,
     ScheduledEffect,
+    untrack,
 } from './effect-context.ts'
 
 type SchedulerSubscriber = StateSubscriber | ScheduledEffect
 
 const scheduledRenderExecutions = new Set<SchedulerSubscriber>()
 const scheduledUserExecutions = new Set<SchedulerSubscriber>()
+const stateGetters = new WeakSet<object>()
 
 let flushPending = false
+
+/** @internal */
+export const isStateGetter = (value: object): boolean => stateGetters.has(value)
 
 const hasScheduledExecutions = (): boolean =>
     scheduledRenderExecutions.size > 0 || scheduledUserExecutions.size > 0
@@ -27,6 +33,10 @@ const hasScheduledExecutions = (): boolean =>
 const isScheduledEffect = (
     subscriber: SchedulerSubscriber
 ): subscriber is ScheduledEffect => typeof subscriber !== 'function'
+
+const isEffectCleanup = <T>(
+    value: T | EffectCleanup | undefined
+): value is EffectCleanup => typeof value === 'function'
 
 const scheduleSubscriber = (subscriber: SchedulerSubscriber): void => {
     const queue =
@@ -116,15 +126,18 @@ export const state = <T>(
         unsubscribe: (resolver) => removeSub(resolver),
     }
 
+    const getter: StateGetter<T> = () => {
+        const currentResolver = getCurrentResolver()
+        if (currentResolver) {
+            subs.add(currentResolver)
+            currentResolver.trackDependency(dependency)
+        }
+        return value
+    }
+    stateGetters.add(getter)
+
     return Object.freeze([
-        () => {
-            const currentResolver = getCurrentResolver()
-            if (currentResolver) {
-                subs.add(currentResolver)
-                currentResolver.trackDependency(dependency)
-            }
-            return value
-        },
+        getter,
         (newVal: T | ((val: T) => T)) => {
             const updatedValue =
                 typeof newVal === 'function'
@@ -155,6 +168,7 @@ class RuntimeEffect<T> implements EffectResolver {
     disposed = false
 
     #value?: T
+    #cleanup?: EffectCleanup
     #running = false
     #pendingReRun = false
     readonly #callback: EffectSubscriber<T>
@@ -173,12 +187,19 @@ class RuntimeEffect<T> implements EffectResolver {
         }
 
         this.#running = true
+        this.#runCleanup()
         this.dependencyEpoch++
         this.childCursor = 0
         const previousResolver = pushCurrentResolver(this)
 
         try {
-            this.#value = this.#callback(this.#value)
+            const result = this.#callback(this.#value)
+            if (isEffectCleanup(result)) {
+                this.#cleanup = result
+                this.#value = undefined
+            } else {
+                this.#value = result
+            }
         } catch (error) {
             console.error(error)
         } finally {
@@ -203,6 +224,18 @@ class RuntimeEffect<T> implements EffectResolver {
                 scheduleSubscriber(this)
                 scheduleExecution()
             }
+        }
+    }
+
+    #runCleanup(): void {
+        if (!this.#cleanup) return
+
+        const cleanup = this.#cleanup
+        this.#cleanup = undefined
+        try {
+            untrack(cleanup)
+        } catch (error) {
+            console.error(error)
         }
     }
 
@@ -273,6 +306,7 @@ class RuntimeEffect<T> implements EffectResolver {
             for (const child of this.children) child.dispose()
             this.children = undefined
         }
+        this.#runCleanup()
         this.#value = undefined
     }
 }

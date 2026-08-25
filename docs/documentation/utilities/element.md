@@ -90,6 +90,8 @@ element('ul', {
 
 {{t.pages.documentation.utilities.element.content.the_main_difference_here_is_the_fact_the_using_childnodes_you_can_specify_function_and_property}}
 
+> **Security:** {{t.pages.documentation.utilities.element.content.htmlcontent_is_assigned_to_innerhtml_and_is_not_sanitized_only_pass_trusted_or_independently_sanitized}}
+
 ### {{t.pages.documentation.utilities.element.content.web_components}}
 
 {{t.pages.documentation.utilities.element.content.the_best_part_of_working_with_element_is_with_web_components_it_will_handle_all_non_primitive_pr}}

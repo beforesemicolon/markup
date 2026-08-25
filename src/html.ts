@@ -5,7 +5,7 @@ import { turnCamelToKebabCasing } from './utils/turn-camel-to-kebab-casing.ts'
 import { insertNodeAfter } from './utils/insert-node-after.ts'
 import { DoubleLinkedList } from './DoubleLinkedList.ts'
 import { untrack } from './effect-context.ts'
-import { createRenderEffect } from './state.ts'
+import { createRenderEffect, isStateGetter } from './state.ts'
 
 const BASE_PREFIX = '__BFS_V2_'
 const INITIAL = Symbol()
@@ -115,8 +115,12 @@ const parsePieces = (value: string, markers: Markers): Piece[] => {
     return out
 }
 
-const resolve = (value: unknown): unknown =>
-    typeof value === 'function' ? resolve((value as () => unknown)()) : value
+const resolve = (value: unknown): unknown => {
+    if (typeof value !== 'function') return value
+
+    const result = (value as () => unknown)()
+    return isStateGetter(value) ? result : resolve(result)
+}
 
 const isRebindableValue = (value: unknown) =>
     value === null ||
@@ -1078,9 +1082,11 @@ export class HtmlTemplate {
     #updateSub?: LifecycleCallback
     #unmountSub?: LifecycleCallback
 
+    /** @internal */
     __PARENT__: HtmlTemplate | null = null
     #children?: Set<HtmlTemplate>
 
+    /** @internal */
     get __CHILDREN__(): Set<HtmlTemplate> {
         return (this.#children ??= new Set())
     }
@@ -1202,6 +1208,7 @@ export class HtmlTemplate {
         return this.#markers?.[0].parentNode ?? null
     }
 
+    /** @internal */
     get __MARKERS__() {
         return this.#rangeMarkers
     }
@@ -1261,18 +1268,21 @@ export class HtmlTemplate {
         )
     }
 
+    /** @internal */
     __addRef(name: string, node: Element) {
         if (!name) return
         const refs = (this.#refs ??= {})
         ;(refs[name] ??= new Set()).add(node)
     }
 
+    /** @internal */
     __removeRef(name: string, node: Element) {
         if (!this.#refs) return
         this.#refs[name]?.delete(node)
         if (!this.#refs[name]?.size) delete this.#refs[name]
     }
 
+    /** @internal */
     __replaceChildReference(previous: HtmlTemplate, next: HtmlTemplate) {
         for (const part of this.#runtime) {
             if (part.type !== 'child' || !part.items?.has(previous)) continue
@@ -1282,6 +1292,7 @@ export class HtmlTemplate {
         }
     }
 
+    /** @internal */
     __disposeChildRange__(items: Iterable<Item>): void {
         const children = this.#children
         if (children) {
@@ -1341,6 +1352,7 @@ export class HtmlTemplate {
         })
     }
 
+    /** @internal */
     __rebind__(next: HtmlTemplate) {
         if (
             !this.#mounted ||
@@ -1670,6 +1682,7 @@ export class HtmlTemplate {
         return changed
     }
 
+    /** @internal */
     __updateFrom(next: HtmlTemplate) {
         if (!this.#mounted || next.#mounted || this.#parts !== next.#parts) {
             return false

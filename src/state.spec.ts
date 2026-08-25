@@ -66,6 +66,69 @@ describe('effect', () => {
         expect(valueSpy).toBeCalledTimes(0)
     })
 
+    it('should run returned cleanup functions before reruns and disposal', () => {
+        const [count, setCount] = state(0)
+        const cleanup = jest.fn()
+        const previousValues: Array<number | undefined> = []
+        const dispose = effect<number>((previous) => {
+            previousValues.push(previous)
+            count()
+            return cleanup
+        })
+
+        expect(cleanup).not.toHaveBeenCalled()
+        expect(previousValues).toEqual([undefined])
+
+        setCount(1)
+        jest.advanceTimersToNextTimer()
+
+        expect(cleanup).toHaveBeenCalledTimes(1)
+        expect(previousValues).toEqual([undefined, undefined])
+
+        dispose()
+
+        expect(cleanup).toHaveBeenCalledTimes(2)
+    })
+
+    it('should continue caching non-function effect results', () => {
+        const [count, setCount] = state(0)
+        const previousValues: Array<number | undefined> = []
+        const dispose = effect<number>((previous) => {
+            previousValues.push(previous)
+            return count()
+        })
+
+        setCount(1)
+        jest.advanceTimersToNextTimer()
+        setCount(2)
+        jest.advanceTimersToNextTimer()
+
+        expect(previousValues).toEqual([undefined, 0, 1])
+
+        dispose()
+    })
+
+    it('should not track state reads performed by cleanup functions', () => {
+        const [source, setSource] = state(0)
+        const [cleanupOnly, setCleanupOnly] = state(0)
+        const runs = jest.fn()
+        const dispose = effect(() => {
+            runs(source())
+            return () => cleanupOnly()
+        })
+
+        setSource(1)
+        jest.advanceTimersToNextTimer()
+        runs.mockClear()
+
+        setCleanupOnly(1)
+        jest.advanceTimersToNextTimer()
+
+        expect(runs).not.toHaveBeenCalled()
+
+        dispose()
+    })
+
     it('should batch multiple dependency updates into one execution', () => {
         const valueSpy = jest.fn()
         const [count, setCount]= state(0);

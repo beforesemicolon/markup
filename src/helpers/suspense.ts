@@ -1,30 +1,65 @@
 import { html, HtmlTemplate } from '../html.ts'
+import { state } from '../state.ts'
+
+type SuspenseState<T> =
+    | { status: 'loading' }
+    | { status: 'resolved'; value: T }
+    | { status: 'rejected'; error: Error }
+
+type RejectionReason =
+    | string
+    | number
+    | boolean
+    | bigint
+    | symbol
+    | object
+    | null
+    | undefined
+
+const toError = (reason: RejectionReason): Error =>
+    reason instanceof Error ? reason : new Error(String(reason))
 
 /**
- * will temporarily render the loading template while the
- * async action resolve or fails
- * @param asyncAction
- * @param loading
- * @param failed
+ * Temporarily renders the loading template while the async action resolves.
+ * Results from an unmounted or superseded render are ignored.
  */
-export const suspense = (
-    asyncAction: () => Promise<unknown>,
+export const suspense = <T>(
+    asyncAction: () => Promise<T>,
     loading = html`<p>loading...</p>`,
-    failed = (err: Error) => html`<p style="color: red">${err.message}</p>`
-) => {
-    return () => {
-        asyncAction()
-            .then((content) => {
-                if (content instanceof HtmlTemplate) {
-                    content.replace(loading)
-                } else {
-                    html`${content}`.replace(loading)
-                }
-            })
-            .catch((err) => {
-                failed(err).replace(loading)
-            })
+    failed = (error: Error) => html`<p style="color: red">${error.message}</p>`
+): (() => HtmlTemplate) => {
+    const initialState: SuspenseState<T> = { status: 'loading' }
+    const [result, setResult] = state<SuspenseState<T>>(initialState)
+    let generation = 0
 
+    const template = html`${() => {
+        const current = result()
+        if (current.status === 'resolved') return current.value
+        if (current.status === 'rejected') return failed(current.error)
         return loading
-    }
+    }}`
+
+    template.onMount(() => {
+        const currentGeneration = ++generation
+
+        Promise.resolve()
+            .then(asyncAction)
+            .then(
+                (value) => {
+                    if (generation !== currentGeneration) return
+                    setResult({ status: 'resolved', value })
+                },
+                (reason: RejectionReason) => {
+                    if (generation !== currentGeneration) return
+                    setResult({ status: 'rejected', error: toError(reason) })
+                }
+            )
+
+        return () => {
+            generation++
+            setResult(initialState)
+        }
+    })
+
+    return () => template
 }
