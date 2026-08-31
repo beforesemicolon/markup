@@ -80,6 +80,8 @@ temp.refs['item'] // [li, li, li]
 
 {{t.pages.documentation.templating.ref.content.all_references_are_dynamic_and_this_means_that_as_things_render_or_unmount_from_the_template_ref}}
 
+{{t.pages.documentation.templating.ref.content.refs_only_contains_currently_mounted_elements_inactive_conditional_branches_are_excluded_until_rendered}}
+
 ```javascript
 const items = [
     html`<li ref="item">Buy groceries</li>`,

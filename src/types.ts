@@ -24,7 +24,10 @@ export type StateSetter<T> = (newVal: T | ((val: T) => T)) => T
 export type StateSubscriber = () => void
 export type StateUnSubscriber = () => void
 
-export type EffectSubscriber<T> = (value: T | undefined) => undefined | T
+export type EffectCleanup = () => void
+export type EffectSubscriber<T> = (
+    value: T | undefined
+) => undefined | T | EffectCleanup
 export type EffectUnSubscriber = () => void
 
 export type AnythingButAFunction<T> = T extends typeof Function

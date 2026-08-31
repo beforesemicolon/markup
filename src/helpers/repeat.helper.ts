@@ -21,22 +21,31 @@ interface RepeatEntry<T, TKey> {
     rendered: unknown
 }
 
-interface RebindableTemplate {
+interface ReusableTemplate {
     constructor: unknown
-    __rebind__(next: unknown): boolean
+    __rebind__?: (next: unknown) => boolean
+    __updateFrom?: (next: unknown) => boolean
 }
 
-const isRebindableTemplate = (value: unknown): value is RebindableTemplate =>
+const isReusableTemplate = (value: unknown): value is ReusableTemplate =>
     typeof value === 'object' &&
     value !== null &&
-    '__rebind__' in value &&
-    typeof (value as { __rebind__?: unknown }).__rebind__ === 'function'
+    (('__rebind__' in value &&
+        typeof (value as { __rebind__?: unknown }).__rebind__ === 'function') ||
+        ('__updateFrom' in value &&
+            typeof (value as { __updateFrom?: unknown }).__updateFrom ===
+                'function'))
+
+const reuseTemplate = (current: ReusableTemplate, next: unknown) =>
+    current.__rebind__?.(next) ?? current.__updateFrom?.(next) ?? false
 
 const getList = (data: unknown) => {
     if (data) {
         if (typeof data === 'number') {
             return Array.from({ length: data }, (_, i) => i + 1)
         }
+
+        if (Array.isArray(data)) return data
 
         if (
             typeof (data as Iterable<unknown>)[Symbol.iterator] === 'function'
@@ -83,11 +92,13 @@ export const repeat = <T, TKey = T, K = string>(
         const list = getList(val(data)) as T[]
 
         if (list.length === 0) {
+            previousEntries.clear()
             return emptyFn?.() ?? []
         }
 
         const nextEntries = new Map<unknown, RepeatEntry<T, unknown>>()
         const renderedValues = keyFn ? new Array(list.length) : null
+        const hasPreviousEntries = previousEntries.size > 0
 
         for (let index = 0; index < list.length; index += 1) {
             const item = list[index]
@@ -109,7 +120,9 @@ export const repeat = <T, TKey = T, K = string>(
                 }
             }
 
-            const previous = previousEntries.get(key)
+            const previous = hasPreviousEntries
+                ? previousEntries.get(key)
+                : undefined
             let rendered: unknown
 
             if (previous && previous.item === item) {
@@ -119,11 +132,11 @@ export const repeat = <T, TKey = T, K = string>(
                 const previousRendered = previous?.rendered
 
                 if (
-                    isRebindableTemplate(previousRendered) &&
+                    isReusableTemplate(previousRendered) &&
                     nextRendered !== null &&
                     typeof nextRendered === 'object' &&
                     nextRendered.constructor === previousRendered.constructor &&
-                    previousRendered.__rebind__(nextRendered)
+                    reuseTemplate(previousRendered, nextRendered)
                 ) {
                     rendered = previousRendered
                 } else {
@@ -131,17 +144,18 @@ export const repeat = <T, TKey = T, K = string>(
                 }
             }
 
-            const entry: RepeatEntry<T, unknown> = {
-                key,
-                item,
-                index,
-                rendered,
-            }
+            const entry =
+                previous && previous.item === item && previous.index === index
+                    ? previous
+                    : {
+                          key,
+                          item,
+                          index,
+                          rendered,
+                      }
 
             nextEntries.set(key, entry)
-            if (renderedValues) {
-                renderedValues[index] = rendered
-            }
+            if (renderedValues) renderedValues[index] = rendered
         }
 
         previousEntries = nextEntries

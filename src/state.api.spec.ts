@@ -1,4 +1,5 @@
 import '../test.common.ts'
+import { html } from './html.ts'
 import { state } from './state.ts'
 
 describe('state api', () => {
@@ -76,5 +77,35 @@ describe('state api', () => {
 
         expect(getHandler()).toBe(handler)
         expect(onUpdate).not.toHaveBeenCalled()
+    })
+
+    it('should preserve function values read from state in template properties', () => {
+        class FunctionValueElement extends HTMLElement {
+            value?: () => void
+        }
+
+        customElements.define('state-function-value', FunctionValueElement)
+
+        const callback = jest.fn()
+        const [handler] = state<() => void>(callback)
+        const view = html`<state-function-value
+            value="${handler}"
+        ></state-function-value>`.render(document.body)
+        const element = document.body.querySelector(
+            'state-function-value'
+        ) as FunctionValueElement
+
+        expect(element.value).toBe(callback)
+        expect(callback).not.toHaveBeenCalled()
+
+        view.unmount()
+    })
+
+    it('should keep ordinary template functions recursively computed', () => {
+        const view = html`${() => () => 'computed'}`.render(document.body)
+
+        expect(document.body.textContent).toBe('computed')
+
+        view.unmount()
     })
 })

@@ -1,5 +1,5 @@
 import '../test.common.ts';
-import { html, HtmlTemplate } from './html.ts'
+import { html, HtmlTemplate, unsafeHTML } from './html.ts'
 import { effect, state } from './state.ts'
 import {when, repeat, oneOf, is, element, suspense} from './helpers/index.ts'
 import { text } from 'node:stream/consumers'
@@ -105,24 +105,95 @@ describe('html', () => {
 		expect(document.body.innerHTML).toBe('&lt;p&gt;sample&lt;/p&gt;')
 	})
 	
-	it.skip('should render html entities', () => {
-		const htmlString = '&lt;'
-		const temp = html`${htmlString}`
+	it('should parse html entities in static template markup', () => {
+		const temp = html`&lt;`
 		
 		temp.render(document.body)
 		
 		expect(document.body.innerHTML).toBe('&lt;')
 		expect(document.body.textContent).toBe('<')
 	})
+
+	it('should render interpolated html entities as literal text', () => {
+		const htmlString = '&lt;'
+		const temp = html`${htmlString}`
+		
+		temp.render(document.body)
+		
+		expect(document.body.innerHTML).toBe('&amp;lt;')
+		expect(document.body.textContent).toBe('&lt;')
+	})
 	
 	it('should render html as HTML', () => {
-		// @ts-ignore
-		const htmlString = html(['<p>sample</p>'])
+		const htmlString = unsafeHTML('<p>sample</p>')
 		const temp = html`${htmlString}`
 		
 		temp.render(document.body)
 		
 		expect(document.body.innerHTML).toBe('<p>sample</p>')
+	})
+
+	it('should keep interpolated table row content outside the HTML parser', () => {
+		const untrusted = '<img src="x" onerror="alert(1)">'
+		const row = html`<tr>${untrusted}</tr>`
+
+		row.render(document.body)
+
+		expect(document.querySelector('img')).toBeNull()
+		expect(document.body.textContent).toBe(untrusted)
+	})
+
+	it('should keep interpolated table row attributes outside the HTML parser', () => {
+		const untrusted = 'safe" onmouseover="alert(1)'
+		const row = html`<tr data-label="${untrusted}">sample</tr>`
+
+		row.render(document.body)
+
+		const element = document.querySelector('tr')
+		expect(element?.getAttribute('data-label')).toBe(untrusted)
+		expect(element?.hasAttribute('onmouseover')).toBe(false)
+	})
+
+	it('should parse explicitly trusted raw HTML', () => {
+		const raw = unsafeHTML('<strong>trusted</strong>')
+
+		raw.render(document.body)
+
+		expect(document.body.innerHTML).toBe('<strong>trusted</strong>')
+	})
+
+	it('should preserve text that resembles internal interpolation markers', () => {
+		const view = html`
+			<p data-marker="__BFS_V2_0__">__BFS_V2_0__</p>
+			<p>___BFS_V2_1__</p>
+		`
+
+		view.render(document.body)
+
+		expect(document.body.innerHTML).toBe(
+			'<p data-marker="__BFS_V2_0__">__BFS_V2_0__</p>\n' +
+			'\t\t\t<p>___BFS_V2_1__</p>'
+		)
+	})
+
+	it('should compile reactive values inside native template content', () => {
+		const [label, setLabel] = state('one')
+		const view = html`
+			<template>
+				<span data-label="${label}">${label}</span>
+			</template>
+		`
+
+		view.render(document.body)
+
+		const template = document.querySelector('template')
+		const span = template?.content.querySelector('span')
+		expect(span?.outerHTML).toBe('<span data-label="one">one</span>')
+
+		setLabel('two')
+		jest.advanceTimersToNextTimer()
+
+		expect(span?.outerHTML).toBe('<span data-label="two">two</span>')
 	})
 	
 	it('should render dynamic text and update', () => {
@@ -1113,6 +1184,66 @@ describe('html', () => {
 				'<tr>item 5</tr>' +
 				'</tbody></table>')
 		})
+
+		it('should batch homogeneous template instances without changing behavior', () => {
+			const initial = Array.from({length: 57}, (_, id) => ({
+				id,
+				label: `item ${id}`,
+			}))
+			const [items, updateItems] = state(initial)
+			const onClick = jest.fn()
+			const view = html`<ul>${repeat(
+				items,
+				item => html`<li ref="row" data-id="${item.id}" onclick="${onClick}">${item.label}</li>`,
+				{key: item => item.id}
+			)}</ul>`
+
+			view.render(document.body)
+
+			const rows = document.querySelectorAll('li')
+			expect(rows).toHaveLength(57)
+			expect(rows[37].textContent).toBe('item 37')
+			expect(view.refs.row).toHaveLength(57)
+
+			rows[37].dispatchEvent(new MouseEvent('click'))
+			expect(onClick).toHaveBeenCalledTimes(1)
+
+			updateItems(current =>
+				current.map(item =>
+					item.id === 37 ? {...item, label: 'updated'} : item
+				)
+			)
+			jest.advanceTimersToNextTimer()
+
+			expect(document.querySelector('[data-id="37"]')?.textContent).toBe(
+				'updated'
+			)
+
+			updateItems([])
+			jest.advanceTimersToNextTimer()
+
+			expect(document.querySelectorAll('li')).toHaveLength(0)
+			expect(view.refs.row).toBeUndefined()
+		})
+
+		it('should preserve adjacent dynamic cells inside table rows', () => {
+			const columns = [
+				{header: 'Name'},
+				{header: 'Status'},
+			]
+
+			html`<table><thead><tr>${() => html`<th>Select</th>`}${repeat(
+				columns,
+				column => html`<th>${column.header}</th>`
+			)}</tr></thead></table>`.render(document.body)
+
+			expect(document.body.children).toHaveLength(1)
+			expect(document.querySelectorAll('thead th')).toHaveLength(3)
+			expect(document.body.innerHTML).toBe(
+				'<table><thead><tr><th>Select</th><th>Name</th><th>Status</th></tr></thead></table>'
+			)
+		})
+
 		it('with number value and primitive return', () => {
 			const el = html`${repeat(2, (n) => n)}`
 			
@@ -1747,6 +1878,38 @@ describe('html', () => {
 			
 			expect(document.body.innerHTML).toBe('threeone')
 		});
+
+		it('runs removed item cleanup after detaching its DOM', () => {
+			const item = html`<span>one</span>`.onMount(
+				(template) => () => {
+					expect(template.parentNode?.isConnected).toBeFalsy()
+					document.body.append('cleanup')
+				}
+			)
+			const [list, updateList] = state([item])
+
+			html`${list}`.render(document.body)
+			updateList([])
+			jest.advanceTimersToNextTimer()
+
+			expect(document.body.textContent).toBe('cleanup')
+		})
+
+		it('mounts appended lifecycle items in connected DOM', () => {
+			const first = html`one`
+			let connectedOnMount = false
+			const second = html`two`.onMount((template) => {
+				connectedOnMount = template.parentNode?.isConnected ?? false
+			})
+			const [list, updateList] = state([first])
+
+			html`${list}`.render(document.body)
+			updateList([first, second])
+			jest.advanceTimersToNextTimer()
+
+			expect(connectedOnMount).toBe(true)
+			expect(document.body.textContent).toBe('onetwo')
+		})
 		
 		it('unmount and resume on mount', () => {
 			const mountMock = jest.fn();
@@ -1794,6 +1957,155 @@ describe('html', () => {
 			
 			expect(document.body.innerHTML).toBe('<span>diff</span>')
 		});
+
+		it('should not track state read by lifecycle callbacks', () => {
+			const [value, setValue] = state('first')
+			const [lifecycleValue, setLifecycleValue] = state('outside')
+			const renderValue = jest.fn(() => value())
+			const update = jest.fn(() => {
+				lifecycleValue()
+			})
+
+			html`${renderValue}`
+				.onUpdate(update)
+				.render(document.body)
+
+			setValue('second')
+			jest.advanceTimersToNextTimer()
+
+			expect(renderValue).toHaveBeenCalledTimes(2)
+			expect(update).toHaveBeenCalledTimes(1)
+
+			setLifecycleValue('changed')
+			jest.advanceTimersToNextTimer()
+
+			expect(renderValue).toHaveBeenCalledTimes(2)
+			expect(update).toHaveBeenCalledTimes(1)
+		})
+
+		it('should not track state read while connecting a custom element', () => {
+			const [externalValue, setExternalValue] = state('outside')
+			const connected = jest.fn()
+			const tagName = 'lifecycle-state-reader'
+
+			class LifecycleStateReader extends HTMLElement {
+				connectedCallback() {
+					connected(externalValue())
+				}
+			}
+
+			customElements.define(tagName, LifecycleStateReader)
+			const template = html`${() => document.createElement(tagName)}`
+			template.render(document.body)
+			const element = document.body.firstElementChild
+
+			expect(connected).toHaveBeenCalledTimes(1)
+			setExternalValue('changed')
+			jest.advanceTimersToNextTimer()
+
+			expect(connected).toHaveBeenCalledTimes(1)
+			expect(document.body.firstElementChild).toBe(element)
+		})
+
+		it('should not track state read while connecting a custom element during an update', () => {
+			const [value, setValue] = state<string | HTMLElement>('initial')
+			const [externalValue, setExternalValue] = state('outside')
+			const renderValue = jest.fn(() => value())
+			const connected = jest.fn()
+			const tagName = 'update-state-reader'
+
+			class UpdateStateReader extends HTMLElement {
+				connectedCallback() {
+					connected(externalValue())
+				}
+			}
+
+			customElements.define(tagName, UpdateStateReader)
+			const template = html`${renderValue}`.render(document.body)
+			const element = document.createElement(tagName)
+
+			setValue(element)
+			jest.advanceTimersToNextTimer()
+
+			expect(renderValue).toHaveBeenCalledTimes(2)
+			expect(connected).toHaveBeenCalledTimes(1)
+			expect(document.body.firstElementChild).toBe(element)
+
+			setExternalValue('changed')
+			jest.advanceTimersToNextTimer()
+
+			expect(renderValue).toHaveBeenCalledTimes(2)
+			expect(connected).toHaveBeenCalledTimes(1)
+			expect(document.body.firstElementChild).toBe(element)
+			template.unmount()
+		})
+
+		it('should preserve effects created while connecting a custom element', () => {
+			const [status, setStatus] = state<'idle' | 'loaded'>('idle')
+			const tagName = 'connected-reactive-render'
+
+			class ConnectedReactiveRender extends HTMLElement {
+				connectedCallback() {
+					html`
+						${when(is(status, 'loaded'), html`<slot></slot>`)}
+						${when(is(status, 'idle'), html`<slot name="hidden"></slot>`)}
+					`.render(this)
+				}
+			}
+
+			customElements.define(tagName, ConnectedReactiveRender)
+			html`${() => html`<connected-reactive-render></connected-reactive-render>`}`
+				.render(document.body)
+
+			const element = document.querySelector(tagName)!
+			expect(element.innerHTML).toContain('<slot name="hidden"></slot>')
+
+			setStatus('loaded')
+			jest.advanceTimersToNextTimer()
+
+			expect(element.innerHTML).toContain('<slot></slot>')
+			expect(element.innerHTML).not.toContain(
+				'<slot name="hidden"></slot>'
+			)
+		})
+
+		it('should preserve custom-element effects connected inside a shadow root', () => {
+			const [renderVersion, setRenderVersion] = state(0)
+			const [status, setStatus] = state('idle')
+			const tagName = 'shadow-root-reactive-render'
+
+			class ShadowRootReactiveRender extends HTMLElement {
+				connectedCallback() {
+					html`${status}`.render(this)
+				}
+			}
+
+			customElements.define(tagName, ShadowRootReactiveRender)
+			const host = document.createElement('div')
+			const root = host.attachShadow({ mode: 'open' })
+			document.body.appendChild(host)
+			const stopRendering = effect(() => {
+				const version = renderVersion()
+				html`<shadow-root-reactive-render
+					data-version="${version}"
+				></shadow-root-reactive-render>`.render(root)
+			})
+
+			setRenderVersion(1)
+			jest.advanceTimersToNextTimer()
+
+			const elements = Array.from(root.querySelectorAll(tagName))
+			expect(elements).toHaveLength(2)
+
+			setStatus('loaded')
+			jest.advanceTimersToNextTimer()
+
+			expect(elements.map((element) => element.textContent)).toEqual([
+				'loaded',
+				'loaded',
+			])
+			stopRendering()
+		})
 		
 		it('onMove', () => {
 			const moveMock = jest.fn();
@@ -1815,6 +2127,25 @@ describe('html', () => {
 			
 			expect(moveMock).toHaveBeenCalledTimes(1)
 		});
+
+		it('should preserve onMove behavior for disconnected elements and shadow roots', () => {
+			const moveMock = jest.fn()
+			const template = html`content`.onMove(moveMock).render(document.body)
+			const detached = document.createElement('div')
+			const host = document.createElement('div')
+			const root = host.attachShadow({ mode: 'open' })
+			document.body.appendChild(host)
+
+			template.render(detached)
+
+			expect(detached.textContent).toBe('content')
+			expect(moveMock).toHaveBeenCalledTimes(1)
+
+			template.render(root)
+
+			expect(root.textContent).toBe('content')
+			expect(moveMock).toHaveBeenCalledTimes(1)
+		})
 		
 		it('should trigger update when attr changes', () => {
 			const [value, setValue] = state("");
@@ -2042,5 +2373,221 @@ describe('html', () => {
 		expect(input.outerHTML).toBe('<my-checkbox></my-checkbox>')
 		expect(input.checked).toBe(false)
 	})
+
+	describe('template cache', () => {
+		it('should keep distinct tagged template literal shapes separate', () => {
+			const renderFirst = (value: string) =>
+				html`<div data-value="a,b${value}c"></div>`
+			const renderSecond = (value: string) =>
+				html`<div data-value="a${value}b,c"></div>`
+
+			expect(renderFirst('X').toString()).toBe(
+				'<div data-value="a,bXc"></div>'
+			)
+			expect(renderSecond('X').toString()).toBe(
+				'<div data-value="aXb,c"></div>'
+			)
+		})
+
+		it('should not reuse values from the first attribute-object invocation', () => {
+			const view = (attrs: Record<string, string>) =>
+				html`<div ${attrs}></div>`
+
+			expect(view({ title: 'one', dataId: 'first' }).toString()).toBe(
+				'<div title="one" data-id="first"></div>'
+			)
+			expect(view({ title: 'two', dataId: 'second' }).toString()).toBe(
+				'<div title="two" data-id="second"></div>'
+			)
+		})
+
+		it('should not cache manually-created string arrays by content identity', () => {
+			const first = html(['<span>', '</span>'], 'one')
+			const second = html(['<strong>', '</strong>'], 'two')
+
+			expect(first.toString()).toBe('<span>one</span>')
+			expect(second.toString()).toBe('<strong>two</strong>')
+		})
+
+		it('should accept the established union-typed template parts', () => {
+			const parts: TemplateStringsArray | string[] = [
+				'<span>compatible</span>',
+			]
+
+			expect(html(parts).toString()).toBe('<span>compatible</span>')
+		})
+	})
+
+	describe('bulk nested teardown', () => {
+		it('runs nested cleanup and supports remount after parent unmount', () => {
+			const cleanup = jest.fn()
+			const child = html`<span>child</span>`.onMount(() => cleanup)
+			const parent = html`<div>${child}</div>`
+
+			parent.render(document.body)
+			expect(document.body.innerHTML).toBe(
+				'<div><span>child</span></div>'
+			)
+
+			parent.unmount()
+			expect(cleanup).toHaveBeenCalledTimes(1)
+			expect(document.body.innerHTML).toBe('')
+			expect(parent.mounted).toBe(false)
+			expect(child.mounted).toBe(false)
+
+			parent.render(document.body)
+			expect(document.body.innerHTML).toBe(
+				'<div><span>child</span></div>'
+			)
+			parent.unmount()
+			expect(cleanup).toHaveBeenCalledTimes(2)
+		})
+
+		it('disposes nested reactive effects when the parent unmounts', () => {
+			const [value, setValue] = state('one')
+			const child = html`<span>${value}</span>`
+			const parent = html`<div>${child}</div>`
+
+			parent.render(document.body)
+			expect(document.body.innerHTML).toBe(
+				'<div><span>one</span></div>'
+			)
+
+			parent.unmount()
+			setValue('two')
+			jest.advanceTimersToNextTimer()
+
+			expect(child.mounted).toBe(false)
+			expect(document.body.innerHTML).toBe('')
+
+			parent.render(document.body)
+			expect(document.body.innerHTML).toBe(
+				'<div><span>two</span></div>'
+			)
+			parent.unmount()
+		})
+
+		it('clears and recreates nested refs across parent unmount', () => {
+			const child = html`<span ref="label">child</span>`
+			const parent = html`<div>${child}</div>`
+
+			parent.render(document.body)
+			expect(parent.refs.label).toHaveLength(1)
+
+			parent.unmount()
+			expect(parent.refs.label).toBeUndefined()
+			expect(child.refs.label).toBeUndefined()
+
+			parent.render(document.body)
+			expect(parent.refs.label).toHaveLength(1)
+			parent.unmount()
+		})
+	})
+
+	describe('single-root template ranges', () => {
+		it('uses the root as its range while preserving move and remount behavior', () => {
+			const firstHost = document.createElement('div')
+			const secondHost = document.createElement('div')
+			const [value, setValue] = state('one')
+			const template = html`<span>${value}</span>`.render(firstHost)
+
+			expect(firstHost.childNodes).toHaveLength(1)
+			expect(template.childNodes).toEqual([firstHost.firstChild])
+
+			template.render(secondHost)
+			setValue('two')
+			jest.advanceTimersToNextTimer()
+
+			expect(firstHost.childNodes).toHaveLength(0)
+			expect(secondHost.innerHTML).toBe('<span>two</span>')
+
+			template.unmount()
+			template.render(firstHost)
+
+			expect(firstHost.innerHTML).toBe('<span>two</span>')
+			expect(firstHost.childNodes).toHaveLength(1)
+		})
+	})
+    
+    describe('HtmlTemplate refs', () => {
+        it('should collect same-name refs across own and nested templates without duplicates', () => {
+            const child = html`<span ref="item">child</span>`
+            const temp = html`<div ref="item">parent</div>${child}`.render(document.body)
+            
+            expect(temp.refs.item).toHaveLength(2)
+            expect(temp.refs.item).toEqual(
+                expect.arrayContaining([
+                    expect.any(HTMLDivElement),
+                    expect.any(HTMLSpanElement),
+                ])
+            )
+        })
+        
+        it('should reflect refs from the currently rendered dynamic child', () => {
+            const [enabled, setEnabled] = state(true)
+            const temp = html`${() =>
+                enabled()
+                    ? html`<span ref="enabled">enabled</span>`
+                    : html`<span ref="disabled">disabled</span>`
+            }`.render(document.body)
+            
+            expect(temp.refs.enabled).toHaveLength(1)
+            expect(temp.refs.disabled).toBeUndefined()
+            
+            setEnabled(false)
+            jest.advanceTimersToNextTimer()
+            
+            expect(temp.refs.enabled).toBeUndefined()
+            expect(temp.refs.disabled).toHaveLength(1)
+        })
+        
+        it('should update dynamic refs before user effects run', () => {
+            const [formVisible, setFormVisible] = state(false)
+            const form = html`<form ref="form"></form>`
+            const button = html`<button ref="btn">show form</button>`
+            const app = html`
+            <h2 ref="heading">Todos app</h2>
+            ${when(formVisible, form, button)}
+        `
+            let observedAppRefs: string[] = []
+            let observedFormRefs: string[] = []
+            
+            const dispose = effect(() => {
+                if (!formVisible()) return
+                observedAppRefs = Object.keys(app.refs)
+                observedFormRefs = Object.keys(form.refs)
+            })
+            
+            app.render(document.body)
+            setFormVisible(true)
+            jest.advanceTimersToNextTimer()
+            
+            expect(observedAppRefs).toEqual(
+                expect.arrayContaining(['heading', 'form'])
+            )
+            expect(observedAppRefs).not.toContain('btn')
+            expect(observedFormRefs).toEqual(['form'])
+            
+            dispose()
+            app.unmount()
+        })
+        
+        it('should render state derived by a preceding user effect', () => {
+            const [source, setSource] = state(0)
+            const [derived, setDerived] = state(0)
+            const app = html`<p ref="summary">${() =>
+                `${source()}:${derived()}`}</p>`
+            const dispose = effect(() => setDerived(source() * 2))
+            
+            app.render(document.body)
+            setSource(2)
+            jest.advanceTimersToNextTimer()
+            
+            expect(app.refs.summary[0].textContent).toBe('2:4')
+            
+            dispose()
+            app.unmount()
+        })
+    })
 	
 })
