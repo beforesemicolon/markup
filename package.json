@@ -87,5 +87,8 @@
         "ts-jest": "^29.1.1",
         "tsx": "^4.7.0",
         "typescript": "^5.3.3"
+    },
+    "overrides": {
+        "html-minifier": "npm:@keep-lts/html-minifier@4.0.1"
     }
 }
