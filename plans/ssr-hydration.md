@@ -9,11 +9,11 @@ server code out of the browser bundle.
 
 ## Non-goals
 
--   Do not serialize JavaScript closures, effects, or the application state graph.
--   Do not run `onMount`, `onMove`, or browser effects on the server.
--   Do not require a compiler or application build transform.
--   Do not add streaming until synchronous rendering and hydration are stable.
--   Do not change the current browser `HtmlTemplate.toString()` behavior in v1.
+- Do not serialize JavaScript closures, effects, or the application state graph.
+- Do not run `onMount`, `onMove`, or browser effects on the server.
+- Do not require a compiler or application build transform.
+- Do not add streaming until synchronous rendering and hydration are stable.
+- Do not change the current browser `HtmlTemplate.toString()` behavior in v1.
 
 ## Public entry points
 
@@ -46,9 +46,9 @@ type TemplateSource = {
 
 Private adapters consume that record:
 
--   Client compiler: produces cached DOM definitions and mounted runtime parts.
--   Server compiler: produces cached serialization descriptors.
--   Hydrator: binds client runtime parts to server-created nodes.
+- Client compiler: produces cached DOM definitions and mounted runtime parts.
+- Server compiler: produces cached serialization descriptors.
+- Hydrator: binds client runtime parts to server-created nodes.
 
 Use private symbols or module-private `WeakMap` storage. Do not introduce new
 public `HtmlTemplate.__*` cooperation methods.
@@ -58,18 +58,18 @@ public `HtmlTemplate.__*` cooperation methods.
 The server compiler must identify interpolation context and apply matching
 rules:
 
--   Text: escape `&`, `<`, and `>`.
--   Attributes: also escape quotes and follow client boolean-attribute rules.
--   Properties without an HTML representation: omit unless an explicit adapter
-    exists.
--   Events: emit no inline JavaScript.
--   Refs: emit only compact hydration metadata when hydration is requested.
--   Arrays and nested templates: serialize recursively.
--   State getters and computed functions: evaluate synchronously as a snapshot.
--   `unsafeHTML`: emit raw source exactly as provided.
--   DOM nodes: reject in the DOM-free renderer with a clear error.
--   Custom elements: serialize their tag and attributes without instantiating the
-    custom-element class.
+- Text: escape `&`, `<`, and `>`.
+- Attributes: also escape quotes and follow client boolean-attribute rules.
+- Properties without an HTML representation: omit unless an explicit adapter
+  exists.
+- Events: emit no inline JavaScript.
+- Refs: emit only compact hydration metadata when hydration is requested.
+- Arrays and nested templates: serialize recursively.
+- State getters and computed functions: evaluate synchronously as a snapshot.
+- `unsafeHTML`: emit raw source exactly as provided.
+- DOM nodes: reject in the DOM-free renderer with a clear error.
+- Custom elements: serialize their tag and attributes without instantiating the
+  custom-element class.
 
 Use a standards-aware server-only parser/tokenizer for context detection,
 including table, SVG, MathML, and malformed-but-browser-valid HTML behavior.
@@ -79,10 +79,10 @@ Its weight must not enter `dist/client.js`.
 
 Server output includes deterministic, compact part metadata:
 
--   Comment boundaries for dynamic child ranges.
--   Element metadata for dynamic attributes, properties, events, spreads, and
-    refs.
--   A stable template-shape identifier derived from the static template strings.
+- Comment boundaries for dynamic child ranges.
+- Element metadata for dynamic attributes, properties, events, spreads, and
+  refs.
+- A stable template-shape identifier derived from the static template strings.
 
 Hydration performs these steps:
 
@@ -118,49 +118,49 @@ serialize closures implicitly.
 
 ### Phase 1: DOM-free synchronous renderer
 
--   Add environment-neutral template access through a private protocol.
--   Add server-only contextual compilation and escaping.
--   Implement `renderToString`.
--   Add parity fixtures against browser serialization.
--   Keep current `.toString()` unchanged.
+- Add environment-neutral template access through a private protocol.
+- Add server-only contextual compilation and escaping.
+- Implement `renderToString`.
+- Add parity fixtures against browser serialization.
+- Keep current `.toString()` unchanged.
 
 ### Phase 2: Hydration
 
--   Define and version the marker format.
--   Implement client binding to existing DOM.
--   Cover events, refs, attributes, spreads, nested templates, repeat output,
-    custom elements, and lifecycle timing.
--   Add mismatch recovery and development diagnostics.
+- Define and version the marker format.
+- Implement client binding to existing DOM.
+- Cover events, refs, attributes, spreads, nested templates, repeat output,
+  custom elements, and lifecycle timing.
+- Add mismatch recovery and development diagnostics.
 
 ### Phase 3: Async rendering
 
--   Implement `renderToStringAsync` for async boundaries.
--   Define timeout, rejection, and abort behavior.
--   Keep synchronous rendering as the small default server path.
+- Implement `renderToStringAsync` for async boundaries.
+- Define timeout, rejection, and abort behavior.
+- Keep synchronous rendering as the small default server path.
 
 ### Phase 4: Optional streaming
 
--   Add `renderToStream` only after async ordering and hydration boundaries are
-    proven.
--   Ensure streamed boundaries cannot apply stale or out-of-order content.
+- Add `renderToStream` only after async ordering and hydration boundaries are
+  proven.
+- Ensure streamed boundaries cannot apply stale or out-of-order content.
 
 ## Verification gates
 
--   Server entry imports successfully when no DOM globals exist.
--   Server HTML matches browser HTML for a shared fixture suite.
--   All text and attribute escaping has adversarial security coverage.
--   Hydration performs zero static-node replacements for matching templates.
--   Hydration preserves form values, focus, and custom-element identity.
--   Browser bundle size does not increase from server-only implementation.
--   Client mount/update benchmarks do not regress.
--   SSR and hydration APIs have ESM, CJS, and TypeScript export-contract tests.
+- Server entry imports successfully when no DOM globals exist.
+- Server HTML matches browser HTML for a shared fixture suite.
+- All text and attribute escaping has adversarial security coverage.
+- Hydration performs zero static-node replacements for matching templates.
+- Hydration preserves form values, focus, and custom-element identity.
+- Browser bundle size does not increase from server-only implementation.
+- Client mount/update benchmarks do not regress.
+- SSR and hydration APIs have ESM, CJS, and TypeScript export-contract tests.
 
 ## Open decisions
 
--   Choose the server-only HTML parser/tokenizer.
--   Decide whether hydration metadata is always emitted or enabled through
-    renderer options.
--   Choose the template-shape hash and marker-version format.
--   Define property serialization adapters for form controls and custom elements.
--   Decide whether `renderToStringAsync` waits for all suspense boundaries or
-    supports explicit fallback output.
+- Choose the server-only HTML parser/tokenizer.
+- Decide whether hydration metadata is always emitted or enabled through
+  renderer options.
+- Choose the template-shape hash and marker-version format.
+- Define property serialization adapters for form controls and custom elements.
+- Decide whether `renderToStringAsync` waits for all suspense boundaries or
+  supports explicit fallback output.

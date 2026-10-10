@@ -5,11 +5,11 @@ and focused feature proposals are welcome.
 
 ## Before You Start
 
--   Search existing issues and pull requests before opening a duplicate.
--   Use the issue templates and include a minimal reproduction for bugs.
--   Discuss substantial API or behavior changes in an issue before implementation.
--   Follow the [Code of Conduct](CODE_OF_CONDUCT.md).
--   Report vulnerabilities through the private process in [SECURITY.md](SECURITY.md).
+- Search existing issues and pull requests before opening a duplicate.
+- Use the issue templates and include a minimal reproduction for bugs.
+- Discuss substantial API or behavior changes in an issue before implementation.
+- Follow the [Code of Conduct](CODE_OF_CONDUCT.md).
+- Report vulnerabilities through the private process in [SECURITY.md](SECURITY.md).
 
 ## Development
 

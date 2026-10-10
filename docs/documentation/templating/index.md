@@ -20,9 +20,9 @@ const temp = html`<h1>Hello World</h1>`
 
 {{t.pages.documentation.templating.index.content.there_are_few_ways_to_render_a_template_after_you_define_it}}
 
--   {{t.pages.documentation.templating.index.content.render_takes_a_htmlelement_to_append_the_template_to}}
--   {{t.pages.documentation.templating.index.content.replace_takes_any_node_or_another_htmltemplate_instance_to_replace_in_the_dom}}
--   {{t.pages.documentation.templating.index.content.insertafter_takes_any_node_or_another_htmltemplate_instance_to_insert_the_template_after}}
+- {{t.pages.documentation.templating.index.content.render_takes_a_htmlelement_to_append_the_template_to}}
+- {{t.pages.documentation.templating.index.content.replace_takes_any_node_or_another_htmltemplate_instance_to_replace_in_the_dom}}
+- {{t.pages.documentation.templating.index.content.insertafter_takes_any_node_or_another_htmltemplate_instance_to_insert_the_template_after}}
 
 #### {{t.pages.documentation.templating.index.content.render}}
 

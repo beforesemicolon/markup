@@ -73,11 +73,11 @@ html`${repeat(3, (n, index) => html`<spa>${n} - ${index}</span>`)}`.render(
 
 {{t.pages.documentation.utilities.repeat.content.additionally_repeat_can_consume_any_object_literal_or_iterable_object_https_developer_mozilla_or}}
 
--   {{t.pages.documentation.utilities.repeat.content.array}}
--   {{t.pages.documentation.utilities.repeat.content.set}}
--   {{t.pages.documentation.utilities.repeat.content.map}}
--   {{t.pages.documentation.utilities.repeat.content.string}}
--   {{t.pages.documentation.utilities.repeat.content.any_object_with_symbol_iterator_https_developer_mozilla_org_en_us_docs_web_javascript_reference}}
+- {{t.pages.documentation.utilities.repeat.content.array}}
+- {{t.pages.documentation.utilities.repeat.content.set}}
+- {{t.pages.documentation.utilities.repeat.content.map}}
+- {{t.pages.documentation.utilities.repeat.content.string}}
+- {{t.pages.documentation.utilities.repeat.content.any_object_with_symbol_iterator_https_developer_mozilla_org_en_us_docs_web_javascript_reference}}
 
 ```javascript
 const iterable = {}
@@ -127,8 +127,8 @@ html`${repeat(todos, renderTodo, options)}`
 
 {{t.pages.documentation.utilities.repeat.content.the_options_object_supports_the_following_properties}}
 
--   {{t.pages.documentation.utilities.repeat.content.key_function_a_selector_function_that_returns_a_unique_key_for_each_item_highly_recommended_for}}
--   {{t.pages.documentation.utilities.repeat.content.empty_function_a_function_returning_the_template_or_node_to_render_when_the_collection_is_empty}}
+- {{t.pages.documentation.utilities.repeat.content.key_function_a_selector_function_that_returns_a_unique_key_for_each_item_highly_recommended_for}}
+- {{t.pages.documentation.utilities.repeat.content.empty_function_a_function_returning_the_template_or_node_to_render_when_the_collection_is_empty}}
 
 ### {{t.pages.documentation.utilities.repeat.content.lazy_list_rendering}}
 

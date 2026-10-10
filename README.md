@@ -12,9 +12,9 @@ Markup is a JavaScript reactive templating system built to simplify how you buil
 
 It consists of 3 main APIs with additional utilities to simplify things even further:
 
--   `html`: A JavaScript tagged function that allows you to represent the DOM using a template literal string;
--   `state`: A simple state tracking API that allows you to define reactive data as you wish;
--   `effect`: A straight forward way to define things that need to happen when certain states change;
+- `html`: A JavaScript tagged function that allows you to represent the DOM using a template literal string;
+- `state`: A simple state tracking API that allows you to define reactive data as you wish;
+- `effect`: A straight forward way to define things that need to happen when certain states change;
 
 ### Motivation
 
@@ -76,8 +76,8 @@ html`
 
 Markup uses [template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) and [Functions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions) to do everything.
 
--   **Functions**: JavaScript functions are perfect for lazy evaluations which makes it perfect for reactivity. Markup uses functions everywhere, from internals, defining state, effects, utilities, etc.
--   **Template Literals**: The template literal is used to represent HTML in JavaScript and to avoid to reinvent the wheel. Everything else is enforced by web standards.
+- **Functions**: JavaScript functions are perfect for lazy evaluations which makes it perfect for reactivity. Markup uses functions everywhere, from internals, defining state, effects, utilities, etc.
+- **Template Literals**: The template literal is used to represent HTML in JavaScript and to avoid to reinvent the wheel. Everything else is enforced by web standards.
 
 Literally everything else is how you know it to be in plain HTML, CSS and JavaScript.
 
@@ -87,9 +87,9 @@ We believe in a simple way to build the web without the jargon of a framework, c
 
 This is a simple example of a button, but you can check:
 
--   [A Modular Todo App](https://stackblitz.com/edit/web-platform-lvonxr?file=app.js)
--   [A Simple Counter App](https://stackblitz.com/edit/web-platform-adqrrf?file=app.js)
--   [A Simple Time App](https://stackblitz.com/edit/web-platform-bwoxex?file=button.js)
+- [A Modular Todo App](https://stackblitz.com/edit/web-platform-lvonxr?file=app.js)
+- [A Simple Counter App](https://stackblitz.com/edit/web-platform-adqrrf?file=app.js)
+- [A Simple Time App](https://stackblitz.com/edit/web-platform-bwoxex?file=button.js)
 
 ## Install
 
@@ -147,29 +147,29 @@ const trustedIcon = unsafeHTML('<svg aria-hidden="true">...</svg>')
 
 ## AI and agent context
 
--   [`llms.txt`](https://markup.beforesemicolon.com/llms.txt) is the concise,
-    package-owned API contract and coding guide for AI tools.
--   [`llms-full.txt`](https://markup.beforesemicolon.com/llms-full.txt) contains
-    the complete resolved documentation and examples.
+- [`llms.txt`](https://markup.beforesemicolon.com/llms.txt) is the concise,
+  package-owned API contract and coding guide for AI tools.
+- [`llms-full.txt`](https://markup.beforesemicolon.com/llms-full.txt) contains
+  the complete resolved documentation and examples.
 
 The source for the concise contract lives in [`docs/llms.txt`](docs/llms.txt),
 so its behavior and recommendations are reviewed and versioned with Markup.
 
 ## Ecosystem
 
--   [Web Component](https://web-component.beforesemicolon.com/) adds reactive
-    native Custom Elements and re-exports Markup.
--   [Router](https://router.beforesemicolon.com/) adds URL navigation, route
-    elements, guards, and route data on top of Web Component.
--   [Intl](https://intl.beforesemicolon.com/) adds locale scopes, messages, and
-    internationalized formatting on top of Web Component.
+- [Web Component](https://web-component.beforesemicolon.com/) adds reactive
+  native Custom Elements and re-exports Markup.
+- [Router](https://router.beforesemicolon.com/) adds URL navigation, route
+  elements, guards, and route data on top of Web Component.
+- [Intl](https://intl.beforesemicolon.com/) adds locale scopes, messages, and
+  internationalized formatting on top of Web Component.
 
 Router and Intl are complementary and can be used together. Markup remains the
 shared rendering and reactivity foundation across all packages.
 
 ## Community
 
--   [Contributing guidelines](CONTRIBUTING.md)
--   [Code of Conduct](CODE_OF_CONDUCT.md)
--   [Security policy](SECURITY.md)
--   [BSD 3-Clause License](LICENSE)
+- [Contributing guidelines](CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Security policy](SECURITY.md)
+- [BSD 3-Clause License](LICENSE)

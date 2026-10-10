@@ -10,14 +10,14 @@ layout: document
 
 {{t.pages.documentation.utilities.index.content.markup_offers_many_utility_functions_that_aid_you_in_templating_or_work_with_the_dom_in_general}}
 
--   {{t.pages.documentation.utilities.index.content.element_element_md_allows_you_to_easily_create_dom_elements}}
--   {{t.pages.documentation.utilities.index.content.suspense_suspense_md_allows_you_to_lazy_render_content}}
--   {{t.pages.documentation.utilities.index.content.repeat_repeat_md_allows_you_to_handle_lists_or_repeat_content}}
--   {{t.pages.documentation.utilities.index.content.when_when_md_allows_you_to_conditionally_render_content}}
--   {{t.pages.documentation.utilities.index.content.visible_visible_md_allows_you_to_defer_rendering_until_elements_enter_viewport}}
--   {{t.pages.documentation.utilities.index.content.is_and_isnot_is_isnot_md_allows_you_to_quickly_check_truthiness_of_states}}
--   {{t.pages.documentation.utilities.index.content.and_or_oneof_and_or_oneof_md_allows_you_to_quickly_check_conditions_of_states}}
--   {{t.pages.documentation.utilities.index.content.pick_pick_md_allows_you_deeply_read_state_object_key_values}}
+- {{t.pages.documentation.utilities.index.content.element_element_md_allows_you_to_easily_create_dom_elements}}
+- {{t.pages.documentation.utilities.index.content.suspense_suspense_md_allows_you_to_lazy_render_content}}
+- {{t.pages.documentation.utilities.index.content.repeat_repeat_md_allows_you_to_handle_lists_or_repeat_content}}
+- {{t.pages.documentation.utilities.index.content.when_when_md_allows_you_to_conditionally_render_content}}
+- {{t.pages.documentation.utilities.index.content.visible_visible_md_allows_you_to_defer_rendering_until_elements_enter_viewport}}
+- {{t.pages.documentation.utilities.index.content.is_and_isnot_is_isnot_md_allows_you_to_quickly_check_truthiness_of_states}}
+- {{t.pages.documentation.utilities.index.content.and_or_oneof_and_or_oneof_md_allows_you_to_quickly_check_conditions_of_states}}
+- {{t.pages.documentation.utilities.index.content.pick_pick_md_allows_you_deeply_read_state_object_key_values}}
 
 ### {{t.pages.documentation.utilities.index.content.why_you_need_utilities}}
 
@@ -25,11 +25,11 @@ layout: document
 
 {{t.pages.documentation.utilities.index.content.you_can_create_utility_functions_to_handle_things_like}}
 
--   {{t.pages.documentation.utilities.index.content.validation}}
--   {{t.pages.documentation.utilities.index.content.data_transformation}}
--   {{t.pages.documentation.utilities.index.content.logic_base_rendering}}
--   {{t.pages.documentation.utilities.index.content.caching}}
--   {{t.pages.documentation.utilities.index.content.etc}}
+- {{t.pages.documentation.utilities.index.content.validation}}
+- {{t.pages.documentation.utilities.index.content.data_transformation}}
+- {{t.pages.documentation.utilities.index.content.logic_base_rendering}}
+- {{t.pages.documentation.utilities.index.content.caching}}
+- {{t.pages.documentation.utilities.index.content.etc}}
 
 {{t.pages.documentation.utilities.index.content.you_only_need_to_define_utilities_when_working_with_states_everything_else_can_remain_as_static}}
 

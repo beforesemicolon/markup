@@ -137,12 +137,12 @@ export const clearTodos = () => {
 
 {{t.pages.documentation.capabilities.state_store.content.these_actions_can_be_whatever_you_want_they_can}}
 
--   {{t.pages.documentation.capabilities.state_store.content.store_data_in_localstorage_or_indexeddb}}
--   {{t.pages.documentation.capabilities.state_store.content.be_asynchronous}}
--   {{t.pages.documentation.capabilities.state_store.content.call_servers_apis_to_save_data}}
--   {{t.pages.documentation.capabilities.state_store.content.perform_validations}}
--   {{t.pages.documentation.capabilities.state_store.content.map_the_data}}
--   {{t.pages.documentation.capabilities.state_store.content.etc}}
+- {{t.pages.documentation.capabilities.state_store.content.store_data_in_localstorage_or_indexeddb}}
+- {{t.pages.documentation.capabilities.state_store.content.be_asynchronous}}
+- {{t.pages.documentation.capabilities.state_store.content.call_servers_apis_to_save_data}}
+- {{t.pages.documentation.capabilities.state_store.content.perform_validations}}
+- {{t.pages.documentation.capabilities.state_store.content.map_the_data}}
+- {{t.pages.documentation.capabilities.state_store.content.etc}}
 
 {{t.pages.documentation.capabilities.state_store.content.data_storage_and_state_management_does_not_have_to_be_complex_and_all_you_need_from_here_is_use}}
 

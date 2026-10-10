@@ -2,12 +2,7 @@ import { val } from './val.ts'
 import { ObjectLiteral, StateGetter } from '../types.ts'
 
 export type RepeatData<T, K = string> =
-    | number
-    | ObjectLiteral<T>
-    | Iterable<T>
-    | Array<T>
-    | Set<T>
-    | Map<K, T>
+    number | ObjectLiteral<T> | Iterable<T> | Array<T> | Set<T> | Map<K, T>
 
 export interface RepeatOptions<T, TKey> {
     key?: (item: T, index: number) => TKey

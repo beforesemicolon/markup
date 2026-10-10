@@ -16,10 +16,10 @@ layout: document
 
 {{t.pages.documentation.get_started.content.the_simplest_way_to_start_is_by_trying_it_in_browser_and_there_are_few_project_you_can_get_start}}
 
--   {{t.pages.documentation.get_started.content.client_todo_app_with_state_management_https_stackblitz_com_edit_web_platform_lvonxr_stackblitz}}
--   {{t.pages.documentation.get_started.content.client_counter_app_https_stackblitz_com_edit_web_platform_ixypdh_stackblitz}}
--   {{t.pages.documentation.get_started.content.client_timer_app_https_codepen_io_beforesemicolon_pen_ylqzqzv_codepen}}
--   {{t.pages.documentation.get_started.content.node_ssr_website_https_stackblitz_com_edit_stackblitz_starters_a6rvq7_stackblitz}}
+- {{t.pages.documentation.get_started.content.client_todo_app_with_state_management_https_stackblitz_com_edit_web_platform_lvonxr_stackblitz}}
+- {{t.pages.documentation.get_started.content.client_counter_app_https_stackblitz_com_edit_web_platform_ixypdh_stackblitz}}
+- {{t.pages.documentation.get_started.content.client_timer_app_https_codepen_io_beforesemicolon_pen_ylqzqzv_codepen}}
+- {{t.pages.documentation.get_started.content.node_ssr_website_https_stackblitz_com_edit_stackblitz_starters_a6rvq7_stackblitz}}
 
 ### {{t.pages.documentation.get_started.content.html_file}}
 

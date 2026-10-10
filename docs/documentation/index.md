@@ -13,9 +13,9 @@ layout: document
 
 {{t.pages.documentation.index.content.it_consists_of_3_main_apis_with_additional_utilities_to_simplify_things_even_further}}
 
--   {{t.pages.documentation.index.content.html_a_javascript_tagged_function_that_allows_you_to_represent_the_dom_using_template_literal_st}}
--   {{t.pages.documentation.index.content.state_a_simple_state_tracking_api_that_lets_you_define_reactive_data_however_you_want}}
--   {{t.pages.documentation.index.content.effect_a_straightforward_way_to_define_things_that_need_to_happen_when_certain_states_change}}
+- {{t.pages.documentation.index.content.html_a_javascript_tagged_function_that_allows_you_to_represent_the_dom_using_template_literal_st}}
+- {{t.pages.documentation.index.content.state_a_simple_state_tracking_api_that_lets_you_define_reactive_data_however_you_want}}
+- {{t.pages.documentation.index.content.effect_a_straightforward_way_to_define_things_that_need_to_happen_when_certain_states_change}}
 
 ### {{t.pages.documentation.index.content.why_do_we_need_another_tool}}
 
@@ -87,7 +87,7 @@ html`
 
 ### {{t.pages.documentation.index.content.key_benefits}}
 
--   {{t.pages.documentation.index.content.zero_build_step_no_compilers_no_bundlers_no_npm_install_required_to_get_started_drop_the_cdn_lin}}
--   {{t.pages.documentation.index.content.surgical_dom_updates_no_virtual_dom_diffing_markup_target_updates_only_the_specific_nodes_and_at}}
--   {{t.pages.documentation.index.content.cdn_build_size_benefit}}
--   {{t.pages.documentation.index.content.standard_web_components_easily_integrates_with_web_components_to_provide_reactive_rendering_and}}
+- {{t.pages.documentation.index.content.zero_build_step_no_compilers_no_bundlers_no_npm_install_required_to_get_started_drop_the_cdn_lin}}
+- {{t.pages.documentation.index.content.surgical_dom_updates_no_virtual_dom_diffing_markup_target_updates_only_the_specific_nodes_and_at}}
+- {{t.pages.documentation.index.content.cdn_build_size_benefit}}
+- {{t.pages.documentation.index.content.standard_web_components_easily_integrates_with_web_components_to_provide_reactive_rendering_and}}
