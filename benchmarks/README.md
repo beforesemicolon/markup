@@ -4,8 +4,8 @@ This directory contains benchmarking suites to measure the bookkeeping and DOM r
 
 ## Prerequisites
 
--   Node.js >= 18.16.0
--   Development dependencies installed (`npm install`)
+- Node.js >= 18.16.0
+- Development dependencies installed (`npm install`)
 
 ## Benchmark Commands
 
@@ -17,15 +17,15 @@ npm run benchmark
 
 Or run individual benchmark suites:
 
--   **Repeat Cache (pure JS bookkeeping)**:
+- **Repeat Cache (pure JS bookkeeping)**:
     ```bash
     npm run benchmark:repeat
     ```
--   **Repeat DOM (mounting/rendering in JSDOM)**:
+- **Repeat DOM (mounting/rendering in JSDOM)**:
     ```bash
     npm run benchmark:dom
     ```
--   **Reactive List Lifecycle (tracking callback execution counts)**:
+- **Reactive List Lifecycle (tracking callback execution counts)**:
     ```bash
     npm run benchmark:reactive
     ```

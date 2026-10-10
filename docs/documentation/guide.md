@@ -283,11 +283,11 @@ export const fetchTodos = async () => {
 
 ## {{t.pages.documentation.guide.content.conventions_guardrails}}
 
--   {{t.pages.documentation.guide.content.pass_getters_functions_directly_do_not_execute_getters_inside_template_attributes_when_subscript}}
--   {{t.pages.documentation.guide.content.clean_event_bindings_do_not_wrap_callbacks_in_redundant_closures_unless_passing_arguments}}
-    -   {{t.pages.documentation.guide.content.good_logout}}
-    -   {{t.pages.documentation.guide.content.good_handleselect_item_select}}
-    -   {{t.pages.documentation.guide.content.avoid_logout_logout}}
--   {{t.pages.documentation.guide.content.direct_property_bindings_do_not_pre_normalize_simple_template_attributes_in_setup_getters_just_t}}
--   {{t.pages.documentation.guide.content.boolean_attributes_markup_core_automatically_unwraps_and_evaluates_boolean_states_do_not_add_boo}}
--   {{t.pages.documentation.guide.content.static_vs_reactive_if_a_value_is_static_never_changes_after_initialization_render_its_evaluated}}
+- {{t.pages.documentation.guide.content.pass_getters_functions_directly_do_not_execute_getters_inside_template_attributes_when_subscript}}
+- {{t.pages.documentation.guide.content.clean_event_bindings_do_not_wrap_callbacks_in_redundant_closures_unless_passing_arguments}}
+    - {{t.pages.documentation.guide.content.good_logout}}
+    - {{t.pages.documentation.guide.content.good_handleselect_item_select}}
+    - {{t.pages.documentation.guide.content.avoid_logout_logout}}
+- {{t.pages.documentation.guide.content.direct_property_bindings_do_not_pre_normalize_simple_template_attributes_in_setup_getters_just_t}}
+- {{t.pages.documentation.guide.content.boolean_attributes_markup_core_automatically_unwraps_and_evaluates_boolean_states_do_not_add_boo}}
+- {{t.pages.documentation.guide.content.static_vs_reactive_if_a_value_is_static_never_changes_after_initialization_render_its_evaluated}}

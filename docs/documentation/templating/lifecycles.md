@@ -10,9 +10,9 @@ layout: document
 
 {{t.pages.documentation.templating.lifecycles.content.markup_exposes_few_methods_you_can_use_to_tap_into_the_lifecycles_of_the_template}}
 
--   {{t.pages.documentation.templating.lifecycles.content.onmount_method_that_takes_a_function_to_call_when_the_template_is_mounted_that_can_return_anothe}}
--   {{t.pages.documentation.templating.lifecycles.content.onupdate_method_that_takes_a_function_to_call_when_something_in_the_rendered_template_changes}}
--   {{t.pages.documentation.templating.lifecycles.content.onmove_method_that_takes_a_function_to_call_when_the_template_content_is_moved_from_one_location}}
+- {{t.pages.documentation.templating.lifecycles.content.onmount_method_that_takes_a_function_to_call_when_the_template_is_mounted_that_can_return_anothe}}
+- {{t.pages.documentation.templating.lifecycles.content.onupdate_method_that_takes_a_function_to_call_when_something_in_the_rendered_template_changes}}
+- {{t.pages.documentation.templating.lifecycles.content.onmove_method_that_takes_a_function_to_call_when_the_template_content_is_moved_from_one_location}}
 
 {{t.pages.documentation.templating.lifecycles.content.all_lifecycle_callbacks_will_be_called_with_the_instance_of_the_template_as_the_first_argument_t}}
 

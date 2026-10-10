@@ -1572,9 +1572,7 @@ export class HtmlTemplate {
             const event = Array.isArray(raw) ? raw : undefined
             const fn = event ? event[0] : raw
             const options = event?.[1] as
-                | boolean
-                | AddEventListenerOptions
-                | undefined
+                boolean | AddEventListenerOptions | undefined
             if (typeof fn !== 'function') {
                 throw new Error(
                     `Handler for event "${part.name}" is not a function. Found "${fn}".`
@@ -1860,13 +1858,11 @@ export class HtmlTemplate {
     }
 
     render(target: ShadowRoot | HTMLElement | Element | DocumentFragment) {
-        if (
-            !(
-                target instanceof ShadowRoot ||
-                target instanceof Element ||
-                target instanceof DocumentFragment
-            )
-        ) {
+        if (!(
+            target instanceof ShadowRoot ||
+            target instanceof Element ||
+            target instanceof DocumentFragment
+        )) {
             return this
         }
 

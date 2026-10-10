@@ -7,14 +7,7 @@ type SuspenseState<T> =
     | { status: 'rejected'; error: Error }
 
 type RejectionReason =
-    | string
-    | number
-    | boolean
-    | bigint
-    | symbol
-    | object
-    | null
-    | undefined
+    string | number | boolean | bigint | symbol | object | null | undefined
 
 const toError = (reason: RejectionReason): Error =>
     reason instanceof Error ? reason : new Error(String(reason))
