@@ -82,7 +82,7 @@ jobs:
                "--repo", __import__("os").environ["GITHUB_REPOSITORY"], "--json", "title,body"]))
           description = issue["title"] + "\n" + (issue.get("body") or "")
           tracked = subprocess.check_output(["git", "ls-files", "-z"]).decode().split("\0")
-          selected = [p for p in tracked if p and re.search(r"(?<![\\w./-])" + re.escape(p) + r"(?![\\w./-])", description)]
+          selected = [p for p in tracked if p and re.search(r"(?<![\w./-])" + re.escape(p) + r"(?![\w./-])", description)]
           selected = [p for p in selected if not p.startswith(".github/") and not p.startswith(".aider") and p not in (".gitignore", "package.json", "package-lock.json", "renovate.json", "AGENTS.md") and not p.startswith(".env")]
           pathlib.Path("/tmp/ai-targets.txt").write_text("\n".join(selected[:12]))
           if not selected:
