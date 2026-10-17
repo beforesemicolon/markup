@@ -39,3 +39,4 @@ website
 .local-pack/
 benchmarks/results/
 
+.aider*
