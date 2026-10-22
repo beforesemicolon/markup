@@ -10,12 +10,18 @@ These suites measure `repeat` cache bookkeeping and DOM work. Every warmup and m
 ## Commands
 
 ```bash
-npm run benchmark             # All reports
+npm run benchmark             # Default reports
 npm run benchmark:repeat      # Pure JavaScript cache bookkeeping
 npm run benchmark:dom         # DOM mounting and updates in JSDOM
 npm run benchmark:reactive    # Lifecycle operation counts
+npm run benchmark:positional  # Opt-in 1,000/10,000-row indexed updates
 npm run test:benchmarks       # Fast correctness smoke tests; no timing thresholds
 ```
+
+The [large-list positional workload](./positional-list.md) verifies index text,
+ARIA positions, and surviving DOM identity, with lifecycle counts collected
+separately from elapsed time. The 10,000-row cases can take several minutes in
+JSDOM, so they are opt-in rather than part of the default benchmark command.
 
 The smoke test can also run directly:
 

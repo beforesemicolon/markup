@@ -234,9 +234,12 @@ render budget. An additional attempt logs `Maximum reactive updates exceeded
 (100 executions in one flush). Check effects for a state update cycle.` through
 `console.error`; render-limit errors say `one render pass` instead of `one
 flush`. Errors are reported once per subscriber per flush. Further executions
-are skipped for that budget period, while unrelated queued work continues;
-later updates can schedule the subscriber again. This is an update limit, not
-proof of a cycle; exceptionally complex acyclic graphs can also reach it.
+are skipped for that budget period while unrelated queued work continues.
+This fixed budget is a heuristic, not cycle detection: legitimate convergent
+workloads can be truncated before reaching a stable state, and sufficiently
+complex acyclic dependency graphs can also reach the limit. Skipped work is
+not automatically resumed; a later change to a tracked dependency can schedule
+the subscriber again.
 
 ```javascript
 const [query, setQuery] = state('')
@@ -424,15 +427,21 @@ the mount callback returns nothing.
 
 An `HtmlTemplate` instance has one owner. Moving it into another template releases
 the previous owner's child references; unmounting the old owner cannot dispose
-the moved instance. A stale old binding that still returns the transferred
-instance does not take it back. Remove it from that binding before explicitly
-reintroducing it. Use distinct instances to show the same content in two places.
+the moved instance. An actual manual move to another location within the same
+parent releases the original binding, while the enclosing parent still performs
+final cleanup. No-op placement calls keep the binding unchanged. A stale old
+binding that still returns the transferred instance does not take it back.
+Remove it from that binding before explicitly reintroducing it. Use distinct
+instances to show the same content in two places.
 
 Connected moves use native `moveBefore` when supported and eligible. Otherwise,
 Markup restores focused controls, text-input selection, and document selection
 where possible without scrolling or overriding a callback's chosen focus. The
-fallback can traverse open shadow roots; it cannot inspect closed shadow roots
-or preserve every browser-managed state. Custom elements should implement
+fallback can traverse open shadow roots. Restoring contenteditable selection
+inside an open shadow root requires exposed internal selection endpoints;
+WebKit 27.2 does not expose them through the supported selection APIs. The
+fallback cannot inspect closed shadow roots or preserve every browser-managed
+state. Custom elements should implement
 `connectedMoveCallback` to avoid disconnect/connect callbacks on native moves;
 fallback moves may still emit connection and focus events.
 

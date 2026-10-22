@@ -387,7 +387,7 @@
                         "nested_effect": "嵌套效应",
                         "you_can_nest_effect_to_track_different_values_this_allows_for_the_body_of_your_effect_to_react_i": "您可以嵌套 `effect` 来跟踪不同的值。这允许 `effect` 的主体独立反应，同时不同的效果跟踪不同的状态。",
                         "if_you_want_to_clear_all_effects_you_can_unsubscribe_from_the_outer_most_effect_and_which_will_t": "如果您想清除所有效果，您可以从最外层的`effect`取消订阅，它将为您照顾所有子`effect`。但是，您必须跟踪内部效果，因为每当调用外部效果时，都会创建一个新的内部效果。",
-                        "repeated_updates_and_cycles": "稍后运行的副作用可能会使已运行的副作用失效，因此在同一次队列刷新（`flush`）中，副作用可能反复运行，直到状态稳定。每个用户定义的副作用运行前都会执行 DOM 更新，每次重新运行前都会执行清理。用户订阅者在每次刷新中最多执行 100 次。渲染订阅者有单独的限制：每轮渲染最多执行 100 次，每执行一个用户副作用后重置，因此多个独立副作用可以更新同一个显示的汇总值。若再次尝试执行，会通过 `console.error` 报告一个 `Error`，每个订阅者在每次刷新中只报告一次：`Maximum reactive updates exceeded (100 executions in one flush). Check effects for a state update cycle.` 渲染次数超限时，诊断信息使用 `one render pass` 而不是 `one flush`。在相应限制周期内，该订阅者的后续执行会被跳过；其他无关的排队任务继续处理，后续更新仍可再次调度该订阅者。达到限制并不能证明存在循环：足够复杂的无环依赖图也可能达到限制。"
+                        "repeated_updates_and_cycles": "稍后运行的副作用可能会使已运行的副作用失效，因此在同一次队列刷新（`flush`）中，副作用可能反复运行，直到状态稳定。每个用户定义的副作用运行前都会执行 DOM 更新，每次重新运行前都会执行清理。用户订阅者在每次刷新中最多执行 100 次。渲染订阅者有单独的限制：每轮渲染最多执行 100 次，每执行一个用户副作用后重置，因此多个独立副作用可以更新同一个显示的汇总值。若再次尝试执行，会通过 `console.error` 报告一个 `Error`，每个订阅者在每次刷新中只报告一次：`Maximum reactive updates exceeded (100 executions in one flush). Check effects for a state update cycle.` 渲染次数超限时，诊断信息使用 `one render pass` 而不是 `one flush`。在相应限制周期内，该订阅者的后续执行会被跳过，其他无关的排队任务继续处理。此固定次数限制是一种启发式保护，而不是循环检测：正常且最终能够收敛的更新也可能在达到稳定状态之前被截断；足够复杂的无环依赖图也可能触及该限制。被跳过的执行不会自动恢复；后续对已跟踪依赖的更改可以重新调度订阅者。"
                     }
                 },
                 "index": {
@@ -540,10 +540,10 @@
                         "complete_cleanup": "发生错误时仍完成清理",
                         "cleanup_errors": "每次实际挂载只拥有自己返回的清理函数。Markup 会在调用前清除该回调，因此它最多执行一次；之后不返回清理函数的挂载不会复用旧回调。即使清理回调失败，卸载仍会继续释放所有归属的子模板、订阅、引用和 DOM。直接调用卸载后，如果只有一个错误，会抛出原始错误；如果有多个错误，则抛出 `AggregateError`。在响应式删除过程中，调度器会在清理后通过 `console.error` 报告错误；之后的兄弟节点仍会被清理，后续更新也可以继续。",
                         "ownership_heading": "每个模板只有一个所有者",
-                        "ownership_transfer": "将模板移动到另一个模板或外部容器时，会转移或解除其所有权。卸载原父模板不会销毁已移动的子模板。只要原响应式绑定的输出仍持续包含该实例，该绑定就会忽略它。若要通过同一绑定将其移回，先输出不包含它的内容，等待更新完成，再明确地将它加入。",
+                        "ownership_transfer": "将模板移动到另一个模板或外部容器时，会转移或解除其所有权。卸载原父模板不会销毁已移动的子模板。在同一父模板内实际手动移动到其他位置时，会解除原绑定，但外层父模板仍负责最终清理。不改变位置的调用会保留原绑定。只要原响应式绑定的输出仍持续包含该实例，该绑定就会忽略它。若要通过同一绑定将其移回，先输出不包含它的内容，等待更新完成，再明确地将它加入。",
                         "focus_during_moves": "移动过程中的焦点与选区",
                         "native_moves": "如果浏览器支持，并且两个节点共享同一个包含 shadow tree 的根，Markup 会使用原生 `moveBefore()` 操作，在移动过程中保留浏览器状态。自定义元素可以实现 `connectedMoveCallback()`，以处理原生移动而不运行断开和连接回调。参见 [DOM 移动规则](https://dom.spec.whatwg.org/#concept-node-move)。",
-                        "fallback_moves": "回退方案会尝试保留获得焦点的控件、输入框选区和可编辑内容选区，包括开放 shadow root 内的焦点。当回调改变焦点或文本时，恢复只能尽力完成。封闭 shadow root 内的焦点以及 iframe 加载、popover 等其他浏览器状态，需要原生的状态保留移动。回退移动仍可能触发焦点事件，以及自定义元素的断开和连接回调。"
+                        "fallback_moves": "回退方案会尝试保留获得焦点的控件、输入框选区和可编辑内容选区，包括开放 shadow root 内的焦点。当回调改变焦点或文本时，恢复只能尽力完成。恢复开放 shadow root 内可编辑内容的选区，要求浏览器暴露其内部选区端点；WebKit 27.2 不会通过受支持的选区 API 暴露这些端点。封闭 shadow root 内的焦点以及 iframe 加载、popover 等其他浏览器状态，需要原生的状态保留移动。回退移动仍可能触发焦点事件，以及自定义元素的断开和连接回调。"
                     }
                 },
                 "ref": {

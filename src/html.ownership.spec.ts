@@ -298,6 +298,134 @@ describe('template disposal', () => {
 })
 
 describe('template ownership transfer', () => {
+    it.each([
+        ['render', false],
+        ['insertAfter', false],
+        ['replace', false],
+        ['insertAfter', true],
+        ['replace', true],
+    ] as const)(
+        'releases the source binding after %s within its parent (same container: %s)',
+        (action, sameContainer) => {
+            const cleanup = jest.fn()
+            const child = html`<b>child</b>`.onMount(() => cleanup)
+            const [show, setShow] = state(true)
+            const [version, setVersion] = state(0)
+            const binding = () => {
+                version()
+                return show() ? child : []
+            }
+            const parent = sameContainer
+                ? html`<section><div ref="a">${binding}<i ref="target"></i></div></section>`
+                : html`<section><div ref="a">${binding}</div><div ref="b"><i ref="target"></i></div></section>`
+            parent.render(document.body)
+            const source = parent.refs.a[0]
+            const destination = sameContainer ? source : parent.refs.b[0]
+            const target = parent.refs.target[0]
+            const node = child.childNodes[0]
+
+            if (action === 'render') child.render(destination)
+            else child[action](target)
+
+            expect(child.__PARENT__).toBe(parent)
+            expect(parent.__CHILDREN__.has(child)).toBe(true)
+            expect(node.parentNode).toBe(destination)
+            if (sameContainer && action === 'insertAfter') {
+                expect(target.nextSibling).toBe(node)
+            }
+
+            // A stale emission must not reclaim the manually positioned child.
+            setVersion(1)
+            jest.runOnlyPendingTimers()
+            expect(node.parentNode).toBe(destination)
+            if (sameContainer && action === 'insertAfter') {
+                expect(target.nextSibling).toBe(node)
+            }
+
+            setShow(false)
+            jest.runOnlyPendingTimers()
+            expect(child.mounted).toBe(true)
+            expect(destination.textContent).toBe('child')
+            expect(cleanup).not.toHaveBeenCalled()
+
+            parent.unmount()
+            expect(child.mounted).toBe(false)
+            expect(cleanup).toHaveBeenCalledTimes(1)
+            expect(document.body.innerHTML).toBe('')
+        }
+    )
+
+    it('allows a released binding to explicitly reintroduce a manually moved child', () => {
+        const cleanup = jest.fn()
+        const child = html`<b>child</b>`.onMount(() => cleanup)
+        const [items, setItems] = state([child])
+        const parent = html`<section><div ref="a">${items}</div><div ref="b"></div></section>`.render(document.body)
+        const source = parent.refs.a[0]
+        const destination = parent.refs.b[0]
+        child.render(destination)
+
+        setItems([child])
+        jest.runOnlyPendingTimers()
+        expect(source.textContent).toBe('')
+        expect(destination.textContent).toBe('child')
+
+        setItems([])
+        jest.runOnlyPendingTimers()
+        setItems([child])
+        jest.runOnlyPendingTimers()
+        expect(source.textContent).toBe('child')
+        expect(destination.textContent).toBe('')
+        expect(cleanup).not.toHaveBeenCalled()
+        parent.unmount()
+        expect(cleanup).toHaveBeenCalledTimes(1)
+    })
+
+    it.each(['insertAfter', 'replace'] as const)(
+        'releases the original binding when %s targets a sibling template',
+        (action) => {
+            const cleanup = jest.fn()
+            const child = html`<b>child</b>`.onMount(() => cleanup)
+            const target = html`<i>target</i>`
+            const [show, setShow] = state(true)
+            const parent = html`<section><div>${() => show() ? child : []}</div><div ref="destination">${target}</div></section>`.render(document.body)
+            const destination = parent.refs.destination[0]
+
+            child[action](target)
+            setShow(false)
+            jest.runOnlyPendingTimers()
+
+            expect(child.mounted).toBe(true)
+            expect(child.__PARENT__).toBe(parent)
+            expect(destination.querySelector('b')).toBe(child.childNodes[0])
+            expect(cleanup).not.toHaveBeenCalled()
+            parent.unmount()
+            expect(cleanup).toHaveBeenCalledTimes(1)
+            expect(document.body.innerHTML).toBe('')
+        }
+    )
+
+    it.each(['render', 'insertAfter'] as const)(
+        'keeps binding membership when %s does not move the child',
+        (action) => {
+            const cleanup = jest.fn()
+            const child = html`<b>child</b>`.onMount(() => cleanup)
+            const [show, setShow] = state(true)
+            const parent = html`<section>${() => show() ? child : []}</section>`.render(document.body)
+            const node = child.childNodes[0]
+            if (action === 'render') child.render(node.parentNode as Element)
+            else child.insertAfter(node.previousSibling!)
+
+            setShow(false)
+            jest.runOnlyPendingTimers()
+
+            expect(child.mounted).toBe(false)
+            expect(cleanup).toHaveBeenCalledTimes(1)
+            expect(document.body.innerHTML).toBe('<section></section>')
+            parent.unmount()
+            expect(cleanup).toHaveBeenCalledTimes(1)
+        }
+    )
+
     it('preserves ownership when replacing an unattached template is a no-op', () => {
         const cleanup = jest.fn()
         const child = html`<span>child</span>`.onMount(() => cleanup)

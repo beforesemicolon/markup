@@ -9,9 +9,14 @@ permissions:
     contents: read
 
 jobs:
-    chromium:
+    interactions:
+        name: Browser interactions (${{ matrix.browser }})
         runs-on: ubuntu-latest
-        timeout-minutes: 15
+        timeout-minutes: 20
+        strategy:
+            fail-fast: false
+            matrix:
+                browser: [chromium, firefox, webkit]
         steps:
             - uses: actions/checkout@v7
               with:
@@ -21,5 +26,5 @@ jobs:
                   node-version: '24'
                   cache: npm
             - run: npm ci
-            - run: npx playwright install --with-deps chromium
-            - run: npm run test:browser
+            - run: npx playwright install --with-deps ${{ matrix.browser }}
+            - run: npm run test:browser -- --project=${{ matrix.browser }}

@@ -75,10 +75,25 @@ test('inert=false restores native keyboard access to the subtree', async ({
     await expect(page.locator('#inside')).toBeFocused()
 })
 
-for (const mode of ['native API', 'fallback without moveBefore'] as const) {
+for (const mode of [
+    'browser defaults',
+    'fallback without moveBefore',
+] as const) {
     test.describe(mode, () => {
         test.beforeEach(async ({ page }) => {
             await loadMarkup(page, mode === 'fallback without moveBefore')
+            if (mode === 'fallback without moveBefore') {
+                expect(
+                    await page.evaluate(
+                        () =>
+                            typeof (
+                                Element.prototype as Element & {
+                                    moveBefore?: unknown
+                                }
+                            ).moveBefore
+                    )
+                ).toBe('undefined')
+            }
         })
 
         for (const fragment of [false, true]) {
@@ -251,6 +266,37 @@ for (const mode of ['native API', 'fallback without moveBefore'] as const) {
         test('reversing rows preserves contenteditable selection inside open shadow DOM', async ({
             page,
         }) => {
+            // Some engines re-scope document Selection endpoints to the host
+            // and do not expose ShadowRoot.getSelection(). Only this shadow
+            // text-selection case needs those endpoints; ordinary editors and
+            // open-shadow input focus/selection remain unconditional tests.
+            const exposesShadowSelection = await page.evaluate(() => {
+                const host = document.createElement('div')
+                const shadow = host.attachShadow({
+                    mode: 'open',
+                }) as ShadowRoot & { getSelection?: () => Selection | null }
+                shadow.innerHTML =
+                    '<div contenteditable="true">shadow selection probe</div>'
+                document.body.append(host)
+                const editor = shadow.querySelector<HTMLElement>('div')!
+                const text = editor.firstChild!
+                editor.focus()
+                const selection =
+                    shadow.getSelection?.() ?? document.getSelection()
+                selection?.setBaseAndExtent(text, 6, text, 1)
+                const exposed =
+                    selection?.anchorNode === text &&
+                    selection.focusNode === text &&
+                    selection.anchorOffset === 6 &&
+                    selection.focusOffset === 1
+                selection?.removeAllRanges()
+                host.remove()
+                return exposed
+            })
+            test.skip(
+                !exposesShadowSelection,
+                'This engine does not expose open-shadow text-selection endpoints through Selection or ShadowRoot.getSelection()'
+            )
             const result = await page.evaluate(async () => {
                 const { html, repeat, state } = window.Markup
                 customElements.define(

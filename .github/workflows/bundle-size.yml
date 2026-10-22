@@ -1,0 +1,60 @@
+name: Bundle size (informational)
+
+on:
+    pull_request:
+        paths:
+            - 'src/**'
+            - 'scripts/bundle-size*'
+            - 'package.json'
+            - 'package-lock.json'
+            - 'tsconfig*.json'
+            - 'build.js'
+            - '.github/workflows/bundle-size.yml'
+
+permissions:
+    contents: read
+
+jobs:
+    report:
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        steps:
+            - uses: actions/checkout@v7
+              with:
+                  ref: ${{ github.event.pull_request.head.sha }}
+                  fetch-depth: 0
+                  persist-credentials: false
+            - uses: actions/setup-node@v7
+              with:
+                  node-version: '24'
+                  cache: npm
+            - name: Install one toolchain for both revisions
+              run: npm ci
+            - name: Validate the reporting tool
+              run: node scripts/bundle-size.test.mjs
+            - name: Compare exact base and head revisions
+              id: sizes
+              continue-on-error: true
+              env:
+                  BASE_SHA: ${{ github.event.pull_request.base.sha }}
+                  HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+              run: >-
+                  node scripts/bundle-size.mjs
+                  --base "$BASE_SHA"
+                  --head "$HEAD_SHA"
+                  --output "$RUNNER_TEMP/bundle-size-report"
+            - name: Publish informational summary
+              if: always()
+              run: |
+                  if test -f "$RUNNER_TEMP/bundle-size-report/report.md"; then
+                      cat "$RUNNER_TEMP/bundle-size-report/report.md" >> "$GITHUB_STEP_SUMMARY"
+                  else
+                      echo 'Bundle size measurement was unavailable. Check the reporting logs; no size threshold was evaluated.' >> "$GITHUB_STEP_SUMMARY"
+                  fi
+            - uses: actions/upload-artifact@v7
+              if: always()
+              with:
+                  name: bundle-size-${{ github.event.pull_request.head.sha }}
+                  path: ${{ runner.temp }}/bundle-size-report/
+                  if-no-files-found: warn
+                  retention-days: 14

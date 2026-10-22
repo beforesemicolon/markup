@@ -785,7 +785,7 @@ const removeItem = (item: Item, owner: HtmlTemplate) => {
 
 const insertItemAfter = (item: Item, previous: Item | Node) => {
     if (item instanceof HtmlTemplate) {
-        item.insertAfter(previous)
+        item.__insertAfter__(previous)
         return
     }
 
@@ -1366,27 +1366,33 @@ export class HtmlTemplate {
         const previous = this.__PARENT__
         if (previous === parent && (!items || items.has(this))) return
 
+        this.#releaseBinding(items)
         if (previous) {
             previous.#children?.delete(this)
             if (!previous.#children?.size) previous.#children = undefined
-            for (const part of previous.#runtime) {
-                if (
-                    part.type !== 'child' ||
-                    part.items === items ||
-                    !part.items?.has(this)
-                ) {
-                    continue
-                }
-                part.items.remove(this)
-                // Release cached output as well as DOM ownership. A stale
-                // binding must not take this instance back on its next update.
-                part.current = INITIAL
-                ;(part.transferred ??= new WeakSet()).add(this)
-            }
         }
 
         this.__PARENT__ = parent
         parent?.__CHILDREN__.add(this)
+    }
+
+    #releaseBinding(retainedItems?: DoubleLinkedList<Item>): void {
+        const parent = this.__PARENT__
+        if (!parent) return
+        for (const part of parent.#runtime) {
+            if (
+                part.type !== 'child' ||
+                part.items === retainedItems ||
+                !part.items?.has(this)
+            ) {
+                continue
+            }
+            part.items.remove(this)
+            // Manual placement releases the source binding even when the
+            // enclosing template still owns this child's cleanup lifetime.
+            part.current = INITIAL
+            ;(part.transferred ??= new WeakSet()).add(this)
+        }
     }
 
     #containsNode(node: Node): boolean {
@@ -2014,6 +2020,7 @@ export class HtmlTemplate {
 
         if (this.#mounted) {
             if (target !== this.parentNode) {
+                this.#releaseBinding()
                 this.#releaseExternalMove(target)
                 const move = () => this.#appendRangeTo(target)
 
@@ -2053,12 +2060,14 @@ export class HtmlTemplate {
         )
             return this
 
+        if (!target.parentNode) return this
+        this.#releaseBinding()
+
         let node: Node = target as Node
         let parentTemplate: HtmlTemplate | null = null
         const errors: unknown[] = []
 
         if (target instanceof HtmlTemplate) {
-            if (!target.parentNode) return this
             node = document.createTextNode('')
             target.__MARKERS__[0].parentNode?.insertBefore(
                 node,
@@ -2100,6 +2109,11 @@ export class HtmlTemplate {
     }
 
     insertAfter(target: Node | HtmlTemplate) {
+        return this.__insertAfter__(target, false)
+    }
+
+    /** @internal Reconciliation already assigned the destination binding. */
+    __insertAfter__(target: Node | HtmlTemplate, retainBinding = true) {
         if (
             !(target instanceof HtmlTemplate || target instanceof Node) ||
             target instanceof ShadowRoot ||
@@ -2122,6 +2136,12 @@ export class HtmlTemplate {
             this.#containsNode(node)
         )
             return this
+        if (
+            !retainBinding &&
+            (!this.#mounted || node.nextSibling !== this.#rangeMarkers[0])
+        ) {
+            this.#releaseBinding()
+        }
         if (target instanceof HtmlTemplate) {
             this.__adopt__(target.__PARENT__)
         } else {
