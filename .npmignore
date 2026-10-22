@@ -12,8 +12,7 @@ coverage
 playground
 .prettierrc
 .prettierignore
-.eslintrc.cjs
-.eslintignore
+eslint.config.js
 docs
 website
 test.common.ts
