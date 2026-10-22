@@ -387,7 +387,7 @@
                         "nested_effect": "嵌套效应",
                         "you_can_nest_effect_to_track_different_values_this_allows_for_the_body_of_your_effect_to_react_i": "您可以嵌套 `effect` 来跟踪不同的值。这允许 `effect` 的主体独立反应，同时不同的效果跟踪不同的状态。",
                         "if_you_want_to_clear_all_effects_you_can_unsubscribe_from_the_outer_most_effect_and_which_will_t": "如果您想清除所有效果，您可以从最外层的`effect`取消订阅，它将为您照顾所有子`effect`。但是，您必须跟踪内部效果，因为每当调用外部效果时，都会创建一个新的内部效果。",
-                        "repeated_updates_and_cycles": "稍后运行的副作用可能会使已运行的副作用失效，因此在同一次队列刷新（`flush`）中，副作用可能反复运行，直到状态稳定。每个用户定义的副作用运行前都会执行 DOM 更新，每次重新运行前都会执行清理。用户订阅者在每次刷新中最多执行 100 次。渲染订阅者有单独的限制：每轮渲染最多执行 100 次，每执行一个用户副作用后重置，因此多个独立副作用可以更新同一个显示的汇总值。若再次尝试执行，会通过 `console.error` 报告一个 `Error`，每个订阅者在每次刷新中只报告一次：`Maximum reactive updates exceeded (100 executions in one flush). Check effects for a state update cycle.` 渲染次数超限时，诊断信息使用 `one render pass` 而不是 `one flush`。在相应限制周期内，该订阅者的后续执行会被跳过；其他无关的排队任务继续处理，后续更新仍可再次调度该订阅者。达到限制并不能证明存在循环：足够复杂的无环依赖图也可能达到限制。"
+                        "repeated_updates_and_cycles": "稍后运行的副作用可能会使已运行的副作用失效，因此在同一次队列刷新（`flush`）中，副作用可能反复运行，直到状态稳定。每个用户定义的副作用运行前都会执行 DOM 更新，每次重新运行前都会执行清理。用户订阅者在每次刷新中最多执行 100 次。渲染订阅者有单独的限制：每轮渲染最多执行 100 次，每执行一个用户副作用后重置，因此多个独立副作用可以更新同一个显示的汇总值。若再次尝试执行，会通过 `console.error` 报告一个 `Error`，每个订阅者在每次刷新中只报告一次：`Maximum reactive updates exceeded (100 executions in one flush). Check effects for a state update cycle.` 渲染次数超限时，诊断信息使用 `one render pass` 而不是 `one flush`。在相应限制周期内，该订阅者的后续执行会被跳过，其他无关的排队任务继续处理。此固定次数限制是一种启发式保护，而不是循环检测：正常且最终能够收敛的更新也可能在达到稳定状态之前被截断；足够复杂的无环依赖图也可能触及该限制。被跳过的执行不会自动恢复；后续对已跟踪依赖的更改可以重新调度订阅者。"
                     }
                 },
                 "index": {

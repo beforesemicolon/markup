@@ -230,9 +230,12 @@ render budget. An additional attempt logs `Maximum reactive updates exceeded
 (100 executions in one flush). Check effects for a state update cycle.` through
 `console.error`; render-limit errors say `one render pass` instead of `one
 flush`. Errors are reported once per subscriber per flush. Further executions
-are skipped for that budget period, while unrelated queued work continues;
-later updates can schedule the subscriber again. This is an update limit, not
-proof of a cycle; exceptionally complex acyclic graphs can also reach it.
+are skipped for that budget period while unrelated queued work continues.
+This fixed budget is a heuristic, not cycle detection: legitimate convergent
+workloads can be truncated before reaching a stable state, and sufficiently
+complex acyclic dependency graphs can also reach the limit. Skipped work is
+not automatically resumed; a later change to a tracked dependency can schedule
+the subscriber again.
 
 ```javascript
 const [query, setQuery] = state('')

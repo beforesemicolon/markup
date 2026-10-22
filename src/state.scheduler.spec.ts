@@ -252,6 +252,74 @@ describe('effect scheduler propagation', () => {
 })
 
 describe('effect scheduler cycle guard', () => {
+    it('preserves queued work and resumes a capped convergent effect after a fresh update', () => {
+        const reportError = jest
+            .spyOn(console, 'error')
+            .mockImplementation(() => {})
+        const [progress, setProgress] = state(0)
+        const [trigger, setTrigger] = state(false)
+        const [unrelated, setUnrelated] = state(0)
+        const target = 150
+        const results: number[] = []
+        const runs = jest.fn()
+        const stopWorker = effect(() => {
+            trigger()
+            const value = progress()
+            runs(value)
+            if (value > 0 && value < target) setProgress(value + 1)
+            // These observers are queued after the worker's capped attempt.
+            if (value === 100) setUnrelated(1)
+        })
+        const stopObservers = Array.from({ length: 150 }, (_, index) =>
+            effect(() => {
+                results[index] = unrelated()
+            })
+        )
+        const view = html`<p>${progress}</p>`.render(document.body)
+        runs.mockClear()
+
+        try {
+            setProgress(1)
+            jest.runAllTicks()
+
+            // The workload would converge at 150, but the fixed budget stops it.
+            expect(runs).toHaveBeenCalledTimes(100)
+            expect(progress()).toBe(101)
+            expect(document.body.textContent).toBe('101')
+            expect(results).toEqual(Array(150).fill(1))
+            expect(reportError).toHaveBeenCalledTimes(1)
+            expect((reportError.mock.calls[0][0] as Error).message).toContain(
+                'Maximum reactive updates exceeded'
+            )
+            expect(jest.getTimerCount()).toBe(0)
+
+            // Exhausting the budget does not schedule an automatic continuation.
+            jest.runAllTicks()
+            expect(runs).toHaveBeenCalledTimes(100)
+            expect(progress()).toBe(101)
+
+            // A fresh dependency change permits the remaining work to converge.
+            runs.mockClear()
+            setTrigger(true)
+            setUnrelated(2)
+            jest.runAllTicks()
+
+            expect(runs).toHaveBeenCalledTimes(50)
+            expect(runs).toHaveBeenNthCalledWith(1, 101)
+            expect(runs).toHaveBeenLastCalledWith(target)
+            expect(progress()).toBe(target)
+            expect(document.body.textContent).toBe('150')
+            expect(results).toEqual(Array(150).fill(2))
+            expect(reportError).toHaveBeenCalledTimes(1)
+            expect(jest.getTimerCount()).toBe(0)
+        } finally {
+            stopWorker()
+            stopObservers.forEach((stop) => stop())
+            view.unmount()
+            reportError.mockRestore()
+        }
+    })
+
     it('bounds a downstream cycle and preserves unrelated queued work', () => {
         const reportError = jest
             .spyOn(console, 'error')
