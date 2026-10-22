@@ -55,3 +55,17 @@ html`
 ### {{t.pages.documentation.utilities.visible.content.automatic_cleanup}}
 
 {{t.pages.documentation.utilities.visible.content.when_the_wrapping_template_is_unmounted_from_the_dom_the_visible_utility_automatically_unobserve}}
+
+### {{t.pages.documentation.utilities.visible.content.unsupported_environments}}
+
+{{t.pages.documentation.utilities.visible.content.unsupported_content}}
+
+```javascript
+visible(
+    () => html`<button onclick="${openSettings}">Settings</button>`,
+    undefined,
+    { eager: true }
+)
+```
+
+{{t.pages.documentation.utilities.visible.content.helper_instance_lifetime}}

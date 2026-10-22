@@ -53,7 +53,10 @@ export function expectedRenderCalls(
     operation: UpdateOperation
 ): number {
     if (operation === 'immutable') return size
-    if (operation === 'append' || operation === 'prepend') return 1
+    if (operation === 'append') return 1
+    if (operation === 'prepend') return size + 1
+    if (operation === 'remove') return size - Math.floor(size / 2) - 1
+    if (operation === 'reverse') return size - (size % 2)
     return 0
 }
 

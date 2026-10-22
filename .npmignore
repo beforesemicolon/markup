@@ -26,3 +26,7 @@ nodemon.json
 netlify.toml
 benchmarks
 plans
+tests
+playwright.config.ts
+playwright-report
+test-results

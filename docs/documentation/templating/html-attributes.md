@@ -60,6 +60,19 @@ html`
 // <input type="checkbox">
 ```
 
+### {{t.pages.documentation.templating.html_attributes.content.inert_subtrees}}
+
+{{t.pages.documentation.templating.html_attributes.content.inert_updates}}
+
+```javascript
+const [dialogOpen, setDialogOpen] = state(false)
+
+html`<main inert="${dialogOpen}"><button>Continue</button></main>`
+html`<aside ${{ inert: dialogOpen }}>Navigation</aside>`
+
+setDialogOpen(false)
+```
+
 ### {{t.pages.documentation.templating.html_attributes.content.value_attributes}}
 
 {{t.pages.documentation.templating.html_attributes.content.markup_is_aware_of_value_you_inject_in_the_template_as_attribute_values_and_will_track_and_updat}}

@@ -31,6 +31,8 @@ export const suspense = <T>(
         if (current.status === 'rejected') return failed(current.error)
         return loading
     }}`
+    // Async completion, cancellation, and rendering share this instance's state.
+    template.__INSTANCE_BOUND__ = true
 
     template.onMount(() => {
         const currentGeneration = ++generation

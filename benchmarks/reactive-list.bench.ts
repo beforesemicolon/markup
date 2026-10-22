@@ -83,29 +83,21 @@ async function run() {
                 setListState(next)
                 await flushRenderQueue()
 
-                // Lifecycle hooks intentionally disable template rebinding for
-                // immutable copies; other operations preserve retained rows.
+                // Rebinding updates captured row values without creating a new
+                // mount lifetime, including lifecycle-instrumented rows.
                 assertUpdate(items, next, operation)
-                assertRows(
-                    container,
-                    next,
-                    operation === 'immutable' ? undefined : previousRows
-                )
+                assertRows(container, next, previousRows)
                 assert.equal(
                     tracker.counts.renders,
                     expectedRenderCalls(SIZE, operation)
                 )
                 assert.equal(
                     tracker.counts.mounts,
-                    expectedRenderCalls(SIZE, operation)
+                    operation === 'append' || operation === 'prepend' ? 1 : 0
                 )
                 assert.equal(
                     tracker.counts.unmounts,
-                    operation === 'immutable'
-                        ? SIZE
-                        : operation === 'remove'
-                          ? 1
-                          : 0
+                    operation === 'remove' ? 1 : 0
                 )
                 printLifecycleReport(`${name}${suffix}`, tracker.counts)
             }

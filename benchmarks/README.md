@@ -33,7 +33,7 @@ The suites use the locked Tinybench 3 API: per-task `beforeEach` and `afterEach`
 - **Same-array state updates:** explicitly labeled **No-op** because `state` ignores an identical reference. The DOM case includes the same microtask wait as other updates but performs no rendering. A direct cache reevaluation with the same array still executes the `repeat` evaluator.
 - **Append/prepend/remove:** start from exactly N rows every time and finish with N+1/N+1/N−1 rows. Restoring the baseline is not included in the reported time. Warmup cannot turn removal into an already-removed cache hit or append into replacement of a previous appended row.
 
-Counters increment when a renderer is called; assertions and fixture reset are not measured. Timed DOM renderers do not install lifecycle hooks, since those hooks change whether existing templates can be rebound.
+Counters increment when a renderer is called; assertions and fixture reset are not measured. Timed DOM renderers omit lifecycle counters to avoid instrumentation overhead. Lifecycle hooks no longer prevent matching keyed templates from being rebound.
 
 ## Correctness and failure reporting
 
@@ -41,10 +41,16 @@ Counters increment when a renderer is called; assertions and fixture reset are n
 
 All benchmark commands fail with a nonzero exit status if an assertion or task fails. The fast smoke suite checks both the fixtures and the task hooks, rather than running a separate implementation of the operations.
 
-The lifecycle report resets to its baseline before each scenario too. Its renderers deliberately install lifecycle hooks, so immutable copies can have different mount/reuse behavior from the uninstrumented timing suite. Counts describe that instrumented case and should not be presented as the normal renderer's cost.
+The lifecycle report resets to its baseline before each scenario too. Its renderers deliberately install lifecycle hooks and assert that immutable copies preserve retained rows without new mounts or cleanups. These are operation counts from an instrumented workload, not timing results. New `visible()` and `suspense()` instances remain separate stateful lifetimes; this report measures ordinary row templates.
 
 ## Comparing results
 
 Run baseline and candidate revisions on the same machine and Node version with the same dependency lockfile. Keep background work and memory pressure comparable, and repeat runs rather than treating a single noisy sample as a regression. Save complete reports with their environment and commit information.
 
 JSDOM measures JavaScript and simulated DOM work. It does not measure browser layout, paint, interaction latency, or native-browser heap retention; confirm conclusions about those costs in a browser.
+
+### Positional invalidation
+
+The repeat cache skips the renderer only when key, item reference, and index all stay unchanged. After a prepend, removal, or reversal, shifted rows run their renderers again so index-derived text and accessibility attributes stay correct. This extra renderer work is intentional even when row DOM is retained. Assertions include these calls; earlier measurements that skipped index updates are not equivalent workloads.
+
+For a baseline of `n` rows, append renders one new row; prepend renders `n + 1` rows; removing the middle row renders the rows after it; reversing renders every row whose index changed. Stable references at unchanged indices still use the cache. Same-template immutable updates can now retain reactive children, nested templates, and ordinary lifecycle-bearing row DOM.

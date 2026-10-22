@@ -124,6 +124,10 @@ const button = html`
 `
 ```
 
+Dynamic boolean attributes, including `inert`, are removed when their value is
+`false`, `null`, or `undefined`. This also applies to attribute spreads. Static
+HTML such as `inert="false"` still follows HTML's presence-based semantics.
+
 Do not interpolate dynamic tag names into an `html` template. Use the `element` helper for dynamic element names.
 
 Interpolated strings are rendered as values and are not parsed as HTML. Keep
@@ -366,7 +370,16 @@ const list = html`
 `
 ```
 
-Prefer an explicit stable key. Without one, Markup uses an object's non-null `id` property when available and otherwise uses the item value or identity. Duplicate explicit or object `id` keys throw an error. Stable keys and stable item references allow rendered item templates to be reused; replacing an item object allows that item template to be recreated or rebound.
+Prefer an explicit stable key. Without one, Markup uses an object's non-null `id` property when available and otherwise uses the item value or identity. Duplicate explicit or object `id` keys throw an error. The renderer is skipped only when the key, item reference, and index are unchanged. Reorders, prepends, and removals rerun affected renderers so index-derived labels and `aria-posinset` stay current.
+
+When the renderer returns the same template definition, immutable item changes
+rebind values, reactive closures, and compatible nested templates while retaining
+the row DOM. A different definition replaces the affected template. Keep a
+template instance or state outside the renderer when its identity must outlive
+calls to the renderer; do not recreate private mount-owned state on each call.
+New `visible()` and `suspense()` instances replace their helper wrappers because
+their bindings share mount-owned observer or promise state; the surrounding
+compatible keyed row still retains its DOM and mounted lifetime.
 
 `repeat` also accepts numbers, strings, Sets, Maps, object entries, and custom iterables. Use plain `.map()` only for a static collection rendered once.
 
@@ -397,6 +410,32 @@ An `HtmlTemplate` supports:
 - `toString()` to serialize its current content.
 - `refs`, `childNodes`, `parentNode`, and `mounted` for current template state.
 
+A retained keyed row keeps its mounted lifetime: `onMount` does not rerun on
+data/index updates, and the original mount cleanup runs once on actual disposal.
+The latest row supplies `onUpdate`, `onMove`, and the `onMount` callback for a
+future remount. Use reactive bindings or `onUpdate` for work that depends on
+updated item data instead of expecting `onMount` to run again.
+
+Cleanup callbacks are released before invocation. Teardown continues through all
+children, subscriptions, refs, and DOM even if a cleanup throws. Explicit
+`unmount()` then rethrows a single error or throws `AggregateError` for multiple
+failures. A later mount starts with its own cleanup, including no cleanup when
+the mount callback returns nothing.
+
+An `HtmlTemplate` instance has one owner. Moving it into another template releases
+the previous owner's child references; unmounting the old owner cannot dispose
+the moved instance. A stale old binding that still returns the transferred
+instance does not take it back. Remove it from that binding before explicitly
+reintroducing it. Use distinct instances to show the same content in two places.
+
+Connected moves use native `moveBefore` when supported and eligible. Otherwise,
+Markup restores focused controls, text-input selection, and document selection
+where possible without scrolling or overriding a callback's chosen focus. The
+fallback can traverse open shadow roots; it cannot inspect closed shadow roots
+or preserve every browser-managed state. Custom elements should implement
+`connectedMoveCallback` to avoid disconnect/connect callbacks on native moves;
+fallback moves may still emit connection and focus events.
+
 Lifecycle and placement methods return the template and may be chained:
 
 ```javascript
@@ -419,7 +458,7 @@ const view = html`<p>${message}</p>`
 - `or(...conditions)`: reactive truthiness disjunction; requires at least two inputs.
 - `oneOf(valueOrGetter, values)`: reactive membership check.
 - `suspense(asyncAction, loadingTemplate?, errorTemplate?)`: renders loading content and replaces it after the promise settles.
-- `visible(content, placeholder?, options?)`: renders content when it intersects the viewport; `eager: true` renders immediately.
+- `visible(content, placeholder?, options?)`: renders content when it intersects the configured root; `eager: true` renders immediately. When `IntersectionObserver` is unavailable, content renders immediately, including during SSR. Observers are shared only for the same root object and configuration, and disconnected/evicted after the last target reveals or unmounts. Use `eager: true` for essential controls and guard browser-only APIs in content that can render on the server.
 - `element(tagName, options?)`: creates a DOM element programmatically for dynamic tag names and attributes.
 - `val(valueOrGetter)`: unwraps a value or function, mainly when implementing helpers.
 

@@ -1,4 +1,5 @@
 import { val } from './val.ts'
+import { withCleanupScope } from '../utils/cleanup-errors.ts'
 import { ObjectLiteral, StateGetter } from '../types.ts'
 
 export type RepeatData<T, K = string> =
@@ -83,80 +84,91 @@ export const repeat = <T, TKey = T, K = string>(
 
     let previousEntries = new Map<unknown, RepeatEntry<T, unknown>>()
 
-    return () => {
-        const list = getList(val(data)) as T[]
+    return () =>
+        withCleanupScope(() => {
+            const list = getList(val(data)) as T[]
 
-        if (list.length === 0) {
-            previousEntries.clear()
-            return emptyFn?.() ?? []
-        }
-
-        const nextEntries = new Map<unknown, RepeatEntry<T, unknown>>()
-        const renderedValues = keyFn ? new Array(list.length) : null
-        const hasPreviousEntries = previousEntries.size > 0
-
-        for (let index = 0; index < list.length; index += 1) {
-            const item = list[index]
-            const key = keyFn
-                ? keyFn(item, index)
-                : item &&
-                    typeof item === 'object' &&
-                    'id' in item &&
-                    (item as Record<string, unknown>).id !== undefined &&
-                    (item as Record<string, unknown>).id !== null
-                  ? (item as Record<string, unknown>).id
-                  : (item as unknown)
-
-            if (keyFn || (item && typeof item === 'object' && 'id' in item)) {
-                if (nextEntries.has(key)) {
-                    throw new Error(
-                        `Duplicate key "${key}" detected at index ${index} in repeat. Keys must be unique.`
-                    )
-                }
+            if (list.length === 0) {
+                previousEntries.clear()
+                return emptyFn?.() ?? []
             }
 
-            const previous = hasPreviousEntries
-                ? previousEntries.get(key)
-                : undefined
-            let rendered: unknown
+            const nextEntries = new Map<unknown, RepeatEntry<T, unknown>>()
+            const renderedValues = keyFn ? new Array(list.length) : null
+            const hasPreviousEntries = previousEntries.size > 0
 
-            if (previous && previous.item === item) {
-                rendered = previous.rendered
-            } else {
-                const nextRendered = cb(item, index)
-                const previousRendered = previous?.rendered
+            for (let index = 0; index < list.length; index += 1) {
+                const item = list[index]
+                const key = keyFn
+                    ? keyFn(item, index)
+                    : item &&
+                        typeof item === 'object' &&
+                        'id' in item &&
+                        (item as Record<string, unknown>).id !== undefined &&
+                        (item as Record<string, unknown>).id !== null
+                      ? (item as Record<string, unknown>).id
+                      : (item as unknown)
 
                 if (
-                    isReusableTemplate(previousRendered) &&
-                    nextRendered !== null &&
-                    typeof nextRendered === 'object' &&
-                    nextRendered.constructor === previousRendered.constructor &&
-                    reuseTemplate(previousRendered, nextRendered)
+                    keyFn ||
+                    (item && typeof item === 'object' && 'id' in item)
                 ) {
-                    rendered = previousRendered
-                } else {
-                    rendered = nextRendered
+                    if (nextEntries.has(key)) {
+                        throw new Error(
+                            `Duplicate key "${key}" detected at index ${index} in repeat. Keys must be unique.`
+                        )
+                    }
                 }
+
+                const previous = hasPreviousEntries
+                    ? previousEntries.get(key)
+                    : undefined
+                let rendered: unknown
+
+                if (
+                    previous &&
+                    previous.item === item &&
+                    previous.index === index
+                ) {
+                    rendered = previous.rendered
+                } else {
+                    const nextRendered = cb(item, index)
+                    const previousRendered = previous?.rendered
+
+                    if (
+                        isReusableTemplate(previousRendered) &&
+                        nextRendered !== null &&
+                        typeof nextRendered === 'object' &&
+                        nextRendered.constructor ===
+                            previousRendered.constructor &&
+                        reuseTemplate(previousRendered, nextRendered)
+                    ) {
+                        rendered = previousRendered
+                    } else {
+                        rendered = nextRendered
+                    }
+                }
+
+                const entry =
+                    previous &&
+                    previous.item === item &&
+                    previous.index === index
+                        ? previous
+                        : {
+                              key,
+                              item,
+                              index,
+                              rendered,
+                          }
+
+                nextEntries.set(key, entry)
+                if (renderedValues) renderedValues[index] = rendered
             }
 
-            const entry =
-                previous && previous.item === item && previous.index === index
-                    ? previous
-                    : {
-                          key,
-                          item,
-                          index,
-                          rendered,
-                      }
-
-            nextEntries.set(key, entry)
-            if (renderedValues) renderedValues[index] = rendered
-        }
-
-        previousEntries = nextEntries
-        return (
-            renderedValues ||
-            Array.from(nextEntries.values()).map((e) => e.rendered)
-        )
-    }
+            previousEntries = nextEntries
+            return (
+                renderedValues ||
+                Array.from(nextEntries.values()).map((e) => e.rendered)
+            )
+        })
 }

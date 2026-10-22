@@ -137,3 +137,21 @@ setTimeout(() => {
     temp.unmount()
 }, 2000)
 ```
+
+### {{t.pages.documentation.templating.lifecycles.content.retained_rows}}
+
+{{t.pages.documentation.templating.lifecycles.content.retained_row_lifecycle}}
+
+### {{t.pages.documentation.templating.lifecycles.content.complete_cleanup}}
+
+{{t.pages.documentation.templating.lifecycles.content.cleanup_errors}}
+
+### {{t.pages.documentation.templating.lifecycles.content.ownership_heading}}
+
+{{t.pages.documentation.templating.lifecycles.content.ownership_transfer}}
+
+### {{t.pages.documentation.templating.lifecycles.content.focus_during_moves}}
+
+{{t.pages.documentation.templating.lifecycles.content.native_moves}}
+
+{{t.pages.documentation.templating.lifecycles.content.fallback_moves}}

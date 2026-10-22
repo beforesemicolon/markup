@@ -12,6 +12,7 @@ export const booleanAttributes: Record<string, Record<string, string[]>> = {
     hidden: {
         possibleValues: ['until-found', 'hidden'],
     },
+    inert: {},
     ismap: {},
     itemscope: {},
     loop: {},

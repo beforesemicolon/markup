@@ -22,6 +22,20 @@ npm run lint
 npm run build
 ```
 
+Run the native-browser interaction regressions when changing DOM movement,
+keyed rendering, focus, selection, or boolean attributes:
+
+```sh
+npx playwright install chromium
+npm run test:browser
+```
+
+On Linux machines missing browser system dependencies, use
+`npx playwright install --with-deps chromium`. The suite bundles the current
+source in memory and exercises Chromium's native state-preserving moves as well
+as the fallback with that API disabled. GitHub Actions runs this suite separately
+from the unit, benchmark, lint, and package checks.
+
 Keep changes focused and add or update tests for behavior changes. Update the
 documentation when public APIs or documented behavior change.
 

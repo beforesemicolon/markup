@@ -3,10 +3,16 @@ import { setElementAttribute } from './utils/set-element-attribute.ts'
 import { isObjectLiteral } from './utils/is-object-literal.ts'
 import { turnCamelToKebabCasing } from './utils/turn-camel-to-kebab-casing.ts'
 import { insertNodeAfter } from './utils/insert-node-after.ts'
+import { moveNodesBefore } from './utils/move-nodes-before.ts'
 import { DoubleLinkedList } from './DoubleLinkedList.ts'
 import { untrack } from './effect-context.ts'
 import { createRenderEffect, isStateGetter } from './state.ts'
 import { serializeHTML } from './utils/serialize-html.ts'
+import {
+    reportCleanupErrors,
+    throwCleanupErrors,
+    withCleanupScope,
+} from './utils/cleanup-errors.ts'
 
 const BASE_PREFIX = '__BFS_V2_'
 const INITIAL = Symbol()
@@ -123,11 +129,6 @@ const resolve = (value: unknown): unknown => {
     const result = (value as () => unknown)()
     return isStateGetter(value) ? result : resolve(result)
 }
-
-const isRebindableValue = (value: unknown) =>
-    value === null ||
-    value === undefined ||
-    (typeof value !== 'object' && typeof value !== 'function')
 
 const getAttributeValue = (parts: Piece[], values: unknown[]) => {
     if (parts.length === 1 && typeof parts[0] === 'number') {
@@ -701,6 +702,7 @@ type ChildRuntime = {
     inline: boolean
     items?: DoubleLinkedList<Item>
     text?: Text
+    transferred?: WeakSet<HtmlTemplate>
 }
 
 type Runtime =
@@ -775,9 +777,10 @@ const normalizeContent = (value: unknown): Item[] => {
     return value.map(normalizeItem)
 }
 
-const removeItem = (item: Item) => {
-    if (item instanceof HtmlTemplate) item.unmount()
-    else item.parentNode?.removeChild(item)
+const removeItem = (item: Item, owner: HtmlTemplate) => {
+    if (item instanceof HtmlTemplate) {
+        if (item.__PARENT__ === owner) item.unmount()
+    } else item.parentNode?.removeChild(item)
 }
 
 const insertItemAfter = (item: Item, previous: Item | Node) => {
@@ -825,8 +828,7 @@ const stageItems = (
     for (const item of items) {
         if (item instanceof HtmlTemplate) {
             item.render(fragment)
-            item.__PARENT__ = template
-            template.__CHILDREN__.add(item)
+            item.__adopt__(template)
         } else {
             fragment.appendChild(item)
         }
@@ -865,9 +867,16 @@ const isContiguousRange = (
 const removeContiguousRange = (
     current: DoubleLinkedList<Item>,
     anchor: Node,
-    template: HtmlTemplate
+    template: HtmlTemplate,
+    errors: unknown[]
 ): boolean => {
     if (!current.size || !isContiguousRange(current, anchor)) return false
+
+    for (const item of current) {
+        if (item instanceof HtmlTemplate && item.__PARENT__ !== template) {
+            return false
+        }
+    }
 
     const tail = current.tail
     if (!tail) return false
@@ -881,8 +890,13 @@ const removeContiguousRange = (
     range.deleteContents()
     range.detach()
 
-    template.__disposeChildRange__(current)
-    current.clear()
+    try {
+        template.__disposeChildRange__(current)
+    } catch (error) {
+        errors.push(error)
+    } finally {
+        current.clear()
+    }
 
     return true
 }
@@ -893,10 +907,23 @@ const reconcileItems = (
     anchor: Node,
     template: HtmlTemplate
 ) => {
+    const errors: unknown[] = []
+    const disposeItem = (item: Item) => {
+        try {
+            removeItem(item, template)
+        } catch (error) {
+            errors.push(error)
+        }
+    }
+
     if (!nextItems.length) {
-        if (removeContiguousRange(current, anchor, template)) return
-        for (const item of current) removeItem(item)
+        if (removeContiguousRange(current, anchor, template, errors)) {
+            reportCleanupErrors(errors)
+            return
+        }
+        for (const item of current) disposeItem(item)
         current.clear()
+        reportCleanupErrors(errors)
         return
     }
 
@@ -910,12 +937,11 @@ const reconcileItems = (
         let previous: Item | Node = anchor
 
         for (const item of nextItems) {
-            insertItemAfter(item, previous)
-
             if (item instanceof HtmlTemplate) {
-                item.__PARENT__ = template
-                template.__CHILDREN__.add(item)
+                item.__adopt__(template, current)
             }
+
+            insertItemAfter(item, previous)
 
             current.push(item)
             previous = item
@@ -970,10 +996,11 @@ const reconcileItems = (
     if (
         canStageItems(nextItems) &&
         !Array.from(current).some((item) => nextSet.has(item)) &&
-        removeContiguousRange(current, anchor, template)
+        removeContiguousRange(current, anchor, template, errors)
     ) {
         insertFragmentAfter(stageItems(nextItems, template), anchor)
         for (const item of nextItems) current.push(item)
+        reportCleanupErrors(errors)
         return
     }
 
@@ -1000,8 +1027,7 @@ const reconcileItems = (
         }
 
         if (nextItem instanceof HtmlTemplate) {
-            nextItem.__PARENT__ = template
-            template.__CHILDREN__.add(nextItem)
+            nextItem.__adopt__(template, current)
         }
 
         if (moved && nextItem) {
@@ -1015,13 +1041,13 @@ const reconcileItems = (
             }
         } else if (replaced && nextItem) {
             insertItemAfter(nextItem, previous)
-            removeItem(currentItem as Item)
+            disposeItem(currentItem as Item)
             const nextCurrent = current.getNextValueOf(currentItem)
             current.insertValueBefore(nextItem, currentItem as Item)
             current.remove(currentItem as Item)
             currentItem = nextCurrent
         } else if (removed) {
-            removeItem(currentItem as Item)
+            disposeItem(currentItem as Item)
             const nextCurrent = current.getNextValueOf(currentItem)
             current.remove(currentItem as Item)
             currentItem = nextCurrent
@@ -1036,6 +1062,8 @@ const reconcileItems = (
         if (nextItem) previous = nextItem
         index++
     }
+
+    reportCleanupErrors(errors)
 }
 
 const instantiateDefinedCustomElements = (fragment: DocumentFragment) => {
@@ -1116,10 +1144,14 @@ export class HtmlTemplate {
     #markers?: [Node, Node]
     #refs?: Record<string, Set<Element>>
     #mounted = false
+    #disposing = false
     #mountSub?: LifecycleCallback
     #moveSub?: LifecycleCallback
     #updateSub?: LifecycleCallback
     #unmountSub?: LifecycleCallback
+
+    /** @internal Helpers whose bindings share mount-owned state replace as a unit. */
+    __INSTANCE_BOUND__ = false
 
     /** @internal */
     __PARENT__: HtmlTemplate | null = null
@@ -1215,8 +1247,7 @@ export class HtmlTemplate {
                     index * descriptorCount
                 )
                 template.#mounted = true
-                template.__PARENT__ = parent
-                parent.__CHILDREN__.add(template)
+                template.__adopt__(parent)
             }
 
             output.appendChild(fragment)
@@ -1225,8 +1256,7 @@ export class HtmlTemplate {
         for (let index = batchCount; index < templates.length; index++) {
             const template = templates[index]
             template.render(output)
-            template.__PARENT__ = parent
-            parent.__CHILDREN__.add(template)
+            template.__adopt__(parent)
         }
 
         return output
@@ -1268,14 +1298,13 @@ export class HtmlTemplate {
         return nodes
     }
 
-    #appendRangeTo(target: ParentNode): void {
+    #appendRangeTo(target: Node, reference: Node | null = null): void {
         const markers = this.#rangeMarkers
-        if (markers[0] === markers[1]) {
-            target.append(markers[0])
-            return
-        }
-
-        target.append(markers[0], ...this.childNodes, markers[1])
+        const nodes =
+            markers[0] === markers[1]
+                ? [markers[0]]
+                : [markers[0], ...this.childNodes, markers[1]]
+        moveNodesBefore(nodes, target, reference)
     }
 
     #setFragmentRange(fragment: DocumentFragment): void {
@@ -1325,6 +1354,7 @@ export class HtmlTemplate {
     __replaceChildReference(previous: HtmlTemplate, next: HtmlTemplate) {
         for (const part of this.#runtime) {
             if (part.type !== 'child' || !part.items?.has(previous)) continue
+            next.__adopt__(this, part.items)
             part.items.insertValueBefore(next, previous)
             part.items.remove(previous)
             return
@@ -1332,85 +1362,87 @@ export class HtmlTemplate {
     }
 
     /** @internal */
-    __disposeChildRange__(items: Iterable<Item>): void {
-        const children = this.#children
-        if (children) {
-            let ownedCount = 0
-            let allOwned = true
-            for (const item of items) {
-                if (!(item instanceof HtmlTemplate)) continue
-                ownedCount++
-                if (item.__PARENT__ !== this || !children.has(item)) {
-                    allOwned = false
-                }
-            }
+    __adopt__(parent: HtmlTemplate | null, items?: DoubleLinkedList<Item>) {
+        const previous = this.__PARENT__
+        if (previous === parent && (!items || items.has(this))) return
 
-            if (allOwned && ownedCount === children.size) {
-                children.clear()
-                this.#children = undefined
-            } else {
-                for (const item of items) {
-                    if (item instanceof HtmlTemplate) children.delete(item)
+        if (previous) {
+            previous.#children?.delete(this)
+            if (!previous.#children?.size) previous.#children = undefined
+            for (const part of previous.#runtime) {
+                if (
+                    part.type !== 'child' ||
+                    part.items === items ||
+                    !part.items?.has(this)
+                ) {
+                    continue
                 }
+                part.items.remove(this)
+                // Release cached output as well as DOM ownership. A stale
+                // binding must not take this instance back on its next update.
+                part.current = INITIAL
+                ;(part.transferred ??= new WeakSet()).add(this)
             }
         }
 
-        for (const item of items) {
-            if (!(item instanceof HtmlTemplate)) continue
-            if (item.__PARENT__ === this) item.__PARENT__ = null
-            item.#dispose(false, false)
+        this.__PARENT__ = parent
+        parent?.__CHILDREN__.add(this)
+    }
+
+    #containsNode(node: Node): boolean {
+        if (!this.#markers) return false
+        let current: Node | null = this.#markers[0]
+        while (current) {
+            if (current === node || current.contains(node)) return true
+            if (current === this.#markers[1]) break
+            current = current.nextSibling
+        }
+        return false
+    }
+
+    #containsPosition(parent: Node, reference: Node | null): boolean {
+        if (this.#containsNode(parent)) return true
+        if (!this.#markers || this.#markers[0].parentNode !== parent) {
+            return false
+        }
+        const [first, last] = this.#markers
+        if (first === last) return false
+        let node = first.nextSibling
+        while (node) {
+            if (node === reference) return true
+            if (node === last) break
+            node = node.nextSibling
+        }
+        return false
+    }
+
+    #releaseExternalMove(target: Node, reference: Node | null = null): void {
+        const parent = this.__PARENT__
+        if (parent && !parent.#containsPosition(target, reference)) {
+            this.__adopt__(null)
         }
     }
 
-    #valuesAreRebindable(values: unknown[]) {
-        return values.every((value, valueIndex) => {
-            if (isRebindableValue(value)) return true
-            if (typeof value !== 'function') return false
-
-            let referenced = false
-            for (const part of this.#runtime) {
-                const usesValue =
-                    part.type === 'event' || part.type === 'ref'
-                        ? part.value === valueIndex
-                        : (part.type === 'raw' || part.type === 'attr') &&
-                          part.pieces.includes(valueIndex)
-
-                if (!usesValue) continue
-                referenced = true
-
-                if (
-                    part.type === 'child' ||
-                    part.type === 'spread' ||
-                    (part.type === 'event' && part.asProperty)
-                ) {
-                    return false
-                }
+    /** @internal */
+    __disposeChildRange__(items: Iterable<Item>): void {
+        const errors: unknown[] = []
+        for (const item of items) {
+            if (!(item instanceof HtmlTemplate) || item.__PARENT__ !== this) {
+                continue
             }
-
-            return referenced
-        })
+            this.#children?.delete(item)
+            try {
+                item.#dispose(false, false)
+            } catch (error) {
+                errors.push(error)
+            }
+        }
+        if (!this.#children?.size) this.#children = undefined
+        throwCleanupErrors(errors)
     }
 
     /** @internal */
     __rebind__(next: HtmlTemplate) {
-        if (
-            !this.#mounted ||
-            next.#mounted ||
-            this.#parts !== next.#parts ||
-            this.#mountSub ||
-            this.#moveSub ||
-            this.#updateSub ||
-            this.#unmountSub ||
-            next.#mountSub ||
-            next.#moveSub ||
-            next.#updateSub ||
-            next.#unmountSub ||
-            !this.#valuesAreRebindable(this.#values) ||
-            !this.#valuesAreRebindable(next.#values)
-        ) {
-            return false
-        }
-
         return this.__updateFrom(next)
     }
 
@@ -1474,7 +1506,11 @@ export class HtmlTemplate {
         }
 
         const reactive = this.#isReactive(part)
-        if (part.type === 'child') part.inline = !reactive
+        // Keep the initial text representation when rebinding a child slot.
+        // Changing it would leave the previous inline/separate text behind.
+        if (part.type === 'child' && part.current === INITIAL) {
+            part.inline = !reactive
+        }
 
         if (!reactive) {
             return this.#commit(part, this.#values)
@@ -1518,70 +1554,94 @@ export class HtmlTemplate {
         }
 
         if (part.type === 'child') {
-            const next = resolve(values[part.value])
-            if (Object.is(next, part.current)) return false
+            return withCleanupScope(() => {
+                const next = resolve(values[part.value])
+                if (Object.is(next, part.current)) return false
 
-            const isPrimitive =
-                !Array.isArray(next) &&
-                !(next instanceof Node) &&
-                !(next instanceof HtmlTemplate)
+                const isPrimitive =
+                    !Array.isArray(next) &&
+                    !(next instanceof Node) &&
+                    !(next instanceof HtmlTemplate)
 
-            if (isPrimitive) {
-                const text = String(next)
-                if (part.inline) {
-                    if (part.items?.size) {
-                        reconcileItems(part.items, [], part.anchor, this)
-                        part.items = undefined
+                if (isPrimitive) {
+                    part.transferred = undefined
+                    const text = String(next)
+                    if (part.inline) {
+                        if (part.items?.size) {
+                            reconcileItems(part.items, [], part.anchor, this)
+                            part.items = undefined
+                        }
+                        part.anchor.data = text
+                        part.current = next
+                        return true
                     }
-                    part.anchor.data = text
-                    part.current = next
-                    return true
+
+                    if (part.text) {
+                        part.text.data = text
+                        part.current = next
+                        return true
+                    }
+
+                    if (
+                        part.items?.size === 1 &&
+                        part.items.head instanceof Text
+                    ) {
+                        part.items.head.data = text
+                        part.current = next
+                        return true
+                    }
+
+                    if (!part.items?.size) {
+                        const textNode = document.createTextNode(text)
+                        part.text = textNode
+                        insertNodeAfter(textNode, part.anchor)
+                        part.current = next
+                        return true
+                    }
                 }
+
+                if (part.inline) part.anchor.data = ''
 
                 if (part.text) {
-                    part.text.data = text
+                    part.items = new DoubleLinkedList()
+                    part.items.push(part.text)
+                    part.text = undefined
+                }
+
+                const items = (part.items ??= new DoubleLinkedList())
+                let nextItems = normalizeContent(next)
+                if (part.transferred) {
+                    // Remember only transferred instances still emitted by this
+                    // binding. An absent value can be explicitly reintroduced later.
+                    let transferred: WeakSet<HtmlTemplate> | undefined
+                    nextItems = nextItems.filter((item) => {
+                        if (
+                            item instanceof HtmlTemplate &&
+                            part.transferred?.has(item)
+                        ) {
+                            ;(transferred ??= new WeakSet()).add(item)
+                            return false
+                        }
+                        return true
+                    })
+                    part.transferred = transferred
+                }
+
+                if (
+                    next instanceof HtmlTemplate &&
+                    nextItems.length === 1 &&
+                    items.size === 1 &&
+                    items.head instanceof HtmlTemplate &&
+                    items.head.__updateFrom(next)
+                ) {
                     part.current = next
                     return true
                 }
 
-                if (part.items?.size === 1 && part.items.head instanceof Text) {
-                    part.items.head.data = text
-                    part.current = next
-                    return true
-                }
-
-                if (!part.items?.size) {
-                    const textNode = document.createTextNode(text)
-                    part.text = textNode
-                    insertNodeAfter(textNode, part.anchor)
-                    part.current = next
-                    return true
-                }
-            }
-
-            if (part.inline) part.anchor.data = ''
-
-            if (part.text) {
-                part.items = new DoubleLinkedList()
-                part.items.push(part.text)
-                part.text = undefined
-            }
-
-            const items = (part.items ??= new DoubleLinkedList())
-
-            if (
-                next instanceof HtmlTemplate &&
-                items.size === 1 &&
-                items.head instanceof HtmlTemplate &&
-                items.head.__updateFrom(next)
-            ) {
+                reconcileItems(items, nextItems, part.anchor, this)
                 part.current = next
                 return true
-            }
-
-            reconcileItems(items, normalizeContent(next), part.anchor, this)
-            part.current = next
-            return true
+            })
         }
 
         if (part.type === 'attr') {
@@ -1721,17 +1781,31 @@ export class HtmlTemplate {
 
     /** @internal */
     __updateFrom(next: HtmlTemplate) {
-        if (!this.#mounted || next.#mounted || this.#parts !== next.#parts) {
+        if (
+            !(next instanceof HtmlTemplate) ||
+            !this.#mounted ||
+            next.#mounted ||
+            this.__INSTANCE_BOUND__ ||
+            next.__INSTANCE_BOUND__ ||
+            this.#parts !== next.#parts
+        ) {
             return false
         }
 
-        this.#values = next.#values
-        let changed = false
-        for (const part of this.#runtime) {
-            changed = this.#activatePart(part) || changed
-        }
-        if (changed) untrack(() => this.#updateSub?.(this))
-        return true
+        return withCleanupScope(() => {
+            this.#values = next.#values
+            // Rebinding retains the existing DOM lifetime and its cleanup. Refresh
+            // callbacks that capture row data without rerunning the mount callback.
+            this.#mountSub = next.#mountSub
+            this.#moveSub = next.#moveSub
+            this.#updateSub = next.#updateSub
+            let changed = false
+            for (const part of this.#runtime) {
+                changed = this.#activatePart(part) || changed
+            }
+            if (changed) untrack(() => this.#updateSub?.(this))
+            return true
+        })
     }
 
     #initializeRuntime(clonedNodes: Node[], offset = 0): void {
@@ -1845,6 +1919,17 @@ export class HtmlTemplate {
         }
     }
 
+    #runMountCallback(): void {
+        this.#unmountSub = undefined
+        const mount = this.#mountSub
+        if (!mount) return
+        const cleanup = untrack(() => mount(this))
+        if (typeof cleanup === 'function') {
+            if (this.#mounted) this.#unmountSub = cleanup
+            else untrack(cleanup)
+        }
+    }
+
     #mount(action: 'render' | 'replace' | 'after', target: Node) {
         if (this.#definition.simpleChild) {
             const markers = this.#rangeMarkers
@@ -1877,11 +1962,7 @@ export class HtmlTemplate {
             this.#mounted = true
             if (!canInline) this.#activatePart(part)
 
-            if (this.#mountSub) {
-                const mount = this.#mountSub
-                const cleanup = untrack(() => mount(this))
-                if (typeof cleanup === 'function') this.#unmountSub = cleanup
-            }
+            this.#runMountCallback()
             return
         }
 
@@ -1906,11 +1987,7 @@ export class HtmlTemplate {
             mountFragment(action, target, fragment)
 
             this.#mounted = true
-            if (this.#mountSub) {
-                const mount = this.#mountSub
-                const cleanup = untrack(() => mount(this))
-                if (typeof cleanup === 'function') this.#unmountSub = cleanup
-            }
+            this.#runMountCallback()
             return
         }
 
@@ -1922,14 +1999,11 @@ export class HtmlTemplate {
 
         this.#mounted = true
 
-        if (this.#mountSub) {
-            const mount = this.#mountSub
-            const cleanup = untrack(() => mount(this))
-            if (typeof cleanup === 'function') this.#unmountSub = cleanup
-        }
+        this.#runMountCallback()
     }
 
     render(target: ShadowRoot | HTMLElement | Element | DocumentFragment) {
+        if (this.#disposing) return this
         if (!(
             target instanceof ShadowRoot ||
             target instanceof Element ||
@@ -1940,6 +2014,7 @@ export class HtmlTemplate {
 
         if (this.#mounted) {
             if (target !== this.parentNode) {
+                this.#releaseExternalMove(target)
                 const move = () => this.#appendRangeTo(target)
 
                 if (target.isConnected) untrack(move)
@@ -1969,10 +2044,21 @@ export class HtmlTemplate {
             )
         }
 
+        if (
+            this.#disposing ||
+            target === this ||
+            this.#containsNode(
+                target instanceof HtmlTemplate ? target.__MARKERS__[0] : target
+            )
+        )
+            return this
+
         let node: Node = target as Node
         let parentTemplate: HtmlTemplate | null = null
+        const errors: unknown[] = []
 
         if (target instanceof HtmlTemplate) {
+            if (!target.parentNode) return this
             node = document.createTextNode('')
             target.__MARKERS__[0].parentNode?.insertBefore(
                 node,
@@ -1980,29 +2066,36 @@ export class HtmlTemplate {
             )
             parentTemplate = target.__PARENT__
             parentTemplate?.__replaceChildReference(target, this)
-            target.unmount()
+            this.__adopt__(parentTemplate)
+            try {
+                target.unmount()
+            } catch (error) {
+                errors.push(error)
+            }
         }
 
-        if (!node.parentNode) return this
+        if (!node.parentNode) {
+            throwCleanupErrors(errors)
+            return this
+        }
+
+        this.#releaseExternalMove(node.parentNode, node)
 
         if (this.#mounted) {
-            const markers = this.#rangeMarkers
-            if (markers[0] === markers[1]) {
-                untrack(() => node.parentNode?.replaceChild(markers[0], node))
-            } else {
-                const fragment = document.createDocumentFragment()
-                this.#appendRangeTo(fragment)
-                untrack(() => node.parentNode?.replaceChild(fragment, node))
-            }
+            untrack(() => {
+                if (!node.parentNode) return
+                this.#appendRangeTo(node.parentNode, node)
+                node.parentNode?.removeChild(node)
+            })
             untrack(() => this.#moveSub?.(this))
         } else {
             this.#mount('replace', node)
         }
 
         if (parentTemplate) {
-            this.__PARENT__ = parentTemplate
-            parentTemplate.__CHILDREN__.add(this)
+            this.__adopt__(parentTemplate)
         }
+        throwCleanupErrors(errors)
         return this
     }
 
@@ -2022,51 +2115,78 @@ export class HtmlTemplate {
         const node =
             target instanceof HtmlTemplate ? target.__MARKERS__[1] : target
 
+        if (
+            this.#disposing ||
+            !node.parentNode ||
+            target === this ||
+            this.#containsNode(node)
+        )
+            return this
+        if (target instanceof HtmlTemplate) {
+            this.__adopt__(target.__PARENT__)
+        } else {
+            this.#releaseExternalMove(node.parentNode, node.nextSibling)
+        }
+
         if (this.#mounted) {
             const markers = this.#rangeMarkers
             if (node.nextSibling !== markers[0]) {
-                if (markers[0] === markers[1]) {
-                    untrack(() => insertNodeAfter(markers[0], node))
-                } else {
-                    const fragment = document.createDocumentFragment()
-                    this.#appendRangeTo(fragment)
-                    untrack(() => insertNodeAfter(fragment, node))
-                }
+                untrack(() => {
+                    if (node.parentNode) {
+                        this.#appendRangeTo(node.parentNode, node.nextSibling)
+                    }
+                })
                 untrack(() => this.#moveSub?.(this))
             }
         } else {
             this.#mount('after', node)
         }
 
-        if (target instanceof HtmlTemplate) {
-            this.__PARENT__ = target.__PARENT__
-            this.__PARENT__?.__CHILDREN__.add(this)
-        }
         return this
     }
 
     #dispose(removeDom: boolean, detachFromParent: boolean) {
         if (!this.#mounted) return
 
-        this.#primaryEffectUnsubscribe?.()
+        // Mark disposed and release callbacks before invoking any user code.
+        // A cleanup may unmount this template again or move a later sibling.
+        this.#mounted = false
+        this.#disposing = true
+        const unmount = this.#unmountSub
+        this.#unmountSub = undefined
+        const errors: unknown[] = []
+        const dispose = (callback: () => void) => {
+            try {
+                callback()
+            } catch (error) {
+                errors.push(error)
+            }
+        }
+
+        const primaryUnsubscribe = this.#primaryEffectUnsubscribe
         this.#primaryEffectPart = undefined
         this.#primaryEffectUnsubscribe = undefined
-        if (this.#additionalPartEffects) {
-            for (const unsubscribe of this.#additionalPartEffects.values()) {
-                unsubscribe()
+        if (primaryUnsubscribe) dispose(primaryUnsubscribe)
+        const additionalEffects = this.#additionalPartEffects
+        this.#additionalPartEffects = undefined
+        if (additionalEffects) {
+            for (const unsubscribe of additionalEffects.values()) {
+                dispose(unsubscribe)
             }
-            this.#additionalPartEffects.clear()
-            this.#additionalPartEffects = undefined
+            additionalEffects.clear()
         }
 
         // Dispose nested templates without individually removing their DOM. The
         // root range is removed once below, avoiding O(n) descendant DOM teardown.
-        if (this.#children) {
-            for (const child of this.#children) {
-                child.#dispose(false, false)
+        const children = this.#children
+        this.#children = undefined
+        if (children) {
+            for (const child of children) {
+                if (child.__PARENT__ === this) {
+                    dispose(() => child.#dispose(false, false))
+                }
             }
-            this.#children.clear()
-            this.#children = undefined
+            children.clear()
         }
 
         if (removeDom) {
@@ -2074,7 +2194,8 @@ export class HtmlTemplate {
             let node: Node | null = markers[0]
             while (node) {
                 const next: Node | null = node.nextSibling
-                node.parentNode?.removeChild(node)
+                const current = node
+                dispose(() => current.parentNode?.removeChild(current))
                 if (node === markers[1]) break
                 node = next
             }
@@ -2085,11 +2206,9 @@ export class HtmlTemplate {
         this.#runtime = []
         this.#refs = undefined
         this.#markers = undefined
-        this.#mounted = false
-        if (this.#unmountSub) {
-            const unmount = this.#unmountSub
-            untrack(() => unmount(this))
-        }
+        this.#disposing = false
+        if (unmount) dispose(() => untrack(() => unmount(this)))
+        throwCleanupErrors(errors)
     }
 
     unmount() {

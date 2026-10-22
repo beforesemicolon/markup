@@ -39,6 +39,7 @@ describe('visible', () => {
             }
             unobserve = jest.fn()
             disconnect = jest.fn()
+            takeRecords = jest.fn(() => [])
         }
 
         ;(globalThis as any).IntersectionObserver = MockObserver

@@ -38,4 +38,6 @@ playground.html
 website
 .local-pack/
 benchmarks/results/
+playwright-report/
+test-results/
 

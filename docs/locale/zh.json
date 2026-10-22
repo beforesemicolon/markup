@@ -464,7 +464,9 @@
                         "attributes_as_object": "属性作为对象",
                         "it_is_good_to_know_all_the_possible_attributes_in_advance_but_sometimes_that_s_not_possible_for": "提前知道所有可能的属性是件好事，但有时这是不可能的。为此，您可以将属性收集为对象，然后根据需要注入它们作为重写。",
                         "any_attribute_you_set_after_injecting_the_attribute_object_will_override_the_object_attribute_na": "注入属性对象后设置的任何属性都将覆盖对象属性名称值。在上面的示例中，我们通过在注入 `props` 对象后设置它来确保按钮的 `type` 始终为 `button`。",
-                        "also_you_can_use_camelcase_attribute_name_to_changed_to_kebab_case_in_the_example_above_arialabe": "另外，您可以使用camelcase属性名称更改为kebab-case。在上面的示例中，当按钮呈现时，`ariaLabel` 将变为 `aria-label`。 `onClick` 将更改为 `onclick` 并像[事件属性](#event-attributes) 一样处理。"
+                        "also_you_can_use_camelcase_attribute_name_to_changed_to_kebab_case_in_the_example_above_arialabe": "另外，您可以使用camelcase属性名称更改为kebab-case。在上面的示例中，当按钮呈现时，`ariaLabel` 将变为 `aria-label`。 `onClick` 将更改为 `onclick` 并像[事件属性](#event-attributes) 一样处理。",
+                        "inert_subtrees": "不可交互的子树",
+                        "inert_updates": "动态 `inert` 遵循布尔属性语义：`true` 添加该属性，`false`、`null` 或 `undefined` 移除该属性。属性对象展开也遵循同样规则，因此关闭对话框后可以恢复页面其他部分的交互。字面量 `inert=\"false\"` 仍然在 HTML 中保留该属性，使内容不可交互；请改为绑定布尔值。"
                     }
                 },
                 "index": {
@@ -532,7 +534,16 @@
                         "the_onmove_method_takes_a_function_to_be_called_whenever_the_template_render_target_changes": "每当模板渲染目标发生更改时，`onMove` 方法都会调用一个函数。",
                         "this_livecycle_is_perfect_to_perform_action_dependent_on_the_template_location_these_can_be_thin": "该生命周期非常适合根据模板位置执行操作。这些可以是 DOM 重新排序或拖放操作等。",
                         "chaining": "链接",
-                        "all_template_livecycles_and_render_methods_index_md_rendering_can_be_chained_and_you_should_alwa": "所有模板生命周期和[渲染方法](./index.md#rendering)都可以链接，并且您应该始终在渲染任何内容之前设置生命周期。"
+                        "all_template_livecycles_and_render_methods_index_md_rendering_can_be_chained_and_you_should_alwa": "所有模板生命周期和[渲染方法](./index.md#rendering)都可以链接，并且您应该始终在渲染任何内容之前设置生命周期。",
+                        "retained_rows": "保留行的生命周期",
+                        "retained_row_lifecycle": "将带键的行重新绑定到相同模板定义时，会保留其 DOM 和当前挂载生命周期。`onMount` 不会再次执行，实际挂载时返回的清理函数仍负责该生命周期。最新模板提供 `onUpdate` 和 `onMove` 回调，以及将来真正重新挂载时使用的 `onMount` 回调。不同的 `visible()` 或 `suspense()` 实例保有各自的状态，因此会替换对应的辅助函数子树。",
+                        "complete_cleanup": "发生错误时仍完成清理",
+                        "cleanup_errors": "每次实际挂载只拥有自己返回的清理函数。Markup 会在调用前清除该回调，因此它最多执行一次；之后不返回清理函数的挂载不会复用旧回调。即使清理回调失败，卸载仍会继续释放所有归属的子模板、订阅、引用和 DOM。直接调用卸载后，如果只有一个错误，会抛出原始错误；如果有多个错误，则抛出 `AggregateError`。在响应式删除过程中，调度器会在清理后通过 `console.error` 报告错误；之后的兄弟节点仍会被清理，后续更新也可以继续。",
+                        "ownership_heading": "每个模板只有一个所有者",
+                        "ownership_transfer": "将模板移动到另一个模板或外部容器时，会转移或解除其所有权。卸载原父模板不会销毁已移动的子模板。只要原响应式绑定的输出仍持续包含该实例，该绑定就会忽略它。若要通过同一绑定将其移回，先输出不包含它的内容，等待更新完成，再明确地将它加入。",
+                        "focus_during_moves": "移动过程中的焦点与选区",
+                        "native_moves": "如果浏览器支持，并且两个节点共享同一个包含 shadow tree 的根，Markup 会使用原生 `moveBefore()` 操作，在移动过程中保留浏览器状态。自定义元素可以实现 `connectedMoveCallback()`，以处理原生移动而不运行断开和连接回调。参见 [DOM 移动规则](https://dom.spec.whatwg.org/#concept-node-move)。",
+                        "fallback_moves": "回退方案会尝试保留获得焦点的控件、输入框选区和可编辑内容选区，包括开放 shadow root 内的焦点。当回调改变焦点或文本时，恢复只能尽力完成。封闭 shadow root 内的焦点以及 iframe 加载、popover 等其他浏览器状态，需要原生的状态保留移动。回退移动仍可能触发焦点事件，以及自定义元素的断开和连接回调。"
                     }
                 },
                 "ref": {
@@ -766,12 +777,17 @@
                         "empty_state": "空状态",
                         "the_repeat_also_consumes_an_optional_third_argument_which_is_a_function_that_will_get_called_to": "`repeat` 还使用一个可选的第三个参数，该函数将被调用以返回数据为空时要呈现的内容。",
                         "keys_and_options": "按键和选项",
-                        "by_default_repeat_uses_the_list_items_themselves_as_identity_keys_to_track_updates_if_your_items": "默认情况下，`repeat` 使用列表项本身作为身份密钥来跟踪更新。如果您的项目是对象或者您想通过唯一标识符跟踪它们，则可以传递选项对象作为第三个参数：",
+                        "by_default_repeat_uses_the_list_items_themselves_as_identity_keys_to_track_updates_if_your_items": "默认情况下，如果对象具有非空的 `id`，`repeat` 会使用该值作为键；否则使用条目本身。若要选择其他稳定标识，请将选项对象作为第三个参数传入：",
                         "the_options_object_supports_the_following_properties": "选项对象支持以下属性：",
                         "key_function_a_selector_function_that_returns_a_unique_key_for_each_item_highly_recommended_for": "`key`（函数）：一个选择器函数，为每个项目返回唯一的键。强烈推荐用于可以重新排序、添加或删除项目的动态列表。",
                         "empty_function_a_function_returning_the_template_or_node_to_render_when_the_collection_is_empty": "`empty`（函数）：当集合为空时返回要渲染的模板或节点的函数。",
                         "lazy_list_rendering": "惰性列表渲染",
-                        "to_optimize_lists_with_a_large_number_of_complex_items_you_can_combine_the_repeat_utility_with_t": "要优化包含大量复杂项目的列表，您可以将 `repeat` 实用程序与 [visible](./visible.md) 实用程序结合使用。这会推迟屏幕外列表项的渲染，直到它们即将滚动到视图中："
+                        "to_optimize_lists_with_a_large_number_of_complex_items_you_can_combine_the_repeat_utility_with_t": "要优化包含大量复杂项目的列表，您可以将 `repeat` 实用程序与 [visible](./visible.md) 实用程序结合使用。这会推迟屏幕外列表项的渲染，直到它们即将滚动到视图中：",
+                        "keyed_updates_and_positions": "按键更新与位置变化",
+                        "keyed_reuse": "当渲染函数返回来自同一带标签模板字面量位置的模板时，稳定的键会保留该行的 DOM。不可变的条目更新会重新绑定值、响应式闭包和结构匹配的嵌套模板，而不会重新挂载整行。外层模板定义不同会替换整行；嵌套模板定义不同只会替换对应的子树。请选择与条目位置无关的稳定标识作为键。",
+                        "positional_updates": "只有键、条目引用和索引都不变时，才会跳过渲染函数。索引变化会重新执行受影响条目的渲染函数，使标签和 `aria-posinset` 保持正确。因此，在开头插入、删除和反转操作可能会重新渲染许多仍保留 DOM 的行。直接修改原对象不会使此缓存失效：请使用新的条目对象或响应式状态。",
+                        "keyed_lifecycles": "结构匹配的行会保留当前挂载生命周期及其原始清理函数。之后的变化会调用最新的更新和移动回调；详见[生命周期](../templating/lifecycles.md)。不要在渲染函数中执行初始化副作用。",
+                        "instance_bound_helpers": "`visible()` 和 `suspense()` 的内部状态与各自的挂载回调绑定。新的辅助函数实例会整体替换其子树，而结构匹配的外层行可以继续保持挂载。若要保留已显示或等待中的状态，请复用同一个辅助函数实例。对于具有挂载相关私有状态的自定义组件，应为每个逻辑组件创建并保留一个模板，而不是在每次列表渲染时重新创建这些状态。"
                     }
                 },
                 "suspense": {
@@ -806,9 +822,12 @@
                         "rootmargin_string_margin_around_the_root": "`rootMargin`（字符串）：根周围的边距。",
                         "threshold_number_number_numeric_value_or_array_of_values_indicating_what_percentage_of_the_targe": "`threshold` (number | number[])：数字值或值数组，指示应执行观察者回调的目标可见性的百分比。",
                         "observer_deduplication": "观察者重复数据删除",
-                        "to_ensure_maximum_performance_and_minimal_browser_overhead_the_visible_utility_maintains_a_modul": "为了确保最大性能和最小浏览器开销，`visible` 实用程序维护活动 `IntersectionObserver` 实例的模块级注册表。如果多个 `visible` 元素共享相同的选项（例如，它们都使用 `rootMargin: '600px 0px'`），则它们将在后台共享一个全局 `IntersectionObserver` 实例。",
+                        "to_ensure_maximum_performance_and_minimal_browser_overhead_the_visible_utility_maintains_a_modul": "只有使用同一个根对象，且 `rootMargin` 和阈值设置匹配时，才会共享观察器。视口（`root: null`）、每个根元素和每个根文档都有独立的观察器池；两个不同的滚动容器不会仅因为都指定了根而共用观察器。",
                         "automatic_cleanup": "自动清理",
-                        "when_the_wrapping_template_is_unmounted_from_the_dom_the_visible_utility_automatically_unobserve": "当从 DOM 卸载包装模板时，`visible` 实用程序会自动取消观察元素并清除观察者注册表中的所有引用，从而防止内存泄漏。"
+                        "when_the_wrapping_template_is_unmounted_from_the_dom_the_visible_utility_automatically_unobserve": "内容显示或包装模板卸载时，会停止观察对应目标。最后一个目标释放后，观察器会断开连接，并从池中移除。尚未显示内容的模板再次挂载时，会重新注册观察。",
+                        "unsupported_environments": "不支持观察器的环境与必要内容",
+                        "unsupported_content": "当 `IntersectionObserver` 不可用时，内容会立即渲染，包括 `toString()` 使用的服务端 DOM 环境。对于必要控件和不应依赖视口观察的内容，请使用 `eager: true`。内容回调可能在服务端渲染期间执行，因此使用浏览器专有 API 前应先检查其是否可用。",
+                        "helper_instance_lifetime": "复用同一个 `visible()` 实例会保留其已显示状态。创建新实例会替换该实例的有状态子树，并应用新的可见性选项。保留带键的外层行，并不意味着两个不同的辅助函数实例会共享观察器或已显示状态。"
                     }
                 },
                 "when": {
