@@ -60,3 +60,26 @@ JSDOM measures JavaScript and simulated DOM work. It does not measure browser la
 The repeat cache skips the renderer only when key, item reference, and index all stay unchanged. After a prepend, removal, or reversal, shifted rows run their renderers again so index-derived text and accessibility attributes stay correct. This extra renderer work is intentional even when row DOM is retained. Assertions include these calls; earlier measurements that skipped index updates are not equivalent workloads.
 
 For a baseline of `n` rows, append renders one new row; prepend renders `n + 1` rows; removing the middle row renders the rows after it; reversing renders every row whose index changed. Stable references at unchanged indices still use the cache. Same-template immutable updates can now retain reactive children, nested templates, and ordinary lifecycle-bearing row DOM.
+
+## Informational bundle-size comparison
+
+PR CI builds the exact base and head source archives with one installed toolchain
+and the same production browser command. It verifies source blob hashes, reports
+raw/default-gzip/default-Brotli bytes, and publishes a job summary and artifacts.
+There is no size threshold; review intentional increases alongside their behavior.
+The JSON records compiler and compression versions, source and lockfile hashes,
+and the exact measured bundle hashes.
+
+Reproduce from a checkout with both full commit SHAs available and `npm ci` completed:
+
+```bash
+npm run report:bundle-size -- \
+  --base 1fd15c5e431bc327887dd2c0cc8b526830e5a95d \
+  --head 7ab137aa2c115ef0702e19bd86c4f9b7d7a7447a \
+  --output /tmp/markup-bundle-size
+npm run test:size-report
+```
+
+This controls the installed toolchain for both revisions, including after a
+dependency upgrade. It compares source changes under that toolchain; separate
+historical installations and stale README sizes are not the baseline.

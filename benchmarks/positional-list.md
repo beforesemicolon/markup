@@ -47,3 +47,34 @@ node --import tsx benchmarks/benchmark-smoke.test.ts
 The existing smoke command also runs this timing fixture at sizes 3 and 60 with two warmups and three measured samples per operation. It verifies every iteration and separately checks literal expected lifecycle counts. Size 3 exercises the unchanged center of an odd reversal; size 60 exercises batch mounting. CI has no latency threshold.
 
 These timings measure JavaScript and simulated DOM work in JSDOM, including correct positional updates. They do not measure native browser layout, paint, user interaction latency, or retained browser heap. This indexed-row workload also differs from the older FS-like fixture, so their absolute timings are not interchangeable. Repeat comparable runs before attributing small changes to code; preserve the reported commit, options, environment, and correctness results with any published numbers.
+
+## Measured result — 22 October 2026
+
+Measured runtime and harness: [`7ab137a`](https://github.com/beforesemicolon/markup/commit/7ab137aa2c115ef0702e19bd86c4f9b7d7a7447a). The results commit adds documentation and recorded data; it does not change the measured runtime or workload.
+
+Run command:
+
+```bash
+node --import tsx benchmarks/positional-list.bench.ts \
+  --sizes 1000,10000 --samples 5 --warmup 2 \
+  --output /tmp/markup-positional-list-final.json
+```
+
+Node 24.19.0, Tinybench 3.1.1, JSDOM 25.0.1; Linux 6.18.55 x64 on an AMD EPYC 9V74 environment reporting nine logical CPUs. All build, test, and other benchmark processes launched for this review had finished before this run. No forced garbage collection was used. The run completed from 23:38:17 to 23:40:31 UTC.
+
+Each operation has **five measured samples and two warmups**. These are descriptive observations from one process in a shared cloud environment, with too few samples to establish small regressions or speedups. All **56 warmup/measured iterations** verified row identities, index text, ARIA positions, order and names. The separate instrumented pass verified all eight operation-count cases in the table above; initial mounts were counted separately.
+
+|   Rows | Operation        | Mean (ms) | Median (ms) | Observed range (ms) |
+| -----: | ---------------- | --------: | ----------: | ------------------: |
+|  1,000 | Prepend          |      6.46 |        6.62 |           5.45–7.30 |
+|  1,000 | Middle removal   |      3.93 |        3.92 |           3.63–4.32 |
+|  1,000 | Reverse          |     74.51 |       68.75 |         68.35–92.56 |
+|  1,000 | Immutable update |      2.38 |        2.42 |           2.10–2.78 |
+| 10,000 | Prepend          |     77.41 |       78.77 |         69.51–82.88 |
+| 10,000 | Middle removal   |     41.78 |       39.60 |         37.68–49.10 |
+| 10,000 | Reverse          |  7,256.99 |    7,313.10 |   7,089.66–7,349.30 |
+| 10,000 | Immutable update |     32.50 |       31.46 |         29.94–34.97 |
+
+The 10,000-row reversal is the clear expensive case in this JSDOM workload: approximately 7.26 seconds on average, while retaining every surviving row. This warrants profiling the move path in a native browser before attributing the cost to a browser bottleneck or choosing an optimization. Keeping correct positional invalidation is required. These absolute measurements are not a before/after performance claim, and they do not establish browser layout, paint, interaction latency, or memory behavior.
+
+[Complete positional results and provenance](./reports/2026-10-22-positional-list.json) include every latency sample, source tree, harness hashes, dependency lock hash, and observed lifecycle counts. The [same-toolchain bundle report](./reports/2026-10-22-bundle-size.json) records the size comparison against PR #144 (`1fd15c5`).
