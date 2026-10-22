@@ -199,7 +199,7 @@
                         "safe_serialization": "安全的 HTML 序列化",
                         "serialization_boundary": "`.toString()` 会对模板根部及嵌套节点中的文本进行转义，保留有效注释，并拒绝可能跳出原始文本解析上下文的内容。对已挂载的模板进行序列化时，模板会保持挂载状态且不发生变化。如果临时挂载的模板在序列化时未通过验证，该模板仍会被卸载。",
                         "json_script_data": "对于 JSON 数据块，请先使用 `JSON.stringify(data).replace(/</g, '\\\\u003c')` 进行序列化，再将结果插入 `script` 元素。读取 `script.textContent`，并使用 `JSON.parse` 还原原始数据；不要对 `script` 内的 JSON 使用 HTML 实体。在可执行的 `script` 元素及 `style` 元素中进行插值时，仍必须使用可信代码：此 API 不会净化 JavaScript 或 CSS。",
-                        "serialization_rejections": "序列化时，如果在 `script`、`style`、`xmp`、`iframe`、`noembed`、`noframes` 或 `noscript` 中遇到与该元素匹配的结束标签前缀（不区分大小写），就会抛出异常；`script` 中的 `<!--` 和 `<script` 前缀也会被拒绝。通过 DOM API 插入 `textarea` 或 `title` 的结束标签序列会被拒绝，而这些元素中的普通文本仍会正常转义。无效注释、处理指令和 `plaintext` 元素也会导致异常。"
+                        "serialization_rejections": "序列化时，如果在 `script`、`style`、`xmp`、`iframe`、`noembed`、`noframes` 或 `noscript` 中遇到与该元素匹配的结束标签前缀（不区分大小写），就会抛出异常；`script` 中的 `<!--` 和 `<script` 前缀也会被拒绝。通过 DOM API 插入 `textarea` 或 `title` 的结束标签序列会被拒绝，而这些元素中的普通文本仍会正常转义。无效注释、处理指令和 `plaintext` 元素也会导致异常。 元素名称在所有命名空间中都按不区分大小写的方式检查，包括重新解析时可能变成 HTML 的 SVG/MathML 节点。这些保守检查同样适用于外来命名空间的容器内部，因此可能拒绝在原始上下文中无害的注释或子元素标记。普通的、已转义的 SVG 样式文本仍受支持。"
                     }
                 },
                 "state_store": {
@@ -387,7 +387,7 @@
                         "nested_effect": "嵌套效应",
                         "you_can_nest_effect_to_track_different_values_this_allows_for_the_body_of_your_effect_to_react_i": "您可以嵌套 `effect` 来跟踪不同的值。这允许 `effect` 的主体独立反应，同时不同的效果跟踪不同的状态。",
                         "if_you_want_to_clear_all_effects_you_can_unsubscribe_from_the_outer_most_effect_and_which_will_t": "如果您想清除所有效果，您可以从最外层的`effect`取消订阅，它将为您照顾所有子`effect`。但是，您必须跟踪内部效果，因为每当调用外部效果时，都会创建一个新的内部效果。",
-                        "repeated_updates_and_cycles": "稍后运行的副作用可能会使已运行的副作用失效，因此在同一次队列刷新（`flush`）中，副作用可能反复运行，直到状态稳定。每个用户定义的副作用运行前都会执行 DOM 更新，每次重新运行前都会执行清理。每个订阅者在每次刷新中最多执行 100 次。若再次尝试执行，会通过 `console.error` 报告一个 `Error`，对该订阅者在该次刷新中仅报告一次：`Maximum reactive updates exceeded (100 executions in one flush). Check effects for a state update cycle.` 在当前刷新中，该订阅者剩余的执行会被跳过；队列中其他无关的工作仍会继续处理完毕，后续外部状态更新也可以再次调度该订阅者。达到此限制并不能证明存在循环：足够复杂的无环依赖图也可能达到此限制。"
+                        "repeated_updates_and_cycles": "稍后运行的副作用可能会使已运行的副作用失效，因此在同一次队列刷新（`flush`）中，副作用可能反复运行，直到状态稳定。每个用户定义的副作用运行前都会执行 DOM 更新，每次重新运行前都会执行清理。用户订阅者在每次刷新中最多执行 100 次。渲染订阅者有单独的限制：每轮渲染最多执行 100 次，每执行一个用户副作用后重置，因此多个独立副作用可以更新同一个显示的汇总值。若再次尝试执行，会通过 `console.error` 报告一个 `Error`，每个订阅者在每次刷新中只报告一次：`Maximum reactive updates exceeded (100 executions in one flush). Check effects for a state update cycle.` 渲染次数超限时，诊断信息使用 `one render pass` 而不是 `one flush`。在相应限制周期内，该订阅者的后续执行会被跳过；其他无关的排队任务继续处理，后续更新仍可再次调度该订阅者。达到限制并不能证明存在循环：足够复杂的无环依赖图也可能达到限制。"
                     }
                 },
                 "index": {
@@ -438,7 +438,7 @@
                         "because_markup_is_using_addeventlistener_behind_the_scenes_it_offers_a_special_syntax_that_allow": "由于 Markup 在后台使用 `addEventListener`，因此它提供了一种特殊的语法，允许您设置本机 HTML 无法设置的选项。",
                         "by_providing_a_tuple_array_with_two_values_you_can_specify_the_handler_and_its_options_to_be_use": "通过提供元组（具有两个值的数组），您可以指定设置事件侦听器时要使用的处理程序及其选项。",
                         "these_options_are_just_addeventlistener_options_https_developer_mozilla_org_en_us_docs_web_api_e": "这些选项只是 [addEventListener 选项](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#options)，允许您指定如何处理事件，包括定义信号。",
-                        "dynamic_event_binding_contract": "动态 `on*` 绑定必须由单个插值组成，该插值包含一个函数或 `[function, options]`，前后可以有空白字符。字符串形式的事件处理程序以及字面量片段与插值的混合形式都会被拒绝，SVG 和属性展开中的绑定也不例外。显式观察的非原生自定义属性（例如 `one`）仍按属性处理；原生事件（例如 `onclick`）即使列在 `observedAttributes` 中，也必须使用函数。可信的静态模板源码和 `unsafeHTML` 不会经过净化。"
+                        "dynamic_event_binding_contract": "动态 `on*` 绑定必须由单个插值组成，该插值包含一个函数或 `[function, options]`，前后可以有空白字符。字符串形式的事件处理程序以及字面量片段与插值的混合形式都会被拒绝，SVG 和属性展开中的绑定也不例外。显式观察的非原生自定义属性（例如 `one`）仍按属性处理；原生事件（例如 `onclick`）即使列在 `observedAttributes` 中，也必须使用函数。可信的静态模板源码和 `unsafeHTML` 不会经过净化。 模板可以在自定义元素注册前构造；请在挂载前定义该元素，以便识别其观察的属性。延迟验证的混合事件绑定会在任何绑定求值或写入之前被拒绝。"
                     }
                 },
                 "html_attributes": {

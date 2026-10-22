@@ -179,6 +179,110 @@ ${'</textarea><img data-injected>'}</textarea
         )
     })
 
+    it.each([
+        ['http://www.w3.org/1999/xhtml', 'SCRIPT'],
+        ['http://www.w3.org/1999/xhtml', 'ScRiPt'],
+        ['http://www.w3.org/1999/xhtml', 'StYlE'],
+        ['http://www.w3.org/1999/xhtml', 'TEXTAREA'],
+        ['http://www.w3.org/1999/xhtml', 'TiTlE'],
+        ['http://www.w3.org/2000/svg', 'script'],
+        ['http://www.w3.org/2000/svg', 'style'],
+        ['http://www.w3.org/2000/svg', 'ScRiPt'],
+        ['http://www.w3.org/1998/Math/MathML', 'style'],
+    ])(
+        'rejects text-element breakouts after HTML parsing changes case or namespace (%s, %s)',
+        (namespace, name) => {
+            const element = document.createElementNS(namespace, name)
+            element.append(
+                document.createComment(`</${name}><img data-injected>`)
+            )
+            // Native serialization loses the namespace and preserves tag case;
+            // HTML parsing recognizes the resulting tag as an HTML text element.
+            expect(
+                parse(element.outerHTML).querySelector('img[data-injected]')
+            ).not.toBeNull()
+
+            const view = html`${element}`
+            expect(() => view.toString()).toThrow(
+                `Cannot serialize unsafe content inside <${name.toLowerCase()}>`
+            )
+            expect(view.mounted).toBe(false)
+        }
+    )
+
+    it('validates foreign text elements below an HTML integration point', () => {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+        const foreignObject = document.createElementNS(
+            'http://www.w3.org/2000/svg',
+            'foreignObject'
+        )
+        const style = document.createElementNS(
+            'http://www.w3.org/2000/svg',
+            'style'
+        )
+        style.append(document.createComment('</style><img data-injected>'))
+        foreignObject.append(style)
+        svg.append(foreignObject)
+
+        expect(
+            parse(svg.outerHTML).querySelector('img[data-injected]')
+        ).not.toBeNull()
+        expect(() => html`${svg}`.toString()).toThrow(
+            'Cannot serialize unsafe content inside <style>'
+        )
+    })
+
+    it('validates foreign text elements inside nested template contents', () => {
+        const template = document.createElement('template')
+        const style = document.createElementNS(
+            'http://www.w3.org/2000/svg',
+            'style'
+        )
+        style.append(document.createComment('</style><img data-injected>'))
+        template.content.append(style)
+
+        expect(
+            parse(template.outerHTML)
+                .querySelector('template')!
+                .content.querySelector('img[data-injected]')
+        ).not.toBeNull()
+        expect(() => html`${template}`.toString()).toThrow(
+            'Cannot serialize unsafe content inside <style>'
+        )
+    })
+
+    it('checks foreign text-element boundaries conservatively even inside an SVG wrapper', () => {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+        const style = document.createElementNS(
+            'http://www.w3.org/2000/svg',
+            'style'
+        )
+        style.append(document.createComment('</style><img data-injected>'))
+        svg.append(style)
+
+        expect(parse(svg.outerHTML).querySelector('img[data-injected]')).toBeNull()
+        expect(() => html`${svg}`.toString()).toThrow(
+            'Cannot serialize unsafe content inside <style>'
+        )
+    })
+
+    it.each([
+        ['http://www.w3.org/1999/xhtml', 'TEMPLATE'],
+        ['http://www.w3.org/1999/xhtml', 'TeMpLaTe'],
+        ['http://www.w3.org/2000/svg', 'template'],
+    ])(
+        'serializes template-named elements without a template content fragment (%s, %s)',
+        (namespace, name) => {
+            const element = document.createElementNS(namespace, name)
+            element.textContent = payload
+            const parsed = parse(html`${element}`.toString())
+            const content = parsed.querySelector('template')!.content
+
+            expect(content.querySelector('img')).toBeNull()
+            expect(content.textContent).toBe(payload)
+        }
+    )
+
     it('rejects plaintext because it cannot be closed in a serialized fragment', () => {
         expect(() => html`<plaintext>text</plaintext>`.toString()).toThrow(
             'Cannot serialize <plaintext>'

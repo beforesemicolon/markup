@@ -30,6 +30,7 @@ type Descriptor =
           name: string
           pieces: Piece[]
           attributeOnly: boolean
+          deferredEventValue?: number | null
       }
     | {
           type: 'event'
@@ -166,6 +167,12 @@ const shouldUseEventListener = (node: Element, name: string) => {
     // @ts-expect-error observedAttributes is a custom-element constructor property
     return !ctor?.observedAttributes?.includes(name)
 }
+
+const invalidEventInterpolation = (name: string) =>
+    new Error(
+        `Event binding "${name}" must contain a single interpolation ` +
+            'with a function or [function, options].'
+    )
 
 const setDynamicValue = (
     node: Element,
@@ -603,21 +610,40 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
                 continue
             }
 
+            const deferEventBinding =
+                name.startsWith('on') &&
+                node.localName.includes('-') &&
+                node.namespaceURI === 'http://www.w3.org/1999/xhtml' &&
+                !customElements.get(node.localName)
             const eventBinding =
-                name.startsWith('on') && shouldUseEventListener(node, name)
+                !deferEventBinding &&
+                name.startsWith('on') &&
+                shouldUseEventListener(node, name)
             const exact = markers.exact.exec(
                 eventBinding ? attr.value.trim() : attr.value
             )
             const valueIndex = exact ? Number(exact[1]) : null
 
             if (eventBinding && valueIndex === null) {
-                throw new Error(
-                    `Event binding "${name}" must contain a single interpolation ` +
-                        'with a function or [function, options].'
-                )
+                throw invalidEventInterpolation(name)
             }
 
-            if (name.startsWith('on') && valueIndex !== null) {
+            if (deferEventBinding) {
+                // Registration may happen between compilation and mounting.
+                // Preserve the property pieces while retaining the potential
+                // event's single interpolation, ignoring surrounding whitespace.
+                const eventExact = markers.exact.exec(attr.value.trim())
+                descriptors.push({
+                    type: 'attr',
+                    node: templateNodeIndexes.get(node)!,
+                    name: attr.name,
+                    pieces: parsePieces(attr.value, markers),
+                    attributeOnly: false,
+                    deferredEventValue: eventExact
+                        ? Number(eventExact[1])
+                        : null,
+                })
+            } else if (name.startsWith('on') && valueIndex !== null) {
                 descriptors.push({
                     type: 'event',
                     node: templateNodeIndexes.get(node)!,
@@ -1715,6 +1741,24 @@ export class HtmlTemplate {
         this.#primaryEffectUnsubscribe = undefined
         this.#additionalPartEffects = undefined
 
+        // Reject deferred mixed events before evaluating or writing bindings.
+        // This also avoids creating subscriptions for a mount that cannot finish.
+        if (this.#definition.hasCustomElements) {
+            for (let index = 0; index < descriptors.length; index++) {
+                const descriptor = descriptors[index]
+                if (
+                    descriptor.type === 'attr' &&
+                    descriptor.deferredEventValue === null &&
+                    shouldUseEventListener(
+                        clonedNodes[offset + index] as Element,
+                        descriptor.name
+                    )
+                ) {
+                    throw invalidEventInterpolation(descriptor.name)
+                }
+            }
+        }
+
         for (let index = 0; index < descriptors.length; index++) {
             const descriptor = descriptors[index]
             const compiledNode = clonedNodes[offset + index]
@@ -1743,13 +1787,28 @@ export class HtmlTemplate {
                     current: '',
                 }
             } else if (descriptor.type === 'attr') {
-                part = {
-                    type: 'attr',
-                    node: compiledNode as Element,
-                    name: descriptor.name,
-                    pieces: descriptor.pieces,
-                    attributeOnly: descriptor.attributeOnly,
-                    current: INITIAL,
+                const node = compiledNode as Element
+                if (
+                    descriptor.deferredEventValue !== undefined &&
+                    shouldUseEventListener(node, descriptor.name)
+                ) {
+                    part = {
+                        type: 'event',
+                        node,
+                        name: descriptor.name,
+                        eventName: descriptor.name.slice(2),
+                        value: descriptor.deferredEventValue!,
+                        asProperty: false,
+                    }
+                } else {
+                    part = {
+                        type: 'attr',
+                        node,
+                        name: descriptor.name,
+                        pieces: descriptor.pieces,
+                        attributeOnly: descriptor.attributeOnly,
+                        current: INITIAL,
+                    }
                 }
             } else if (descriptor.type === 'event') {
                 const node = compiledNode as Element

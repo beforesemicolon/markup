@@ -152,6 +152,12 @@ Invalid comment delimiters, processing instructions, and `plaintext` cannot be
 safely serialized and throw. A temporary mount is unmounted even if this
 validation fails; an already mounted template remains mounted.
 
+Element names are checked case-insensitively in every namespace. SVG/MathML
+nodes can reparse as HTML outside their original context, so the same
+conservative checks apply even inside foreign-namespace wrappers. This can
+reject comments or child markup that would be harmless in their original
+foreign context. Ordinary escaped SVG style text remains supported.
+
 For JSON data blocks, escape every `<` after JSON serialization:
 
 ```javascript
@@ -216,13 +222,17 @@ Queued template updates finish before each user-effect execution. Do not rely on
 an effect running only once per flush when effects write state. Cleanup runs
 before each rerun. Prefer derived functions for rendered values.
 
-To bound non-converging updates, each subscriber may execute at most 100 times in
-one flush. An additional attempt logs `Maximum reactive updates exceeded (100
-executions in one flush). Check effects for a state update cycle.` through
-`console.error` and skips further executions of that subscriber for that flush.
-Unrelated queued work continues; future external updates can run it again. This
-is an update limit, not proof of a cycle; exceptionally complex acyclic graphs
-can also reach it.
+To bound non-converging updates, each user subscriber may execute at most 100
+times in one flush. Render subscribers have a separate 100-execution limit per
+render pass, reset after each executed user effect. Many independent effects
+can therefore update the same displayed aggregate without exhausting its
+render budget. An additional attempt logs `Maximum reactive updates exceeded
+(100 executions in one flush). Check effects for a state update cycle.` through
+`console.error`; render-limit errors say `one render pass` instead of `one
+flush`. Errors are reported once per subscriber per flush. Further executions
+are skipped for that budget period, while unrelated queued work continues;
+later updates can schedule the subscriber again. This is an update limit, not
+proof of a cycle; exceptionally complex acyclic graphs can also reach it.
 
 ```javascript
 const [query, setQuery] = state('')
@@ -283,8 +293,11 @@ Each dynamic `on*` binding must contain a single function or listener-tuple
 interpolation, optionally surrounded by whitespace. Mixed literal/interpolated
 strings and string handlers are rejected, including SVG events and attribute
 spreads. Explicitly observed, non-native custom-element properties such as `one`
-remain property bindings. Static template source and `unsafeHTML` remain trusted
-HTML inputs; this is not a sanitizer for arbitrary markup.
+remain property bindings. A template may be constructed before registration;
+define the custom element before mounting so its observed properties can be
+recognized. Deferred mixed event bindings are rejected before any binding is
+evaluated or written. Static template source and `unsafeHTML` remain
+trusted HTML inputs; this is not a sanitizer for arbitrary markup.
 
 ```javascript
 const save = (event) => {

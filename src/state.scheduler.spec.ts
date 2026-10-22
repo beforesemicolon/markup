@@ -203,6 +203,52 @@ describe('effect scheduler propagation', () => {
         expect(outputs.every(([getOutput]) => getOutput() === 1)).toBe(true)
         dispose.forEach((stop) => stop())
     })
+
+    it('commits a shared aggregate before every independent producer', () => {
+        const reportError = jest
+            .spyOn(console, 'error')
+            .mockImplementation(() => {})
+        const [source, setSource] = state(0)
+        const [total, setTotal] = state(0)
+        const snapshots: Array<string | null> = []
+        const dispose = Array.from({ length: 150 }, () =>
+            effect(() => {
+                if (source()) {
+                    snapshots.push(document.body.textContent)
+                    setTotal((value) => value + 1)
+                }
+            })
+        )
+        const view = html`<p>${total}</p>`.render(document.body)
+
+        try {
+            setSource(1)
+            jest.runAllTicks()
+
+            expect(total()).toBe(150)
+            expect(document.body.textContent).toBe('150')
+            expect(snapshots).toEqual(
+                Array.from({ length: 150 }, (_, index) => String(index))
+            )
+            expect(reportError).not.toHaveBeenCalled()
+
+            snapshots.length = 0
+            setSource(2)
+            jest.runAllTicks()
+
+            expect(total()).toBe(300)
+            expect(document.body.textContent).toBe('300')
+            expect(snapshots).toEqual(
+                Array.from({ length: 150 }, (_, index) => String(index + 150))
+            )
+            expect(reportError).not.toHaveBeenCalled()
+            expect(jest.getTimerCount()).toBe(0)
+        } finally {
+            dispose.forEach((stop) => stop())
+            view.unmount()
+            reportError.mockRestore()
+        }
+    })
 })
 
 describe('effect scheduler cycle guard', () => {
@@ -289,6 +335,85 @@ describe('effect scheduler cycle guard', () => {
             expect(render).toHaveBeenCalledTimes(100)
             expect(observer).toHaveBeenCalledTimes(1)
             expect(observer).toHaveBeenLastCalledWith(1)
+            expect(reportError).toHaveBeenCalledTimes(1)
+            expect(jest.getTimerCount()).toBe(0)
+        } finally {
+            stopRender()
+            stopObserver()
+            reportError.mockRestore()
+        }
+    })
+
+    it('bounds cycles alternating render work and user effects', () => {
+        const reportError = jest
+            .spyOn(console, 'error')
+            .mockImplementation(() => {})
+        const [source, setSource] = state(0)
+        const [derived, setDerived] = state(0)
+        const render = jest.fn()
+        const user = jest.fn()
+        const stopRender = createRenderEffect(() => {
+            const value = source()
+            render(value)
+            setDerived(value)
+        })
+        const stopUser = effect(() => {
+            const value = derived()
+            user(value)
+            if (value > 0) setSource(value + 1)
+        })
+        const view = html`<p>${derived}</p>`.render(document.body)
+        render.mockClear()
+        user.mockClear()
+
+        try {
+            setSource(1)
+            jest.runAllTicks()
+
+            expect(user).toHaveBeenCalledTimes(100)
+            expect(render).toHaveBeenCalledTimes(101)
+            expect(source()).toBe(101)
+            expect(derived()).toBe(101)
+            expect(document.body.textContent).toBe('101')
+            expect(reportError).toHaveBeenCalledTimes(1)
+            expect(jest.getTimerCount()).toBe(0)
+        } finally {
+            stopRender()
+            stopUser()
+            view.unmount()
+            reportError.mockRestore()
+        }
+    })
+
+    it('bounds each render pass and reports a recurring cycle once per flush', () => {
+        const reportError = jest
+            .spyOn(console, 'error')
+            .mockImplementation(() => {})
+        const [source, setSource] = state(0)
+        const [unrelated, setUnrelated] = state(0)
+        const render = jest.fn()
+        const observer = jest.fn()
+        const stopRender = createRenderEffect(() => {
+            const value = source()
+            render(value)
+            if (value > 0) setSource(value + 1)
+        })
+        const stopObserver = effect(() => {
+            const value = unrelated()
+            observer(value)
+            if (value > 0) setSource(1000)
+        })
+        render.mockClear()
+        observer.mockClear()
+
+        try {
+            setSource(1)
+            setUnrelated(1)
+            jest.runAllTicks()
+
+            expect(render).toHaveBeenCalledTimes(200)
+            expect(render).toHaveBeenNthCalledWith(101, 1000)
+            expect(observer).toHaveBeenCalledTimes(1)
             expect(reportError).toHaveBeenCalledTimes(1)
             expect(jest.getTimerCount()).toBe(0)
         } finally {

@@ -34,8 +34,10 @@ const assertSerializable = (root: Node) => {
         if (node.nodeType !== Node.ELEMENT_NODE) continue
 
         const element = node as Element
-        if (element.namespaceURI !== HTML_NAMESPACE) continue
-        const name = element.localName
+        // HTML parsing folds tag case and can change the namespace of emitted
+        // foreign elements. Validate sensitive names in every namespace so an
+        // omitted wrapper or an HTML integration point cannot bypass the checks.
+        const name = element.localName.toLowerCase()
         if (name === 'plaintext') {
             throw new Error(
                 'Cannot serialize <plaintext>: it has no closing tag.'
@@ -57,8 +59,13 @@ const assertSerializable = (root: Node) => {
                 )
             }
         }
-        if (name === 'template') {
-            assertSerializable((element as HTMLTemplateElement).content)
+        if (name === 'template' && element.namespaceURI === HTML_NAMESPACE) {
+            // DOM-created mixed-case TEMPLATE elements may be ordinary elements
+            // without a content fragment; the walker already visits their children.
+            const content = (element as HTMLTemplateElement).content
+            if (content?.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+                assertSerializable(content)
+            }
         }
     }
 }

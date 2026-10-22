@@ -105,8 +105,8 @@ yarn add @beforesemicolon/markup
 
 ## Use directly in the Browser
 
-This library requires no build step. The CDN browser build is about 11.2 KB
-gzip (33.1 KB uncompressed, measured from `dist/client.js`).
+This library requires no build step. The CDN browser build is about 11.5 KB
+gzip (33.9 KB uncompressed, measured from `dist/client.js`).
 
 ```html
 <!-- Grab the latest version -->
@@ -160,7 +160,9 @@ const output = html`<script type="application/json">
 ```
 
 Script and style interpolations still require trusted code; Markup does not
-sanitize JavaScript or CSS. See the [SSR documentation](https://markup.beforesemicolon.com/documentation/capabilities/server-side-rendering)
+sanitize JavaScript or CSS. Boundary checks ignore tag-name casing and apply
+across namespaces, including SVG/MathML nodes that may reparse as HTML. These
+conservative checks also apply inside foreign-namespace wrappers. See the [SSR documentation](https://markup.beforesemicolon.com/documentation/capabilities/server-side-rendering)
 for serialization restrictions and migration details.
 
 Dynamic `on*` event bindings accept one function or `[function, options]`
@@ -168,6 +170,9 @@ interpolation, optionally surrounded by whitespace. String handlers and mixed
 literal/interpolated event strings are rejected. Use `onclick="${handleClick}"`
 instead of constructing inline JavaScript. Explicitly observed, non-native
 custom-element properties such as `one` remain ordinary property bindings.
+Templates can be constructed before the custom element is registered; define
+the element before mounting so those properties can be recognized. Deferred
+mixed event bindings are rejected before any binding is evaluated or written.
 
 ## AI and agent context
 
