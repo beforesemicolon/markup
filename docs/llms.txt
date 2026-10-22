@@ -139,6 +139,30 @@ sanitized markup. Never pass user-controlled content to it. Passing manually
 constructed string arrays to `html`, such as `html([source])`, is retained only
 for backward compatibility and is deprecated in favor of `unsafeHTML(source)`.
 
+### Safe serialization
+
+`toString()` escapes root text as well as nested text, preserves comments, and
+does not clone or mutate an already mounted template. It rejects raw-text content
+that could change HTML parsing boundaries: matching closing-tag prefixes in
+`script`, `style`, `xmp`, `iframe`, `noembed`, `noframes`, or `noscript`, and
+`<!--` or `<script` sequences inside scripts (case-insensitive). DOM-created
+comments or elements that introduce closing tags inside `textarea` or `title`
+are also rejected; ordinary text in those elements is escaped normally.
+Invalid comment delimiters, processing instructions, and `plaintext` cannot be
+safely serialized and throw. A temporary mount is unmounted even if this
+validation fails; an already mounted template remains mounted.
+
+For JSON data blocks, escape every `<` after JSON serialization:
+
+```javascript
+const json = JSON.stringify(data).replace(/</g, '\\u003c')
+html`<script type="application/json">${json}</script>`.toString()
+```
+
+`JSON.parse(script.textContent)` recovers the original data. Do not use HTML
+entities to encode JSON inside scripts. Script/style interpolations require
+trusted code; Markup does not sanitize JavaScript or CSS.
+
 ## `state`
 
 ```typescript
@@ -185,6 +209,20 @@ effect<T>(
 ```
 
 An effect runs immediately, tracks state getters called during that run, and reruns after those states change. Dependencies are collected again on every run.
+
+Synchronous writes are batched. If a later effect changes a dependency, an effect
+that already ran can run again in the same microtask flush until updates settle.
+Queued template updates finish before each user-effect execution. Do not rely on
+an effect running only once per flush when effects write state. Cleanup runs
+before each rerun. Prefer derived functions for rendered values.
+
+To bound non-converging updates, each subscriber may execute at most 100 times in
+one flush. An additional attempt logs `Maximum reactive updates exceeded (100
+executions in one flush). Check effects for a state update cycle.` through
+`console.error` and skips further executions of that subscriber for that flush.
+Unrelated queued work continues; future external updates can run it again. This
+is an update limit, not proof of a cycle; exceptionally complex acyclic graphs
+can also reach it.
 
 ```javascript
 const [query, setQuery] = state('')
@@ -240,6 +278,13 @@ effect(() => {
 ## Events
 
 Event attributes receive functions and are installed with `addEventListener`. The event attribute is not emitted into the resulting HTML.
+
+Each dynamic `on*` binding must contain a single function or listener-tuple
+interpolation, optionally surrounded by whitespace. Mixed literal/interpolated
+strings and string handlers are rejected, including SVG events and attribute
+spreads. Explicitly observed, non-native custom-element properties such as `one`
+remain property bindings. Static template source and `unsafeHTML` remain trusted
+HTML inputs; this is not a sanitizer for arbitrary markup.
 
 ```javascript
 const save = (event) => {
@@ -438,7 +483,7 @@ effect(() => {
 - Render a template before expecting its refs to exist.
 - Treat refs as dynamic arrays of currently mounted elements.
 - Return cleanup from `onMount`; call the function returned by `effect` to dispose an effect.
-- Do not return a React-style cleanup function from an effect callback; its return value is cached data.
+- Return a cleanup function from an effect callback to release resources before reruns and disposal; non-function results are cached data.
 - Do not add React Hooks, JSX, a virtual DOM, or framework-specific component conventions.
 - Do not invent Markup APIs. Read the relevant canonical page when uncertain.
 

@@ -16,11 +16,12 @@
     },
     "scripts": {
         "test": "jest --coverage",
+        "test:benchmarks": "node --import tsx benchmarks/benchmark-smoke.test.ts",
         "test:watch": "jest --watch",
         "local": "run-p local:watch local:serve",
         "local:watch": "NODE_ENV=development node build-docs.js && nodemon --exec 'NODE_ENV=development node build-docs.js'",
         "local:serve": "npx netlify dev --offline --no-open --skip-gitignore --dir website --port 8080 --staticServerPort 3998",
-        "build": "rm -rf dist && npm-run-all lint test && tsc --emitDeclarationOnly && node build.js",
+        "build": "rm -rf dist && npm-run-all lint test test:benchmarks && tsc --emitDeclarationOnly && node build.js",
         "lint": "eslint ./src && prettier --check .",
         "format": "eslint ./src --fix && prettier --write .",
         "benchmark": "npm-run-all benchmark:repeat benchmark:dom benchmark:reactive",

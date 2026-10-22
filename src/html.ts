@@ -6,6 +6,7 @@ import { insertNodeAfter } from './utils/insert-node-after.ts'
 import { DoubleLinkedList } from './DoubleLinkedList.ts'
 import { untrack } from './effect-context.ts'
 import { createRenderEffect, isStateGetter } from './state.ts'
+import { serializeHTML } from './utils/serialize-html.ts'
 
 const BASE_PREFIX = '__BFS_V2_'
 const INITIAL = Symbol()
@@ -149,20 +150,21 @@ const spreadName = (name: string) => {
         : turnCamelToKebabCasing(name)
 }
 
-const isKnownHTMLEventName = (name: string) =>
-    typeof (document ?? {})[name as keyof Document] !== 'undefined'
-
 const shouldUseEventListener = (node: Element, name: string) => {
-    const ctor = node.nodeName.includes('-')
-        ? (customElements.get(node.localName) ?? node.constructor)
-        : node.constructor
-
-    return (
-        (node.nodeName.includes('-') &&
-            // @ts-expect-error observedAttributes is a custom-element constructor property
-            !ctor?.observedAttributes?.includes(name)) ||
-        isKnownHTMLEventName(name)
-    )
+    // Event properties vary by element (including SVG) and browser. Treat every
+    // on* binding as an event, except explicitly observed, non-native custom
+    // element properties such as `one`.
+    if (
+        !node.localName.includes('-') ||
+        node.namespaceURI !== 'http://www.w3.org/1999/xhtml' ||
+        name in HTMLElement.prototype ||
+        name in document
+    ) {
+        return true
+    }
+    const ctor = customElements.get(node.localName) ?? node.constructor
+    // @ts-expect-error observedAttributes is a custom-element constructor property
+    return !ctor?.observedAttributes?.includes(name)
 }
 
 const setDynamicValue = (
@@ -601,8 +603,19 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
                 continue
             }
 
-            const exact = markers.exact.exec(attr.value)
+            const eventBinding =
+                name.startsWith('on') && shouldUseEventListener(node, name)
+            const exact = markers.exact.exec(
+                eventBinding ? attr.value.trim() : attr.value
+            )
             const valueIndex = exact ? Number(exact[1]) : null
+
+            if (eventBinding && valueIndex === null) {
+                throw new Error(
+                    `Event binding "${name}" must contain a single interpolation ` +
+                        'with a function or [function, options].'
+                )
+            }
 
             if (name.startsWith('on') && valueIndex !== null) {
                 descriptors.push({
@@ -2044,22 +2057,16 @@ export class HtmlTemplate {
 
     toString() {
         if (this.#mounted) {
-            return this.childNodes
-                .map((node) =>
-                    node instanceof Element ? node.outerHTML : node.nodeValue
-                )
-                .join('')
+            return serializeHTML(this.childNodes)
         }
 
         const host = document.createElement('div')
-        this.render(host)
-        const output = this.childNodes
-            .map((node) =>
-                node instanceof Element ? node.outerHTML : node.nodeValue
-            )
-            .join('')
-        this.unmount()
-        return output
+        try {
+            this.render(host)
+            return serializeHTML(this.childNodes)
+        } finally {
+            this.unmount()
+        }
     }
 }
 

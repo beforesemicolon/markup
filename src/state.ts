@@ -21,6 +21,7 @@ type SchedulerSubscriber = StateSubscriber | ScheduledEffect
 const scheduledRenderExecutions = new Set<SchedulerSubscriber>()
 const scheduledUserExecutions = new Set<SchedulerSubscriber>()
 const stateGetters = new WeakSet<object>()
+const MAX_SUBSCRIBER_EXECUTIONS = 100
 
 let flushPending = false
 
@@ -67,28 +68,38 @@ const runSubscriber = (subscriber: SchedulerSubscriber): void => {
 }
 
 const flushScheduledExecutions = (): void => {
-    const visitedUserSubscribers = new Set<SchedulerSubscriber>()
-    const renderEpochs = new Map<SchedulerSubscriber, number>()
-    let renderEpoch = 0
+    const executionCounts = new Map<SchedulerSubscriber, number>()
+    const execute = (subscriber: SchedulerSubscriber): void => {
+        const count = executionCounts.get(subscriber) ?? 0
+        if (count >= MAX_SUBSCRIBER_EXECUTIONS) {
+            if (count === MAX_SUBSCRIBER_EXECUTIONS) {
+                executionCounts.set(subscriber, count + 1)
+                console.error(
+                    new Error(
+                        `Maximum reactive updates exceeded (${MAX_SUBSCRIBER_EXECUTIONS} executions in one flush). Check effects for a state update cycle.`
+                    )
+                )
+            }
+            return
+        }
 
-    // Keep the DOM current before each user effect while allowing a render
-    // invalidated by that effect to run once more without spinning in a cycle.
+        executionCounts.set(subscriber, count + 1)
+        runSubscriber(subscriber)
+    }
+
+    // A later subscriber may invalidate one that already ran. Drain those
+    // updates too, while bounding cycles per subscriber rather than dropping
+    // valid propagation or cancelling unrelated work.
     while (hasScheduledExecutions()) {
         for (const renderSubscriber of scheduledRenderExecutions) {
             scheduledRenderExecutions.delete(renderSubscriber)
-            if (renderEpochs.get(renderSubscriber) === renderEpoch) continue
-
-            renderEpochs.set(renderSubscriber, renderEpoch)
-            runSubscriber(renderSubscriber)
+            execute(renderSubscriber)
         }
 
+        // Keep the DOM current before every user effect, including reruns.
         const userSubscriber = takeFirstSubscriber(scheduledUserExecutions)
         if (!userSubscriber) break
-        if (visitedUserSubscribers.has(userSubscriber)) continue
-
-        visitedUserSubscribers.add(userSubscriber)
-        runSubscriber(userSubscriber)
-        renderEpoch++
+        execute(userSubscriber)
     }
 }
 
@@ -146,7 +157,21 @@ export const state = <T>(
 
             if (!Object.is(updatedValue, value)) {
                 value = updatedValue
+                const currentResolver = getCurrentResolver()
                 for (const subscriber of subs) {
+                    if (subscriber === currentResolver) {
+                        const readEpoch =
+                            currentResolver.primaryDependency === dependency
+                                ? currentResolver.primaryDependencyEpoch
+                                : currentResolver.additionalDependencies?.get(
+                                      dependency
+                                  )
+                        // A write before this execution's first read cannot
+                        // invalidate that read; it will see the updated value.
+                        if (readEpoch !== currentResolver.dependencyEpoch) {
+                            continue
+                        }
+                    }
                     scheduleSubscriber(subscriber)
                 }
                 if (hasScheduledExecutions()) scheduleExecution()

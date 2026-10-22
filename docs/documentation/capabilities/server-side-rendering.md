@@ -67,6 +67,21 @@ app.use(express.static(path.resolve(__dirname, 'public')))
 
 {{t.pages.documentation.capabilities.server_side_rendering.content.this_also_means_that_you_can_render_templates_on_the_server_and_take_snapshots_on_updates_to_ser}}
 
+### {{t.pages.documentation.capabilities.server_side_rendering.content.safe_serialization}}
+
+{{t.pages.documentation.capabilities.server_side_rendering.content.serialization_boundary}}
+
+{{t.pages.documentation.capabilities.server_side_rendering.content.json_script_data}}
+
+```javascript
+const json = JSON.stringify(data).replace(/</g, '\\u003c')
+const output = html`<script type="application/json">
+    ${json}
+</script>`.toString()
+```
+
+{{t.pages.documentation.capabilities.server_side_rendering.content.serialization_rejections}}
+
 {{t.pages.documentation.capabilities.server_side_rendering.content.now_we_can_serve_our_express_app_with_node_like_so}}
 
 ```typescript

@@ -1,6 +1,11 @@
 import { Bench } from 'tinybench'
+import type { getEnvironmentInfo } from './environment.ts'
 
-export function printReport(title: string, bench: Bench, env: any) {
+export function printReport(
+    title: string,
+    bench: Bench,
+    env: ReturnType<typeof getEnvironmentInfo>
+) {
     console.log(`\n==================================================`)
     console.log(`BENCHMARK RESULT: ${title}`)
     console.log(`==================================================`)
@@ -11,16 +16,16 @@ export function printReport(title: string, bench: Bench, env: any) {
     console.log(`--------------------------------------------------`)
 
     const table = bench.tasks.map((task) => {
-        if (task.error) {
+        const result = task.result
+        if (result?.error) {
             return {
                 Task: task.name,
                 'Ops/sec': 'ERROR',
-                'Mean (ms)': task.error.message,
+                'Mean (ms)': result.error.message,
                 'MoE (%)': 'N/A',
             }
         }
-        const result = task.result
-        if (!result || typeof result.period === 'undefined') {
+        if (!result) {
             return {
                 Task: task.name,
                 'Ops/sec': 'N/A',
@@ -31,9 +36,9 @@ export function printReport(title: string, bench: Bench, env: any) {
 
         return {
             Task: task.name,
-            'Ops/sec': Math.round(result.hz).toLocaleString(),
-            'Mean (ms)': result.period.toFixed(4),
-            'MoE (%)': `±${result.rme.toFixed(2)}%`,
+            'Ops/sec': Math.round(result.throughput.mean).toLocaleString(),
+            'Mean (ms)': result.latency.mean.toFixed(4),
+            'MoE (%)': `±${result.latency.rme.toFixed(2)}%`,
         }
     })
 

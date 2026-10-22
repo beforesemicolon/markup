@@ -195,7 +195,11 @@
                         "now_we_can_serve_our_express_app_with_node_like_so": "现在，我们可以使用 Node 来为我们的 Express 应用程序提供服务，如下所示：",
                         "notice_that_there_is_a_global_jsdom_package_and_all_it_does_is_make_dom_apis_global_that_markup": "请注意，有一个 `global-jsdom` 包，它所做的只是使 DOM API 全局化，以便 Markup 可以正常运行。这实际上是 Node 所必需的，因为 Markup 严重依赖 DOM API。请根据您使用的 JavaScript 环境找到正确的方式加载 DOM API。",
                         "this_is_a_simple_example_on_how_to_approach_rendering_things_on_the_server_the_main_requirement": "这是一个关于如何在服务器上渲染事物的简单示例。主要要求是拥有某种类型的 DOM API，可以在您使用的服务器环境（Deno、Bun、Node 等）上呈现。从那时起，使此类 API 在全球范围内可用将涵盖一切，您可以自由使用 Markup。",
-                        "try_it_out_https_stackblitz_com_edit_stackblitz_starters_a6rvq7": "[尝试一下](https://stackblitz.com/edit/stackblitz-starters-a6rvq7)"
+                        "try_it_out_https_stackblitz_com_edit_stackblitz_starters_a6rvq7": "[尝试一下](https://stackblitz.com/edit/stackblitz-starters-a6rvq7)",
+                        "safe_serialization": "安全的 HTML 序列化",
+                        "serialization_boundary": "`.toString()` 会对模板根部及嵌套节点中的文本进行转义，保留有效注释，并拒绝可能跳出原始文本解析上下文的内容。对已挂载的模板进行序列化时，模板会保持挂载状态且不发生变化。如果临时挂载的模板在序列化时未通过验证，该模板仍会被卸载。",
+                        "json_script_data": "对于 JSON 数据块，请先使用 `JSON.stringify(data).replace(/</g, '\\\\u003c')` 进行序列化，再将结果插入 `script` 元素。读取 `script.textContent`，并使用 `JSON.parse` 还原原始数据；不要对 `script` 内的 JSON 使用 HTML 实体。在可执行的 `script` 元素及 `style` 元素中进行插值时，仍必须使用可信代码：此 API 不会净化 JavaScript 或 CSS。",
+                        "serialization_rejections": "序列化时，如果在 `script`、`style`、`xmp`、`iframe`、`noembed`、`noframes` 或 `noscript` 中遇到与该元素匹配的结束标签前缀（不区分大小写），就会抛出异常；`script` 中的 `<!--` 和 `<script` 前缀也会被拒绝。通过 DOM API 插入 `textarea` 或 `title` 的结束标签序列会被拒绝，而这些元素中的普通文本仍会正常转义。无效注释、处理指令和 `plaintext` 元素也会导致异常。"
                     }
                 },
                 "state_store": {
@@ -370,7 +374,7 @@
                         "some_side_effects_can_stay_there_continuosly_as_a_global_effect_to_something_specific_others_nee": "一些副作用可能会持续存在，作为对特定事物的全局影响。每当定义其他对象的范围消失时，就需要清理它们。",
                         "when_you_call_a_stategetter_inside_the_effect_callback_function_the_effect_becomes_aware_of_the": "当您在 `effect` 回调函数内调用 `StateGetter` 时，`effect` 会意识到该状态，并且此检测是同步完成的。",
                         "the_effect_calls_the_provided_callback_as_soon_as_its_declared_so_it_becomes_aware_of_the_states": "该效果在声明后立即调用提供的回调，以便它了解内部调用的状态。",
-                        "the_effect_also_batches_updates_which_allows_you_to_update_multiple_state_at_once_and_only_have": "`effect` 还可以批量更新，使您可以一次更新多个状态并且只有一个反应。",
+                        "the_effect_also_batches_updates_which_allows_you_to_update_multiple_state_at_once_and_only_have": "`effect` 会批量处理队列刷新（`flush`）前发生的同步状态写入，为每个受影响的副作用安排一次运行。在副作用执行期间发生的状态变化，可以在同一次刷新中安排进一步运行。",
                         "reactive_template_updates_finish_before_user_effects_run_so_dom_reads_and_refs_match_the_current_state": "模板完成渲染后，由状态变更触发的响应式模板更新会先于响应该变更的用户 effect 完成。这样，即使 effect 在 `render()` 之前声明，DOM 读取和模板 refs 也会与 effect 中观察到的状态保持一致。effect 的首次即时调用仍遵循正常的 JavaScript 执行顺序，因此在模板首次渲染之前 refs 尚不存在。",
                         "the_batch_update_is_useful_but_the_effect_also_understand_initialization_which_allows_you_to_mak": "批量更新很有用，但 `effect` 也理解初始化，这允许您在加载时进行大量计算，并且只在完成后运行一次。",
                         "caching": "缓存",
@@ -382,7 +386,8 @@
                         "if_you_do_so_the_cached_data_will_be_the_promise_returned_by_the_function_and_not_the_data_you_r": "如果这样做，缓存的数据将是函数返回的 Promise，而不是从异步回调返回的数据。这意味着您需要解析缓存的数据才能获取值。",
                         "nested_effect": "嵌套效应",
                         "you_can_nest_effect_to_track_different_values_this_allows_for_the_body_of_your_effect_to_react_i": "您可以嵌套 `effect` 来跟踪不同的值。这允许 `effect` 的主体独立反应，同时不同的效果跟踪不同的状态。",
-                        "if_you_want_to_clear_all_effects_you_can_unsubscribe_from_the_outer_most_effect_and_which_will_t": "如果您想清除所有效果，您可以从最外层的`effect`取消订阅，它将为您照顾所有子`effect`。但是，您必须跟踪内部效果，因为每当调用外部效果时，都会创建一个新的内部效果。"
+                        "if_you_want_to_clear_all_effects_you_can_unsubscribe_from_the_outer_most_effect_and_which_will_t": "如果您想清除所有效果，您可以从最外层的`effect`取消订阅，它将为您照顾所有子`effect`。但是，您必须跟踪内部效果，因为每当调用外部效果时，都会创建一个新的内部效果。",
+                        "repeated_updates_and_cycles": "稍后运行的副作用可能会使已运行的副作用失效，因此在同一次队列刷新（`flush`）中，副作用可能反复运行，直到状态稳定。每个用户定义的副作用运行前都会执行 DOM 更新，每次重新运行前都会执行清理。每个订阅者在每次刷新中最多执行 100 次。若再次尝试执行，会通过 `console.error` 报告一个 `Error`，对该订阅者在该次刷新中仅报告一次：`Maximum reactive updates exceeded (100 executions in one flush). Check effects for a state update cycle.` 在当前刷新中，该订阅者剩余的执行会被跳过；队列中其他无关的工作仍会继续处理完毕，后续外部状态更新也可以再次调度该订阅者。达到此限制并不能证明存在循环：足够复杂的无环依赖图也可能达到此限制。"
                     }
                 },
                 "index": {
@@ -432,7 +437,8 @@
                         "event_options": "活动选项",
                         "because_markup_is_using_addeventlistener_behind_the_scenes_it_offers_a_special_syntax_that_allow": "由于 Markup 在后台使用 `addEventListener`，因此它提供了一种特殊的语法，允许您设置本机 HTML 无法设置的选项。",
                         "by_providing_a_tuple_array_with_two_values_you_can_specify_the_handler_and_its_options_to_be_use": "通过提供元组（具有两个值的数组），您可以指定设置事件侦听器时要使用的处理程序及其选项。",
-                        "these_options_are_just_addeventlistener_options_https_developer_mozilla_org_en_us_docs_web_api_e": "这些选项只是 [addEventListener 选项](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#options)，允许您指定如何处理事件，包括定义信号。"
+                        "these_options_are_just_addeventlistener_options_https_developer_mozilla_org_en_us_docs_web_api_e": "这些选项只是 [addEventListener 选项](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#options)，允许您指定如何处理事件，包括定义信号。",
+                        "dynamic_event_binding_contract": "动态 `on*` 绑定必须由单个插值组成，该插值包含一个函数或 `[function, options]`，前后可以有空白字符。字符串形式的事件处理程序以及字面量片段与插值的混合形式都会被拒绝，SVG 和属性展开中的绑定也不例外。显式观察的非原生自定义属性（例如 `one`）仍按属性处理；原生事件（例如 `onclick`）即使列在 `observedAttributes` 中，也必须使用函数。可信的静态模板源码和 `unsafeHTML` 不会经过净化。"
                     }
                 },
                 "html_attributes": {
