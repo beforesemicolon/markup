@@ -182,7 +182,9 @@ const setDynamicValue = (
     attributeOnly = false,
     initial = false
 ) => {
-    setElementAttribute(node, name, value, attributeOnly, initial)
+    untrack(() =>
+        setElementAttribute(node, name, value, attributeOnly, initial)
+    )
 }
 
 const extractTableContext = (
@@ -887,7 +889,7 @@ const removeContiguousRange = (
     const range = document.createRange()
     range.setStartBefore(first)
     range.setEndAfter(last)
-    range.deleteContents()
+    untrack(() => range.deleteContents())
     range.detach()
 
     try {
@@ -910,7 +912,7 @@ const reconcileItems = (
     const errors: unknown[] = []
     const disposeItem = (item: Item) => {
         try {
-            removeItem(item, template)
+            untrack(() => removeItem(item, template))
         } catch (error) {
             errors.push(error)
         }
@@ -1977,8 +1979,10 @@ export class HtmlTemplate {
         ) as DocumentFragment
 
         if (this.#definition.hasCustomElements) {
-            instantiateDefinedCustomElements(fragment)
-            upgradeCustomElements(fragment)
+            untrack(() => {
+                instantiateDefinedCustomElements(fragment)
+                upgradeCustomElements(fragment)
+            })
         }
 
         const descriptors = this.#definition.parts
@@ -2215,7 +2219,9 @@ export class HtmlTemplate {
             while (node) {
                 const next: Node | null = node.nextSibling
                 const current = node
-                dispose(() => current.parentNode?.removeChild(current))
+                dispose(() =>
+                    untrack(() => current.parentNode?.removeChild(current))
+                )
                 if (node === markers[1]) break
                 node = next
             }
