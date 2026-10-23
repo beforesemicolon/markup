@@ -25,4 +25,10 @@ site.config.json
 nodemon.json
 netlify.toml
 benchmarks
+scripts
+bundle-size-report
 plans
+tests
+playwright.config.ts
+playwright-report
+test-results

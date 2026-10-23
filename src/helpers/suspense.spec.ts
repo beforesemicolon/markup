@@ -1,6 +1,8 @@
 import '../../test.common.ts'
 import { html, HtmlTemplate } from '../html.ts'
 import { suspense } from './suspense.ts'
+import { repeat } from './repeat.helper.ts'
+import { state } from '../state.ts'
 
 const deferred = <T>() => {
     let resolvePromise: (value: T | PromiseLike<T>) => void = () => undefined
@@ -22,6 +24,40 @@ const flushAsyncRender = async () => {
 }
 
 describe('suspense', () => {
+    it('starts a new instance-bound async action without replacing its keyed outer row', async () => {
+        const first = deferred<ReturnType<typeof html>>()
+        const second = deferred<ReturnType<typeof html>>()
+        const firstLoad = jest.fn(() => first.promise)
+        const secondLoad = jest.fn(() => second.promise)
+        const staleMount = jest.fn()
+        const [items, setItems] = state([{ id: 1, load: firstLoad }])
+        const view = html`${repeat(items,
+            (item) => html`<section><input />${suspense(item.load)}</section>`,
+            { key: (item) => item.id }
+        )}`.render(document.body)
+        await flushAsyncRender()
+        const row = document.querySelector('section')!
+        const input = document.querySelector('input')!
+        input.value = 'unsaved'
+        expect(firstLoad).toHaveBeenCalledTimes(1)
+
+        setItems([{ id: 1, load: secondLoad }])
+        await flushAsyncRender()
+        expect(document.querySelector('section')).toBe(row)
+        expect(document.querySelector('input')).toBe(input)
+        expect(input.value).toBe('unsaved')
+        expect(secondLoad).toHaveBeenCalledTimes(1)
+        first.resolve(html`stale`.onMount(staleMount))
+        await flushAsyncRender()
+        expect(staleMount).not.toHaveBeenCalled()
+        expect(row.textContent).toBe('loading...')
+
+        second.resolve(html`fresh`)
+        await flushAsyncRender()
+        expect(row.textContent).toBe('fresh')
+        view.unmount()
+    })
+
     it('should handle suspense with defaults', async () => {
         const pending = deferred<ReturnType<typeof html>>()
         const view = html`${suspense(() => pending.promise)}`.render(

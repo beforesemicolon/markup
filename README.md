@@ -105,8 +105,8 @@ yarn add @beforesemicolon/markup
 
 ## Use directly in the Browser
 
-This library requires no build step. The CDN browser build is about 11.5 KB
-gzip (33.9 KB uncompressed, measured from `dist/client.js`).
+This library requires no build step. The CDN browser build is about 12.6 KB
+gzip (36.8 KB uncompressed, measured from `dist/client.js`).
 
 ```html
 <!-- Grab the latest version -->

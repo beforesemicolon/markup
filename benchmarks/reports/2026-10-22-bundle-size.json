@@ -1,0 +1,65 @@
+{
+    "measured_at": "2026-10-22T23:37:53.549Z",
+    "command": "NODE_ENV=production node --input-type=module -e 'import { buildBrowser } from \"@beforesemicolon/builder\"; await buildBrowser({ esbuildOptions: { keepNames: false, sourcemap: false } });'",
+    "environment": {
+        "node": "v24.19.0",
+        "os": "Linux 6.18.55 x64",
+        "builder": "2.0.1",
+        "esbuild": "0.28.2",
+        "builder_entry": "file:///workspace/scratch/ab63895c963b/markup-review/node_modules/@beforesemicolon/builder/dist/esm/index.js",
+        "esbuild_package": "/workspace/scratch/ab63895c963b/markup-review/node_modules/esbuild/package.json",
+        "dependency_directory": "/workspace/scratch/ab63895c963b/markup-review/node_modules",
+        "toolchain_checkout_commit": "7ab137aa2c115ef0702e19bd86c4f9b7d7a7447a",
+        "checkout_lock_sha256": "b8689c7f848a5a05c34f19096b7053b431b2bef0e3b284f29b9a17b808245fea",
+        "installed_lock_sha256": "d699baa51bedf49b84ba94be935afdac5e739ae021ee76c41b2541e1a14a6730",
+        "zlib": "1.3.2.1-motley-3246f1b",
+        "brotli": "1.2.0"
+    },
+    "compression": {
+        "gzip": "gzipSync(buffer), default options",
+        "brotli": "brotliCompressSync(buffer), default options",
+        "brotli_default_quality": 11
+    },
+    "base": {
+        "commit": "1fd15c5e431bc327887dd2c0cc8b526830e5a95d",
+        "tree": "8012d70a998f7c1f3c0229dc8a9d23540316cc18",
+        "source_tree": "68dcbc5b14499f9d23999e987fbbb1df8ed2b4a6",
+        "verified_source_files": 49,
+        "revision_lock_sha256": "1f86b8c38c26855e6da554d267ff8f51bd06b3e94f93d0675a12e8aedf585366",
+        "file": "base.client.js",
+        "bytes": {
+            "sha256": "7bc9d1bb3433ecd99622e13ba9a2b29ca25a1f9111c68b88c1a506ac317857c5",
+            "raw": 33932,
+            "gzip": 11471,
+            "brotli": 10367
+        }
+    },
+    "head": {
+        "commit": "7ab137aa2c115ef0702e19bd86c4f9b7d7a7447a",
+        "tree": "588ae8899b4074703339a8bbae951a0129301598",
+        "source_tree": "f2949b787354bd9c6d8dc8f68b6d92affbb9c91d",
+        "verified_source_files": 57,
+        "revision_lock_sha256": "b8689c7f848a5a05c34f19096b7053b431b2bef0e3b284f29b9a17b808245fea",
+        "file": "head.client.js",
+        "bytes": {
+            "sha256": "9a0fcfaad74bcbf3d0b8dd40cc33a3b168e1dcec68aaffe44e1fd2e4af8cd5eb",
+            "raw": 36773,
+            "gzip": 12569,
+            "brotli": 11358
+        }
+    },
+    "delta": {
+        "raw": {
+            "bytes": 2841,
+            "percent": 8.37262760815749
+        },
+        "gzip": {
+            "bytes": 1098,
+            "percent": 9.5719640833406
+        },
+        "brotli": {
+            "bytes": 991,
+            "percent": 9.559178161473913
+        }
+    }
+}

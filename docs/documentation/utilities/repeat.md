@@ -130,6 +130,27 @@ html`${repeat(todos, renderTodo, options)}`
 - {{t.pages.documentation.utilities.repeat.content.key_function_a_selector_function_that_returns_a_unique_key_for_each_item_highly_recommended_for}}
 - {{t.pages.documentation.utilities.repeat.content.empty_function_a_function_returning_the_template_or_node_to_render_when_the_collection_is_empty}}
 
+### {{t.pages.documentation.utilities.repeat.content.keyed_updates_and_positions}}
+
+{{t.pages.documentation.utilities.repeat.content.keyed_reuse}}
+
+{{t.pages.documentation.utilities.repeat.content.positional_updates}}
+
+```javascript
+html`<ul>
+    ${repeat(
+        items,
+        (item, index) =>
+            html`<li aria-posinset="${index + 1}">${item.name}</li>`,
+        { key: (item) => item.id }
+    )}
+</ul>`
+```
+
+{{t.pages.documentation.utilities.repeat.content.keyed_lifecycles}}
+
+{{t.pages.documentation.utilities.repeat.content.instance_bound_helpers}}
+
 ### {{t.pages.documentation.utilities.repeat.content.lazy_list_rendering}}
 
 {{t.pages.documentation.utilities.repeat.content.to_optimize_lists_with_a_large_number_of_complex_items_you_can_combine_the_repeat_utility_with_t}}

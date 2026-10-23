@@ -1,0 +1,30 @@
+name: Browser interactions
+
+on:
+    push:
+        branches: ['main', 'next']
+    pull_request:
+
+permissions:
+    contents: read
+
+jobs:
+    interactions:
+        name: Browser interactions (${{ matrix.browser }})
+        runs-on: ubuntu-latest
+        timeout-minutes: 20
+        strategy:
+            fail-fast: false
+            matrix:
+                browser: [chromium, firefox, webkit]
+        steps:
+            - uses: actions/checkout@v7
+              with:
+                  persist-credentials: false
+            - uses: actions/setup-node@v7
+              with:
+                  node-version: '24'
+                  cache: npm
+            - run: npm ci
+            - run: npx playwright install --with-deps ${{ matrix.browser }}
+            - run: npm run test:browser -- --project=${{ matrix.browser }}

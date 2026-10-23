@@ -2040,6 +2040,103 @@ describe('html', () => {
 			template.unmount()
 		})
 
+		it('should not track state read while disconnecting a custom element during an update', () => {
+			const [visible, setVisible] = state(true)
+			const [externalValue, setExternalValue] = state('outside')
+			const renderValue = jest.fn(() =>
+				visible()
+					? html`<disconnect-state-reader></disconnect-state-reader>`
+					: ''
+			)
+			const disconnected = jest.fn()
+
+			class DisconnectStateReader extends HTMLElement {
+				disconnectedCallback() {
+					disconnected(externalValue())
+				}
+			}
+
+			customElements.define(
+				'disconnect-state-reader',
+				DisconnectStateReader
+			)
+			const template = html`${renderValue}`.render(document.body)
+
+			setVisible(false)
+			jest.advanceTimersToNextTimer()
+
+			expect(renderValue).toHaveBeenCalledTimes(2)
+			expect(disconnected).toHaveBeenCalledTimes(1)
+			setExternalValue('changed')
+			jest.advanceTimersToNextTimer()
+
+			expect(renderValue).toHaveBeenCalledTimes(2)
+			expect(disconnected).toHaveBeenCalledTimes(1)
+			template.unmount()
+		})
+
+		it('should not track state read while upgrading a custom element', () => {
+			const [visible, setVisible] = state(false)
+			const [externalValue, setExternalValue] = state('outside')
+			const renderValue = jest.fn(() =>
+				visible()
+					? html`<upgrade-state-reader mode="ready"></upgrade-state-reader>`
+					: ''
+			)
+			const attributeChanged = jest.fn()
+
+			class UpgradeStateReader extends HTMLElement {
+				static observedAttributes = ['mode']
+
+				attributeChangedCallback() {
+					attributeChanged(externalValue())
+				}
+			}
+
+			customElements.define('upgrade-state-reader', UpgradeStateReader)
+			const template = html`${renderValue}`.render(document.body)
+
+			setVisible(true)
+			jest.advanceTimersToNextTimer()
+			const element = document.body.firstElementChild
+
+			expect(renderValue).toHaveBeenCalledTimes(2)
+			expect(attributeChanged).toHaveBeenCalledTimes(1)
+			setExternalValue('changed')
+			jest.advanceTimersToNextTimer()
+
+			expect(renderValue).toHaveBeenCalledTimes(2)
+			expect(document.body.firstElementChild).toBe(element)
+			template.unmount()
+		})
+
+		it('should not track state read by a custom element property setter', () => {
+			const [items, setItems] = state([1])
+			const [elementItems, setElementItems] = state<number[]>([])
+			const renderItems = jest.fn(() => [...items()])
+
+			class PropertyStateReader extends HTMLElement {
+				set items(value: number[]) {
+					elementItems()
+					setElementItems(value)
+				}
+			}
+
+			customElements.define('property-state-reader', PropertyStateReader)
+			const template = html`<property-state-reader
+				items="${renderItems}"
+			></property-state-reader>`.render(document.body)
+			jest.advanceTimersToNextTimer()
+
+			expect(renderItems).toHaveBeenCalledTimes(1)
+			setItems([2])
+			jest.advanceTimersToNextTimer()
+
+			expect(renderItems).toHaveBeenCalledTimes(2)
+			expect(elementItems()).toEqual([2])
+			template.unmount()
+		})
+
 		it('should preserve effects created while connecting a custom element', () => {
 			const [status, setStatus] = state<'idle' | 'loaded'>('idle')
 			const tagName = 'connected-reactive-render'

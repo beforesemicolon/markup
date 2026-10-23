@@ -1,0 +1,269 @@
+{
+    "started_at": "2026-10-22T23:38:17.465Z",
+    "finished_at": "2026-10-22T23:40:31.150Z",
+    "environment": {
+        "node": "v24.19.0",
+        "os": "Linux 6.18.55 x64",
+        "cpu": "AMD EPYC 9V74 80-Core Processor",
+        "logical_cpus": 9,
+        "tinybench": "3.1.1",
+        "jsdom": "25.0.1",
+        "lock_sha256": "b8689c7f848a5a05c34f19096b7053b431b2bef0e3b284f29b9a17b808245fea",
+        "source_commit": "7ab137aa2c115ef0702e19bd86c4f9b7d7a7447a",
+        "source_tree": "f2949b787354bd9c6d8dc8f68b6d92affbb9c91d",
+        "source_dirty": false,
+        "harness_sha256": {
+            "benchmarks/positional-list.bench.ts": "061d3e406ac3f0b57c54ecedbda3a73db4f38093768b2d9e54122a2405499175",
+            "benchmarks/helpers/positional-list-suite.ts": "4f73422c5610188761fecf2f3a5db36133ea3aca10c73c3eb491d48b9a043daa",
+            "benchmarks/helpers/fixtures.ts": "486f06366b76683b90fcc247be629cb3999429a9be8e669297b2759fea61e14d",
+            "benchmarks/helpers/scenarios.ts": "0d7486bcb57ab378baa84b6bba9e409e11845d22d8e93c9753e9206227b00c6d"
+        }
+    },
+    "workload": {
+        "sizes": [1000, 10000],
+        "key": "item.id",
+        "row": "li with index text, aria-posinset, and a button with a stable event handler",
+        "immutable": "new object and changed name for every row",
+        "timings": "state write + rendering microtask; no lifecycle hooks or counters",
+        "excluded": "initial mount, fixture reset, input allocation, assertions, final unmount",
+        "counts": "separate instrumented pass; reset and teardown excluded"
+    },
+    "options": {
+        "time": 0,
+        "iterations": 5,
+        "warmupTime": 0,
+        "warmupIterations": 2
+    },
+    "timings": [
+        {
+            "size": 1000,
+            "name": "prepend - indexed keyed rows - size 1000",
+            "samples": 5,
+            "verified_iterations": 7,
+            "latency_ms": {
+                "mean": 6.460612999999921,
+                "p50": 6.616704000000027,
+                "sd": 0.7462360115701621,
+                "rme": 14.341895880930355,
+                "min": 5.4497199999996155,
+                "max": 7.3041299999999865,
+                "samples": [
+                    5.4497199999996155, 5.981684000000087, 6.616704000000027,
+                    6.95082699999989, 7.3041299999999865
+                ]
+            }
+        },
+        {
+            "size": 1000,
+            "name": "remove - indexed keyed rows - size 1000",
+            "samples": 5,
+            "verified_iterations": 7,
+            "latency_ms": {
+                "mean": 3.9276856000000406,
+                "p50": 3.9173460000001796,
+                "sd": 0.26700523709526486,
+                "rme": 8.440868847370265,
+                "min": 3.6288399999998546,
+                "max": 4.32125700000006,
+                "samples": [
+                    3.6288399999998546, 3.7489410000002863, 3.9173460000001796,
+                    4.022043999999823, 4.32125700000006
+                ]
+            }
+        },
+        {
+            "size": 1000,
+            "name": "reverse - indexed keyed rows - size 1000",
+            "samples": 5,
+            "verified_iterations": 7,
+            "latency_ms": {
+                "mean": 74.51488239999999,
+                "p50": 68.74856599999976,
+                "sd": 10.401617287483834,
+                "rme": 17.332529144490202,
+                "min": 68.3452769999999,
+                "max": 92.56294000000025,
+                "samples": [
+                    68.3452769999999, 68.53917000000001, 68.74856599999976,
+                    74.37845900000002, 92.56294000000025
+                ]
+            }
+        },
+        {
+            "size": 1000,
+            "name": "immutable - indexed keyed rows - size 1000",
+            "samples": 5,
+            "verified_iterations": 7,
+            "latency_ms": {
+                "mean": 2.3808836000000158,
+                "p50": 2.4206359999998313,
+                "sd": 0.28592235975659636,
+                "rme": 14.911249772615045,
+                "min": 2.096716000000015,
+                "max": 2.777144000000135,
+                "samples": [
+                    2.096716000000015, 2.1098660000002383, 2.4206359999998313,
+                    2.5000559999998586, 2.777144000000135
+                ]
+            }
+        },
+        {
+            "size": 10000,
+            "name": "prepend - indexed keyed rows - size 10000",
+            "samples": 5,
+            "verified_iterations": 7,
+            "latency_ms": {
+                "mean": 77.41147580000106,
+                "p50": 78.76958800000284,
+                "sd": 5.924263561581523,
+                "rme": 9.502395742061413,
+                "min": 69.50908500000514,
+                "max": 82.87987499999872,
+                "samples": [
+                    69.50908500000514, 73.17379000000074, 78.76958800000284,
+                    82.72504099999787, 82.87987499999872
+                ]
+            }
+        },
+        {
+            "size": 10000,
+            "name": "remove - indexed keyed rows - size 10000",
+            "samples": 5,
+            "verified_iterations": 7,
+            "latency_ms": {
+                "mean": 41.7781117999999,
+                "p50": 39.60052499999438,
+                "sd": 4.5105102642362835,
+                "rme": 13.405436405172258,
+                "min": 37.67904200000339,
+                "max": 49.10456200000044,
+                "samples": [
+                    37.67904200000339, 39.57890200000111, 39.60052499999438,
+                    42.927528000000166, 49.10456200000044
+                ]
+            }
+        },
+        {
+            "size": 10000,
+            "name": "reverse - indexed keyed rows - size 10000",
+            "samples": 5,
+            "verified_iterations": 7,
+            "latency_ms": {
+                "mean": 7256.994933799998,
+                "p50": 7313.096374999994,
+                "sd": 110.42177837635252,
+                "rme": 1.8893047064008157,
+                "min": 7089.660982000001,
+                "max": 7349.296553,
+                "samples": [
+                    7089.660982000001, 7199.658151999996, 7313.096374999994,
+                    7333.262606999997, 7349.296553
+                ]
+            }
+        },
+        {
+            "size": 10000,
+            "name": "immutable - indexed keyed rows - size 10000",
+            "samples": 5,
+            "verified_iterations": 7,
+            "latency_ms": {
+                "mean": 32.502324000000954,
+                "p50": 31.458339000004344,
+                "sd": 2.245709197467314,
+                "rme": 8.579128867616223,
+                "min": 29.93793299999379,
+                "max": 34.974138999998104,
+                "samples": [
+                    29.93793299999379, 31.374863000004552, 31.458339000004344,
+                    34.76634600000398, 34.974138999998104
+                ]
+            }
+        }
+    ],
+    "counts": [
+        {
+            "size": 1000,
+            "initial": {
+                "renderers": 1000,
+                "mounts": 1000,
+                "cleanups": 0
+            },
+            "operations": [
+                {
+                    "operation": "prepend",
+                    "counts": {
+                        "renderers": 1001,
+                        "mounts": 1,
+                        "cleanups": 0
+                    }
+                },
+                {
+                    "operation": "remove",
+                    "counts": {
+                        "renderers": 499,
+                        "mounts": 0,
+                        "cleanups": 1
+                    }
+                },
+                {
+                    "operation": "reverse",
+                    "counts": {
+                        "renderers": 1000,
+                        "mounts": 0,
+                        "cleanups": 0
+                    }
+                },
+                {
+                    "operation": "immutable",
+                    "counts": {
+                        "renderers": 1000,
+                        "mounts": 0,
+                        "cleanups": 0
+                    }
+                }
+            ]
+        },
+        {
+            "size": 10000,
+            "initial": {
+                "renderers": 10000,
+                "mounts": 10000,
+                "cleanups": 0
+            },
+            "operations": [
+                {
+                    "operation": "prepend",
+                    "counts": {
+                        "renderers": 10001,
+                        "mounts": 1,
+                        "cleanups": 0
+                    }
+                },
+                {
+                    "operation": "remove",
+                    "counts": {
+                        "renderers": 4999,
+                        "mounts": 0,
+                        "cleanups": 1
+                    }
+                },
+                {
+                    "operation": "reverse",
+                    "counts": {
+                        "renderers": 10000,
+                        "mounts": 0,
+                        "cleanups": 0
+                    }
+                },
+                {
+                    "operation": "immutable",
+                    "counts": {
+                        "renderers": 10000,
+                        "mounts": 0,
+                        "cleanups": 0
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -270,7 +270,7 @@ describe('repeat keyed template rebinding', () => {
         expect(document.body.querySelector('span')).toBeNull()
     })
 
-    it('falls back for lifecycle templates to preserve mount cleanup behavior', () => {
+    it('retains lifecycle templates until their keyed row is removed', () => {
         const mount = jest.fn(() => cleanup)
         const cleanup = jest.fn()
         const [items, setItems] = state<Item[]>([
@@ -288,12 +288,14 @@ describe('repeat keyed template rebinding', () => {
         setItems([{ id: 1, name: 'ONE' }])
         jest.advanceTimersToNextTimer()
 
-        expect(document.body.querySelector('span')).not.toBe(firstNode)
-        expect(mount).toHaveBeenCalledTimes(2)
+        expect(document.body.querySelector('span')).toBe(firstNode)
+        expect(mount).toHaveBeenCalledTimes(1)
+        expect(cleanup).not.toHaveBeenCalled()
+        view.unmount()
         expect(cleanup).toHaveBeenCalledTimes(1)
     })
 
-    it('falls back for reactive function slots', () => {
+    it('rebinds reactive function slots without replacing keyed rows', () => {
         const [items, setItems] = state<Item[]>([
             { id: 1, name: 'one' },
         ])
@@ -309,8 +311,9 @@ describe('repeat keyed template rebinding', () => {
         setItems([{ id: 1, name: 'ONE' }])
         jest.advanceTimersToNextTimer()
 
-        expect(document.body.querySelector('span')).not.toBe(firstNode)
+        expect(document.body.querySelector('span')).toBe(firstNode)
         expect(document.body.textContent).toBe('ONE')
+        view.unmount()
     })
 
     it('rebinds reactive attribute slots without replacing keyed rows', () => {
@@ -341,7 +344,7 @@ describe('repeat keyed template rebinding', () => {
         expect(updatedNode?.className).toBe('active')
     })
 
-    it('falls back for nested template values', () => {
+    it('rebinds nested template values without replacing keyed rows', () => {
         const [items, setItems] = state<Item[]>([
             { id: 1, name: 'one' },
         ])
@@ -357,8 +360,9 @@ describe('repeat keyed template rebinding', () => {
         setItems([{ id: 1, name: 'ONE' }])
         jest.advanceTimersToNextTimer()
 
-        expect(document.body.querySelector('span')).not.toBe(firstNode)
+        expect(document.body.querySelector('span')).toBe(firstNode)
         expect(document.body.innerHTML).toBe('<span><b>ONE</b></span>')
+        view.unmount()
     })
 
     it('keeps the existing stable-reference renderer cache behavior', () => {
