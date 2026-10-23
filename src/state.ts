@@ -12,15 +12,15 @@ import {
     getCurrentResolver,
     popCurrentResolver,
     pushCurrentResolver,
-    ScheduledEffect,
     untrack,
 } from './effect-context.ts'
 
-type SchedulerSubscriber = StateSubscriber | ScheduledEffect
+type SchedulerSubscriber = StateSubscriber | EffectResolver
 
 const scheduledRenderExecutions = new Set<SchedulerSubscriber>()
 const scheduledUserExecutions = new Set<SchedulerSubscriber>()
 const stateGetters = new WeakSet<object>()
+const MAX_SUBSCRIBER_EXECUTIONS = 100
 
 let flushPending = false
 
@@ -32,7 +32,7 @@ const hasScheduledExecutions = (): boolean =>
 
 const isScheduledEffect = (
     subscriber: SchedulerSubscriber
-): subscriber is ScheduledEffect => typeof subscriber !== 'function'
+): subscriber is EffectResolver => typeof subscriber !== 'function'
 
 const isEffectCleanup = <T>(
     value: T | EffectCleanup | undefined
@@ -67,28 +67,55 @@ const runSubscriber = (subscriber: SchedulerSubscriber): void => {
 }
 
 const flushScheduledExecutions = (): void => {
-    const visitedUserSubscribers = new Set<SchedulerSubscriber>()
-    const renderEpochs = new Map<SchedulerSubscriber, number>()
-    let renderEpoch = 0
+    const userExecutionCounts = new Map<SchedulerSubscriber, number>()
+    const renderExecutionCounts = new Map<SchedulerSubscriber, number>()
+    let reportedSubscribers: Set<SchedulerSubscriber> | undefined
+    const execute = (
+        subscriber: SchedulerSubscriber,
+        executionCounts: Map<SchedulerSubscriber, number>
+    ): boolean => {
+        if (isScheduledEffect(subscriber) && subscriber.disposed) return false
+        const count = executionCounts.get(subscriber) ?? 0
+        if (count >= MAX_SUBSCRIBER_EXECUTIONS) {
+            if (!reportedSubscribers?.has(subscriber)) {
+                reportedSubscribers ??= new Set()
+                reportedSubscribers.add(subscriber)
+                const scope =
+                    executionCounts === renderExecutionCounts
+                        ? 'render pass'
+                        : 'flush'
+                console.error(
+                    new Error(
+                        `Maximum reactive updates exceeded (${MAX_SUBSCRIBER_EXECUTIONS} executions in one ${scope}). Check effects for a state update cycle.`
+                    )
+                )
+            }
+            return false
+        }
 
-    // Keep the DOM current before each user effect while allowing a render
-    // invalidated by that effect to run once more without spinning in a cycle.
+        executionCounts.set(subscriber, count + 1)
+        runSubscriber(subscriber)
+        return true
+    }
+
+    // A later subscriber may invalidate one that already ran. Drain those
+    // updates too, while bounding cycles per subscriber rather than dropping
+    // valid propagation or cancelling unrelated work.
     while (hasScheduledExecutions()) {
         for (const renderSubscriber of scheduledRenderExecutions) {
             scheduledRenderExecutions.delete(renderSubscriber)
-            if (renderEpochs.get(renderSubscriber) === renderEpoch) continue
-
-            renderEpochs.set(renderSubscriber, renderEpoch)
-            runSubscriber(renderSubscriber)
+            execute(renderSubscriber, renderExecutionCounts)
         }
 
+        // Keep the DOM current before every user effect, including reruns.
         const userSubscriber = takeFirstSubscriber(scheduledUserExecutions)
         if (!userSubscriber) break
-        if (visitedUserSubscribers.has(userSubscriber)) continue
-
-        visitedUserSubscribers.add(userSubscriber)
-        runSubscriber(userSubscriber)
-        renderEpoch++
+        if (execute(userSubscriber, userExecutionCounts)) {
+            // Independent producers may each update the same displayed value.
+            // Bound render-only cycles within a pass, not these valid commits
+            // across user effects. User cycles remain bounded for the flush.
+            renderExecutionCounts.clear()
+        }
     }
 }
 
@@ -146,7 +173,21 @@ export const state = <T>(
 
             if (!Object.is(updatedValue, value)) {
                 value = updatedValue
+                const currentResolver = getCurrentResolver()
                 for (const subscriber of subs) {
+                    if (subscriber === currentResolver) {
+                        const readEpoch =
+                            currentResolver.primaryDependency === dependency
+                                ? currentResolver.primaryDependencyEpoch
+                                : currentResolver.additionalDependencies?.get(
+                                      dependency
+                                  )
+                        // A write before this execution's first read cannot
+                        // invalidate that read; it will see the updated value.
+                        if (readEpoch !== currentResolver.dependencyEpoch) {
+                            continue
+                        }
+                    }
                     scheduleSubscriber(subscriber)
                 }
                 if (hasScheduledExecutions()) scheduleExecution()

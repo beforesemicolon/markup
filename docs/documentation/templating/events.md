@@ -28,6 +28,8 @@ html`<button onclick="${handleClick}">click me</button>`.render(document.body)
 
 {{t.pages.documentation.templating.events.content.this_allows_your_html_to_have_event_listeners_and_be_safe_by_not_allowing_unsafe_inline_event_li}}
 
+{{t.pages.documentation.templating.events.content.dynamic_event_binding_contract}}
+
 ### {{t.pages.documentation.templating.events.content.event_options}}
 
 {{t.pages.documentation.templating.events.content.because_markup_is_using_addeventlistener_behind_the_scenes_it_offers_a_special_syntax_that_allow}}

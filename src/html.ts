@@ -6,6 +6,7 @@ import { insertNodeAfter } from './utils/insert-node-after.ts'
 import { DoubleLinkedList } from './DoubleLinkedList.ts'
 import { untrack } from './effect-context.ts'
 import { createRenderEffect, isStateGetter } from './state.ts'
+import { serializeHTML } from './utils/serialize-html.ts'
 
 const BASE_PREFIX = '__BFS_V2_'
 const INITIAL = Symbol()
@@ -29,6 +30,7 @@ type Descriptor =
           name: string
           pieces: Piece[]
           attributeOnly: boolean
+          deferredEventValue?: number | null
       }
     | {
           type: 'event'
@@ -149,21 +151,28 @@ const spreadName = (name: string) => {
         : turnCamelToKebabCasing(name)
 }
 
-const isKnownHTMLEventName = (name: string) =>
-    typeof (document ?? {})[name as keyof Document] !== 'undefined'
-
 const shouldUseEventListener = (node: Element, name: string) => {
-    const ctor = node.nodeName.includes('-')
-        ? (customElements.get(node.localName) ?? node.constructor)
-        : node.constructor
-
-    return (
-        (node.nodeName.includes('-') &&
-            // @ts-expect-error observedAttributes is a custom-element constructor property
-            !ctor?.observedAttributes?.includes(name)) ||
-        isKnownHTMLEventName(name)
-    )
+    // Event properties vary by element (including SVG) and browser. Treat every
+    // on* binding as an event, except explicitly observed, non-native custom
+    // element properties such as `one`.
+    if (
+        !node.localName.includes('-') ||
+        node.namespaceURI !== 'http://www.w3.org/1999/xhtml' ||
+        name in HTMLElement.prototype ||
+        name in document
+    ) {
+        return true
+    }
+    const ctor = customElements.get(node.localName) ?? node.constructor
+    // @ts-expect-error observedAttributes is a custom-element constructor property
+    return !ctor?.observedAttributes?.includes(name)
 }
+
+const invalidEventInterpolation = (name: string) =>
+    new Error(
+        `Event binding "${name}" must contain a single interpolation ` +
+            'with a function or [function, options].'
+    )
 
 const setDynamicValue = (
     node: Element,
@@ -601,10 +610,40 @@ function compile(parts: TemplateStringsArray | string[]): Definition {
                 continue
             }
 
-            const exact = markers.exact.exec(attr.value)
+            const deferEventBinding =
+                name.startsWith('on') &&
+                node.localName.includes('-') &&
+                node.namespaceURI === 'http://www.w3.org/1999/xhtml' &&
+                !customElements.get(node.localName)
+            const eventBinding =
+                !deferEventBinding &&
+                name.startsWith('on') &&
+                shouldUseEventListener(node, name)
+            const exact = markers.exact.exec(
+                eventBinding ? attr.value.trim() : attr.value
+            )
             const valueIndex = exact ? Number(exact[1]) : null
 
-            if (name.startsWith('on') && valueIndex !== null) {
+            if (eventBinding && valueIndex === null) {
+                throw invalidEventInterpolation(name)
+            }
+
+            if (deferEventBinding) {
+                // Registration may happen between compilation and mounting.
+                // Preserve the property pieces while retaining the potential
+                // event's single interpolation, ignoring surrounding whitespace.
+                const eventExact = markers.exact.exec(attr.value.trim())
+                descriptors.push({
+                    type: 'attr',
+                    node: templateNodeIndexes.get(node)!,
+                    name: attr.name,
+                    pieces: parsePieces(attr.value, markers),
+                    attributeOnly: false,
+                    deferredEventValue: eventExact
+                        ? Number(eventExact[1])
+                        : null,
+                })
+            } else if (name.startsWith('on') && valueIndex !== null) {
                 descriptors.push({
                     type: 'event',
                     node: templateNodeIndexes.get(node)!,
@@ -1702,6 +1741,24 @@ export class HtmlTemplate {
         this.#primaryEffectUnsubscribe = undefined
         this.#additionalPartEffects = undefined
 
+        // Reject deferred mixed events before evaluating or writing bindings.
+        // This also avoids creating subscriptions for a mount that cannot finish.
+        if (this.#definition.hasCustomElements) {
+            for (let index = 0; index < descriptors.length; index++) {
+                const descriptor = descriptors[index]
+                if (
+                    descriptor.type === 'attr' &&
+                    descriptor.deferredEventValue === null &&
+                    shouldUseEventListener(
+                        clonedNodes[offset + index] as Element,
+                        descriptor.name
+                    )
+                ) {
+                    throw invalidEventInterpolation(descriptor.name)
+                }
+            }
+        }
+
         for (let index = 0; index < descriptors.length; index++) {
             const descriptor = descriptors[index]
             const compiledNode = clonedNodes[offset + index]
@@ -1730,13 +1787,28 @@ export class HtmlTemplate {
                     current: '',
                 }
             } else if (descriptor.type === 'attr') {
-                part = {
-                    type: 'attr',
-                    node: compiledNode as Element,
-                    name: descriptor.name,
-                    pieces: descriptor.pieces,
-                    attributeOnly: descriptor.attributeOnly,
-                    current: INITIAL,
+                const node = compiledNode as Element
+                if (
+                    descriptor.deferredEventValue !== undefined &&
+                    shouldUseEventListener(node, descriptor.name)
+                ) {
+                    part = {
+                        type: 'event',
+                        node,
+                        name: descriptor.name,
+                        eventName: descriptor.name.slice(2),
+                        value: descriptor.deferredEventValue!,
+                        asProperty: false,
+                    }
+                } else {
+                    part = {
+                        type: 'attr',
+                        node,
+                        name: descriptor.name,
+                        pieces: descriptor.pieces,
+                        attributeOnly: descriptor.attributeOnly,
+                        current: INITIAL,
+                    }
                 }
             } else if (descriptor.type === 'event') {
                 const node = compiledNode as Element
@@ -2044,22 +2116,16 @@ export class HtmlTemplate {
 
     toString() {
         if (this.#mounted) {
-            return this.childNodes
-                .map((node) =>
-                    node instanceof Element ? node.outerHTML : node.nodeValue
-                )
-                .join('')
+            return serializeHTML(this.childNodes)
         }
 
         const host = document.createElement('div')
-        this.render(host)
-        const output = this.childNodes
-            .map((node) =>
-                node instanceof Element ? node.outerHTML : node.nodeValue
-            )
-            .join('')
-        this.unmount()
-        return output
+        try {
+            this.render(host)
+            return serializeHTML(this.childNodes)
+        } finally {
+            this.unmount()
+        }
     }
 }
 
