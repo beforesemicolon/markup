@@ -130,6 +130,11 @@ const resolve = (value: unknown): unknown => {
     return isStateGetter(value) ? result : resolve(result)
 }
 
+const isRebindableValue = (value: unknown) =>
+    value === null ||
+    value === undefined ||
+    (typeof value !== 'object' && typeof value !== 'function')
+
 const getAttributeValue = (parts: Piece[], values: unknown[]) => {
     if (parts.length === 1 && typeof parts[0] === 'number') {
         return resolve(values[parts[0]])
@@ -1451,7 +1456,46 @@ export class HtmlTemplate {
 
     /** @internal */
     __rebind__(next: HtmlTemplate) {
+        // A keyed custom-element row can initialize private state at mount.
+        // Keep the established attribute/event fast path, but do not transfer
+        // child, spread, or property-bound state between logical row instances.
+        if (
+            this.#definition.hasCustomElements &&
+            (!this.#customElementValuesAreRebindable(this.#values) ||
+                !this.#customElementValuesAreRebindable(next.#values))
+        ) {
+            return false
+        }
         return this.__updateFrom(next)
+    }
+
+    #customElementValuesAreRebindable(values: unknown[]) {
+        return values.every((value, valueIndex) => {
+            if (isRebindableValue(value)) return true
+            if (typeof value !== 'function') return false
+
+            let referenced = false
+            for (const part of this.#runtime) {
+                const usesValue =
+                    part.type === 'event' || part.type === 'ref'
+                        ? part.value === valueIndex
+                        : (part.type === 'raw' || part.type === 'attr') &&
+                          part.pieces.includes(valueIndex)
+
+                if (!usesValue) continue
+                referenced = true
+
+                if (
+                    part.type === 'child' ||
+                    part.type === 'spread' ||
+                    (part.type === 'event' && part.asProperty)
+                ) {
+                    return false
+                }
+            }
+
+            return referenced
+        })
     }
 
     #isReactive(part: Runtime) {

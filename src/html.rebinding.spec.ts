@@ -54,6 +54,83 @@ describe('keyed row rebinding', () => {
         expect(document.body.childNodes).toHaveLength(0)
     })
 
+    it('replaces a custom-element row when reactive children bind its instance state', () => {
+        const tagName = 'rebind-instance-state'
+
+        class RebindInstanceState extends HTMLElement {
+            connectedCallback(): void {
+                this.dataset.initialValue =
+                    this.getAttribute('data-value') ?? ''
+            }
+        }
+
+        customElements.define(tagName, RebindInstanceState)
+        const [items, setItems] = state([{ id: 1, name: 'first' }])
+        const view = html`${repeat(
+            items,
+            (item) => html`<rebind-instance-state
+                data-value="${item.name}"
+                >${() => item.name}</rebind-instance-state
+            >`,
+            { key: (item) => item.id }
+        )}`.render(document.body)
+        const first = document.querySelector<HTMLElement>(tagName)!
+
+        setItems([{ id: 1, name: 'second' }])
+        flush()
+        const second = document.querySelector<HTMLElement>(tagName)!
+
+        expect(second).not.toBe(first)
+        expect(second.dataset.initialValue).toBe('second')
+        expect(second.textContent).toBe('second')
+        view.unmount()
+    })
+
+    it('keeps an attribute-only custom-element row during a compatible rebind', () => {
+        const tagName = 'rebind-attribute-state'
+        customElements.define(tagName, class extends HTMLElement {})
+        const [items, setItems] = state([{ id: 1, name: 'first' }])
+        const view = html`${repeat(
+            items,
+            (item) =>
+                html`<rebind-attribute-state
+                    data-value="${item.name}"
+                ></rebind-attribute-state>`,
+            { key: (item) => item.id }
+        )}`.render(document.body)
+        const element = document.querySelector(tagName)!
+
+        setItems([{ id: 1, name: 'second' }])
+        flush()
+
+        expect(document.querySelector(tagName)).toBe(element)
+        expect(element.getAttribute('data-value')).toBe('second')
+        view.unmount()
+    })
+
+    it('keeps a custom-element shell during a direct child update', () => {
+        const tagName = 'rebind-parent-shell'
+        customElements.define(tagName, class extends HTMLElement {})
+        const [label, setLabel] = state('first')
+        const renderShell = () => {
+            const current = label()
+            return html`<rebind-parent-shell
+                ><section>${() => current}</section></rebind-parent-shell
+            >`
+        }
+        const view = html`${renderShell}`.render(document.body)
+        const shell = document.querySelector(tagName)!
+        const section = shell.querySelector('section')!
+
+        setLabel('second')
+        flush()
+
+        expect(document.querySelector(tagName)).toBe(shell)
+        expect(shell.querySelector('section')).toBe(section)
+        expect(section.textContent).toBe('second')
+        view.unmount()
+    })
+
     it.each([false, true])(
         'preserves one text representation through slot changes (initially reactive: %s)',
         (reactive) => {
