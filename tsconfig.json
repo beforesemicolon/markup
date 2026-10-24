@@ -2,7 +2,13 @@
     "compilerOptions": {
         "target": "ESNEXT",
         "module": "nodenext",
-        "lib": ["dom", "es2015.proxy", "es2021.promise", "es2021.weakref"],
+        "lib": [
+            "dom",
+            "es2015.proxy",
+            "es2021.promise",
+            "es2021.weakref",
+            "es2022.array"
+        ],
         "declaration": true,
         "stripInternal": true,
         "declarationMap": false,
