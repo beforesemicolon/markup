@@ -33,11 +33,15 @@ for (const size of [3, 60]) {
                         options.iterations + options.warmupIterations,
                         `${task.name}: validate both warmup and measured iterations`
                     )
-                    assert.equal(
-                        task.result?.latency.samples.length,
-                        options.iterations,
-                        task.name
+                    const samples = task.result?.latency.samples
+                    assert.ok(Array.isArray(samples), task.name)
+                    assert.ok(
+                        samples.every(
+                            (sample) => Number.isFinite(sample) && sample >= 0
+                        ),
+                        `${task.name}: retain real measured latency samples`
                     )
+                    assert.equal(samples.length, options.iterations, task.name)
                 }
             } finally {
                 suite.dispose()

@@ -31,7 +31,7 @@ node --import tsx benchmarks/benchmark-smoke.test.ts
 
 ## What is timed
 
-The suites use the locked Tinybench 3 API: per-task `beforeEach` and `afterEach` hooks run outside the timed function, during both warmup and measurement. Suite-wide setup alone would not reset individual samples.
+The suites use the locked Tinybench 6 API: per-task `beforeEach` and `afterEach` hooks run outside the timed function, during both warmup and measurement. Suite-wide setup alone would not reset individual samples. Each suite explicitly enables `retainSamples` (off by default in Tinybench 6), preserving measured latency samples for correctness checks and the positional JSON report. This does not change the timed operation or include warmup samples in the report.
 
 - **Cache evaluation:** time the `repeat` evaluator. Initial evaluation starts with a new cache; update scenarios start with a populated baseline cache. Input array allocation, immutable copies, baseline restoration, and assertions are outside the timer.
 - **Initial DOM mount:** time `.render()` on a fresh template. Host and outer template creation, result checks, and `.unmount()` are outside the timer. Rendering child templates is part of the mount. Compiled template caches can be warm; this is not a cold JavaScript engine or first-page-load measurement.
