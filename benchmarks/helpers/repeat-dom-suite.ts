@@ -22,7 +22,12 @@ export function createRepeatDomSuite(
     size: number,
     options: BenchOptions = {}
 ): BenchmarkSuite {
-    const bench = new Bench({ time: 100, ...options, throws: true })
+    const bench = new Bench({
+        time: 100,
+        ...options,
+        retainSamples: true,
+        throws: true,
+    })
     const verifiedIterations = new Map<string, number>()
     const items = generateItems(size)
     const activeTemplates = new Set<HtmlTemplate>()

@@ -143,6 +143,7 @@ export function createPositionalListSuite(
         warmupTime: 0,
         warmupIterations: 5,
         ...options,
+        retainSamples: true,
         throws: true,
     })
     const verifiedIterations = new Map<string, number>()
