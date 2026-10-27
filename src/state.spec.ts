@@ -14,7 +14,7 @@ describe('state', () => {
         
         expect(count()).toBe(newValue)
         jest.advanceTimersToNextTimer()
-        expect(onUpdate).toBeCalledTimes(1)
+        expect(onUpdate).toHaveBeenCalledTimes(1)
         
         onUpdate.mockClear()
         unsub()
@@ -23,7 +23,7 @@ describe('state', () => {
         
         jest.advanceTimersToNextTimer()
         expect(count()).toBe(newValue)
-        expect(onUpdate).toBeCalledTimes(0)
+        expect(onUpdate).toHaveBeenCalledTimes(0)
     })
     
     it('should batch update', () => {
@@ -35,7 +35,7 @@ describe('state', () => {
         setLimit(10)
         jest.advanceTimersToNextTimer()
         
-        expect(onUpdate).toBeCalledTimes(1)
+        expect(onUpdate).toHaveBeenCalledTimes(1)
     })
 })
 
@@ -48,14 +48,14 @@ describe('effect', () => {
             valueSpy(count())
         })
         
-        expect(valueSpy).toBeCalledTimes(1)
-        expect(valueSpy).toBeCalledWith(0)
+        expect(valueSpy).toHaveBeenCalledTimes(1)
+        expect(valueSpy).toHaveBeenCalledWith(0)
         
         setCount(1)
         jest.advanceTimersToNextTimer()
         
-        expect(valueSpy).toBeCalledTimes(2)
-        expect(valueSpy).toBeCalledWith(1)
+        expect(valueSpy).toHaveBeenCalledTimes(2)
+        expect(valueSpy).toHaveBeenCalledWith(1)
         
         valueSpy.mockClear()
         unsub()
@@ -63,7 +63,7 @@ describe('effect', () => {
         setCount(2)
         jest.advanceTimersToNextTimer()
         
-        expect(valueSpy).toBeCalledTimes(0)
+        expect(valueSpy).toHaveBeenCalledTimes(0)
     })
 
     it('should run returned cleanup functions before reruns and disposal', () => {
@@ -144,7 +144,7 @@ describe('effect', () => {
         setOffset(3)
         jest.advanceTimersToNextTimer()
 
-        expect(valueSpy).toBeCalledTimes(2)
+        expect(valueSpy).toHaveBeenCalledTimes(2)
         expect(valueSpy).toHaveBeenLastCalledWith(1, 2, 3)
     })
     
@@ -161,18 +161,18 @@ describe('effect', () => {
             })
         })
         
-        expect(valueSpy1).toBeCalledTimes(1)
-        expect(valueSpy1).toBeCalledWith(0)
-        expect(valueSpy2).toBeCalledTimes(1)
-        expect(valueSpy2).toBeCalledWith(0)
+        expect(valueSpy1).toHaveBeenCalledTimes(1)
+        expect(valueSpy1).toHaveBeenCalledWith(0)
+        expect(valueSpy2).toHaveBeenCalledTimes(1)
+        expect(valueSpy2).toHaveBeenCalledWith(0)
         
         setCount(1)
         jest.advanceTimersToNextTimer()
 
-        expect(valueSpy1).toBeCalledTimes(2)
-        expect(valueSpy1).toBeCalledWith(1)
-        expect(valueSpy2).toBeCalledTimes(2)
-        expect(valueSpy2).toBeCalledWith(0)
+        expect(valueSpy1).toHaveBeenCalledTimes(2)
+        expect(valueSpy1).toHaveBeenCalledWith(1)
+        expect(valueSpy2).toHaveBeenCalledTimes(2)
+        expect(valueSpy2).toHaveBeenCalledWith(0)
 
         valueSpy1.mockClear()
         valueSpy2.mockClear()
@@ -181,14 +181,14 @@ describe('effect', () => {
         setCount(1)
         jest.advanceTimersToNextTimer()
 
-        expect(valueSpy1).toBeCalledTimes(0)
-        expect(valueSpy2).toBeCalledTimes(0)
+        expect(valueSpy1).toHaveBeenCalledTimes(0)
+        expect(valueSpy2).toHaveBeenCalledTimes(0)
 
         setTotal(10)
         jest.advanceTimersToNextTimer()
 
-        expect(valueSpy1).toBeCalledTimes(0)
-        expect(valueSpy2).toBeCalledTimes(0)
+        expect(valueSpy1).toHaveBeenCalledTimes(0)
+        expect(valueSpy2).toHaveBeenCalledTimes(0)
     })
     
     it('should work correctly when nested for same values', () => {
@@ -203,18 +203,18 @@ describe('effect', () => {
             })
         })
         
-        expect(valueSpy1).toBeCalledTimes(1)
-        expect(valueSpy1).toBeCalledWith(0)
-        expect(valueSpy2).toBeCalledTimes(1)
-        expect(valueSpy2).toBeCalledWith(0)
+        expect(valueSpy1).toHaveBeenCalledTimes(1)
+        expect(valueSpy1).toHaveBeenCalledWith(0)
+        expect(valueSpy2).toHaveBeenCalledTimes(1)
+        expect(valueSpy2).toHaveBeenCalledWith(0)
         
         setCount(1)
         jest.advanceTimersToNextTimer()
 
-        expect(valueSpy1).toBeCalledTimes(2)
-        expect(valueSpy1).toBeCalledWith(1)
-        expect(valueSpy2).toBeCalledTimes(2)
-        expect(valueSpy2).toBeCalledWith(1)
+        expect(valueSpy1).toHaveBeenCalledTimes(2)
+        expect(valueSpy1).toHaveBeenCalledWith(1)
+        expect(valueSpy2).toHaveBeenCalledTimes(2)
+        expect(valueSpy2).toHaveBeenCalledWith(1)
 
         valueSpy1.mockClear()
         valueSpy2.mockClear()
@@ -223,8 +223,8 @@ describe('effect', () => {
         setCount(2)
         jest.advanceTimersToNextTimer()
 
-        expect(valueSpy1).toBeCalledTimes(0)
-        expect(valueSpy2).toBeCalledTimes(0)
+        expect(valueSpy1).toHaveBeenCalledTimes(0)
+        expect(valueSpy2).toHaveBeenCalledTimes(0)
     })
     
     it('should work correctly when there is a conditional state', () => {

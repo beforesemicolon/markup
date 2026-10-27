@@ -7,7 +7,7 @@ describe('or', () => {// @ts-ignore
 		expect(or(true, true, true)()).toBe(true)
 		expect(or(false, false, false)()).toBe(false)
 		expect(or(false, false, true)()).toBe(true)
-		expect(() => or(true)).toThrowError('The "or" helper requires at least two arguments.')
+		expect(() => or(true)).toThrow('The "or" helper requires at least two arguments.')
 		expect(or(() => true, () => false)()).toBe(true)
 		expect(or(() => false, () => false)()).toBe(false)
 	})
