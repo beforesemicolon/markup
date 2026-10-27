@@ -82,6 +82,7 @@
         "isomorphic-dompurify": "^4.0.0",
         "jest": "^30.0.0",
         "jest-environment-jsdom": "^30.3.0",
+        "jest-util": "^30.5.1",
         "jsdom": "^25.0.1",
         "marked": "^18.0.0",
         "marked-highlight": "^2.1.4",

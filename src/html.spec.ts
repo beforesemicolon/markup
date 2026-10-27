@@ -567,7 +567,7 @@ describe('html', () => {
 			expect(
 				() => html`
 				<button onclick="${2}">click me</button>`.render(document.body)
-			).toThrowError(
+			).toThrow(
 				'Handler for event "onclick" is not a function. Found "2".'
 			)
 		})
@@ -584,9 +584,9 @@ describe('html', () => {
 			customElements.define('two-comp', TwoTestComp)
 			
 			expect(() => html`
-			<one-comp one="${2}"></one-comp>`.render(document.body)).not.toThrowError()
+			<one-comp one="${2}"></one-comp>`.render(document.body)).not.toThrow()
 			expect(() => html`
-			<two-comp one="${2}"></two-comp>`.render(document.body)).toThrowError(
+			<two-comp one="${2}"></two-comp>`.render(document.body)).toThrow(
 				'Handler for event "one" is not a function. Found "2".'
 			)
 		})
@@ -720,7 +720,7 @@ describe('html', () => {
 		it('should throw if injected with invalid attr', () => {
 			const disabled = 'disabled'
 			
-			expect(() => html`<button ${disabled}></button>`).toThrowError('Invalid attribute object provided: disabled')
+			expect(() => html`<button ${disabled}></button>`).toThrow('Invalid attribute object provided: disabled')
 		})
 		
 		it('class name as value', () => {

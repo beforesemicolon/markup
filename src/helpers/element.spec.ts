@@ -108,7 +108,7 @@ describe('element', () => {
     })
     
     it('should throw in no name provided', () => {
-        expect(() => element('')).toThrowError('Invalid tagName => ')
+        expect(() => element('')).toThrow('Invalid tagName => ')
     })
     
     it('should pass data to WC', () => {
