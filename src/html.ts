@@ -712,6 +712,27 @@ type ChildRuntime = {
     transferred?: WeakSet<HtmlTemplate>
 }
 
+type EventCallback = (this: EventTarget, event: Event) => void
+type EventOptionsSource = boolean | object | null | undefined
+
+type EventValue = {
+    callback: EventCallback
+    options: EventOptionsSource
+}
+
+type EventRegistration = {
+    capture: boolean
+    passive: boolean
+    signal?: AbortSignal
+}
+
+type EventBinding = EventValue & {
+    listener: EventListener
+    registration: EventRegistration
+    once: boolean
+    active: boolean
+}
+
 type Runtime =
     | ChildRuntime
     | {
@@ -734,8 +755,7 @@ type Runtime =
           name: string
           eventName: string
           value: number
-          fn?: EventListener
-          options?: boolean | AddEventListenerOptions
+          event?: EventBinding
           asProperty: boolean
           current?: unknown
       }
@@ -752,13 +772,7 @@ type Runtime =
           value: number
           blocked: Set<string>
           current: Map<string, unknown>
-          events: Map<
-              string,
-              {
-                  fn: EventListener
-                  options?: boolean | AddEventListenerOptions
-              }
-          >
+          events: Map<string, EventBinding>
       }
 
 const normalizeItem = (value: unknown): Item => {
@@ -1123,21 +1137,167 @@ const mountFragment = (
     else insert()
 }
 
-const getEventValue = (raw: unknown, name: string) => {
-    const event = Array.isArray(raw) ? raw : undefined
-    const fn = event ? event[0] : raw
-    const options = event?.[1]
+const isEventCallback = (value: unknown): value is EventCallback =>
+    typeof value === 'function'
 
-    if (typeof fn !== 'function') {
+const isEventOptionsSource = (value: unknown): value is EventOptionsSource =>
+    value === undefined ||
+    value === null ||
+    typeof value === 'boolean' ||
+    (typeof value === 'object' && value !== null)
+
+const isAbortSignal = (value: unknown): value is AbortSignal =>
+    typeof value === 'object' &&
+    value !== null &&
+    'aborted' in value &&
+    typeof value.aborted === 'boolean' &&
+    'addEventListener' in value &&
+    typeof value.addEventListener === 'function'
+
+const getEventValue = (raw: unknown, name: string): EventValue => {
+    const event = Array.isArray(raw) ? raw : undefined
+    const callback: unknown = event ? event[0] : raw
+    const options: unknown = event?.[1]
+
+    if (!isEventCallback(callback)) {
         throw new Error(
-            `Handler for event "${name}" is not a function. Found "${fn}".`
+            `Handler for event "${name}" is not a function. Found "${callback}".`
+        )
+    }
+    if (!isEventOptionsSource(options)) {
+        throw new Error(
+            `Options for event "${name}" must be a boolean or object. Found "${options}".`
         )
     }
 
     return {
-        fn: fn as EventListener,
-        options: options as boolean | AddEventListenerOptions | undefined,
+        callback,
+        options,
     }
+}
+
+const getEventRegistration = (
+    options: EventOptionsSource,
+    name: string
+): EventRegistration & { once: boolean } => {
+    if (
+        typeof options === 'boolean' ||
+        options === undefined ||
+        options === null
+    ) {
+        return {
+            capture: typeof options === 'boolean' ? options : false,
+            passive: false,
+            once: false,
+        }
+    }
+
+    const signal: unknown = 'signal' in options ? options.signal : undefined
+    if (signal !== undefined && signal !== null && !isAbortSignal(signal)) {
+        throw new Error(`Invalid AbortSignal for event "${name}".`)
+    }
+
+    return {
+        capture: 'capture' in options && Boolean(options.capture),
+        passive: 'passive' in options && Boolean(options.passive),
+        once: 'once' in options && Boolean(options.once),
+        ...(signal ? { signal } : {}),
+    }
+}
+
+const getNativeEventOptions = (
+    registration: EventRegistration
+): boolean | AddEventListenerOptions => {
+    if (!registration.passive && !registration.signal) {
+        return registration.capture
+    }
+    return {
+        capture: registration.capture,
+        passive: registration.passive,
+        ...(registration.signal ? { signal: registration.signal } : {}),
+    }
+}
+
+const sameEventRegistration = (
+    left: EventRegistration,
+    right: EventRegistration
+): boolean =>
+    left.capture === right.capture &&
+    left.passive === right.passive &&
+    left.signal === right.signal
+
+const attachEvent = (
+    node: Element,
+    eventName: string,
+    name: string,
+    value: EventValue
+): EventBinding => {
+    const { once, ...registration } = getEventRegistration(value.options, name)
+    const binding: EventBinding = {
+        ...value,
+        registration,
+        once,
+        active: !registration.signal?.aborted,
+        listener: function (this: EventTarget, event: Event): void {
+            if (!binding.active) return
+            if (binding.once) binding.active = false
+            binding.callback.call(this, event)
+        },
+    }
+    node.addEventListener(
+        eventName,
+        binding.listener,
+        getNativeEventOptions(registration)
+    )
+    return binding
+}
+
+const updateEvent = (
+    node: Element,
+    eventName: string,
+    name: string,
+    binding: EventBinding,
+    value: EventValue
+): void => {
+    const { once, ...registration } = getEventRegistration(value.options, name)
+    const registrationChanged = !sameEventRegistration(
+        binding.registration,
+        registration
+    )
+    if (registrationChanged) {
+        node.removeEventListener(
+            eventName,
+            binding.listener,
+            binding.registration.capture
+        )
+    }
+
+    binding.callback = value.callback
+    binding.options = value.options
+    binding.registration = registration
+    binding.once = once
+    binding.active = !registration.signal?.aborted
+
+    if (registrationChanged) {
+        node.addEventListener(
+            eventName,
+            binding.listener,
+            getNativeEventOptions(registration)
+        )
+    }
+}
+
+const detachEvent = (
+    node: Element,
+    eventName: string,
+    binding: EventBinding
+): void => {
+    binding.active = false
+    node.removeEventListener(
+        eventName,
+        binding.listener,
+        binding.registration.capture
+    )
 }
 
 export class HtmlTemplate {
@@ -1720,26 +1880,29 @@ export class HtmlTemplate {
                 return true
             }
 
-            const event = Array.isArray(raw) ? raw : undefined
-            const fn = event ? event[0] : raw
-            const options = event?.[1] as
-                boolean | AddEventListenerOptions | undefined
-            if (typeof fn !== 'function') {
-                throw new Error(
-                    `Handler for event "${part.name}" is not a function. Found "${fn}".`
-                )
+            const value = getEventValue(raw, part.name)
+            if (
+                part.event?.callback === value.callback &&
+                part.event.options === value.options
+            ) {
+                return false
             }
-            if (fn === part.fn && options === part.options) return false
-            if (part.fn) {
-                part.node.removeEventListener(
+            if (part.event) {
+                updateEvent(
+                    part.node,
                     part.eventName,
-                    part.fn,
-                    part.options
+                    part.name,
+                    part.event,
+                    value
+                )
+            } else {
+                part.event = attachEvent(
+                    part.node,
+                    part.eventName,
+                    part.name,
+                    value
                 )
             }
-            part.node.addEventListener(part.eventName, fn, options)
-            part.fn = fn
-            part.options = options
             return true
         }
 
@@ -1778,11 +1941,7 @@ export class HtmlTemplate {
             } else if (name.startsWith('on')) {
                 const event = part.events.get(key)
                 if (event) {
-                    part.node.removeEventListener(
-                        name.slice(2),
-                        event.fn,
-                        event.options
-                    )
+                    detachEvent(part.node, name.slice(2), event)
                 }
                 part.events.delete(key)
             } else {
@@ -1807,20 +1966,15 @@ export class HtmlTemplate {
                 shouldUseEventListener(part.node, name)
             ) {
                 const oldEvent = part.events.get(key)
+                const event = getEventValue(value, name)
                 if (oldEvent) {
-                    part.node.removeEventListener(
-                        name.slice(2),
-                        oldEvent.fn,
-                        oldEvent.options
+                    updateEvent(part.node, name.slice(2), name, oldEvent, event)
+                } else {
+                    part.events.set(
+                        key,
+                        attachEvent(part.node, name.slice(2), name, event)
                     )
                 }
-                const event = getEventValue(value, name)
-                part.node.addEventListener(
-                    name.slice(2),
-                    event.fn,
-                    event.options
-                )
-                part.events.set(key, event)
             } else {
                 setDynamicValue(part.node, name, value)
             }
