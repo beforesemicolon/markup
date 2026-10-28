@@ -63,7 +63,7 @@
         "@types/jest": "^30.0.0",
         "@types/jsdom": "^21.1.6",
         "@types/jsdom-global": "^3.0.7",
-        "@types/node": "^24.0.0",
+        "@types/node": "^26.0.0",
         "@types/node-sass": "^4.11.7",
         "@typescript-eslint/eslint-plugin": "^8.72.0",
         "@typescript-eslint/parser": "^8.72.0",
