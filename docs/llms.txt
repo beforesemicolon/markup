@@ -306,6 +306,11 @@ recognized. Deferred mixed event bindings are rejected before any binding is
 evaluated or written. Static template source and `unsafeHTML` remain
 trusted HTML inputs; this is not a sanitizer for arbitrary markup.
 
+Mounted event bindings keep one delegating DOM listener when only the callback
+or `once` value changes. The latest callback is invoked, and a new binding
+rearms `once`. Changes to `capture`, `passive`, or `signal` replace the native
+registration so those browser-managed options keep their normal semantics.
+
 ```javascript
 const save = (event) => {
     event.preventDefault()

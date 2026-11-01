@@ -75,6 +75,110 @@ test('inert=false restores native keyboard access to the subtree', async ({
     await expect(page.locator('#inside')).toBeFocused()
 })
 
+test('event rebinding preserves native once, capture, passive, and signal behavior', async ({
+    page,
+}) => {
+    await loadMarkup(page)
+    const result = await page.evaluate(() => {
+        const { html } = window.Markup
+        const firstController = new AbortController()
+        const order: string[] = []
+        let firstCalls = 0
+        let nextCalls = 0
+        const create = (
+            handler: EventListener,
+            options: AddEventListenerOptions
+        ): ReturnType<typeof html> =>
+            html`<section onclick=${[handler, options]}>
+                <button>button</button>
+            </section>`
+        const view = create(
+            () => {
+                firstCalls += 1
+            },
+            { once: true, signal: firstController.signal }
+        ).render(document.body)
+        const button = document.querySelector('button')!
+        button.addEventListener('click', () => order.push('button'))
+
+        button.click()
+        button.click()
+        view.__rebind__(
+            create(
+                () => {
+                    nextCalls += 1
+                },
+                { once: true, signal: firstController.signal }
+            )
+        )
+        button.click()
+        button.click()
+
+        order.length = 0
+        view.__rebind__(
+            create(
+                (event) => {
+                    order.push('parent-passive')
+                    event.preventDefault()
+                },
+                { passive: true, signal: firstController.signal }
+            )
+        )
+        const passiveEvent = new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+        })
+        button.dispatchEvent(passiveEvent)
+
+        const passiveOrder = [...order]
+        order.length = 0
+        const activeController = new AbortController()
+        view.__rebind__(
+            create(
+                (event) => {
+                    order.push('parent-active')
+                    event.preventDefault()
+                },
+                {
+                    capture: true,
+                    passive: false,
+                    signal: activeController.signal,
+                }
+            )
+        )
+        const activeEvent = new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+        })
+        button.dispatchEvent(activeEvent)
+
+        const activeOrder = [...order]
+        order.length = 0
+        activeController.abort()
+        button.click()
+
+        return {
+            firstCalls,
+            nextCalls,
+            passiveOrder,
+            passivePrevented: passiveEvent.defaultPrevented,
+            activeOrder,
+            activePrevented: activeEvent.defaultPrevented,
+            afterAbort: order,
+        }
+    })
+
+    expect(result).toEqual({
+        firstCalls: 1,
+        nextCalls: 1,
+        passiveOrder: ['button', 'parent-passive'],
+        passivePrevented: false,
+        activeOrder: ['parent-active', 'button'],
+        activePrevented: true,
+        afterAbort: ['button'],
+    })
+})
+
 for (const mode of [
     'browser defaults',
     'fallback without moveBefore',

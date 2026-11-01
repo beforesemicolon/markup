@@ -105,8 +105,8 @@ yarn add @beforesemicolon/markup
 
 ## Use directly in the Browser
 
-This library requires no build step. The CDN browser build is about 12.6 KB
-gzip (36.8 KB uncompressed, measured from `dist/client.js`).
+This library requires no build step. The CDN browser build is about 13.9 KB
+gzip (40.2 KB uncompressed, measured from `dist/client.js`).
 
 ```html
 <!-- Grab the latest version -->
@@ -127,6 +127,9 @@ gzip (36.8 KB uncompressed, measured from `dist/client.js`).
     html`<h1>Hello World</h1>`.render(document.getElementById('app'))
 </script>
 ```
+
+`BFS.MARKUP` exposes the same runtime APIs as the ESM entry point, including
+helpers such as `visible` and trusted-markup utilities such as `unsafeHTML`.
 
 Dynamic values belong in `html` interpolations. Markup applies those values
 without parsing them as HTML:
@@ -173,6 +176,10 @@ custom-element properties such as `one` remain ordinary property bindings.
 Templates can be constructed before the custom element is registered; define
 the element before mounting so those properties can be recognized. Deferred
 mixed event bindings are rejected before any binding is evaluated or written.
+When a mounted binding receives a new handler, Markup updates a stable
+delegating listener instead of removing and adding a DOM listener. `once` is
+rearmed for the new binding, while changes to `capture`, `passive`, or `signal`
+still replace the native registration so browser semantics remain intact.
 
 ## AI and agent context
 
