@@ -1,12 +1,23 @@
-import 'global-jsdom/register'
+import './helpers/register-dom.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
+import { performance as nodePerformance } from 'node:perf_hooks'
+import { setTimeout as nodeSetTimeout } from 'node:timers'
 import { createRepeatCacheSuite } from './helpers/repeat-cache-suite.ts'
 import { createRepeatDomSuite } from './helpers/repeat-dom-suite.ts'
 import {
     countPositionalListWork,
     createPositionalListSuite,
 } from './helpers/positional-list-suite.ts'
+
+test('benchmark DOM setup preserves Node globals and exposes browser APIs', () => {
+    assert.equal(globalThis.performance, nodePerformance)
+    assert.equal(globalThis.setTimeout, nodeSetTimeout)
+    assert.equal(document.defaultView, window)
+    assert.ok(document.createElement('div') instanceof HTMLElement)
+    assert.equal(typeof requestAnimationFrame, 'function')
+    assert.equal(typeof MutationObserver, 'function')
+})
 
 const options = {
     time: 0,
