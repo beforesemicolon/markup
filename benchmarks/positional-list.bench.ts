@@ -1,4 +1,4 @@
-import 'global-jsdom/register'
+import './helpers/register-dom.ts'
 import assert from 'node:assert/strict'
 import { execFile } from 'node:child_process'
 import { createHash } from 'node:crypto'

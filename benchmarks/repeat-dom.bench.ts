@@ -1,4 +1,4 @@
-import 'global-jsdom/register'
+import './helpers/register-dom.ts'
 import { createRepeatDomSuite } from './helpers/repeat-dom-suite.ts'
 import { getEnvironmentInfo } from './helpers/environment.ts'
 import { printReport } from './helpers/report.ts'

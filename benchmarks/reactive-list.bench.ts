@@ -1,4 +1,4 @@
-import 'global-jsdom/register'
+import './helpers/register-dom.ts'
 import assert from 'node:assert/strict'
 import { html, repeat, state } from '../src/index.ts'
 import { generateItems, renderFilesystemLike } from './helpers/fixtures.ts'
