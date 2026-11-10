@@ -870,6 +870,7 @@
                 "a_reactive_layer_over_the_native_web_components_api_keep_markup_s_template_model_while_adding_pr": "原生 Web Components API 之上的反应层。保留 Markup 的模板模型，同时添加props、状态、生命周期和范围样式。",
                 "declarative_routing_as_web_component_tags_compose_pages_nested_layouts_query_routes_and_lazy_loa": "作为 Web 组件标签的声明式路由。无需采用框架路由器即可编写页面、嵌套布局、查询路由和延迟加载视图。",
                 "localization_for_component_first_interfaces_add_locale_scopes_translated_messages_and_formatter": "组件优先接口的本地化。添加区域设置范围、翻译的消息和格式化程序帮助程序，以自然地融入 Markup 驱动的 UI。",
+                "cube_description": "基于 Web 组件的设计系统。使用开箱即用的控件、布局和图表，构建无障碍且支持主题定制的界面。",
                 "why_markup": "`// why markup`",
                 "the_platform_is_the_framework": "平台就是框架。",
                 "web_standards_web_apis_and_modern_javascript_are_all_you_need_markup_just_adds_the_reactivity": "Web 标准、Web API 和现代 JavaScript 就是您所需要的。 Markup 只是增加反应性。",

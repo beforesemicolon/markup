@@ -870,6 +870,7 @@
                 "a_reactive_layer_over_the_native_web_components_api_keep_markup_s_template_model_while_adding_pr": "Une couche réactive sur l'API native Web Components. Conservez le modèle de modèle de Markup tout en ajoutant des props, des états, des cycles de vie et des styles étendus.",
                 "declarative_routing_as_web_component_tags_compose_pages_nested_layouts_query_routes_and_lazy_loa": "Routage déclaratif sous forme de balises de composants Web. Composez des pages, des mises en page imbriquées, des itinéraires de requêtes et des vues à chargement différé sans adopter de routeur de structure.",
                 "localization_for_component_first_interfaces_add_locale_scopes_translated_messages_and_formatter": "Localisation pour les interfaces axées sur les composants. Ajoutez des étendues de paramètres régionaux, des messages traduits et des assistants de formatage qui s'intègrent naturellement dans l'interface utilisateur pilotée par Markup.",
+                "cube_description": "Un système de design basé sur les composants web. Créez des interfaces accessibles et personnalisables avec des contrôles, des mises en page et des graphiques prêts à l’emploi.",
                 "why_markup": "`// why markup`",
                 "the_platform_is_the_framework": "La plateforme est le cadre.",
                 "web_standards_web_apis_and_modern_javascript_are_all_you_need_markup_just_adds_the_reactivity": "Les normes Web, les API Web et le JavaScript moderne sont tout ce dont vous avez besoin. Markup ajoute simplement de la réactivité.",

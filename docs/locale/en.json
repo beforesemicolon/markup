@@ -870,6 +870,7 @@
                 "a_reactive_layer_over_the_native_web_components_api_keep_markup_s_template_model_while_adding_pr": "A reactive layer over the native Web Components API. Keep Markup's template model while adding props, state, lifecycles, and scoped styles.",
                 "declarative_routing_as_web_component_tags_compose_pages_nested_layouts_query_routes_and_lazy_loa": "Declarative routing as web component tags. Compose pages, nested layouts, query routes, and lazy-loaded views without adopting a framework router.",
                 "localization_for_component_first_interfaces_add_locale_scopes_translated_messages_and_formatter": "Localization for component-first interfaces. Add locale scopes, translated messages, and formatter helpers that fit naturally into Markup-driven UI.",
+                "cube_description": "A design system built with web components. Build accessible, themeable interfaces with ready-to-use controls, layouts, and charts.",
                 "why_markup": "`// why markup`",
                 "the_platform_is_the_framework": "The platform is the framework.",
                 "web_standards_web_apis_and_modern_javascript_are_all_you_need_markup_just_adds_the_reactivity": "Web Standards, Web APIs, and modern JavaScript are all you need. Markup just adds the reactivity.",

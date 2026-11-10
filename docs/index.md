@@ -81,6 +81,10 @@ App.render(document.getElementById('app'))
 
 {{t.pages.home.content.localization_for_component_first_interfaces_add_locale_scopes_translated_messages_and_formatter}}
 
+=== product title=Cube package=@beforesemicolon/cube color=accent icon=standards href=https://cube.beforesemicolon.com/
+
+{{t.pages.home.content.cube_description}}
+
 :::
 
 ::: layout landing-features
