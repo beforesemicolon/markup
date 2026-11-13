@@ -59,7 +59,7 @@
         "@beforesemicolon/site-builder": "^1.12.0",
         "@eslint/js": "^10.0.0",
         "@gjsify/esbuild-plugin-transform-ext": "0.3.13",
-        "@playwright/test": "1.65.0",
+        "@playwright/test": "1.65.1",
         "@types/jest": "^30.0.0",
         "@types/jsdom": "^30.0.0",
         "@types/node": "^26.0.0",
