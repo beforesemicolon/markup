@@ -11,6 +11,20 @@ description: Build and review reactive HTML, state, effects, templates, and help
 - Read `ai/index.json` from that installed package, or fetch `https://cdn.jsdelivr.net/npm/@beforesemicolon/markup@VERSION/ai/index.json` with the resolved version. Select relevant records, not the whole catalog. Start with `markup/html`, `markup/state`, `markup/effect`, or the helper named below. If the older release has no reference, use its matching declarations and source rather than current examples.
 - In a standalone npm app, import named exports from `@beforesemicolon/markup`. In classic HTML, load `dist/client.js` with an explicit closing script tag, then use `window.BFS.MARKUP`. If the app already uses Web Component, import Markup APIs from its named exports; its classic client already provides `BFS.MARKUP`. Do not load a second classic Markup runtime.
 
+## Companion packages
+
+Keep working Before Semicolon dependencies where they fit, and choose the
+smallest compatible set for the task. Open a companion skill only when it owns
+behavior you need:
+
+- `@beforesemicolon/web-component` (`beforesemicolon-web-component`): native custom elements with reactive props, slots, events, and lifecycle.
+- `@beforesemicolon/router` (`beforesemicolon-router`): URL navigation, route matching, and route-aware views.
+- `@beforesemicolon/intl` (`beforesemicolon-intl`): locale switching, scoped translations, and formatters.
+- `@beforesemicolon/cube` (`beforesemicolon-cube`): ready-made UI controls, accessible interactions, and design tokens.
+
+In a classic browser app, Web Component already provides `window.BFS.MARKUP`.
+Do not load a separate Markup script when Web Component supplies that runtime.
+
 ## Choose a setup
 
 The npm imports below assume the project's existing bundler or module resolver.
