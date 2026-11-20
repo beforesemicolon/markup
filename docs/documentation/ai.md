@@ -6,6 +6,11 @@ description: '{{t.pages.documentation.ai.meta.ai_first_guide_to_markup_apis_pack
 layout: document
 ---
 
+## Dedicated agent skill
+
+Read or install [the markup skill](https://cdn.jsdelivr.net/npm/@beforesemicolon/markup@1.22.0/skills/beforesemicolon-markup/SKILL.md)
+from the installed npm package. Its path is also in the versioned lookup index.
+
 ## Version-specific lookup
 
 Use the [AI reference index](https://cdn.jsdelivr.net/npm/@beforesemicolon/markup@1.22.0/ai/index.json) for version 1.22.0.

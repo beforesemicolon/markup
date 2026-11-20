@@ -7,6 +7,7 @@ Version: `{{project.version}}`
 Documentation: https://markup.beforesemicolon.com/documentation/
 Complete context: https://markup.beforesemicolon.com/llms-full.txt
 Versioned AI lookup index: https://cdn.jsdelivr.net/npm/@beforesemicolon/markup@{{project.version}}/ai/index.json
+Dedicated agent skill: https://cdn.jsdelivr.net/npm/@beforesemicolon/markup@{{project.version}}/skills/beforesemicolon-markup/SKILL.md
 
 Markup does not require JSX, a virtual DOM, or a build step. Its three primary APIs are `html`, `state`, and `effect`. Use the installed package version and these documents as authoritative; do not substitute React, Lit, Vue, or browser APIs that are not documented here.
 

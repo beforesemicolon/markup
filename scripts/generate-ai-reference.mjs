@@ -235,6 +235,16 @@ export async function generateReference({
     )
     const referenceBase = pinned(pkg.name, pkg.version, 'ai/')
     const repository = pkg.repository.url.replace(/\.git$/, '')
+    const skill = {
+        name: 'beforesemicolon-markup',
+        path: 'skills/beforesemicolon-markup/SKILL.md',
+    }
+    const skillDocument = await readFile(skill.path, 'utf8')
+    assert(
+        skillDocument.startsWith(`---\nname: ${skill.name}\ndescription: `) &&
+            skillDocument.indexOf('\n---\n', 4) !== -1,
+        `Missing or invalid skill frontmatter: ${skill.path}`
+    )
     const out = resolve('ai')
     await rm(out, { recursive: true, force: true })
     await mkdir(join(out, 'records'), { recursive: true })
@@ -278,6 +288,7 @@ ${classic}
         repository,
         ...(sourceRef && { sourceRef }),
         referenceUrl: `${referenceBase}index.json`,
+        skill,
         exports: { [pkg.name]: [...accepted.keys()].sort() },
         runtimeExports: [...runtime].sort(),
         classic: { scripts: [script], globals: Object.values(globals).sort() },

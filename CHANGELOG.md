@@ -7,3 +7,4 @@
   runtime bundles.
 - Add runnable npm and classic browser examples with the same implementation.
 - Correct the installation guide so classic script tags use an explicit end tag.
+- Ship one dedicated agent skill with the package, linked in the AI index.

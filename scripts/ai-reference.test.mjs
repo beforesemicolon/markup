@@ -39,6 +39,15 @@ test('the packed index, records, examples, and old entry points agree', async ()
 
     assert.equal(index.package, pkg.name)
     assert.equal(index.version, pkg.version)
+    assert.equal(index.skill.name, `beforesemicolon-${pkg.name.split('/')[1]}`)
+    assert.equal(index.skill.path, `skills/${index.skill.name}/SKILL.md`)
+    assert(packed.has(index.skill.path))
+    const installedSkill = await read(index.skill.path)
+    assert(
+        installedSkill.startsWith(
+            `---\nname: ${index.skill.name}\ndescription: `
+        )
+    )
     assert.equal(
         index.referenceUrl,
         `https://cdn.jsdelivr.net/npm/${pkg.name}@${pkg.version}/ai/index.json`
