@@ -42,3 +42,6 @@ bundle-size-report/
 playwright-report/
 test-results/
 
+
+# Built static AI reference (included by npm pack)
+/ai/

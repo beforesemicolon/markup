@@ -1,6 +1,6 @@
 {
     "name": "@beforesemicolon/markup",
-    "version": "1.21.0",
+    "version": "1.22.0",
     "description": "Reactive HTML Templating System",
     "engines": {
         "node": ">=22.13.0",
@@ -36,7 +36,8 @@
         "local:serve:zh": "npx http-server ./website/zh -p 8081",
         "local:serve:es": "npx http-server ./website/es -p 8082",
         "local:serve:pt": "npx http-server ./website/pt -p 8083",
-        "local:serve:fr": "npx http-server ./website/fr -p 8084"
+        "local:serve:fr": "npx http-server ./website/fr -p 8084",
+        "test:ai-reference": "node --test scripts/ai-reference.test.mjs"
     },
     "author": "Elson Correia",
     "license": "BSD-3-Clause",

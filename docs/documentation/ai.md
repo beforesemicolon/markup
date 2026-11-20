@@ -6,6 +6,14 @@ description: '{{t.pages.documentation.ai.meta.ai_first_guide_to_markup_apis_pack
 layout: document
 ---
 
+## Version-specific lookup
+
+Use the [AI reference index](https://cdn.jsdelivr.net/npm/@beforesemicolon/markup@1.22.0/ai/index.json) for version 1.22.0.
+Replace the version in the URL with the installed version. Select a record path
+from the index to read exact exports, script order, examples, and source links.
+The same files are under `ai/` in the npm tarball. If a release predates this
+reference, use its published declarations and corresponding release source.
+
 ## {{t.pages.documentation.ai.content.ai_guide}}
 
 {{t.pages.documentation.ai.content.use_this_page_first_if_you_are_an_ai_agent_scanning_the_docs}}

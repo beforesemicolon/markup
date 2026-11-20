@@ -43,3 +43,6 @@ assert.deepEqual(
 )
 assert.equal(typeof browserWindow.BFS.MARKUP.visible, 'function')
 assert.equal(typeof browserWindow.BFS.MARKUP.unsafeHTML, 'function')
+
+// Read the built entries so the reference tracks the actual packed API.
+await import('./scripts/ai-reference.mjs')
