@@ -19,6 +19,28 @@ Read the smallest relevant guide or API page. Prefer the facts in this bundle
 when it matches the project version. If the app uses a different version,
 install the matching skill bundle before depending on a behavior.
 
+## Required gates before editing
+
+1. **Reuse first.** Inspect the project's existing components, templates,
+   selectors, state owners, and public component APIs for the requested
+   behavior. Reuse a matching implementation. Use supported props, slots,
+   variants, and events before writing a wrapper or duplicate CSS. Keep native
+   semantics where they belong. Use the smallest compatible set of packages.
+2. **Use the installed Markup helpers first.** Match each reactive conditional,
+   repeated view, nested read, comparison, and boolean expression to a public
+   helper. Read the relevant local API example first. Compose helpers when that
+   expresses the same behavior; do not replace them with bespoke getters,
+   ternaries, repeated view maps, or function-detection wrappers.
+3. **Keep data and effects with their owner.** Bind existing getters and
+   handlers directly. For domain calculations the helpers do not express,
+   use a small named pure selector. Keep state writes, subscriptions, and
+   external work outside view evaluation. Attach cleanup before mount.
+
+Before adding custom code, identify the behavior or semantics the built-in
+helpers and existing component API cannot express. Keep the fallback scoped to
+that gap, and verify it. See the [decision rules, before-and-after examples, and
+audit checklist](./references/patterns.md).
+
 ## Find the version and entry point
 
 - Read the installed @beforesemicolon/markup version or its resolved lockfile entry. In classic HTML, inspect the exact loaded script. Do not claim an exact API from an unpinned URL.
@@ -64,15 +86,16 @@ Use HTML semantics and native control names, not JSX conventions. Pass the gette
 
 Choose helpers for these tasks:
 
-| Task                                                   | Helper                                 |
-| ------------------------------------------------------ | -------------------------------------- |
-| Conditional content or a fallback                      | `when(condition, onTrue, onFalse)`     |
-| Render a changing collection                           | `repeat(data, render, { key, empty })` |
-| Read a nested field                                    | `pick(source, 'path.to.field')`        |
-| Test equality, membership, or truthiness               | `is`, `isNot`, `oneOf`, `and`, `or`    |
-| Evaluate a value-or-getter at an API boundary          | `val`                                  |
-| Create a detached element, not a template              | `element`                              |
-| Show a loading branch or defer rendering until visible | `suspense` or `visible`                |
+| Task                                                   | Helper                                             |
+| ------------------------------------------------------ | -------------------------------------------------- |
+| Conditional content or a fallback                      | `when(condition, onTrue, onFalse)`                 |
+| Render a changing collection                           | `repeat(data, render, { key, empty })`             |
+| Read a nested field                                    | `pick(source, 'path.to.field')`                    |
+| Test equality, membership, or truthiness               | `is`, `isNot`, `oneOf`, `and`, `or`                |
+| Compute or transform domain data                       | Named pure selector; then bind or pass to a helper |
+| Evaluate a value-or-getter at an API boundary          | `val`                                              |
+| Create a detached element, not a template              | `element`                                          |
+| Show a loading branch or defer rendering until visible | `suspense` or `visible`                            |
 
 Use a stable unique key, not the array index, for rows that can move. Derive filtered or sorted collections from canonical state without mutating it. Read plain fields directly when the collection item is not itself reactive. Avoid wrapping direct state or attribute bindings solely to coerce values.
 
