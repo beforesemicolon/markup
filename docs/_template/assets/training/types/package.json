@@ -1,0 +1,14 @@
+{
+    "name": "markup-player-types-lab",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "check": "tsc --noEmit"
+    },
+    "dependencies": {
+        "@beforesemicolon/markup": "1.21.0"
+    },
+    "devDependencies": {
+        "typescript": "5.9.3"
+    }
+}

@@ -1,0 +1,126 @@
+:root {
+    color-scheme: light dark;
+    --paper: #f5f7f6;
+    --text: #17251f;
+    --line: #cad7d0;
+    --action: #245741;
+    --contrast: #fff;
+    font:
+        1rem/1.55 system-ui,
+        sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --paper: #15221b;
+        --text: #edf4ec;
+        --line: #46574a;
+        --action: #cee99e;
+        --contrast: #17251f;
+    }
+}
+* {
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+    background: transparent;
+    color: var(--text);
+}
+main {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 0.8rem;
+    padding: clamp(1rem, 4vw, 1.65rem);
+    overflow-wrap: anywhere;
+}
+main > :first-child,
+section > :first-child {
+    margin-top: 0;
+}
+main > :last-child {
+    margin-bottom: 0;
+}
+h2,
+h3,
+h4,
+p {
+    margin: 0.5rem 0;
+}
+h2 {
+    font-size: clamp(1.4rem, 5vw, 2rem);
+    letter-spacing: -0.035em;
+}
+h3 {
+    margin-top: 1rem;
+    font-size: 1.1rem;
+}
+button,
+summary,
+label,
+input,
+audio {
+    font: inherit;
+}
+button {
+    margin: 0.2rem 0.25rem 0.2rem 0;
+    border: 1px solid var(--line);
+    border-radius: 0.45rem;
+    background: transparent;
+    color: var(--text);
+    padding: 0.35rem 0.7rem;
+    cursor: pointer;
+}
+button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+button:hover:enabled,
+button[aria-current='true'] {
+    background: var(--action);
+    color: var(--contrast);
+}
+:focus-visible {
+    outline: 3px solid var(--action);
+    outline-offset: 2px;
+}
+audio {
+    display: block;
+    width: min(100%, 32rem);
+    margin: 0.85rem 0;
+}
+input[type='range'] {
+    max-width: min(15rem, 100%);
+    vertical-align: middle;
+    accent-color: var(--action);
+}
+label {
+    display: block;
+    margin: 0.35rem 0;
+}
+ol,
+ul {
+    padding-inline-start: 1.5rem;
+}
+details,
+section + section,
+playlist-player {
+    display: block;
+}
+details {
+    border-top: 1px solid var(--line);
+    margin-top: 0.8rem;
+    padding-top: 0.7rem;
+}
+summary {
+    cursor: pointer;
+    font-weight: 650;
+}
+pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-size: 0.85rem;
+}
+a {
+    color: var(--action);
+    text-underline-offset: 0.15em;
+}
