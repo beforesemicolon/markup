@@ -4,3 +4,10 @@ docs/**/*.html
 
 # Built static AI reference
 ai/
+
+# Generated offline skill resources (included in npm pack)
+skills/beforesemicolon-markup/references/api/
+skills/beforesemicolon-markup/references/index.md
+skills/beforesemicolon-markup/references/maintainer-guide.md
+skills/beforesemicolon-markup/examples/
+skills/beforesemicolon-markup/manifest.json

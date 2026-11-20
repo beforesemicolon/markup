@@ -9,7 +9,9 @@ layout: document
 ## Dedicated agent skill
 
 Read or install [the markup skill](https://cdn.jsdelivr.net/npm/@beforesemicolon/markup@1.22.0/skills/beforesemicolon-markup/SKILL.md)
-from the installed npm package. Its path is also in the versioned lookup index.
+from the installed npm package. Its path and resource manifest are in the
+versioned lookup index. Install the complete folder for offline access to
+the maintainer guide, all public APIs, and runnable examples.
 
 ## Version-specific lookup
 

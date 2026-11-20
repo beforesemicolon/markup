@@ -6,6 +6,7 @@ import { basename, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { Script, runInNewContext } from 'node:vm'
 import ts from 'typescript'
+import { buildSkillBundle, typedExamples } from './build-skill-bundle.mjs'
 
 const root = process.cwd()
 const json = async (path) => JSON.parse(await readFile(path, 'utf8'))
@@ -238,6 +239,7 @@ export async function generateReference({
     const skill = {
         name: 'beforesemicolon-markup',
         path: 'skills/beforesemicolon-markup/SKILL.md',
+        manifest: 'skills/beforesemicolon-markup/manifest.json',
     }
     const skillDocument = await readFile(skill.path, 'utf8')
     assert(
@@ -338,8 +340,9 @@ ${classic}
             example.npm = { path: npmPath, markup: examples[fixture].markup }
             example.classic = { path: classicPath }
         } else {
-            assert(body, `Missing minimal example: ${id}`)
-            example.npm = `${npm.import}\n\n${body}`
+            const implementation = typeOnly ? typedExamples[name] : body
+            assert(implementation, `Missing minimal example: ${id}`)
+            example.npm = `${npm.import}\n\n${implementation}`
             validateExampleImports(example.npm, accepted, pkg.name, id)
             if (classic) {
                 example.classic = browserCode(names, globals, body)
@@ -398,5 +401,6 @@ ${classic}
         index.records.push({ id, name, summary, path, keywords })
     }
     assert.equal(index.records.length, accepted.size)
+    await buildSkillBundle({ skill, pkg, out, index, pinned })
     await writeJson(join(out, 'index.json'), index)
 }

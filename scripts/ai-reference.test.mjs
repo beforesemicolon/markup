@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process'
 import { access, mkdtemp, readFile, rm } from 'node:fs/promises'
 import test from 'node:test'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join, posix } from 'node:path'
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), 'utf8')
 const json = async (path) => JSON.parse(await read(path))
@@ -42,6 +42,14 @@ test('the packed index, records, examples, and old entry points agree', async ()
     assert.equal(index.skill.name, `beforesemicolon-${pkg.name.split('/')[1]}`)
     assert.equal(index.skill.path, `skills/${index.skill.name}/SKILL.md`)
     assert(packed.has(index.skill.path))
+    assert(packed.has(index.skill.manifest))
+    const manifest = await json(index.skill.manifest)
+    for (const path of manifest.files) {
+        assert(
+            packed.has(`${dirname(index.skill.path)}/${path}`),
+            `Missing packed skill resource: ${path}`
+        )
+    }
     const installedSkill = await read(index.skill.path)
     assert(
         installedSkill.startsWith(
@@ -74,6 +82,45 @@ test('the packed index, records, examples, and old entry points agree', async ()
         }
     }
     assert.deepEqual([...seen].sort(), index.exports[pkg.name])
+})
+
+test('the complete offline skill resolves every linked guide and API example', async () => {
+    const index = await json('ai/index.json')
+    const root = dirname(index.skill.path)
+    const manifest = await json(index.skill.manifest)
+    assert.equal(manifest.schemaVersion, 1)
+    assert.equal(manifest.name, index.skill.name)
+    assert(manifest.files.includes('SKILL.md'))
+    const entries = new Set(manifest.files)
+    assert.equal(entries.size, manifest.files.length)
+    const guides = [
+        'references/index.md',
+        'references/maintainer-guide.md',
+        'references/patterns.md',
+    ]
+    assert(guides.every((guide) => entries.has(guide)))
+    for (const { id, name } of index.records) {
+        const path = `references/api/${name}.md`
+        assert.equal(manifest.coverage[id], path)
+        assert(entries.has(path), `Missing API skill page: ${name}`)
+        const source = await read(`${root}/${path}`)
+        assert.match(source, /## Public signature/)
+        assert.match(source, /## npm example/)
+    }
+    for (const path of entries) {
+        const source = await read(`${root}/${path}`)
+        if (!path.endsWith('.md')) continue
+        for (const [, ref] of source.matchAll(/\[[^\]\n]+\]\(([^)\s]+)\)/g)) {
+            if (/^(https?:|mailto:|#)/.test(ref)) continue
+            const target = posix.normalize(
+                posix.join(posix.dirname(path), ref.split('#')[0])
+            )
+            assert(
+                entries.has(target),
+                `Missing offline reference from ${path}: ${ref}`
+            )
+        }
+    }
 })
 
 test('installation guide uses explicit script end tags', async () => {
