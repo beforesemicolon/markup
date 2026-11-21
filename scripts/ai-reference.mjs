@@ -302,6 +302,15 @@ await generateReference({
     browserRoots: { MARKUP: 'namespace' },
     guidance,
     examples: {
+        'occurrence-board': {
+            title: 'Keep duplicate rows and async work scoped',
+            names: ['html', 'state', 'effect', 'repeat', 'when'],
+            markup: '<main><button id="close-board" type="button">Close board</button><section id="board" aria-label="Occurrence board"></section></main>',
+            body: await readFile(
+                new URL('./ai-examples/occurrence-board.js', import.meta.url),
+                'utf8'
+            ),
+        },
         filter: {
             title: 'Filter a reactive list',
             names: ['html', 'state', 'repeat', 'when', 'pick', 'is'],

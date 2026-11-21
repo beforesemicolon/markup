@@ -57,13 +57,13 @@ updateTodos((prev) => [
 {{t.pages.documentation.utilities.repeat.content.the_repeat_helper_accepts_a_number_among_many_things_this_number_represents_the_number_of_times}}
 
 ```javascript
-html`${repeat(3, html`<spa></span>`)}`
+html`${repeat(3, () => html`<span>Item</span>`)}`.render(document.body)
 ```
 
 {{t.pages.documentation.utilities.repeat.content.the_callback_function_will_be_called_with_numbers_from_1_to_the_number_you_provided_along_with_t}}
 
 ```javascript
-html`${repeat(3, (n, index) => html`<spa>${n} - ${index}</span>`)}`.render(
+html`${repeat(3, (n, index) => html`<span>${n} - ${index}</span>`)}`.render(
     document.body
 )
 // <span>1 - 0</span><span>2 - 1</span><span>3 - 2</span>

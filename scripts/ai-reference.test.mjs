@@ -145,3 +145,26 @@ test('classic HTML uses exact globals and does not load a second runtime', async
         )
     }
 })
+
+test('occurrence board ships both setup modes with the same workflow', async () => {
+    const { skill } = await json('ai/index.json')
+    const manifest = await json(skill.manifest)
+    const example = 'examples/occurrence-board'
+    const npm = await read('ai/' + example + '.js')
+    const classic = await read('ai/' + example + '.html')
+    const local = await read(dirname(skill.path) + '/' + example + '.html')
+    const source = await read('scripts/ai-examples/occurrence-board.js')
+    assert(npm.endsWith(source))
+    assert(classic.includes(source))
+    assert(local.includes(source))
+    assert(local.includes('src="./client.js"'))
+    assert(manifest.files.includes(example + '.js'))
+    assert(manifest.files.includes(example + '.html'))
+})
+
+test('numeric repeat docs use a renderer and well-formed span', async () => {
+    const docs = await read('docs/documentation/utilities/repeat.md')
+    assert.match(docs, /repeat\(3, \(\) => html`<span>Item<\/span>`\)/)
+    assert.match(docs, /repeat\(3, \(n, index\) => html`<span>\$\{n\}/)
+    assert.doesNotMatch(docs, /<spa>/)
+})

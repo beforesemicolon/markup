@@ -373,3 +373,52 @@ string value `"false"` when the ARIA state requires it. For example,
 `const ariaExpanded = when(open, 'true', 'false')` and
 `aria-expanded="${ariaExpanded}"`. This conversion is intentional, not a
 reason to stringify ordinary boolean or numeric attributes.
+
+## Full workflow: duplicate labels, keyed edits, and async detail
+
+Run the [standalone board](../examples/occurrence-board.html) with the local
+client from the [example instructions](../examples/README.md). For npm, use
+[the same code with named imports](../examples/occurrence-board.js) and this
+shell:
+
+```html
+<main>
+    <button id="close-board" type="button">Close board</button>
+    <section id="board" aria-label="Occurrence board"></section>
+</main>
+```
+
+This board tracks two orders named “Mango”. **A label is not an identity.**
+Do not feed duplicate primitives directly to a stateful `repeat` view: an
+implicit value key cannot distinguish occurrences. Do not use the current
+array index either; a filter or reorder changes it. Assign each occurrence a
+stable ID when it enters the source list, store that ID with the data, and
+key each view row on it. Never copy generated IDs after filtering or mint them
+inside a template. If the server provides row IDs, keep those.
+
+1. Keep the full list in one canonical state. A pure selector reads the query
+   and returns only matching rows. Keep edits with the source ID, not in
+   separate row state that disappears when the row is filtered out.
+2. Use a unique visible or accessible name for each individual control when
+   users need to distinguish identical labels. In a real interface prefer a
+   meaningful detail, such as pickup date, to a technical identifier.
+3. Preserve the input node on reorder rather than refocusing an index. Focus
+   a Mango note, select some text, and press **Alt+Up**. The board reverses;
+   the same occurrence remains focused and its selection stays. If filtering
+   removes a focused row, do not promise focus remains on the removed node.
+4. Change Friday's note, filter for Pear, then clear. The Friday edit remains
+   on the same occurrence and both Mango rows return.
+5. Click **View Mango (mango-1)**, then immediately **View Pear (pear-1)**.
+   Pear resolves first; Mango's slow response must not overwrite it. Start
+   another request and close the board. The old response cannot update the
+   departed view.
+
+The loading effect reads the selected ID synchronously. Reordering or editing
+other rows does not start a new request. Each execution
+owns a `current` flag; cleanup invalidates it on rerun and unmount. This
+fixture simulates a transport that may still settle after navigation. With a
+real cancellable request, also pass `new AbortController().signal` to the
+transport and call `abort()` in the same cleanup. Check both success and error
+after cancellation. Do not move this work to a template getter. The outer
+mount hook returns the effect disposer, so reopening the board can create a
+fresh owner without inheriting earlier requests.

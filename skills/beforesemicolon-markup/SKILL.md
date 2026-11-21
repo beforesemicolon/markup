@@ -13,6 +13,7 @@ not need the package website or a network connection to read them.
 - [Offline guide and API index](./references/index.md): one documented page and concrete example for every public runtime and TypeScript export.
 - [Full package maintainer guide](./references/maintainer-guide.md): the extended reference from this release's package source.
 - [Worked patterns and tests](./references/patterns.md): compose realistic interfaces and verify their behavior.
+- [Full occurrence board workflow](./references/patterns.md#full-workflow-duplicate-labels-keyed-edits-and-async-detail): preserve duplicate labels, focus on reorder, and ignore stale detail loads.
 - [Local npm and browser examples](./examples/README.md): copy the installed runtime into the example folder for completely local browser tests.
 
 Read the smallest relevant guide or API page. Prefer the facts in this bundle
