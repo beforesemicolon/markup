@@ -4,6 +4,7 @@ import { access, mkdtemp, readFile, rm } from 'node:fs/promises'
 import test from 'node:test'
 import { tmpdir } from 'node:os'
 import { dirname, join, posix } from 'node:path'
+import { JSDOM } from 'jsdom'
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), 'utf8')
 const json = async (path) => JSON.parse(await read(path))
@@ -123,10 +124,39 @@ test('the complete offline skill resolves every linked guide and API example', a
     }
 })
 
+const externalScriptLocations = (html) => {
+    // Parse as inert HTML: no execution or fetching scripts from the examples.
+    const dom = new JSDOM(html, { includeNodeLocations: true })
+    try {
+        return Array.from(
+            dom.window.document.querySelectorAll('script[src]'),
+            (script) => dom.nodeLocation(script)
+        )
+    } finally {
+        dom.window.close()
+    }
+}
+
 test('installation guide uses explicit script end tags', async () => {
     const docs = await read('docs/documentation/installation.md')
-    assert.match(docs, /<script src="[^"]+"><\/script>/)
-    assert.doesNotMatch(docs, /<script\b[^>]*\/>/)
+    const scripts = Array.from(
+        docs.matchAll(/^```html\r?\n([\s\S]*?)^```[ \t]*$/gm)
+    ).flatMap(([, html]) => externalScriptLocations(html))
+    assert(scripts.length > 0, 'No classic installation examples found')
+    for (const script of scripts) {
+        assert(script?.endTag, 'A classic installation script lacks an end tag')
+    }
+})
+
+test('script locations account for HTML end-tag syntax', () => {
+    const [closed] = externalScriptLocations(
+        '<script src="./client.js"></SCRIPT >'
+    )
+    const [selfClosing] = externalScriptLocations('<script src="./client.js"/>')
+    const [unterminated] = externalScriptLocations('<script src="./client.js">')
+    assert(closed?.endTag)
+    assert(selfClosing?.startTag && !selfClosing.endTag)
+    assert(unterminated?.startTag && !unterminated.endTag)
 })
 
 test('classic HTML uses exact globals and does not load a second runtime', async () => {
@@ -136,7 +166,7 @@ test('classic HTML uses exact globals and does not load a second runtime', async
     const html = await read(`ai/examples/${file}.html`)
     assert.match(html, /const html = window\.BFS\.MARKUP\.html/)
     assert.doesNotMatch(html, /(?:window\.)?BFS\.html\b/)
-    assert.equal(html.match(/<script src="/g)?.length, 1)
+    assert.equal(externalScriptLocations(html).length, 1)
     if (webComponent) {
         assert.match(html, /const WebComponent = window\.BFS\.WebComponent/)
         assert.match(
