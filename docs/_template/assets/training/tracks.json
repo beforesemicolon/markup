@@ -1,0 +1,23 @@
+[
+    {
+        "id": "harbor",
+        "title": "Harbor Lights",
+        "artist": "Course Studio",
+        "src": "/assets/training/media/harbor.mp3",
+        "notes": "A bright plucked phrase in D. Listen for the high answer in the second half."
+    },
+    {
+        "id": "tide",
+        "title": "Slow Tide",
+        "artist": "Course Studio",
+        "src": "/assets/training/media/tide.mp3",
+        "notes": "A slower pulse in A. The rising line returns to the same low note."
+    },
+    {
+        "id": "night",
+        "title": "Night Signal",
+        "artist": "Course Studio",
+        "src": "/assets/training/media/night.mp3",
+        "notes": "A short higher-register phrase in E. Its quick attack makes the beat easy to hear."
+    }
+]
