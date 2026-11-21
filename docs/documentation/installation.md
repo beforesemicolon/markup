@@ -15,20 +15,19 @@ layout: document
 {{t.pages.documentation.installation.content.this_method_is_the_quickest_loading_option_and_can_be_placed_in_the_head_tag_of_the_document}}
 
 ```html
-<script src="https://unpkg.com/@beforesemicolon/markup/dist/client.js" />
+<script src="https://unpkg.com/@beforesemicolon/markup/dist/client.js"></script>
 ```
 
 {{t.pages.documentation.installation.content.you_may_also_specify_a_specific_version_you_want}}
 
 ```html
-<script src="https://unpkg.com/@beforesemicolon/markup@1.0.0/dist/client.js" />
+<script src="https://unpkg.com/@beforesemicolon/markup@1.22.0/dist/client.js"></script>
 ```
 
 {{t.pages.documentation.installation.content.you_can_use_various_cdn_providers_like_unpkg_jsdelivr}}
 
 ```html
-<script src="https://unpkg.com/@beforesemicolon/markup/dist/client.js" />
-<script src="https://cdn.jsdelivr.net/npm/@beforesemicolon/markup/dist/client.js" />
+<script src="https://cdn.jsdelivr.net/npm/@beforesemicolon/markup/dist/client.js"></script>
 ```
 
 {{t.pages.documentation.installation.content.the_client_cdn_link_will_create_a_global_bfs_markup_variable_you_can_access_for_all_the_internal}}

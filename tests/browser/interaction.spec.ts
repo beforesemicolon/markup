@@ -729,3 +729,64 @@ test('native moves preserve input focus and selection inside a closed shadow roo
         selection: [2, 7, 'backward'],
     })
 })
+
+test('occurrence board keeps duplicate edits, focus and current async details', async ({
+    page,
+}) => {
+    const { readFile } = await import('node:fs/promises')
+    const script = await readFile(
+        new URL(
+            '../../scripts/ai-examples/occurrence-board.js',
+            import.meta.url
+        ),
+        'utf8'
+    )
+    await loadMarkup(page)
+    await page.evaluate(() => {
+        document.body.innerHTML =
+            '<main><button id="close-board" type="button">Close board</button><section id="board" aria-label="Occurrence board"></section></main>'
+    })
+    await page.addScriptTag({
+        content:
+            'const { html, state, effect, repeat, when } = window.Markup;\n' +
+            script,
+    })
+    const filter = page.getByRole('textbox', { name: 'Filter fruit' })
+    const friday = page.getByRole('textbox', { name: 'Note for mango-2' })
+    await friday.fill('Friday update')
+    await friday.evaluate((field: HTMLInputElement) => {
+        field.setSelectionRange(1, 6, 'backward')
+    })
+    await friday.press('Alt+ArrowUp')
+    await expect(page.getByRole('listitem').first()).toContainText('mango-2')
+    await expect(friday).toBeFocused()
+    expect(
+        await friday.evaluate((field: HTMLInputElement) => [
+            field.selectionStart,
+            field.selectionEnd,
+            field.selectionDirection,
+        ])
+    ).toEqual([1, 6, 'backward'])
+
+    await filter.fill('pear')
+    await expect(page.getByRole('listitem')).toHaveCount(1)
+    await page.getByRole('button', { name: 'Clear' }).click()
+    await expect(page.getByRole('listitem')).toHaveCount(3)
+    await expect(friday).toHaveValue('Friday update')
+    await filter.fill('kiwi')
+    await expect(page.getByRole('listitem')).toHaveText('No matches')
+    await page.getByRole('button', { name: 'Clear' }).click()
+
+    // Use the clock to resolve promises in the opposite order to the clicks.
+    await page.clock.install()
+    await page.getByRole('button', { name: 'View Mango (mango-1)' }).click()
+    await page.getByRole('button', { name: 'View Pear (pear-1)' }).click()
+    await page.clock.runFor(50)
+    await expect(page.getByRole('status')).toHaveText('Wednesday pickup')
+    await page.clock.runFor(400)
+    await expect(page.getByRole('status')).toHaveText('Wednesday pickup')
+    await page.getByRole('button', { name: 'View Mango (mango-1)' }).click()
+    await page.getByRole('button', { name: 'Close board' }).click()
+    await page.clock.runFor(400)
+    await expect(page.getByRole('status')).toHaveCount(0)
+})
