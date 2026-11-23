@@ -95,6 +95,7 @@
     },
     "overrides": {
         "html-minifier": "npm:@keep-lts/html-minifier@4.0.1",
-        "minimatch@>=9 <11.0.1": "11.0.9"
+        "minimatch@>=9 <11.0.1": "11.0.9",
+        "glob@>=10.5.0 <11": "13.0.6"
     }
 }
