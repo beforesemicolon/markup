@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { buildModules, buildBrowser } from '@beforesemicolon/builder'
-import { buildDocs } from '@beforesemicolon/site-builder'
+import { buildDocumentation } from './scripts/build-documentation.js'
 import { readFile, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { runInNewContext } from 'node:vm'
@@ -17,7 +17,7 @@ await Promise.all([
             keepNames: false,
         },
     }),
-    buildDocs(),
+    buildDocumentation(),
 ])
 
 await writeFile(

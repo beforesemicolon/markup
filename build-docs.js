@@ -1,12 +1,3 @@
-import { buildDocs } from '@beforesemicolon/site-builder'
+import { buildDocumentation } from './scripts/build-documentation.js'
 
-const run = async () => {
-    try {
-        const isDev = process.env.NODE_ENV === 'development'
-        await buildDocs({ prod: !isDev })
-    } catch (e) {
-        console.error(e)
-    }
-}
-
-run()
+await buildDocumentation({ prod: process.env.NODE_ENV !== 'development' })

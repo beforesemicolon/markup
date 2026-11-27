@@ -15,6 +15,13 @@ export default {
             }
         },
     },
+    scripts: {
+        trainingPreview: {
+            match: 'data-training-step',
+            render: () =>
+                '<script type="module" src="/assets/training/embed.js"></script>',
+        },
+    },
     meta: {
         siteName: 'Markup',
         title: 'Markup by Before Semicolon',
@@ -30,6 +37,21 @@ export default {
         docsEditUrl: 'https://github.com/beforesemicolon/markup/tree/main/docs',
         footerDescription:
             'A reactive HTML templating system for building dynamic UIs with pure JavaScript. No build step. No virtual DOM.',
+        actionLinks: [
+            {
+                label: 'Essential Training',
+                i18n: 'common.navigation.essentialsTraining',
+                routeId: 'essential-training/index',
+                href: '/essential-training/',
+            },
+            {
+                label: 'Documentation',
+                i18n: 'common.navigation.documentation',
+                routeId: 'documentation/index',
+                href: '/documentation',
+                className: 'btn-primary',
+            },
+        ],
         footerGroups: [
             {
                 title: 'Learning Resources',
@@ -42,9 +64,10 @@ export default {
                         href: '/documentation',
                     },
                     {
-                        label: 'Essentials Training',
+                        label: 'Essential Training',
                         i18n: 'common.navigation.essentialsTraining',
-                        href: 'https://www.youtube.com/watch?v=mIr2XglV5nQ&list=PLpWvGP6yhJUgWNiz25vj__CArY9Z0O6ke&index=1',
+                        routeId: 'essential-training/index',
+                        href: '/essential-training/',
                     },
                 ],
             },
