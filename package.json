@@ -96,7 +96,7 @@
     "overrides": {
         "html-minifier": "npm:@keep-lts/html-minifier@4.0.1",
         "test-exclude": {
-            "glob": "13.0.7",
+            "glob": "14.0.6",
             "minimatch": "11.0.9"
         },
         "glob": {
